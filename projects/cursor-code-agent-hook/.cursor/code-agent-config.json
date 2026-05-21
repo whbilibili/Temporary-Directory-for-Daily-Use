@@ -1,0 +1,5 @@
+{
+  "enabled": false,
+  "agent_md_path": "Agent.md",
+  "code_agent_path": ".cursor/code-agent.md"
+}

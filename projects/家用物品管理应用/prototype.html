@@ -1,0 +1,2318 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HomeStock — 家用物品管理</title>
+
+<!-- Fonts: Inter (400, 500, 600) + JetBrains Mono (400, 500) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<!-- Lucide Icons -->
+<link href="https://unpkg.com/lucide-static@1.8.0/font/lucide.css" rel="stylesheet">
+
+<style>
+/* ============================================================
+   TRAE DESIGN SYSTEM — CSS CUSTOM PROPERTIES (DARK MODE)
+   ============================================================ */
+:root {
+  --background: #171B26;
+  --surface1: #262A37;
+  --surface2: #2A2E3E;
+  --surface3: #363B4E;
+  --border: #262A37;
+  --border-visible: #363B4E;
+  --text1: #C9D1D9;
+  --text2: #9599A6;
+  --text3: #737780;
+  --text4: #5C6373;
+  --accent: #10B981;
+  --accent-hover: #059669;
+  --accent-subtle: #022C22;
+  --success: #10B981;
+  --success-bg: #064E3B;
+  --warning: #EB9B61;
+  --warning-bg: #78350F;
+  --error: #CC4B53;
+  --error-bg: #7F1D1D;
+  --secondary: #7563E7;
+  --blue: #387BFF;
+
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', monospace;
+
+  --radius-element: 4px;
+  --radius-control: 6px;
+  --radius-component: 8px;
+  --radius-container: 12px;
+
+  --duration-fast: 120ms;
+  --duration-normal: 180ms;
+  --duration-slow: 300ms;
+  --ease: ease-out;
+
+  --sidebar-width: 240px;
+  --header-height: 56px;
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text1);
+  background: var(--background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body { min-height: 100vh; overflow-x: hidden; }
+
+input, button, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text4); }
+
+/* ============================================================
+   PAGE / VIEW MANAGEMENT
+   ============================================================ */
+.page { display: none; }
+.page.active { display: flex; min-height: 100vh; }
+
+/* ============================================================
+   AUTH PAGES (fullscreen centered — same for web)
+   ============================================================ */
+.auth-page {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(16,185,129,0.04) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(117,99,231,0.04) 0%, transparent 50%),
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+  background-color: var(--background);
+}
+.auth-page.active { display: flex; }
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--surface1);
+  border: 1px solid var(--border-visible);
+  border-radius: var(--radius-container);
+  padding: 40px;
+}
+
+.auth-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 32px;
+}
+.auth-logo-icon {
+  width: 36px;
+  height: 36px;
+  background: var(--accent);
+  border-radius: var(--radius-control);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 18px;
+}
+.auth-logo-text {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text1);
+  letter-spacing: -0.02em;
+}
+
+.auth-title {
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--text1);
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+}
+.auth-subtitle {
+  font-size: 14px;
+  color: var(--text2);
+  margin-bottom: 28px;
+}
+
+/* ============================================================
+   FORM CONTROLS
+   ============================================================ */
+.form-group { margin-bottom: 16px; }
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text2);
+  margin-bottom: 6px;
+}
+.form-input {
+  width: 100%;
+  height: 38px;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  padding: 8px 12px;
+  color: var(--text1);
+  transition: border-color var(--duration-fast) var(--ease), box-shadow var(--duration-fast) var(--ease);
+  outline: none;
+}
+.form-input::placeholder { color: var(--text4); }
+.form-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(16,185,129,0.15);
+}
+.form-select {
+  width: 100%;
+  height: 38px;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  padding: 8px 12px;
+  color: var(--text1);
+  outline: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23737780' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  transition: border-color var(--duration-fast) var(--ease);
+}
+.form-select:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(16,185,129,0.15); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.form-helper { font-size: 12px; color: var(--text3); margin-top: 4px; }
+
+/* Tags Input */
+.tags-input {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 6px 8px;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  min-height: 38px;
+  align-items: center;
+  transition: border-color var(--duration-fast) var(--ease);
+}
+.tags-input:focus-within { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(16,185,129,0.15); }
+.tags-input .tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: var(--surface2);
+  border-radius: var(--radius-element);
+  font-size: 12px;
+  color: var(--text1);
+}
+.tags-input input {
+  flex: 1;
+  min-width: 80px;
+  border: none;
+  background: transparent;
+  color: var(--text1);
+  outline: none;
+  height: 24px;
+}
+.tags-input input::placeholder { color: var(--text4); }
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  padding: 8px 20px;
+  border: none;
+  border-radius: var(--radius-control);
+  font-weight: 500;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease), transform var(--duration-fast) var(--ease);
+  white-space: nowrap;
+}
+.btn:active { transform: scale(0.98); }
+.btn:disabled { opacity: 0.4; pointer-events: none; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-secondary { background: var(--surface1); color: var(--text1); border: 1px solid var(--border-visible); }
+.btn-secondary:hover { background: var(--surface2); }
+.btn-ghost { background: transparent; color: var(--text2); padding: 8px 14px; }
+.btn-ghost:hover { background: var(--surface2); color: var(--text1); }
+.btn-destructive { background: var(--error); color: #fff; }
+.btn-destructive:hover { background: #b33e45; }
+.btn-sm { height: 28px; padding: 4px 12px; font-size: 12px; }
+.btn-block { width: 100%; }
+.btn-icon {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-control);
+  color: var(--text2);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease), color var(--duration-fast) var(--ease);
+}
+.btn-icon:hover { background: var(--surface2); color: var(--text1); }
+
+.auth-footer {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text3);
+}
+.auth-footer a {
+  color: var(--accent);
+  text-decoration: none;
+  cursor: pointer;
+}
+.auth-footer a:hover { text-decoration: underline; }
+
+/* ============================================================
+   ONBOARDING (FAMILY SETUP)
+   ============================================================ */
+.onboard-options { display: flex; flex-direction: column; gap: 12px; margin-top: 24px; }
+.onboard-option {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-component);
+  cursor: pointer;
+  transition: border-color var(--duration-fast) var(--ease), background var(--duration-fast) var(--ease);
+}
+.onboard-option:hover { border-color: var(--accent); background: var(--accent-subtle); }
+.onboard-option-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-control);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.onboard-option-icon.create { background: rgba(16,185,129,0.1); color: var(--accent); }
+.onboard-option-icon.join { background: rgba(56,123,255,0.1); color: var(--blue); }
+.onboard-option-title { font-weight: 500; color: var(--text1); margin-bottom: 2px; }
+.onboard-option-desc { font-size: 13px; color: var(--text3); }
+
+/* ============================================================
+   WEB APP LAYOUT — SIDEBAR + HEADER + MAIN
+   ============================================================ */
+.app-layout {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* --- Sidebar --- */
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--surface1);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+}
+
+.sidebar-logo {
+  height: var(--header-height);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.sidebar-logo-mark {
+  width: 28px;
+  height: 28px;
+  background: var(--accent);
+  border-radius: var(--radius-control);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 14px;
+}
+.sidebar-logo-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text1);
+  letter-spacing: -0.02em;
+}
+
+.sidebar-nav { flex: 1; padding: 12px 8px; overflow-y: auto; }
+
+.sidebar-section-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text4);
+  padding: 16px 12px 6px;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: var(--radius-control);
+  color: var(--text2);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all var(--duration-fast) var(--ease);
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+}
+.sidebar-item i { font-size: 18px; flex-shrink: 0; }
+.sidebar-item:hover { background: var(--surface2); color: var(--text1); }
+.sidebar-item.active {
+  background: var(--accent-subtle);
+  color: var(--accent);
+}
+
+.sidebar-item-badge {
+  margin-left: auto;
+  background: var(--error);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  padding: 1px 6px;
+  border-radius: 10px;
+  min-width: 18px;
+  text-align: center;
+}
+
+.sidebar-footer {
+  padding: 12px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: var(--radius-control);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease);
+}
+.sidebar-user:hover { background: var(--surface2); }
+.sidebar-avatar {
+  width: 32px;
+  height: 32px;
+  background: var(--secondary);
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+.sidebar-user-info { flex: 1; min-width: 0; }
+.sidebar-user-name { font-size: 13px; font-weight: 500; color: var(--text1); }
+.sidebar-user-family { font-size: 11px; color: var(--text3); }
+
+/* --- Main Content Area --- */
+.main-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* Top Header Bar */
+.top-header {
+  height: var(--header-height);
+  background: var(--surface1);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.top-header-title {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text1);
+}
+.top-header-actions { display: flex; align-items: center; gap: 8px; }
+
+.search-box {
+  position: relative;
+  width: 280px;
+}
+.search-box i {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text4);
+  font-size: 16px;
+}
+.search-box input {
+  width: 100%;
+  height: 36px;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  padding: 8px 12px 8px 34px;
+  color: var(--text1);
+  outline: none;
+  transition: border-color var(--duration-fast) var(--ease), box-shadow var(--duration-fast) var(--ease);
+}
+.search-box input::placeholder { color: var(--text4); }
+.search-box input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(16,185,129,0.15); }
+.search-box .search-kbd {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text4);
+  background: var(--surface2);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+/* ============================================================
+   STATS CARDS (4-col on web)
+   ============================================================ */
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.stat-card {
+  background: var(--surface1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-component);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.stat-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text3);
+}
+.stat-value {
+  font-family: var(--font-mono);
+  font-size: 28px;
+  font-weight: 500;
+  color: var(--text1);
+  letter-spacing: -0.02em;
+}
+.stat-value.warning { color: var(--warning); }
+.stat-value.error { color: var(--error); }
+.stat-value.accent { color: var(--accent); }
+.stat-change {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text3);
+}
+
+/* ============================================================
+   FILTER / TOOLBAR BAR
+   ============================================================ */
+.toolbar-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.filter-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+.filter-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: var(--radius-element);
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--surface2);
+  color: var(--text1);
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all var(--duration-fast) var(--ease);
+  white-space: nowrap;
+}
+.filter-tag:hover { background: var(--surface3); }
+.filter-tag.active {
+  background: var(--accent-subtle);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.toolbar-spacer { flex: 1; }
+
+/* ============================================================
+   DATA TABLE (web-style)
+   ============================================================ */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-component);
+  overflow: hidden;
+}
+.data-table thead th {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text3);
+  padding: 10px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface2);
+  white-space: nowrap;
+  user-select: none;
+}
+.data-table thead th.right { text-align: right; }
+.data-table thead th.center { text-align: center; }
+
+.data-table tbody tr {
+  transition: background var(--duration-fast) var(--ease);
+  cursor: default;
+}
+.data-table tbody tr:hover { background: var(--surface2); }
+.data-table tbody tr:not(:last-child) td { border-bottom: 1px solid var(--border); }
+
+.data-table td {
+  padding: 12px 16px;
+  vertical-align: middle;
+}
+.data-table td.right { text-align: right; }
+.data-table td.center { text-align: center; }
+.data-table td.mono {
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+
+/* Status dot */
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+.status-dot.ok { background: var(--success); }
+.status-dot.warn { background: var(--warning); }
+.status-dot.danger { background: var(--error); }
+
+.item-name-cell { display: flex; align-items: center; gap: 10px; }
+.item-name-text { font-weight: 500; color: var(--text1); }
+.item-location { font-size: 12px; color: var(--text3); }
+
+.tag-pill {
+  padding: 2px 8px;
+  border-radius: var(--radius-element);
+  background: var(--surface3);
+  font-size: 11px;
+  color: var(--text2);
+  display: inline-block;
+}
+
+/* Quantity control inline */
+.qty-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.qty-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-control);
+  background: var(--surface2);
+  border: 1px solid var(--border-visible);
+  color: var(--text1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all var(--duration-fast) var(--ease);
+}
+.qty-btn:hover { background: var(--surface3); }
+.qty-btn:active { transform: scale(0.95); }
+.qty-btn:disabled { opacity: 0.3; pointer-events: none; }
+.qty-val {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 500;
+  min-width: 32px;
+  text-align: center;
+}
+.qty-val.ok { color: var(--text1); }
+.qty-val.warn { color: var(--warning); }
+.qty-val.danger { color: var(--error); }
+
+/* ============================================================
+   SHOPPING LIST (web)
+   ============================================================ */
+.shopping-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.shopping-header h2 {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.shopping-summary {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text3);
+}
+
+.shopping-group { margin-bottom: 20px; }
+.shopping-group-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text3);
+  margin-bottom: 8px;
+  padding-left: 4px;
+}
+
+.shopping-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 8px;
+}
+
+.shopping-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--surface1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-component);
+  transition: all var(--duration-fast) var(--ease);
+}
+.shopping-item:hover { border-color: var(--border-visible); }
+.shopping-item.checked { opacity: 0.5; }
+.shopping-item.checked .shopping-item-name { text-decoration: line-through; }
+
+.shopping-checkbox {
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-element);
+  border: 2px solid var(--border-visible);
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all var(--duration-fast) var(--ease);
+}
+.shopping-checkbox.checked {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.shopping-checkbox.checked::after { content: '✓'; font-size: 12px; }
+
+.shopping-item-info { flex: 1; min-width: 0; }
+.shopping-item-name { font-size: 14px; font-weight: 500; color: var(--text1); }
+.shopping-item-detail { font-size: 12px; color: var(--text3); }
+
+.shopping-item-qty {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text2);
+  flex-shrink: 0;
+}
+
+.shopping-source {
+  padding: 2px 8px;
+  border-radius: var(--radius-element);
+  font-size: 11px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+.shopping-source.alert { background: rgba(204,75,83,0.1); color: var(--error); }
+.shopping-source.manual { background: rgba(56,123,255,0.1); color: var(--blue); }
+
+/* ============================================================
+   ALERT CENTER — RIGHT PANEL (web)
+   ============================================================ */
+.alert-panel-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 200;
+  display: none;
+  animation: fadeIn var(--duration-normal) var(--ease);
+}
+.alert-panel-overlay.active { display: block; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+
+.alert-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 400px;
+  max-width: 100%;
+  height: 100%;
+  background: var(--surface1);
+  border-left: 1px solid var(--border);
+  z-index: 201;
+  display: flex;
+  flex-direction: column;
+  animation: slideIn var(--duration-slow) var(--ease);
+}
+.alert-panel-header {
+  height: var(--header-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.alert-panel-header h3 { font-size: 15px; font-weight: 600; }
+.alert-panel-content { flex: 1; overflow-y: auto; padding: 12px; }
+
+.alert-item {
+  display: flex;
+  gap: 12px;
+  padding: 14px;
+  border-radius: var(--radius-component);
+  transition: background var(--duration-fast) var(--ease);
+  cursor: pointer;
+}
+.alert-item:hover { background: var(--surface2); }
+.alert-item + .alert-item { border-top: 1px solid var(--border); }
+
+.alert-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-control);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.alert-icon.low { background: rgba(235,155,97,0.1); color: var(--warning); }
+.alert-icon.out { background: rgba(204,75,83,0.1); color: var(--error); }
+
+.alert-info { flex: 1; }
+.alert-title { font-size: 14px; font-weight: 500; color: var(--text1); margin-bottom: 2px; }
+.alert-desc { font-size: 13px; color: var(--text3); margin-bottom: 10px; }
+.alert-actions { display: flex; gap: 8px; }
+.alert-time { font-size: 11px; color: var(--text4); margin-top: 6px; }
+
+/* ============================================================
+   MODAL
+   ============================================================ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(23,27,38,0.6);
+  backdrop-filter: blur(4px);
+  z-index: 300;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.modal-overlay.active { display: flex; }
+
+.modal {
+  width: 100%;
+  max-width: 520px;
+  max-height: 85vh;
+  background: var(--surface1);
+  border: 1px solid var(--border-visible);
+  border-radius: var(--radius-container);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: modalIn var(--duration-slow) var(--ease);
+}
+@keyframes modalIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border);
+}
+.modal-header h3 { font-size: 16px; font-weight: 600; }
+
+.modal-body { flex: 1; overflow-y: auto; padding: 24px; }
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 14px 24px;
+  border-top: 1px solid var(--border);
+}
+
+/* ============================================================
+   SETTINGS PAGE (web)
+   ============================================================ */
+.settings-layout {
+  max-width: 720px;
+}
+.settings-section {
+  background: var(--surface1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-component);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+.settings-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text3);
+  padding: 14px 20px 8px;
+}
+.settings-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+}
+.settings-item:first-child { border-top: none; }
+.settings-item-label { font-size: 14px; color: var(--text1); }
+.settings-item-desc { font-size: 12px; color: var(--text3); margin-top: 2px; }
+
+/* Toggle Switch */
+.toggle-track {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  background: var(--surface3);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease);
+}
+.toggle-track.on { background: var(--accent); }
+.toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform var(--duration-fast) var(--ease);
+}
+.toggle-track.on .toggle-thumb { transform: translateX(16px); }
+
+/* Family Members */
+.member-list { padding: 8px 20px 16px; }
+.member-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+.member-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+}
+.member-info { flex: 1; }
+.member-name { font-size: 14px; font-weight: 500; color: var(--text1); }
+.member-role { font-size: 12px; color: var(--text3); }
+
+.invite-code-box {
+  margin: 8px 20px 16px;
+  padding: 14px;
+  background: var(--background);
+  border: 1px dashed var(--border-visible);
+  border-radius: var(--radius-control);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.invite-code {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+}
+
+/* ============================================================
+   CHECKOUT DIALOG
+   ============================================================ */
+.checkout-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  background: var(--surface2);
+  border-radius: var(--radius-component);
+  margin-bottom: 8px;
+}
+.checkout-item-info { flex: 1; }
+.checkout-item-name { font-size: 14px; font-weight: 500; color: var(--text1); }
+.checkout-item-cat { font-size: 12px; color: var(--text3); }
+.checkout-qty-input {
+  width: 64px;
+  height: 34px;
+  text-align: center;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  color: var(--text1);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  outline: none;
+}
+.checkout-qty-input:focus { border-color: var(--accent); }
+.checkout-price-input {
+  width: 90px;
+  height: 34px;
+  text-align: right;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  color: var(--text1);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  outline: none;
+  padding-right: 10px;
+}
+.checkout-price-input:focus { border-color: var(--accent); }
+.checkout-price-input::placeholder { color: var(--text4); }
+
+/* ============================================================
+   TAB CONTENT VISIBILITY
+   ============================================================ */
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+  :root { --sidebar-width: 0px; }
+  .sidebar { display: none; }
+  .stats-bar { grid-template-columns: repeat(2, 1fr); }
+  .search-box { width: 200px; }
+}
+
+/* ============================================================
+   USER CENTER POPOVER
+   ============================================================ */
+.user-popover-anchor { position: relative; }
+
+.user-popover {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: var(--surface1);
+  border: 1px solid var(--border-visible);
+  border-radius: var(--radius-container);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.45);
+  z-index: 400;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  animation: popoverIn var(--duration-slow) var(--ease);
+}
+.user-popover.active { display: flex; }
+
+@keyframes popoverIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.user-popover-header {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.user-popover-avatar-wrap {
+  position: relative;
+  cursor: pointer;
+}
+.user-popover-avatar {
+  width: 64px;
+  height: 64px;
+  background: var(--secondary);
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 600;
+  transition: filter var(--duration-fast) var(--ease);
+}
+.user-popover-avatar-wrap:hover .user-popover-avatar {
+  filter: brightness(0.7);
+}
+.user-popover-avatar-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.5);
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease);
+  color: #fff;
+  font-size: 18px;
+}
+.user-popover-avatar-wrap:hover .user-popover-avatar-overlay {
+  opacity: 1;
+}
+.user-popover-avatar-hint {
+  font-size: 10px;
+  color: var(--text3);
+  text-align: center;
+  margin-top: -4px;
+}
+
+.user-popover-body {
+  padding: 8px;
+}
+
+.user-popover-field {
+  padding: 10px 12px;
+  border-radius: var(--radius-control);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease);
+  color: var(--text1);
+  font-size: 13px;
+  font-weight: 500;
+}
+.user-popover-field:hover { background: var(--surface2); }
+.user-popover-field i { font-size: 16px; color: var(--text3); width: 20px; text-align: center; flex-shrink: 0; }
+.user-popover-field-value {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--text3);
+  font-weight: 400;
+}
+
+.user-popover-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 8px;
+}
+
+.user-popover-field.danger { color: var(--error); }
+.user-popover-field.danger i { color: var(--error); }
+.user-popover-field.danger:hover { background: var(--error-bg); }
+
+/* User Center edit inline form within popover */
+.user-edit-row {
+  padding: 10px 12px;
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+}
+.user-edit-row.active { display: flex; }
+.user-edit-row .form-input { height: 34px; font-size: 13px; }
+.user-edit-row .edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+/* User popover backdrop (click outside to close) */
+.user-popover-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 399;
+  display: none;
+}
+.user-popover-backdrop.active { display: block; }
+
+/* ============================================================
+   CONFIRM DIALOG (for destructive actions)
+   ============================================================ */
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(23,27,38,0.6);
+  backdrop-filter: blur(4px);
+  z-index: 500;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.confirm-overlay.active { display: flex; }
+.confirm-dialog {
+  width: 100%;
+  max-width: 380px;
+  background: var(--surface1);
+  border: 1px solid var(--border-visible);
+  border-radius: var(--radius-container);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+  padding: 24px;
+  animation: modalIn var(--duration-slow) var(--ease);
+}
+.confirm-dialog-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text1);
+  margin-bottom: 8px;
+}
+.confirm-dialog-desc {
+  font-size: 13px;
+  color: var(--text2);
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+.confirm-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     AUTH: LOGIN
+     ============================================================ -->
+<div class="auth-page active" id="page-login">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-icon"><i class="icon icon-home"></i></div>
+      <span class="auth-logo-text">HomeStock</span>
+    </div>
+    <h1 class="auth-title">欢迎回来</h1>
+    <p class="auth-subtitle">登录你的账号以管理家庭物品库存</p>
+    <div class="form-group">
+      <label class="form-label">邮箱地址</label>
+      <input class="form-input" type="email" placeholder="you@example.com">
+    </div>
+    <div class="form-group">
+      <label class="form-label">密码</label>
+      <input class="form-input" type="password" placeholder="至少 8 位字符">
+    </div>
+    <button class="btn btn-primary btn-block" onclick="navigate('page-family-setup')" style="margin-top: 12px; height: 40px; font-size: 14px;">登录</button>
+    <p class="auth-footer">还没有账号？<a onclick="navigate('page-register')">立即注册</a></p>
+  </div>
+</div>
+
+<!-- ============================================================
+     AUTH: REGISTER
+     ============================================================ -->
+<div class="auth-page" id="page-register">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-icon"><i class="icon icon-home"></i></div>
+      <span class="auth-logo-text">HomeStock</span>
+    </div>
+    <h1 class="auth-title">创建账号</h1>
+    <p class="auth-subtitle">注册后即可开始管理你的家庭物品</p>
+    <div class="form-group">
+      <label class="form-label">昵称</label>
+      <input class="form-input" type="text" placeholder="你的名字">
+    </div>
+    <div class="form-group">
+      <label class="form-label">邮箱地址</label>
+      <input class="form-input" type="email" placeholder="you@example.com">
+    </div>
+    <div class="form-group">
+      <label class="form-label">密码</label>
+      <input class="form-input" type="password" placeholder="至少 8 位字符">
+    </div>
+    <div class="form-group">
+      <label class="form-label">确认密码</label>
+      <input class="form-input" type="password" placeholder="再次输入密码">
+    </div>
+    <button class="btn btn-primary btn-block" onclick="navigate('page-family-setup')" style="margin-top: 12px; height: 40px; font-size: 14px;">注册</button>
+    <p class="auth-footer">已有账号？<a onclick="navigate('page-login')">返回登录</a></p>
+  </div>
+</div>
+
+<!-- ============================================================
+     AUTH: FAMILY SETUP
+     ============================================================ -->
+<div class="auth-page" id="page-family-setup">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-icon"><i class="icon icon-home"></i></div>
+      <span class="auth-logo-text">HomeStock</span>
+    </div>
+    <h1 class="auth-title">设置家庭空间</h1>
+    <p class="auth-subtitle">创建新的家庭或加入已有家庭</p>
+    <div class="onboard-options">
+      <div class="onboard-option" onclick="navigate('page-create-family')">
+        <div class="onboard-option-icon create"><i class="icon icon-plus"></i></div>
+        <div>
+          <div class="onboard-option-title">创建新家庭</div>
+          <div class="onboard-option-desc">成为管理员，邀请家庭成员加入</div>
+        </div>
+      </div>
+      <div class="onboard-option" onclick="navigate('page-join-family')">
+        <div class="onboard-option-icon join"><i class="icon icon-log-in"></i></div>
+        <div>
+          <div class="onboard-option-title">加入已有家庭</div>
+          <div class="onboard-option-desc">输入邀请码加入家人的空间</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="auth-page" id="page-create-family">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-icon"><i class="icon icon-home"></i></div>
+      <span class="auth-logo-text">HomeStock</span>
+    </div>
+    <h1 class="auth-title">创建家庭空间</h1>
+    <p class="auth-subtitle">给你的家庭空间取个名字</p>
+    <div class="form-group">
+      <label class="form-label">家庭名称</label>
+      <input class="form-input" type="text" placeholder="例如：王家小窝" value="王家小窝">
+    </div>
+    <button class="btn btn-primary btn-block" onclick="navigate('page-app')" style="margin-top: 12px; height: 40px; font-size: 14px;">创建并进入</button>
+    <p class="auth-footer"><a onclick="navigate('page-family-setup')">← 返回上一步</a></p>
+  </div>
+</div>
+
+<div class="auth-page" id="page-join-family">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-icon"><i class="icon icon-home"></i></div>
+      <span class="auth-logo-text">HomeStock</span>
+    </div>
+    <h1 class="auth-title">加入家庭空间</h1>
+    <p class="auth-subtitle">输入家庭管理员发送的邀请码</p>
+    <div class="form-group">
+      <label class="form-label">邀请码</label>
+      <input class="form-input" type="text" placeholder="例如：a3b7c9d2" style="font-family: var(--font-mono); letter-spacing: 0.1em; text-align: center; font-size: 18px; height: 48px;">
+    </div>
+    <button class="btn btn-primary btn-block" onclick="navigate('page-app')" style="margin-top: 12px; height: 40px; font-size: 14px;">加入家庭</button>
+    <p class="auth-footer"><a onclick="navigate('page-family-setup')">← 返回上一步</a></p>
+  </div>
+</div>
+
+
+<!-- ============================================================
+     MAIN APP (WEB LAYOUT)
+     ============================================================ -->
+<div class="page" id="page-app">
+  <div class="app-layout">
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-mark"><i class="icon icon-home" style="font-size:14px;"></i></div>
+        <span class="sidebar-logo-text">HomeStock</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="sidebar-section-label">主要功能</div>
+        <button class="sidebar-item active" onclick="switchTab('inventory', this)">
+          <i class="icon icon-package"></i>
+          <span>库存总览</span>
+        </button>
+        <button class="sidebar-item" onclick="switchTab('shopping', this)">
+          <i class="icon icon-shopping-cart"></i>
+          <span>购物清单</span>
+          <span class="sidebar-item-badge">4</span>
+        </button>
+        <button class="sidebar-item" onclick="toggleAlertPanel()">
+          <i class="icon icon-bell"></i>
+          <span>通知中心</span>
+          <span class="sidebar-item-badge">3</span>
+        </button>
+
+        <div class="sidebar-section-label">管理</div>
+        <button class="sidebar-item" onclick="switchTab('settings', this)">
+          <i class="icon icon-settings"></i>
+          <span>设置</span>
+        </button>
+        <button class="sidebar-item" onclick="switchTab('members', this)">
+          <i class="icon icon-users"></i>
+          <span>家庭成员</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-popover-anchor">
+          <!-- User Popover -->
+          <div class="user-popover" id="user-popover">
+            <div class="user-popover-header">
+              <div class="user-popover-avatar-wrap" onclick="document.getElementById('avatar-upload').click()">
+                <div class="user-popover-avatar" id="user-avatar-large">王</div>
+                <div class="user-popover-avatar-overlay"><i class="icon icon-camera"></i></div>
+                <input type="file" id="avatar-upload" accept="image/*" style="display:none;" onchange="handleAvatarUpload(this)">
+              </div>
+              <div class="user-popover-avatar-hint">点击更换头像</div>
+            </div>
+            <div class="user-popover-body">
+              <!-- Display name -->
+              <div class="user-popover-field" id="field-name" onclick="toggleEditRow('edit-name')">
+                <i class="icon icon-user"></i>
+                <span>修改昵称</span>
+                <span class="user-popover-field-value" id="display-name-val">王小明</span>
+              </div>
+              <div class="user-edit-row" id="edit-name">
+                <input class="form-input" type="text" id="input-name" value="王小明" placeholder="输入新昵称">
+                <div class="edit-actions">
+                  <button class="btn btn-ghost btn-sm" onclick="toggleEditRow('edit-name')">取消</button>
+                  <button class="btn btn-primary btn-sm" onclick="saveName()">保存</button>
+                </div>
+              </div>
+
+              <!-- Password -->
+              <div class="user-popover-field" id="field-password" onclick="toggleEditRow('edit-password')">
+                <i class="icon icon-lock"></i>
+                <span>修改密码</span>
+                <span class="user-popover-field-value">••••••</span>
+              </div>
+              <div class="user-edit-row" id="edit-password">
+                <input class="form-input" type="password" placeholder="当前密码">
+                <input class="form-input" type="password" placeholder="新密码（至少 8 位）">
+                <input class="form-input" type="password" placeholder="确认新密码">
+                <div class="edit-actions">
+                  <button class="btn btn-ghost btn-sm" onclick="toggleEditRow('edit-password')">取消</button>
+                  <button class="btn btn-primary btn-sm" onclick="toggleEditRow('edit-password')">保存</button>
+                </div>
+              </div>
+
+              <div class="user-popover-divider"></div>
+
+              <!-- Logout -->
+              <div class="user-popover-field" onclick="closeUserPopover(); navigate('page-login');">
+                <i class="icon icon-log-out"></i>
+                <span>退出登录</span>
+              </div>
+
+              <!-- Delete Account -->
+              <div class="user-popover-field danger" onclick="showConfirmDialog()">
+                <i class="icon icon-trash-2"></i>
+                <span>注销账号</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="sidebar-user" onclick="toggleUserPopover()">
+            <div class="sidebar-avatar" id="user-avatar-small">王</div>
+            <div class="sidebar-user-info">
+              <div class="sidebar-user-name" id="sidebar-display-name">王小明</div>
+              <div class="sidebar-user-family">王家小窝 · 管理员</div>
+            </div>
+            <i class="icon icon-chevron-up" style="font-size:14px; color:var(--text4);"></i>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ===== MAIN AREA ===== -->
+    <div class="main-area">
+
+      <!-- Top Header -->
+      <header class="top-header">
+        <div class="top-header-title" id="page-title-text">库存总览</div>
+        <div class="top-header-actions">
+          <div class="search-box">
+            <i class="icon icon-search"></i>
+            <input type="text" placeholder="搜索物品…">
+            <span class="search-kbd">⌘K</span>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="toggleModal('modal-add-item')">
+            <i class="icon icon-plus" style="font-size:14px;"></i> 添加物品
+          </button>
+        </div>
+      </header>
+
+      <!-- ===== TAB: INVENTORY ===== -->
+      <div class="main-content tab-content active" id="tab-inventory">
+
+        <!-- Stats -->
+        <div class="stats-bar">
+          <div class="stat-card">
+            <div class="stat-label">总物品</div>
+            <div class="stat-value">24</div>
+            <div class="stat-change">较上周 +2</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">库存正常</div>
+            <div class="stat-value accent">20</div>
+            <div class="stat-change">83.3%</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">库存不足</div>
+            <div class="stat-value warning">3</div>
+            <div class="stat-change">需关注</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">已缺货</div>
+            <div class="stat-value error">1</div>
+            <div class="stat-change">需立即补充</div>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="toolbar-bar">
+          <div class="filter-tags">
+            <span class="filter-tag active">全部 (24)</span>
+            <span class="filter-tag">食品</span>
+            <span class="filter-tag">日用品</span>
+            <span class="filter-tag">药品</span>
+            <span class="filter-tag">家电</span>
+          </div>
+          <div class="toolbar-spacer"></div>
+          <button class="btn btn-ghost btn-sm"><i class="icon icon-sliders" style="font-size:14px;"></i> 筛选</button>
+          <button class="btn btn-ghost btn-sm"><i class="icon icon-download" style="font-size:14px;"></i> 导出</button>
+        </div>
+
+        <!-- Data Table -->
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width: 32px;"></th>
+              <th>物品名称</th>
+              <th>分类</th>
+              <th>存放位置</th>
+              <th class="center">警告线</th>
+              <th class="center">当前库存</th>
+              <th class="center">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="status-dot danger"></span></td>
+              <td><span class="item-name-text">厨房纸巾</span></td>
+              <td><span class="tag-pill">日用品</span></td>
+              <td class="item-location" style="color: var(--text3);">厨房 · 橱柜</td>
+              <td class="center mono" style="color: var(--text3);">3</td>
+              <td class="center">
+                <div class="qty-control">
+                  <button class="qty-btn" disabled>−</button>
+                  <span class="qty-val danger">0 <small style="font-size:11px; color:var(--text3);">卷</small></span>
+                  <button class="qty-btn" onclick="adjustQty(this, 1)">+</button>
+                </div>
+              </td>
+              <td class="center"><button class="btn-icon"><i class="icon icon-more-horizontal"></i></button></td>
+            </tr>
+            <tr>
+              <td><span class="status-dot warn"></span></td>
+              <td><span class="item-name-text">东北大米</span></td>
+              <td><span class="tag-pill">食品</span></td>
+              <td class="item-location" style="color: var(--text3);">厨房 · 储物柜</td>
+              <td class="center mono" style="color: var(--text3);">2</td>
+              <td class="center">
+                <div class="qty-control">
+                  <button class="qty-btn" onclick="adjustQty(this, -1)">−</button>
+                  <span class="qty-val warn">1 <small style="font-size:11px; color:var(--text3);">袋</small></span>
+                  <button class="qty-btn" onclick="adjustQty(this, 1)">+</button>
+                </div>
+              </td>
+              <td class="center"><button class="btn-icon"><i class="icon icon-more-horizontal"></i></button></td>
+            </tr>
+            <tr>
+              <td><span class="status-dot warn"></span></td>
+              <td><span class="item-name-text">洗洁精</span></td>
+              <td><span class="tag-pill">日用品</span></td>
+              <td class="item-location" style="color: var(--text3);">厨房 · 水槽下</td>
+              <td class="center mono" style="color: var(--text3);">2</td>
+              <td class="center">
+                <div class="qty-control">
+                  <button class="qty-btn" onclick="adjustQty(this, -1)">−</button>
+                  <span class="qty-val warn">1 <small style="font-size:11px; color:var(--text3);">瓶</small></span>
+                  <button class="qty-btn" onclick="adjustQty(this, 1)">+</button>
+                </div>
+              </td>
+              <td class="center"><button class="btn-icon"><i class="icon icon-more-horizontal"></i></button></td>
+            </tr>
+            <tr>
+              <td><span class="status-dot warn"></span></td>
+              <td><span class="item-name-text">布洛芬</span></td>
+              <td><span class="tag-pill">药品</span></td>
+              <td class="item-location" style="color: var(--text3);">卫生间 · 药箱</td>
+              <td class="center mono" style="color: var(--text3);">3</td>
+              <td class="center">
+                <div class="qty-control">
+                  <button class="qty-btn" onclick="adjustQty(this, -1)">−</button>
+                  <span class="qty-val warn">2 <small style="font-size:11px; color:var(--text3);">盒</small></span>
+                  <button class="qty-btn" onclick="adjustQty(this, 1)">+</button>
+                </div>
+              </td>
+              <td class="center"><button class="btn-icon"><i class="icon icon-more-horizontal"></i></button></td>
+            </tr>
+            <tr>
+              <td><span class="status-dot ok"></span></td>
+              <td><span class="item-name-text">纯牛奶</span></td>
+              <td><span class="tag-pill">食品</span></td>
+              <td class="item-location" style="color: var(--text3);">厨房 · 冰箱</td>
+              <td class="center mono" style="color: var(--text3);">3</td>
+              <td class="center">
+                <div class="qty-control">
+                  <button class="qty-btn" onclick="adjustQty(this, -1)">−</button>
+                  <span class="qty-val ok">6 <small style="font-size:11px; color:var(--text3);">盒</small></span>
+                  <button class="qty-btn" onclick="adjustQty(this, 1)">+</button>
+                </div>
+              </td>
+              <td class="center"><button class="btn-icon"><i class="icon icon-more-horizontal"></i></button></td>
+            </tr>
+            <tr>
+              <td><span class="status-dot ok"></span></td>
+              <td><span class="item-name-text">洗发水</span></td>
+              <td><span class="tag-pill">日用品</span></td>
+              <td class="item-location" style="color: var(--text3);">卫生间 · 置物架</td>
+              <td class="center mono" style="color: var(--text3);">1</td>
+              <td class="center">
+                <div class="qty-control">
+                  <button class="qty-btn" onclick="adjustQty(this, -1)">−</button>
+                  <span class="qty-val ok">3 <small style="font-size:11px; color:var(--text3);">瓶</small></span>
+                  <button class="qty-btn" onclick="adjustQty(this, 1)">+</button>
+                </div>
+              </td>
+              <td class="center"><button class="btn-icon"><i class="icon icon-more-horizontal"></i></button></td>
+            </tr>
+            <tr>
+              <td><span class="status-dot ok"></span></td>
+              <td><span class="item-name-text">鸡蛋</span></td>
+              <td><span class="tag-pill">食品</span></td>
+              <td class="item-location" style="color: var(--text3);">厨房 · 冰箱</td>
+              <td class="center mono" style="color: var(--text3);">6</td>
+              <td class="center">
+                <div class="qty-control">
+                  <button class="qty-btn" onclick="adjustQty(this, -1)">−</button>
+                  <span class="qty-val ok">12 <small style="font-size:11px; color:var(--text3);">个</small></span>
+                  <button class="qty-btn" onclick="adjustQty(this, 1)">+</button>
+                </div>
+              </td>
+              <td class="center"><button class="btn-icon"><i class="icon icon-more-horizontal"></i></button></td>
+            </tr>
+            <tr>
+              <td><span class="status-dot ok"></span></td>
+              <td><span class="item-name-text">酱油</span></td>
+              <td><span class="tag-pill">食品</span></td>
+              <td class="item-location" style="color: var(--text3);">厨房 · 调料区</td>
+              <td class="center mono" style="color: var(--text3);">1</td>
+              <td class="center">
+                <div class="qty-control">
+                  <button class="qty-btn" onclick="adjustQty(this, -1)">−</button>
+                  <span class="qty-val ok">2 <small style="font-size:11px; color:var(--text3);">瓶</small></span>
+                  <button class="qty-btn" onclick="adjustQty(this, 1)">+</button>
+                </div>
+              </td>
+              <td class="center"><button class="btn-icon"><i class="icon icon-more-horizontal"></i></button></td>
+            </tr>
+            <tr>
+              <td><span class="status-dot ok"></span></td>
+              <td><span class="item-name-text">垃圾袋</span></td>
+              <td><span class="tag-pill">日用品</span></td>
+              <td class="item-location" style="color: var(--text3);">厨房 · 抽屉</td>
+              <td class="center mono" style="color: var(--text3);">2</td>
+              <td class="center">
+                <div class="qty-control">
+                  <button class="qty-btn" onclick="adjustQty(this, -1)">−</button>
+                  <span class="qty-val ok">5 <small style="font-size:11px; color:var(--text3);">卷</small></span>
+                  <button class="qty-btn" onclick="adjustQty(this, 1)">+</button>
+                </div>
+              </td>
+              <td class="center"><button class="btn-icon"><i class="icon icon-more-horizontal"></i></button></td>
+            </tr>
+            <tr>
+              <td><span class="status-dot ok"></span></td>
+              <td><span class="item-name-text">创可贴</span></td>
+              <td><span class="tag-pill">药品</span></td>
+              <td class="item-location" style="color: var(--text3);">卫生间 · 药箱</td>
+              <td class="center mono" style="color: var(--text3);">3</td>
+              <td class="center">
+                <div class="qty-control">
+                  <button class="qty-btn" onclick="adjustQty(this, -1)">−</button>
+                  <span class="qty-val ok">8 <small style="font-size:11px; color:var(--text3);">片</small></span>
+                  <button class="qty-btn" onclick="adjustQty(this, 1)">+</button>
+                </div>
+              </td>
+              <td class="center"><button class="btn-icon"><i class="icon icon-more-horizontal"></i></button></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style="padding: 16px 0; font-size: 12px; color: var(--text4); text-align: center;">
+          显示 10 / 24 项 · <a href="#" style="color: var(--accent); text-decoration: none;">查看全部</a>
+        </div>
+      </div>
+
+      <!-- ===== TAB: SHOPPING LIST ===== -->
+      <div class="main-content tab-content" id="tab-shopping">
+        <div class="shopping-header">
+          <div>
+            <h2 style="font-size: 16px; font-weight: 600; margin-bottom: 2px;">购物清单</h2>
+            <span class="shopping-summary">4 项待购 · 预计 ¥ 120</span>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-secondary btn-sm" onclick="toggleModal('modal-add-shopping')">
+              <i class="icon icon-plus" style="font-size:14px;"></i> 手动添加
+            </button>
+            <button class="btn btn-primary btn-sm" onclick="toggleModal('modal-checkout')">
+              <i class="icon icon-shopping-bag" style="font-size:14px;"></i> 完成购物 · 入库
+            </button>
+          </div>
+        </div>
+
+        <!-- Auto generated -->
+        <div class="shopping-group">
+          <div class="shopping-group-title">库存不足自动生成</div>
+          <div class="shopping-grid">
+            <div class="shopping-item">
+              <div class="shopping-checkbox" onclick="this.classList.toggle('checked'); this.closest('.shopping-item').classList.toggle('checked');"></div>
+              <div class="shopping-item-info">
+                <div class="shopping-item-name">厨房纸巾</div>
+                <div class="shopping-item-detail">日用品 · 建议购买 3 卷</div>
+              </div>
+              <div class="shopping-item-qty">×3</div>
+              <span class="shopping-source alert">缺货</span>
+            </div>
+            <div class="shopping-item">
+              <div class="shopping-checkbox" onclick="this.classList.toggle('checked'); this.closest('.shopping-item').classList.toggle('checked');"></div>
+              <div class="shopping-item-info">
+                <div class="shopping-item-name">东北大米</div>
+                <div class="shopping-item-detail">食品 · 建议购买 2 袋</div>
+              </div>
+              <div class="shopping-item-qty">×2</div>
+              <span class="shopping-source alert">不足</span>
+            </div>
+            <div class="shopping-item">
+              <div class="shopping-checkbox" onclick="this.classList.toggle('checked'); this.closest('.shopping-item').classList.toggle('checked');"></div>
+              <div class="shopping-item-info">
+                <div class="shopping-item-name">洗洁精</div>
+                <div class="shopping-item-detail">日用品 · 建议购买 1 瓶</div>
+              </div>
+              <div class="shopping-item-qty">×1</div>
+              <span class="shopping-source alert">不足</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="shopping-group">
+          <div class="shopping-group-title">手动添加</div>
+          <div class="shopping-grid">
+            <div class="shopping-item">
+              <div class="shopping-checkbox" onclick="this.classList.toggle('checked'); this.closest('.shopping-item').classList.toggle('checked');"></div>
+              <div class="shopping-item-info">
+                <div class="shopping-item-name">有机西兰花</div>
+                <div class="shopping-item-detail">食品 · 周末做沙拉用</div>
+              </div>
+              <div class="shopping-item-qty">×2</div>
+              <span class="shopping-source manual">手动</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== TAB: SETTINGS ===== -->
+      <div class="main-content tab-content" id="tab-settings">
+        <div class="settings-layout">
+          <div class="settings-section">
+            <div class="settings-section-title">家庭空间</div>
+            <div class="settings-item">
+              <div>
+                <div class="settings-item-label">王家小窝</div>
+                <div class="settings-item-desc">创建于 2026-04-20 · 2 位成员</div>
+              </div>
+              <button class="btn btn-sm btn-secondary">编辑</button>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <div class="settings-section-title">偏好设置</div>
+            <div class="settings-item">
+              <div>
+                <div class="settings-item-label">缺货自动加入购物清单</div>
+                <div class="settings-item-desc">库存为 0 时自动添加到待购列表</div>
+              </div>
+              <div class="toggle-track on" onclick="this.classList.toggle('on')">
+                <div class="toggle-thumb"></div>
+              </div>
+            </div>
+            <div class="settings-item">
+              <div>
+                <div class="settings-item-label">默认警告线</div>
+                <div class="settings-item-desc">新物品的默认库存警告值</div>
+              </div>
+              <span style="font-family: var(--font-mono); color: var(--text1); font-size: 15px;">1</span>
+            </div>
+            <div class="settings-item">
+              <div>
+                <div class="settings-item-label">显示已归档物品</div>
+              </div>
+              <div class="toggle-track" onclick="this.classList.toggle('on')">
+                <div class="toggle-thumb"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <div class="settings-section-title">数据与账号</div>
+            <div class="settings-item">
+              <div>
+                <div class="settings-item-label">导出数据</div>
+                <div class="settings-item-desc">以 JSON/CSV 格式导出所有库存数据</div>
+              </div>
+              <button class="btn btn-sm btn-secondary"><i class="icon icon-download" style="font-size:14px;"></i> 导出</button>
+            </div>
+          </div>
+
+          <div style="text-align: center; margin-top: 32px; font-family: var(--font-mono); font-size: 11px; color: var(--text4);">
+            HomeStock v1.0.0 · Prototype · Trae Design System
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== TAB: MEMBERS ===== -->
+      <div class="main-content tab-content" id="tab-members">
+        <div class="settings-layout">
+          <div class="settings-section">
+            <div class="settings-section-title">家庭成员</div>
+            <div class="member-list">
+              <div class="member-item">
+                <div class="member-avatar" style="background: var(--secondary);">王</div>
+                <div class="member-info">
+                  <div class="member-name">王小明</div>
+                  <div class="member-role">管理员</div>
+                </div>
+                <span style="font-size:11px; color: var(--accent); font-weight:500;">你</span>
+              </div>
+              <div class="member-item">
+                <div class="member-avatar" style="background: var(--blue);">李</div>
+                <div class="member-info">
+                  <div class="member-name">李小红</div>
+                  <div class="member-role">普通成员</div>
+                </div>
+                <button class="btn btn-sm btn-ghost"><i class="icon icon-more-horizontal" style="font-size:14px;"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <div class="settings-section-title">邀请新成员</div>
+            <div class="invite-code-box">
+              <div>
+                <div style="font-size: 12px; color: var(--text3); margin-bottom: 4px;">家庭邀请码</div>
+                <span class="invite-code">a3b7c9d2</span>
+              </div>
+              <button class="btn btn-sm btn-secondary"><i class="icon icon-copy" style="font-size:14px;"></i> 复制邀请码</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /main-area -->
+  </div><!-- /app-layout -->
+</div><!-- /page-app -->
+
+
+<!-- ============================================================
+     ALERT PANEL (SLIDE-IN)
+     ============================================================ -->
+<div class="alert-panel-overlay" id="alert-overlay" onclick="toggleAlertPanel()"></div>
+<div class="alert-panel" id="alert-panel" style="display:none;">
+  <div class="alert-panel-header">
+    <h3><i class="icon icon-bell" style="font-size:16px; margin-right:8px;"></i>通知中心</h3>
+    <button class="btn-icon" onclick="toggleAlertPanel()"><i class="icon icon-x"></i></button>
+  </div>
+  <div class="alert-panel-content">
+    <div class="alert-item">
+      <div class="alert-icon out"><i class="icon icon-alert-circle"></i></div>
+      <div class="alert-info">
+        <div class="alert-title">厨房纸巾已缺货</div>
+        <div class="alert-desc">当前库存为 0，建议立即补充。警告线: 3 卷</div>
+        <div class="alert-actions">
+          <button class="btn btn-primary btn-sm">加入购物清单</button>
+          <button class="btn btn-ghost btn-sm">忽略</button>
+        </div>
+        <div class="alert-time">10 分钟前</div>
+      </div>
+    </div>
+    <div class="alert-item">
+      <div class="alert-icon low"><i class="icon icon-alert-triangle"></i></div>
+      <div class="alert-info">
+        <div class="alert-title">东北大米库存不足</div>
+        <div class="alert-desc">当前 1 袋，低于警告线 2 袋</div>
+        <div class="alert-actions">
+          <button class="btn btn-primary btn-sm">加入购物清单</button>
+          <button class="btn btn-ghost btn-sm">忽略</button>
+        </div>
+        <div class="alert-time">1 小时前</div>
+      </div>
+    </div>
+    <div class="alert-item">
+      <div class="alert-icon low"><i class="icon icon-alert-triangle"></i></div>
+      <div class="alert-info">
+        <div class="alert-title">洗洁精库存不足</div>
+        <div class="alert-desc">当前 1 瓶，低于警告线 2 瓶</div>
+        <div class="alert-actions">
+          <button class="btn btn-primary btn-sm">加入购物清单</button>
+          <button class="btn btn-ghost btn-sm">忽略</button>
+        </div>
+        <div class="alert-time">3 小时前</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================
+     MODAL: ADD ITEM
+     ============================================================ -->
+<div class="modal-overlay" id="modal-add-item">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3>添加物品</h3>
+      <button class="btn-icon" onclick="toggleModal('modal-add-item')"><i class="icon icon-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">物品名称 *</label>
+        <input class="form-input" type="text" placeholder="例如：东北大米">
+      </div>
+      <div class="form-row-3">
+        <div class="form-group">
+          <label class="form-label">分类 *</label>
+          <select class="form-select">
+            <option value="">选择分类</option>
+            <option>食品</option>
+            <option>日用品</option>
+            <option>药品</option>
+            <option>家电</option>
+            <option>其他</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">单位 *</label>
+          <input class="form-input" type="text" placeholder="袋 / 瓶 / 个">
+        </div>
+        <div class="form-group">
+          <label class="form-label">分组</label>
+          <input class="form-input" type="text" placeholder="厨房用品">
+        </div>
+      </div>
+      <div class="form-row-3">
+        <div class="form-group">
+          <label class="form-label">初始库存</label>
+          <input class="form-input" type="number" value="0" min="0" style="font-family: var(--font-mono);">
+        </div>
+        <div class="form-group">
+          <label class="form-label">警告线</label>
+          <input class="form-input" type="number" value="1" min="0" style="font-family: var(--font-mono);">
+          <div class="form-helper">低于此数量时提醒</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">存放位置</label>
+          <input class="form-input" type="text" placeholder="厨房 · 冰箱">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">标签</label>
+        <div class="tags-input">
+          <span class="tag-chip">有机<span style="cursor:pointer; margin-left:4px; color:var(--text3);">×</span></span>
+          <input type="text" placeholder="输入标签后回车…">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">备注</label>
+        <input class="form-input" type="text" placeholder="品牌、规格等补充信息">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="toggleModal('modal-add-item')">取消</button>
+      <button class="btn btn-primary" onclick="toggleModal('modal-add-item')">
+        <i class="icon icon-check" style="font-size:14px;"></i> 保存
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================
+     MODAL: ADD TO SHOPPING LIST
+     ============================================================ -->
+<div class="modal-overlay" id="modal-add-shopping">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3>添加到购物清单</h3>
+      <button class="btn-icon" onclick="toggleModal('modal-add-shopping')"><i class="icon icon-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">物品名称</label>
+        <input class="form-input" type="text" placeholder="搜索已有物品或输入新物品">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">计划购买数量</label>
+          <input class="form-input" type="number" value="1" min="1" style="font-family: var(--font-mono);">
+        </div>
+        <div class="form-group">
+          <label class="form-label">单位</label>
+          <input class="form-input" type="text" placeholder="个 / 袋 / 瓶">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">备注</label>
+        <input class="form-input" type="text" placeholder="例如：周末做沙拉用">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="toggleModal('modal-add-shopping')">取消</button>
+      <button class="btn btn-primary" onclick="toggleModal('modal-add-shopping')">添加</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================
+     MODAL: CHECKOUT
+     ============================================================ -->
+<div class="modal-overlay" id="modal-checkout">
+  <div class="modal" onclick="event.stopPropagation()" style="max-width: 560px;">
+    <div class="modal-header">
+      <h3>入库确认</h3>
+      <button class="btn-icon" onclick="toggleModal('modal-checkout')"><i class="icon icon-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size: 13px; color: var(--text2); margin-bottom: 16px;">确认实际购买的数量和价格，提交后库存将自动更新</p>
+
+      <div class="checkout-item">
+        <div class="checkout-item-info">
+          <div class="checkout-item-name">厨房纸巾</div>
+          <div class="checkout-item-cat">日用品 · 卷</div>
+        </div>
+        <input class="checkout-qty-input" type="number" value="3">
+        <input class="checkout-price-input" type="text" placeholder="¥ 价格">
+      </div>
+      <div class="checkout-item">
+        <div class="checkout-item-info">
+          <div class="checkout-item-name">东北大米</div>
+          <div class="checkout-item-cat">食品 · 袋</div>
+        </div>
+        <input class="checkout-qty-input" type="number" value="2">
+        <input class="checkout-price-input" type="text" placeholder="¥ 价格">
+      </div>
+      <div class="checkout-item">
+        <div class="checkout-item-info">
+          <div class="checkout-item-name">洗洁精</div>
+          <div class="checkout-item-cat">日用品 · 瓶</div>
+        </div>
+        <input class="checkout-qty-input" type="number" value="1">
+        <input class="checkout-price-input" type="text" placeholder="¥ 价格">
+      </div>
+
+      <div style="display:flex; justify-content:space-between; margin-top:16px; padding:14px; background:var(--surface2); border-radius:var(--radius-control);">
+        <span style="font-size:13px; color:var(--text2);">预估总计</span>
+        <span style="font-family:var(--font-mono); font-size:18px; font-weight:500; color:var(--accent);">¥ —</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="toggleModal('modal-checkout')">取消</button>
+      <button class="btn btn-primary" onclick="toggleModal('modal-checkout')">
+        <i class="icon icon-check" style="font-size:14px;"></i> 确认入库
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- User popover backdrop -->
+<div class="user-popover-backdrop" id="user-popover-backdrop" onclick="closeUserPopover()"></div>
+
+<!-- Confirm Dialog (account deletion) -->
+<div class="confirm-overlay" id="confirm-delete-account">
+  <div class="confirm-dialog">
+    <div class="confirm-dialog-title">确认注销账号</div>
+    <div class="confirm-dialog-desc">此操作不可撤销。注销后你的所有数据（物品、库存记录、购物清单）将被永久删除，且无法恢复。</div>
+    <div class="confirm-dialog-actions">
+      <button class="btn btn-ghost" onclick="hideConfirmDialog()">取消</button>
+      <button class="btn btn-destructive" onclick="hideConfirmDialog(); closeUserPopover(); navigate('page-login');">确认注销</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     JAVASCRIPT
+     ============================================================ -->
+<script>
+// Page navigation (auth vs app)
+function navigate(pageId) {
+  document.querySelectorAll('.auth-page, .page').forEach(p => p.classList.remove('active'));
+  const page = document.getElementById(pageId);
+  if (page) page.classList.add('active');
+}
+
+// Tab titles mapping
+const tabTitles = {
+  inventory: '库存总览',
+  shopping: '购物清单',
+  settings: '设置',
+  members: '家庭成员'
+};
+
+// Tab switching via sidebar
+function switchTab(tabName, sidebarBtn) {
+  // Hide all tab content
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  // Show target
+  const tab = document.getElementById('tab-' + tabName);
+  if (tab) tab.classList.add('active');
+
+  // Update sidebar active state
+  document.querySelectorAll('.sidebar-item').forEach(n => n.classList.remove('active'));
+  if (sidebarBtn) sidebarBtn.classList.add('active');
+
+  // Update page title
+  const titleEl = document.getElementById('page-title-text');
+  if (titleEl && tabTitles[tabName]) titleEl.textContent = tabTitles[tabName];
+}
+
+// Alert panel
+function toggleAlertPanel() {
+  const overlay = document.getElementById('alert-overlay');
+  const panel = document.getElementById('alert-panel');
+  const isOpen = overlay.classList.contains('active');
+  if (isOpen) {
+    overlay.classList.remove('active');
+    panel.style.display = 'none';
+  } else {
+    overlay.classList.add('active');
+    panel.style.display = 'flex';
+  }
+}
+
+// Modal
+function toggleModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (!modal) return;
+  modal.classList.toggle('active');
+}
+
+// Quantity adjustment (table-based)
+function adjustQty(btn, delta) {
+  const control = btn.closest('.qty-control');
+  const valSpan = control.querySelector('.qty-val');
+  const small = valSpan.querySelector('small');
+  const unit = small ? small.textContent : '';
+
+  let val = parseInt(valSpan.textContent) || 0;
+  val = Math.max(0, val + delta);
+
+  valSpan.innerHTML = val + (unit ? ' <small style="font-size:11px; color:var(--text3);">' + unit + '</small>' : '');
+
+  // Update qty-val color
+  valSpan.className = 'qty-val';
+  if (val === 0) valSpan.classList.add('danger');
+  else if (val <= 2) valSpan.classList.add('warn');
+  else valSpan.classList.add('ok');
+
+  // Update status dot in the row
+  const tr = btn.closest('tr');
+  if (tr) {
+    const dot = tr.querySelector('.status-dot');
+    if (dot) {
+      dot.className = 'status-dot';
+      if (val === 0) dot.classList.add('danger');
+      else if (val <= 2) dot.classList.add('warn');
+      else dot.classList.add('ok');
+    }
+  }
+
+  // Disable minus at 0
+  const minusBtn = control.querySelector('.qty-btn');
+  minusBtn.disabled = (val === 0);
+}
+
+// Filter tags
+document.querySelectorAll('.filter-tag').forEach(tag => {
+  tag.addEventListener('click', () => {
+    document.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
+    tag.classList.add('active');
+  });
+});
+
+// Close modal on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) overlay.classList.remove('active');
+  });
+});
+
+// ===== USER CENTER =====
+function toggleUserPopover() {
+  const pop = document.getElementById('user-popover');
+  const backdrop = document.getElementById('user-popover-backdrop');
+  const isOpen = pop.classList.contains('active');
+  if (isOpen) {
+    closeUserPopover();
+  } else {
+    pop.classList.add('active');
+    backdrop.classList.add('active');
+    // Close any open edit rows
+    document.querySelectorAll('.user-edit-row.active').forEach(r => r.classList.remove('active'));
+  }
+}
+
+function closeUserPopover() {
+  document.getElementById('user-popover').classList.remove('active');
+  document.getElementById('user-popover-backdrop').classList.remove('active');
+  document.querySelectorAll('.user-edit-row.active').forEach(r => r.classList.remove('active'));
+}
+
+function toggleEditRow(rowId) {
+  const row = document.getElementById(rowId);
+  if (!row) return;
+  const isOpen = row.classList.contains('active');
+  // Close all edit rows first
+  document.querySelectorAll('.user-edit-row.active').forEach(r => r.classList.remove('active'));
+  if (!isOpen) row.classList.add('active');
+}
+
+function saveName() {
+  const input = document.getElementById('input-name');
+  const newName = input.value.trim();
+  if (!newName) return;
+  // Update all display spots
+  document.getElementById('display-name-val').textContent = newName;
+  document.getElementById('sidebar-display-name').textContent = newName;
+  // Update avatar initials
+  const initial = newName.charAt(0);
+  document.getElementById('user-avatar-large').textContent = initial;
+  document.getElementById('user-avatar-small').textContent = initial;
+  toggleEditRow('edit-name');
+}
+
+function handleAvatarUpload(fileInput) {
+  const file = fileInput.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const url = e.target.result;
+    // Update large avatar
+    const lg = document.getElementById('user-avatar-large');
+    lg.textContent = '';
+    lg.style.backgroundImage = 'url(' + url + ')';
+    lg.style.backgroundSize = 'cover';
+    lg.style.backgroundPosition = 'center';
+    // Update small sidebar avatar
+    const sm = document.getElementById('user-avatar-small');
+    sm.textContent = '';
+    sm.style.backgroundImage = 'url(' + url + ')';
+    sm.style.backgroundSize = 'cover';
+    sm.style.backgroundPosition = 'center';
+  };
+  reader.readAsDataURL(file);
+}
+
+function showConfirmDialog() {
+  document.getElementById('confirm-delete-account').classList.add('active');
+}
+function hideConfirmDialog() {
+  document.getElementById('confirm-delete-account').classList.remove('active');
+}
+
+// Keyboard shortcut: ⌘K / Ctrl+K focuses search
+document.addEventListener('keydown', (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+    e.preventDefault();
+    const input = document.querySelector('.search-box input');
+    if (input) input.focus();
+  }
+  // Escape closes modals and alert panel
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
+    const overlay = document.getElementById('alert-overlay');
+    if (overlay && overlay.classList.contains('active')) toggleAlertPanel();
+  }
+});
+</script>
+
+</body>
+</html>

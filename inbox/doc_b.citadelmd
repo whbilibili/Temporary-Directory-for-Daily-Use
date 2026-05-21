@@ -1,0 +1,1938 @@
+:::title{nodeId="d63b3c57-3ca0-464c-a173-0368a3484e38"}
+AI 产品经理的「MCP」实战指南
+:::
+
+:::blockquote{nodeId="382bf7bf-49cd-4684-a02a-5664a2f67545"}
+:::paragraph{nodeId="53f2f7c5-b1a5-44e5-9936-5df8ab4d0634"}
+MCP（Model Context Protocol，模型上下文协议）是 Anthropic 于 2024 年底推出的开放标准，旨在为 AI 模型与外部数据源、工具之间建立统一的连接方式——被业界形象地称为"AI 应用的 USB-C 接口"。本文从概念扫盲、产品决策、落地实践、踩坑排障四个维度，为 AI 方向的产品经理整理了一份系统化的学习资料清单。
+:::
+:::
+
+:::horizontal_rule{nodeId="d57f2bdb-dea2-4919-8e81-5a42d64fc57b"}:::
+
+:::heading{level=2 nodeId="835c9d8d-b0e9-4546-bdc9-fd05863772fb"}
+一、概念扫盲：MCP 是什么、为什么重要
+:::
+
+:::paragraph{nodeId="b7f1c4f6-c94f-41ed-a449-8cca52fa4ee7"}
+**编者按：** 在 MCP 出现之前，每个 AI 应用要接入一个外部工具（数据库、日历、代码仓库……），都需要单独写一套集成代码——如果有 m 个 AI 应用和 n 个工具，就需要 m×n 种适配。MCP 的核心价值就是把这个"m×n 问题"变成"m+n 问题"：所有工具按 MCP 标准暴露能力，所有 AI 应用按 MCP 标准调用，一次接入处处可用。你可以把它理解为三层结构：**Host**（AI 应用，如 Claude Desktop）通过 **Client** 连接到多个 **MCP Server**（工具服务），Server 提供 Tools（工具）、Resources（资源）和 Prompts（提示词模板）三类能力。
+:::
+
+:::table{borderColor="#dddddd" borderStyle="solid" borderWidth=1 responsive=true nodeId="a355bbae-583d-43d9-9b5b-019f31a1d171"}
+:::table_row{nodeId="321e2d6f-4ba6-49eb-be92-c301aa7214ca"}
+:::table_header{colwidth="68" nodeId="acad68b6-bf7a-4a54-81ea-732c8e3e71cb"}
+:::paragraph{nodeId="7eba66f6-80f7-40bc-ae8a-2d4cf7af3626"}
+#
+:::
+:::
+:::table_header{colwidth="68" nodeId="0a83538b-b35d-48a2-b7c4-57af162b95cf"}
+:::paragraph{nodeId="36505514-1198-4aea-aa8c-2f741d5bb984"}
+标题
+:::
+:::
+:::table_header{colwidth="68" nodeId="0ca39a27-3a92-4361-b04f-1f750dbacb89"}
+:::paragraph{nodeId="2af26b68-a215-4c5b-b718-2265e0a955be"}
+来源
+:::
+:::
+:::table_header{colwidth="68" nodeId="818e4131-6865-4154-957e-0e9c59e3380e"}
+:::paragraph{nodeId="5e6af38a-3a34-40a9-b9d4-403c42ec113d"}
+一句话摘要
+:::
+:::
+:::table_header{colwidth="68" nodeId="16d2c7b3-0b19-41db-832b-2e33711d057e"}
+:::paragraph{nodeId="a1c6d228-ee48-428a-a99a-e63e796a32ed"}
+推荐
+:::
+:::
+:::
+:::table_row{nodeId="8dc76676-d469-4cd5-9565-4ad4697914be"}
+:::table_cell{colwidth="68" nodeId="b5c9d104-f513-4862-a2e3-99ae5b7a6e98"}
+:::paragraph{nodeId="0461332d-1bfd-4ff7-990a-0f404fa7a126"}
+1
+:::
+:::
+:::table_cell{colwidth="68" nodeId="325bee96-8faa-40e3-b21d-7d2c38022214"}
+:::paragraph{nodeId="1b1288a8-932d-45d2-81e8-e219e8238deb"}
+:[link]{href="https://km.sankuai.com/collabpage/2756966324" nodeId="52c3356c-9e4f-459e-8e08-5f671e80005d"}MCP 终极指南：从原理到实战[/link]
+:::
+:::
+:::table_cell{colwidth="68" nodeId="2cc2aa71-c01b-4020-95c1-f765237fe43f"}
+:::paragraph{nodeId="244a468a-5282-45f0-8f49-12495e42f865"}
+学城
+:::
+:::
+:::table_cell{colwidth="68" nodeId="1990603a-f239-48b5-93cd-67869b338478"}
+:::paragraph{nodeId="35ac0141-0c3d-4800-ae46-653a4ead80de"}
+分"基础篇"和"进阶篇"，把 Tool 类比成手机 App 里的功能模块，从"MCP 是什么"讲到数据流转细节，对非技术读者非常友好
+:::
+:::
+:::table_cell{colwidth="68" nodeId="fcc0c765-13ab-4da5-96d6-81a689ec5adb"}
+:::paragraph{nodeId="00b02193-3cca-4ad4-8faa-d0d0bacf46eb"}
+⭐⭐⭐
+:::
+:::
+:::
+:::table_row{nodeId="d8c2ddcc-3bd8-4ad0-b872-734e7582d9e9"}
+:::table_cell{colwidth="68" nodeId="3f4d4736-6ab8-4121-8d6e-b596e10095c5"}
+:::paragraph{nodeId="81a84b02-8a18-40a2-8fb2-a746d0d1d035"}
+2
+:::
+:::
+:::table_cell{colwidth="68" nodeId="178eb349-6f36-4b2f-907c-4936e8a9c7f0"}
+:::paragraph{nodeId="111aa58f-7e1a-4a01-a328-747a33b09c47"}
+:[link]{href="https://km.sankuai.com/collabpage/2711493111" nodeId="66a571bb-0f29-4656-abd5-170c5898d98f"}MCP 入门指南[/link]
+:::
+:::
+:::table_cell{colwidth="68" nodeId="5dfa2de4-f4c6-4640-b2c3-4d2840f66165"}
+:::paragraph{nodeId="3e82b8c4-dbe4-4dd5-a513-3202b43752c1"}
+学城
+:::
+:::
+:::table_cell{colwidth="68" nodeId="33577f50-032c-4228-9fe0-e24d837f18e7"}
+:::paragraph{nodeId="ba8b5529-e8a2-463d-894a-fdc88af145e6"}
+系统梳理"大模型工具调用发展简史"（Function Calling → MCP），用时间线和架构图讲清 MCP 的来龙去脉和核心组件
+:::
+:::
+:::table_cell{colwidth="68" nodeId="c3ed9c33-48ef-4eec-b415-099eb06be080"}
+:::paragraph{nodeId="9ba1284c-21e3-4d4d-b081-4ade3bac61c7"}
+⭐⭐⭐
+:::
+:::
+:::
+:::table_row{nodeId="a2cec8f0-be80-441c-ac77-77a8e0771951"}
+:::table_cell{colwidth="68" nodeId="4e7b962c-164e-476b-a3cd-c54c00bdc518"}
+:::paragraph{nodeId="8d6f74fe-504e-4e9a-8800-2e55c25b9093"}
+3
+:::
+:::
+:::table_cell{colwidth="68" nodeId="91f57695-b527-4d8e-b293-81727bacaf72"}
+:::paragraph{nodeId="3bc790e7-c6bc-4640-bd4e-967b79e9f458"}
+:[link]{href="https://km.sankuai.com/collabpage/2705858609" nodeId="30f9d025-4e42-491a-a517-d231541a82cc"}Function Calling 与 MCP 协议的深度对比[/link]
+:::
+:::
+:::table_cell{colwidth="68" nodeId="0ec9a10e-07bd-4efa-8e3b-91b2eb7463e7"}
+:::paragraph{nodeId="82441ffb-f747-488c-8703-f79c7482d05f"}
+学城
+:::
+:::
+:::table_cell{colwidth="68" nodeId="9a865d04-ca8a-4354-8084-6c20941e880a"}
+:::paragraph{nodeId="51cce041-1dc4-4a77-a918-ece42b79cbc0"}
+从设计目标、开发效率、生态系统、安全性等六个维度对比 FC 与 MCP，并给出"什么时候选谁"的清晰结论
+:::
+:::
+:::table_cell{colwidth="68" nodeId="f877f2c0-861c-48b8-8f5a-47ec9497905e"}
+:::paragraph{nodeId="1cc21617-5861-4cf5-8e95-44fd510aa5b5"}
+⭐⭐⭐
+:::
+:::
+:::
+:::table_row{nodeId="9d1252c7-118c-46b2-b60b-a5ae824686fe"}
+:::table_cell{colwidth="68" nodeId="67ec0173-9530-4fa2-908e-0b041ae9945b"}
+:::paragraph{nodeId="f6ad1483-aec3-468d-8252-93a412d80409"}
+4
+:::
+:::
+:::table_cell{colwidth="68" nodeId="bee8ec20-690c-45b6-a312-dcb822ef8d4b"}
+:::paragraph{nodeId="a7bcec14-d971-4926-9787-512cb9f6567d"}
+:[link]{href="https://www.woshipm.com/ai/6230481.html" nodeId="1c877c99-8ad2-44d5-966e-9a758cc23b74"}MCP 到底是什么？小白也能懂的 AI 神器[/link]
+:::
+:::
+:::table_cell{colwidth="68" nodeId="b19ff126-83f3-4647-9a3c-8a5881c8ad9a"}
+:::paragraph{nodeId="4321cdba-373f-41e6-a088-5552f786a8d8"}
+外部
+:::
+:::
+:::table_cell{colwidth="68" nodeId="3ce786d6-ec4e-4b56-8299-c9260f61bf8e"}
+:::paragraph{nodeId="58d46bf4-6db8-4bb9-8f52-1a08ea5adc71"}
+「人人都是产品经理」平台，用最通俗的语言讲清 API / Function Calling / MCP 三者的关系，专门面向非技术人员
+:::
+:::
+:::table_cell{colwidth="68" nodeId="92255c94-c8c0-425c-bf6e-8006c3153f28"}
+:::paragraph{nodeId="ba4ee326-b634-441c-8a69-d1b8dee8c0c7"}
+⭐⭐⭐
+:::
+:::
+:::
+:::table_row{nodeId="4cafd2de-6fb8-404a-96ea-3c874132fd8e"}
+:::table_cell{colwidth="68" nodeId="c5094c49-e5bc-46d1-a77a-a66b0210a8f2"}
+:::paragraph{nodeId="60d3864e-1bfd-48eb-9cb4-a24e1e6b691c"}
+5
+:::
+:::
+:::table_cell{colwidth="68" nodeId="e93ea6fd-e06e-4130-87af-90e80bde6566"}
+:::paragraph{nodeId="8b3f0de4-2e67-460d-bf62-df2779fa0d81"}
+:[link]{href="https://km.sankuai.com/collabpage/2703139763" nodeId="189e2bec-4023-4407-95cc-96bc4ced1a5a"}Model Context Protocol 十问速读[/link]
+:::
+:::
+:::table_cell{colwidth="68" nodeId="62cc96da-611b-4b45-8afb-fb3d3e7f5543"}
+:::paragraph{nodeId="453b0796-f4b7-40d8-acce-638eff15921b"}
+学城
+:::
+:::
+:::table_cell{colwidth="68" nodeId="2b5bfd35-023e-4ca4-9fba-e85dc1d4d1db"}
+:::paragraph{nodeId="5a507a33-2dbd-48ee-b3cb-8b864f98bbfc"}
+以"十问十答"快速回答 MCP 是什么、谁提出的、有哪些企业响应、Roadmap 等关键问题，适合快速入门
+:::
+:::
+:::table_cell{colwidth="68" nodeId="4d9007c4-18e9-4a8b-8105-9fd0970e2acf"}
+:::paragraph{nodeId="eb22b7ac-8fa0-489b-9c39-5782a5106e12"}
+⭐⭐⭐
+:::
+:::
+:::
+:::table_row{nodeId="aa7a4348-34c8-4423-a946-c83017dff3ef"}
+:::table_cell{colwidth="68" nodeId="1fcb7daf-a068-4457-b01b-057863dfd9b7"}
+:::paragraph{nodeId="cdde47ec-7d68-49e3-8f49-8db6b3f54977"}
+6
+:::
+:::
+:::table_cell{colwidth="68" nodeId="631a5ff8-13f9-488f-9d67-c0423a088179"}
+:::paragraph{nodeId="27042bc8-3a32-47bf-b73b-04f7764613ff"}
+:[link]{href="https://mcp-docs.cn/docs/getting-started/intro" nodeId="8d07429f-c901-430a-8492-bbf8489b7b80"}MCP 官方介绍页（中文文档站）[/link]
+:::
+:::
+:::table_cell{colwidth="68" nodeId="b284ec3b-1c32-47e8-8c39-3ce37c712f5b"}
+:::paragraph{nodeId="cf818d02-9c23-49d7-8c67-525b035f43e5"}
+外部
+:::
+:::
+:::table_cell{colwidth="68" nodeId="4c7acf8b-ec5b-481b-aae7-042b1c967f19"}
+:::paragraph{nodeId="b748349b-b57a-4cf5-b9fd-d6a4a8ea4f3e"}
+MCP 官方文档的中文翻译版，用"USB-C 接口"类比开篇，涵盖协议定义、核心架构等权威信息
+:::
+:::
+:::table_cell{colwidth="68" nodeId="9d2693fd-cafe-419a-80fb-8a88c7793bb5"}
+:::paragraph{nodeId="49ca85b8-6188-4511-9800-379f57734a6e"}
+⭐⭐
+:::
+:::
+:::
+:::table_row
+:::table_cell{colwidth="68"}
+:::paragraph
+7
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+:[link]{href="https://modelcontextprotocol.io/docs/getting-started/intro"}Model Context Protocol 官方介绍页（英文）[/link]
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+外部
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+MCP 官方权威定义，"AI 的 USB-C 接口"核心类比出处，简洁清晰适合初次了解
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+⭐⭐⭐
+:::
+:::
+:::
+:::table_row
+:::table_cell{colwidth="68"}
+:::paragraph
+8
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+:[link]{href="https://www.institutepm.com/knowledge-hub/mcp-guide-for-product-managers"}What Is MCP? A Product Manager's Guide to Model Context Protocol[/link]
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+外部
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+专为产品经理撰写的 MCP 完整指南，覆盖架构、三大原语（Tools/Resources/Prompts）、安全模型及产品策略决策点
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+⭐⭐⭐
+:::
+:::
+:::
+:::table_row
+:::table_cell{colwidth="68"}
+:::paragraph
+9
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+:[link]{href="https://www.woshipm.com/ai/6256593.html"}一文详解 MCP 与 Function Calling[/link]
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+外部
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+用"能力 vs 舞台"的比喻，面向非工程角色讲清 Function Calling 和 MCP 的分工协作关系，非常易懂
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+⭐⭐⭐
+:::
+:::
+:::
+:::
+
+:::blockquote{nodeId="7bc83900-b12f-40c3-ab94-6626e341be71"}
+:::paragraph{nodeId="a6f9cc5a-d22b-4135-8d21-0444b610f78c"}
+💡 **快速入门路径：** 如果只看 3 篇，推荐"学城《MCP 终极指南》→ 人人都是产品经理《MCP 到底是什么》→ 学城《Function Calling 与 MCP 深度对比》"，从体系到通俗再到技术对比，15 分钟建立完整认知。
+:::
+:::
+
+:::horizontal_rule{nodeId="68b84ab8-0eed-43cd-8889-0a1f631c0e50"}:::
+
+:::heading{level=2 nodeId="acc12d85-cf4d-48e8-a54d-fbfef9f82221"}
+二、产品决策：什么时候该用 MCP
+:::
+
+:::paragraph{nodeId="49959dc6-3ece-4925-900f-c6e88df1d694"}
+**编者按：** 产品经理面对的核心问题是——"我的场景该用 MCP、Function Calling、传统 API 集成还是 CLI？"答案取决于几个关键判断：是否需要跨多个 AI 平台复用同一套工具（MCP 的核心优势）、是否需要标准化的工具发现与注册机制、以及团队的工程投入预算。值得注意的是，MCP 并非万能解——美团内部就有从 MCP 转向 CLI 的真实案例，原因是存量系统接入 MCP 的改造成本高于预期。建议的决策路径是：新建工具生态 → 优先 MCP；存量 HTTP 接口丰富 → 考虑 CLI/直接集成；单一模型厂商绑定 → Function Calling 够用。
+:::
+
+:::table{borderColor="#dddddd" borderStyle="solid" borderWidth=1 responsive=true nodeId="d2618c6d-4ee1-4be6-8583-09b8ed9e2b28"}
+:::table_row{nodeId="3b03585d-2e49-4f60-be2e-42302806f5da"}
+:::table_header{colwidth="68" nodeId="5e51583e-e77d-489b-990c-b4c6a63ec810"}
+:::paragraph{nodeId="3514a1e1-1c89-4f95-b8ca-c60385398933"}
+#
+:::
+:::
+:::table_header{colwidth="68" nodeId="541055ce-f7d8-4fcd-b0a0-42a25797235c"}
+:::paragraph{nodeId="579cc9bf-2377-4d18-9577-7f8605cd7a55"}
+标题
+:::
+:::
+:::table_header{colwidth="68" nodeId="68f2ae7d-45ee-43c0-ae77-d2b1fe97322b"}
+:::paragraph{nodeId="818a3aa6-7857-49eb-91f3-17a9c8a39cd6"}
+来源
+:::
+:::
+:::table_header{colwidth="68" nodeId="b589c54a-8f3d-43e8-bbf8-c9966ee20128"}
+:::paragraph{nodeId="d61d14f5-2272-4f00-b81a-1dd4e17b01ac"}
+一句话摘要
+:::
+:::
+:::table_header{colwidth="68" nodeId="e11b5e8e-d196-4672-92b0-b266cb14a3c5"}
+:::paragraph{nodeId="a3ee4ce2-e64b-4015-a49a-8e01bceb2743"}
+推荐
+:::
+:::
+:::
+:::table_row{nodeId="f52ae42c-3205-4c0b-b214-11619ba4d810"}
+:::table_cell{colwidth="68" nodeId="889e5763-d172-4afa-972a-9e22e914dc11"}
+:::paragraph{nodeId="63ca0b73-9055-4c7a-9ae5-ee92c8692e42"}
+1
+:::
+:::
+:::table_cell{colwidth="68" nodeId="8e7be69e-92bf-466c-b8ff-83bd184efb3f"}
+:::paragraph{nodeId="72d996f2-14f0-4bab-a020-e4e63d7994a2"}
+:[link]{href="https://km.sankuai.com/collabpage/2758964610" nodeId="f83d480c-92e5-4181-87b1-c090bc2c3c04"}AI 产品经理 Function Calling 实战手册[/link]
+:::
+:::
+:::table_cell{colwidth="68" nodeId="abf14394-807f-4940-bfd7-bbe12b691717"}
+:::paragraph{nodeId="9d10f53a-f66f-4b8a-ad11-5201f55ad8ce"}
+学城
+:::
+:::
+:::table_cell{colwidth="68" nodeId="d6007d0d-12e9-400d-839f-18b42ba0c7e4"}
+:::paragraph{nodeId="9b99b3df-118d-4dd5-93db-f7ed5acb7ba4"}
+面向 AI 产品经理的一站式决策手册，提供"是否需要 FC → 选 FC/MCP/CLI → 选模型"的三层决策树
+:::
+:::
+:::table_cell{colwidth="68" nodeId="1f4160cc-fb5b-4b86-9672-ad314dd15cd2"}
+:::paragraph{nodeId="0ea6bcb6-c254-465c-a995-5069e5f2935a"}
+⭐⭐⭐
+:::
+:::
+:::
+:::table_row{nodeId="9db352b5-c2d9-4cf2-b154-30bdb8fb067e"}
+:::table_cell{colwidth="68" nodeId="88bca227-9f9c-4d22-8d84-0a087c5f39c7"}
+:::paragraph{nodeId="d479afd7-165a-46ab-929b-8897803a916f"}
+2
+:::
+:::
+:::table_cell{colwidth="68" nodeId="f6be66ac-3b73-4929-b83f-a17225faad05"}
+:::paragraph{nodeId="b9a61e0d-0c3a-43d9-9137-07ea0db65ae6"}
+:[link]{href="https://km.sankuai.com/collabpage/2751452962" nodeId="1e1e9332-2f79-4263-9160-2f93dbbb8ebe"}CLI vs MCP：AI Agent 工具调用的两种范式[/link]
+:::
+:::
+:::table_cell{colwidth="68" nodeId="7213dd01-faca-4116-b148-98997f3177bb"}
+:::paragraph{nodeId="f4d295de-102d-46ec-a41a-a513b68f44fd"}
+学城
+:::
+:::
+:::table_cell{colwidth="68" nodeId="45229929-427a-46f0-aa09-3b609f47ff1b"}
+:::paragraph{nodeId="9122a958-68b1-4011-b6ce-256d9b6c9ed6"}
+基于美团结算系统的真实踩坑实录，从 MCP 转向 CLI 的全过程，8 个维度实操对比和选型决策树
+:::
+:::
+:::table_cell{colwidth="68" nodeId="1c10b266-7d54-4cdc-8c48-30f0298ebea4"}
+:::paragraph{nodeId="288487ab-3ef6-4568-82d6-954cb4e7c7cd"}
+⭐⭐⭐
+:::
+:::
+:::
+:::table_row{nodeId="7c6bd122-5d14-4371-a322-4de3f5d390fa"}
+:::table_cell{colwidth="68" nodeId="c34da7fd-0248-4f7e-a99f-69a2fba56cc9"}
+:::paragraph{nodeId="5c112571-c09c-4274-80ee-f58fbdc01b45"}
+3
+:::
+:::
+:::table_cell{colwidth="68" nodeId="db427232-87bc-47b1-a1b7-3ef228480406"}
+:::paragraph{nodeId="793e8b33-a3b4-49e2-85e0-d5ccbc886418"}
+:[link]{href="https://km.sankuai.com/collabpage/2710704903" nodeId="4b087155-2877-4882-b6a0-9f35618928cb"}Function Calling vs MCP vs A2A[/link]
+:::
+:::
+:::table_cell{colwidth="68" nodeId="daa44cc8-de2b-4cfe-bd64-41b74e0d51ff"}
+:::paragraph{nodeId="baff32b9-1ccd-47e6-9fce-6f5148f04171"}
+学城
+:::
+:::
+:::table_cell{colwidth="68" nodeId="bd02cd20-bfba-4ecd-a2b3-aa7e6e3d1086"}
+:::paragraph{nodeId="a30103b9-5d15-48ee-a5f5-6731ee71c5b7"}
+系统对比三种协议，指出 FC 的平台依赖问题、MCP 解决 m×n 复杂度、A2A 解决 Agent 间协作，三者互补
+:::
+:::
+:::table_cell{colwidth="68" nodeId="c3d33e6b-03ab-4188-8a04-33c9861836f2"}
+:::paragraph{nodeId="ad9aac19-b5c6-409f-9309-47df478fdff8"}
+⭐⭐⭐
+:::
+:::
+:::
+:::table_row{nodeId="44911e39-a965-4bd5-8ad7-52a36f763e0a"}
+:::table_cell{colwidth="68" nodeId="f35f34e8-f4ee-4e8b-8cb7-5dc5e03805c3"}
+:::paragraph{nodeId="56ce9a74-7ab7-443a-b71a-f1655e49fc96"}
+4
+:::
+:::
+:::table_cell{colwidth="68" nodeId="8db95dfd-9b10-46d7-8ee8-06a490662b3c"}
+:::paragraph{nodeId="d88765ed-f8c0-42f3-8885-9d63d4b9cea2"}
+:[link]{href="https://bhavyansh001.medium.com/why-chatgpt-plugins-failed-but-mcp-is-winning-real-reasons-mcp-deepdive-02-abb9619b8c55" nodeId="22abd223-eb0e-409b-a8ae-4fcdbea4c073"}Why ChatGPT Plugins Failed But MCP Is Winning[/link]
+:::
+:::
+:::table_cell{colwidth="68" nodeId="cadc8937-c8a3-43f9-86f3-962f283fcbf9"}
+:::paragraph{nodeId="f3303f15-3962-4c8e-863d-445276bc5ee1"}
+外部
+:::
+:::
+:::table_cell{colwidth="68" nodeId="c426821e-dd9b-4836-8878-0601822dd5ac"}
+:::paragraph{nodeId="aea505bb-6b4f-4571-8a30-a8cf7727068d"}
+复盘 ChatGPT Plugins 从爆火到关停的完整历程，分析 MCP 从中吸取了哪些教训而胜出
+:::
+:::
+:::table_cell{colwidth="68" nodeId="174182db-8a4e-4185-999b-dd0968403787"}
+:::paragraph{nodeId="a724fa34-c446-4684-a8c4-913e7f9b780b"}
+⭐⭐⭐
+:::
+:::
+:::
+:::table_row{nodeId="bff6ccf8-4636-436a-b2f4-d0eaa20067bf"}
+:::table_cell{colwidth="68" nodeId="84a84257-5805-4764-81af-aed395dc5b2d"}
+:::paragraph{nodeId="560a1aff-d37f-4a0a-9085-a60d704f6a2e"}
+5
+:::
+:::
+:::table_cell{colwidth="68" nodeId="eb36d0c3-fd85-4f33-9970-3dcb2f431ceb"}
+:::paragraph{nodeId="fba375ca-8b00-4782-a51e-ef2e2e68e71f"}
+:[link]{href="https://atlan.com/know/when-to-use-mcp-vs-api/" nodeId="733d211b-ccaa-4e37-b396-92e28752b44e"}MCP vs API: When to Use Each[/link]
+:::
+:::
+:::table_cell{colwidth="68" nodeId="ab4dac9c-c1b7-49a0-bc8d-ed4c39515acf"}
+:::paragraph{nodeId="a42abc49-8d16-4964-81ff-8fce34d23aac"}
+外部
+:::
+:::
+:::table_cell{colwidth="68" nodeId="48dc60ae-16e9-4fc9-ba5c-6871471b5f50"}
+:::paragraph{nodeId="ea097282-1d17-47a5-85eb-6b87fb645678"}
+从架构差异、适用场景、权衡因素三个层面提供 MCP 与传统 API 集成的决策框架
+:::
+:::
+:::table_cell{colwidth="68" nodeId="2291b359-4501-49a1-aa3b-5f6f81d97c17"}
+:::paragraph{nodeId="7d19491e-2491-4f9f-ad4f-4e0f953f0b2f"}
+⭐⭐⭐
+:::
+:::
+:::
+:::table_row{nodeId="6d550b3c-c976-4865-9014-c3c6d68d7718"}
+:::table_cell{colwidth="68" nodeId="0038f702-a2d9-415f-a67a-dd732b72993b"}
+:::paragraph{nodeId="13634c22-e543-4a04-8439-564cebf60ba5"}
+6
+:::
+:::
+:::table_cell{colwidth="68" nodeId="dab0ffc2-d04b-497c-8b21-ecab3d803a31"}
+:::paragraph{nodeId="e0c9c69f-af86-4897-be4f-82b684991d68"}
+:[link]{href="https://www.woshipm.com/ai/6376490.html" nodeId="bec05fdd-8a60-49d0-8968-c9a104b6b5e4"}MCP 还是 Skill？谁来负责写？[/link]
+:::
+:::
+:::table_cell{colwidth="68" nodeId="bd0f7dd9-a205-49e0-8620-cf23f3ba0647"}
+:::paragraph{nodeId="8af45824-ee21-4dc5-acbe-0b1ce9eee228"}
+外部
+:::
+:::
+:::table_cell{colwidth="68" nodeId="5806dce2-8958-4dac-a2a5-61cb465b560e"}
+:::paragraph{nodeId="086da442-35e6-481b-b69d-0a2f069035b5"}
+产品经理视角用大白话讲清 MCP 和 Skill 的区别——MCP 是"标准化工具接口"、Skill 是"AI 操作手册"
+:::
+:::
+:::table_cell{colwidth="68" nodeId="95e84c03-5f3a-401b-83fa-26fa71de2bc2"}
+:::paragraph{nodeId="3e6b2fe7-eb67-4ff8-80b0-dfdbfb7d8d1e"}
+⭐⭐
+:::
+:::
+:::
+:::table_row{nodeId="c93dfb24-7df8-447c-8ece-5aaf6d00f0ca"}
+:::table_cell{colwidth="68" nodeId="1393663e-a2f9-43a6-9fa1-2737098888db"}
+:::paragraph{nodeId="5ce6ce5e-1c42-4cab-bd54-6b9947f2d44c"}
+7
+:::
+:::
+:::table_cell{colwidth="68" nodeId="a8e5a14d-cb8e-4736-95ab-3126366f0322"}
+:::paragraph{nodeId="91388575-923a-43c0-a301-eff95af3cb18"}
+:[link]{href="https://km.sankuai.com/collabpage/2749624013" nodeId="e694481f-7567-4489-ad6c-073f120eaf8f"}AI Agent 框架技术选型报告[/link]
+:::
+:::
+:::table_cell{colwidth="68" nodeId="9b0149c0-9438-4ca2-845a-7ed321bde151"}
+:::paragraph{nodeId="37235891-fa91-4489-aa2b-d1e530f2165e"}
+学城
+:::
+:::
+:::table_cell{colwidth="68" nodeId="dcb9e2a7-4443-4c9d-9507-4df8e07b8f8e"}
+:::paragraph{nodeId="85d02609-8490-4162-9993-4cf4b6df37f3"}
+全球主流 Agent 框架选型报告，核心发现"MCP 协议已成为事实标准"，含按场景复杂度的决策树
+:::
+:::
+:::table_cell{colwidth="68" nodeId="588d1f3c-c69b-4947-9479-808b8107bae5"}
+:::paragraph{nodeId="262465d0-7b8f-4418-803b-9b2b9af82aff"}
+⭐⭐
+:::
+:::
+:::
+:::table_row
+:::table_cell{colwidth="68"}
+:::paragraph
+8
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+:[link]{href="https://km.sankuai.com/collabpage/2749624013"}Skill / Prompt / MCP / SubAgent 选型指南[/link]
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+学城
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+美团内部四种 AI 能力扩展方式的选型对比，含决策树和真实案例，适合 AI 产品经理快速定位方案
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+⭐⭐⭐
+:::
+:::
+:::
+:::table_row
+:::table_cell{colwidth="68"}
+:::paragraph
+9
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+:[link]{href="https://www.imagineworks.com/blog/mcp-enterprise-leaders"}MCP for Enterprise Leaders: What You Need to Know[/link]
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+外部
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+面向企业决策者的 MCP 战略指南，覆盖安全治理、ROI 评估、采购决策框架，适合向管理层汇报
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+⭐⭐
+:::
+:::
+:::
+:::table_row
+:::table_cell{colwidth="68"}
+:::paragraph
+10
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+:[link]{href="https://ragwalla.com/mcp-enterprise-adoption-report-2025"}MCP Enterprise Adoption Report 2025[/link]
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+外部
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+2025 年企业级 MCP 采用现状调研报告，含行业分布、落地障碍、ROI 数据，适合做市场判断参考
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+⭐⭐
+:::
+:::
+:::
+:::table_row
+:::table_cell{colwidth="68"}
+:::paragraph
+11
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+:[link]{href="https://jamwithai.com/when-to-use-mcp-vs-api-vs-function-call"}When to Use MCP vs API vs Function Call[/link]
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+外部
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+用决策流程图对比 MCP、REST API、Function Calling 三种方案的适用场景，结论清晰可直接用于方案评审
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+⭐⭐⭐
+:::
+:::
+:::
+:::table_row
+:::table_cell{colwidth="68"}
+:::paragraph
+12
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+:[link]{href="https://km.sankuai.com/collabpage/2749624013"}外卖泛 B 端 MCP 规模化实践[/link]
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+学城
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+美团外卖泛 B 端团队将 MCP 从 PoC 推向规模化的完整路径，含组织协作模式和踩坑经验
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+⭐⭐⭐
+:::
+:::
+:::
+:::
+
+:::blockquote{nodeId="ad6aa52f-0c0e-467e-a3bc-dae297853b17"}
+:::paragraph{nodeId="6d64f7d4-69fe-41af-8b63-58124c2bba2f"}
+💡 **决策速查：** 跨平台复用工具 → MCP；单一模型绑定 → Function Calling；存量 HTTP 接口丰富 → CLI/直接集成；Agent 间协作 → A2A；给 AI 写操作手册 → Skill。大多数新建 AI Agent 项目建议优先评估 MCP。
+:::
+:::
+
+:::horizontal_rule{nodeId="556b621b-f7ed-4b55-ad8d-9c1850de4299"}:::
+
+:::heading{level=2 nodeId="630f57fc-879b-4c30-a9b6-88b5701da561"}
+三、落地实践：怎么把 MCP 做好
+:::
+
+:::paragraph{nodeId="5efc3435-76ca-44e2-8b29-97d4244b67d6"}
+**编者按：** MCP 的工程落地有两条路径：一是开发自己的 MCP Server（把内部系统能力暴露给 AI），二是接入社区已有的 MCP Server（快速获得数据库、日历、搜索等能力）。无论走哪条路，核心要关注三件事：**Tool 设计**（一个 Tool 做一件事，描述要精确到 AI 能正确选择）、**安全边界**（最小权限原则，敏感操作需用户确认）、**可观测性**（日志、监控、链路追踪不能缺）。Block（Square 母公司）的 60+ MCP Server 实践经验表明，最重要的设计原则是"workflow-first"——先想清楚用户工作流，再拆分 Tool。
+:::
+
+:::heading{level=3 nodeId="f1daae4c-2df9-40c7-a591-48f3bf78eb9d"}
+架构设计与最佳实践
+:::
+
+:::table{borderColor="#dddddd" borderStyle="solid" borderWidth=1 responsive=true nodeId="eb050239-3240-4fea-8f0c-5ca79d77218d"}
+:::table_row{nodeId="984f7d13-8d43-4002-80d2-52a74c01e7f1"}
+:::table_header{colwidth="68" nodeId="5d9b22d5-dd7f-476c-b0f5-5e5c13b7755b"}
+:::paragraph{nodeId="c169185f-4ea1-4160-936c-05c4be157cd4"}
+#
+:::
+:::
+:::table_header{colwidth="68" nodeId="3ac8ee63-3526-4a22-ab95-286c4c1a34b9"}
+:::paragraph{nodeId="17769ac2-7fd8-42d6-a226-226678ec6be8"}
+标题
+:::
+:::
+:::table_header{colwidth="68" nodeId="317ebbfe-4257-4273-96e7-696bb0c36576"}
+:::paragraph{nodeId="814f22c7-e6a3-4203-aa87-3f30caf27572"}
+来源
+:::
+:::
+:::table_header{colwidth="68" nodeId="7bca4ba0-29c7-4e88-809d-be3a854fabc0"}
+:::paragraph{nodeId="d9c488f0-c62b-44c1-be72-e930fcb4f399"}
+一句话摘要
+:::
+:::
+:::table_header{colwidth="68" nodeId="2d4828f9-a4d7-4da2-bf47-8cd8d31a58ab"}
+:::paragraph{nodeId="a620188b-8cf1-4378-9020-36908e3dcd64"}
+推荐
+:::
+:::
+:::
+:::table_row{nodeId="4fe327a6-f291-4e48-88a1-8f80c26463fb"}
+:::table_cell{colwidth="68" nodeId="3dc3e495-e614-4af1-9c9c-6b4ab0bde34a"}
+:::paragraph{nodeId="1f3608fb-f433-4dec-94b2-b220cc98f097"}
+1
+:::
+:::
+:::table_cell{colwidth="68" nodeId="54984a96-7f0b-44e2-9d87-afd42e622597"}
+:::paragraph{nodeId="a6635af5-c2b1-484c-9809-8102b60f91d0"}
+:[link]{href="https://km.sankuai.com/collabpage/2741923991" nodeId="dd06cfb7-8624-449e-a494-be7eaf141373"}基于 MCP 的 AI Coding 研发范式重构与工程化实践[/link]
+:::
+:::
+:::table_cell{colwidth="68" nodeId="ee3cb684-4201-4775-b8c1-1b0e922e83f8"}
+:::paragraph{nodeId="24333846-d386-45a3-a37a-28ade148c6e8"}
+学城
+:::
+:::
+:::table_cell{colwidth="68" nodeId="97510dcb-71ac-470f-9f10-5d0926cf8de5"}
+:::paragraph{nodeId="03e54edb-ff98-446f-b070-f0b8a32c8495"}
+提出"事实驱动研发"范式，系统阐述 MCP 如何解决"工程信息对 AI 不可达"的问题，覆盖需求到上线全链路
+:::
+:::
+:::table_cell{colwidth="68" nodeId="220d7d96-ec6e-49e6-9a8f-ecf615c0b67f"}
+:::paragraph{nodeId="6fb2233e-df53-46f7-a63a-5d9fb74ddf90"}
+⭐⭐⭐
+:::
+:::
+:::
+:::table_row{nodeId="e003a810-ec51-4677-941e-daf67196e2af"}
+:::table_cell{colwidth="68" nodeId="b6a51813-518f-4999-8c3f-e9afede96604"}
+:::paragraph{nodeId="466c025c-56aa-4c81-965d-6dd25be88afc"}
+2
+:::
+:::
+:::table_cell{colwidth="68" nodeId="e4ed858b-781f-4c28-962c-a052e0d30bd7"}
+:::paragraph{nodeId="c1971516-f414-4dd5-b6ed-d101c9e3bd0e"}
+:[link]{href="https://engineering.block.xyz/blog/blocks-playbook-for-designing-mcp-servers" nodeId="8eef1b18-c217-418e-a701-6bd212471ba2"}Block's Playbook for Designing MCP Servers[/link]
+:::
+:::
+:::table_cell{colwidth="68" nodeId="ca69dfcd-5cd2-414f-824e-1069f9b403a9"}
+:::paragraph{nodeId="603e790a-4b3e-4af4-849e-ee18788ebd01"}
+外部
+:::
+:::
+:::table_cell{colwidth="68" nodeId="d8bdb240-fe4a-400c-a6d2-f72ddaef7484"}
+:::paragraph{nodeId="e373483b-a3d2-41a0-8c89-9312b81340ff"}
+Block 基于内部 60+ MCP Server 的规模化实践，总结出"workflow-first design"等核心设计模式，业界最有分量
+:::
+:::
+:::table_cell{colwidth="68" nodeId="cd999a77-cf25-438e-b36c-eab0ec1b4f3d"}
+:::paragraph{nodeId="969ce091-3c4b-4494-9ff0-39fab475005d"}
+⭐⭐⭐
+:::
+:::
+:::
+:::table_row{nodeId="c852b789-1c81-4e50-9fff-50416f141b88"}
+:::table_cell{colwidth="68" nodeId="8f33cff6-692f-44fe-9883-1b70ca76d07e"}
+:::paragraph{nodeId="b6d06275-cd03-4a37-aa7f-944c008a3073"}
+3
+:::
+:::
+:::table_cell{colwidth="68" nodeId="81d28d21-d7eb-4136-bdac-99062c173779"}
+:::paragraph{nodeId="3f4068b5-6f83-48e1-8344-4a6a450f84b0"}
+:[link]{href="https://km.sankuai.com/collabpage/2711131660" nodeId="491e177a-8f1c-4ca9-8d10-2c673f79a9a9"}MDP Agent 使用文档（美团 MCP 一站式落地）[/link]
+:::
+:::
+:::table_cell{colwidth="68" nodeId="59c25fa9-c855-4f9d-bc86-775b00d85e90"}
+:::paragraph{nodeId="a3ade8bd-d756-4e4c-97a3-b1a034681984"}
+学城
+:::
+:::
+:::table_cell{colwidth="68" nodeId="af5d7418-a512-4fe8-bf9d-79f20a3b9542"}
+:::paragraph{nodeId="f3b26b8e-413c-4ecc-83ef-d1d1e62f87d4"}
+美团 MDP 团队的官方文档，从脚手架创建到构建部署的完整流程，解决 AI Coding 在美团落地的"最后一公里"
+:::
+:::
+:::table_cell{colwidth="68" nodeId="2cd04ea8-46b1-4c2a-acdb-9ea1c01062df"}
+:::paragraph{nodeId="9fcc11e7-c67b-495d-8baf-c452b62c45a1"}
+⭐⭐⭐
+:::
+:::
+:::
+:::table_row{nodeId="67ca217c-c559-4eb1-b94b-4ec5819713a9"}
+:::table_cell{colwidth="68" nodeId="2645c97f-0b0f-423a-af61-7d0195da3abc"}
+:::paragraph{nodeId="939fa3a5-4b48-4bcc-9007-47fc01e56980"}
+4
+:::
+:::
+:::table_cell{colwidth="68" nodeId="d17adc2e-18c6-49ac-8197-8fc632c4acae"}
+:::paragraph{nodeId="2aa729a6-d323-4a31-b1e2-b9dff7ed88ee"}
+:[link]{href="https://thenewstack.io/15-best-practices-for-building-mcp-servers-in-production/" nodeId="f1727869-aee5-4195-b63a-05ed6833a6ed"}15 Best Practices for Building MCP Servers in Production[/link]
+:::
+:::
+:::table_cell{colwidth="68" nodeId="c4873562-f8e2-4f7a-ae18-e227636e55e2"}
+:::paragraph{nodeId="ed20fc13-ea2f-4139-bbec-8e9785439a69"}
+外部
+:::
+:::
+:::table_cell{colwidth="68" nodeId="9ac3da09-e890-4976-9c2a-320d46e2a896"}
+:::paragraph{nodeId="11e767a8-3a48-478b-a1e6-994977df9b80"}
+涵盖安全认证、错误处理、性能优化、监控告警等工程化关键环节的生产级指南
+:::
+:::
+:::table_cell{colwidth="68" nodeId="42af8ee3-b949-408e-9563-3134dd1d30e5"}
+:::paragraph{nodeId="4c8c2597-0788-41c8-9ed4-c87144020cd0"}
+⭐⭐⭐
+:::
+:::
+:::
+:::table_row{nodeId="1705c17a-1b2b-479a-9512-777df146154c"}
+:::table_cell{colwidth="68" nodeId="0f93057e-dcf1-4c5c-9c66-2f98632e2de3"}
+:::paragraph{nodeId="a92371bd-9958-4121-be61-4c45e8b0186c"}
+5
+:::
+:::
+:::table_cell{colwidth="68" nodeId="1addfc57-b69c-4bbd-a212-b64722ba6ccb"}
+:::paragraph{nodeId="9c736699-db3a-4a25-8b50-5d920b0a4625"}
+:[link]{href="https://km.sankuai.com/collabpage/2727653069" nodeId="cb1fe03e-a4e1-467c-acf2-ca055a390479"}AI Agent 协议三部曲：MCP → A2A → AG-UI[/link]
+:::
+:::
+:::table_cell{colwidth="68" nodeId="979bc939-9478-4da4-b0be-d83f92ca7ccf"}
+:::paragraph{nodeId="cf14298a-dcbb-44bd-8125-e432be232ce6"}
+学城
+:::
+:::
+:::table_cell{colwidth="68" nodeId="a7936e55-3350-4e11-9e37-88687e9d8152"}
+:::paragraph{nodeId="43076c6e-59d3-49e3-9697-739c924e5041"}
+系统梳理三大协议的定位和设计，帮助理解 MCP 在整个智能体生态中的位置
+:::
+:::
+:::table_cell{colwidth="68" nodeId="3e391f69-1329-4b93-80d5-94fdeaa9252a"}
+:::paragraph{nodeId="1a54cce6-c00b-448f-896a-f00a77440994"}
+⭐⭐
+:::
+:::
+:::
+:::table_row{nodeId="b9afefab-0bbb-4307-88d7-38a95e7fecc6"}
+:::table_cell{colwidth="68" nodeId="4817fa14-1363-445d-adaa-e8479a1861e1"}
+:::paragraph{nodeId="ad217494-ef74-485e-92f3-62f7d70a2b61"}
+6
+:::
+:::
+:::table_cell{colwidth="68" nodeId="ad3138da-98e8-45a2-b4fe-d3a7136d5fc3"}
+:::paragraph{nodeId="66bed88c-f799-4fee-b492-7a3ef9dcf0ce"}
+:[link]{href="https://www.infoq.cn/article/FtOk93a3hk21EvH2kPBf" nodeId="9714307e-0f9a-40ba-8874-cd651dc13808"}企业级 MCPHub：打通大模型落地的"最后一公里"[/link]
+:::
+:::
+:::table_cell{colwidth="68" nodeId="c6a610a8-415e-445d-b86b-3864b19c5f1a"}
+:::paragraph{nodeId="5c1079e1-45bc-4a1d-b3e4-73ef232381bc"}
+外部
+:::
+:::
+:::table_cell{colwidth="68" nodeId="f8ee7d28-3c5c-4326-8ebb-d8feb4c9d48d"}
+:::paragraph{nodeId="22aca6bf-be22-46dd-a6e3-271903d0fdb4"}
+美团服务框架团队 QCon 分享，如何让 AI 系统高效接入企业数据和工具的平台化落地经验
+:::
+:::
+:::table_cell{colwidth="68" nodeId="f1590467-546c-4c3e-a019-9a3d83a60644"}
+:::paragraph{nodeId="9949ab7c-8459-4253-91f8-5c189905175c"}
+⭐⭐
+:::
+:::
+:::
+:::table_row{nodeId="ee57afeb-05b3-41ba-acfa-5c138012ce0f"}
+:::table_cell{colwidth="68" nodeId="0ca6d406-1386-424c-b34a-f4abbb025826"}
+:::paragraph{nodeId="18906360-17c7-43b4-a53c-10b3b4d5d1d1"}
+7
+:::
+:::
+:::table_cell{colwidth="68" nodeId="9f4e84bf-6c59-4a11-992b-442109cc9bab"}
+:::paragraph{nodeId="4cd7ce33-5e52-4a66-9b2f-581f2d17acb5"}
+:[link]{href="https://km.sankuai.com/collabpage/2755159879" nodeId="8d395a5f-a961-4644-b4a9-f4af9b105b51"}AI Coding 知识库深度建设：Spec + RAG + MCP 三位一体[/link]
+:::
+:::
+:::table_cell{colwidth="68" nodeId="3d9d3809-4808-4ccf-935c-1de68964c7d3"}
+:::paragraph{nodeId="62eca6af-18ae-431c-94a3-e5b89a469e2e"}
+学城
+:::
+:::
+:::table_cell{colwidth="68" nodeId="e2b685b0-5db7-40d5-9a32-e63673698006"}
+:::paragraph{nodeId="cc26984f-d4ee-4912-ac92-b23acb8253c0"}
+Spec + RAG + MCP 三位一体的 AI Coding 知识增强体系，通过 MCP 将知识库封装为标准工具服务按需调用
+:::
+:::
+:::table_cell{colwidth="68" nodeId="79dae04d-eafc-4ff4-8456-29da61d59044"}
+:::paragraph{nodeId="60906554-b4e9-4b4e-833c-533b824bb6e1"}
+⭐⭐
+:::
+:::
+:::
+:::
+
+:::heading{level=3 nodeId="4da18b0e-4874-43da-951e-bb98c0022564"}
+开源生态与工具推荐
+:::
+
+:::table{borderColor="#dddddd" borderStyle="solid" borderWidth=1 responsive=true nodeId="c808a3d1-af65-4801-8802-fa405ed62b1f"}
+:::table_row{nodeId="c030d553-7b39-4975-909e-c5c6041a830b"}
+:::table_header{colwidth="68" nodeId="aab542e1-18fe-4bcc-b60f-fd51313e55d5"}
+:::paragraph{nodeId="05c9e666-7ce2-41c0-baeb-77b773d97178"}
+#
+:::
+:::
+:::table_header{colwidth="68" nodeId="3d32a3e9-714b-46c8-b58d-1bda930d0b7b"}
+:::paragraph{nodeId="82573ba3-4d96-489f-a71f-d139f3e9a98e"}
+项目
+:::
+:::
+:::table_header{colwidth="68" nodeId="69b200f9-311c-4d1e-a8d6-69a7fbcd5d56"}
+:::paragraph{nodeId="39adebbe-7f79-4b0a-a0ba-4a9905500277"}
+Stars
+:::
+:::
+:::table_header{colwidth="68" nodeId="79694956-a944-4ba0-865e-928705e282ca"}
+:::paragraph{nodeId="7b520f8c-5fb4-427e-8a53-97676683b604"}
+一句话摘要
+:::
+:::
+:::table_header{colwidth="68" nodeId="f92a1a64-a105-4897-9f3d-bbdf69e4c0c4"}
+:::paragraph{nodeId="f0e5eeab-2dd0-4b57-8d98-f959cf0c4834"}
+推荐
+:::
+:::
+:::
+:::table_row{nodeId="2e31ebe7-a17c-43d8-9743-e4be895d28c3"}
+:::table_cell{colwidth="68" nodeId="93cfbef3-e1bc-4e8a-a7dd-031220701f91"}
+:::paragraph{nodeId="ad6826f8-c3a1-4b34-a0c5-2c6955d945ec"}
+1
+:::
+:::
+:::table_cell{colwidth="68" nodeId="149092e6-aec7-448d-9fbe-5805a6d91508"}
+:::paragraph{nodeId="faa4f487-5856-4aab-9110-ec9e422ca2a0"}
+:[link]{href="https://github.com/punkpeye/awesome-mcp-servers" nodeId="46405f77-fa3c-44e8-9ef8-3655b208d301"}awesome-mcp-servers[/link]
+:::
+:::
+:::table_cell{colwidth="68" nodeId="22793ec0-2c52-46a3-9457-ac62217d4b74"}
+:::paragraph{nodeId="161905db-c060-4d73-aaf3-da1e4ddcfe6a"}
+33k+
+:::
+:::
+:::table_cell{colwidth="68" nodeId="b05b185a-8822-437b-953d-51ec334d95ac"}
+:::paragraph{nodeId="276a48f1-58fd-43ec-ae72-ccefe391abd2"}
+最权威的 MCP Server 资源聚合仓库，收录 3000+ 经分类验证的 Server 实现，覆盖 20+ 垂直领域
+:::
+:::
+:::table_cell{colwidth="68" nodeId="1fa3a199-02b3-46f8-99f7-2e13096e5309"}
+:::paragraph{nodeId="1990fd4a-d4b2-4310-9f49-58a71943830d"}
+⭐⭐⭐
+:::
+:::
+:::
+:::table_row{nodeId="090253b9-fe3d-4306-a73a-6d6ad72fe353"}
+:::table_cell{colwidth="68" nodeId="267fc7d0-713f-41e3-9121-68c22dc98722"}
+:::paragraph{nodeId="f36dedc1-e266-49ea-804d-385e1ffb6d04"}
+2
+:::
+:::
+:::table_cell{colwidth="68" nodeId="266233dc-65af-4911-ab91-60206463078d"}
+:::paragraph{nodeId="10e7df0d-9e3f-45d9-b12f-d7c3d6a52380"}
+:[link]{href="https://github.com/modelcontextprotocol/servers" nodeId="9b64314f-0cc7-481b-b708-61ecfae35191"}modelcontextprotocol/servers[/link]
+:::
+:::
+:::table_cell{colwidth="68" nodeId="5392ee14-65f0-4515-becb-9c70bac07860"}
+:::paragraph{nodeId="ab2b89dd-432e-412e-9e01-b33edb0c297f"}
+16k+
+:::
+:::
+:::table_cell{colwidth="68" nodeId="0b3388cc-aafc-4c78-b40f-093e94afdf07"}
+:::paragraph{nodeId="3996d85a-7f8d-4132-81ca-5cb2a315dc04"}
+Anthropic 官方维护的 MCP Server 参考实现集合，含 Filesystem、GitHub、Slack、Postgres 等核心 Server
+:::
+:::
+:::table_cell{colwidth="68" nodeId="b4e62800-131f-4727-9996-ed8dd967142d"}
+:::paragraph{nodeId="0ade4326-dcac-4835-8f07-5d27408ad3be"}
+⭐⭐⭐
+:::
+:::
+:::
+:::table_row{nodeId="e706547d-20ae-4c0d-a2a4-c5ca70ce2b11"}
+:::table_cell{colwidth="68" nodeId="6d29dd68-5146-4368-a2c3-fb3da6b20ca2"}
+:::paragraph{nodeId="d9ae9d36-aa73-4e71-9ef6-fabf1ea49321"}
+3
+:::
+:::
+:::table_cell{colwidth="68" nodeId="70d6eb75-85f2-4f3b-bb25-6570e2daaad0"}
+:::paragraph{nodeId="954e1217-5091-4d20-9509-bd7d836c4421"}
+:[link]{href="https://github.com/mcp-best-practice/mcp-best-practice" nodeId="65073448-4ec6-4dcc-ad2e-4d8860061a0b"}MCP Best Practice（社区指南）[/link]
+:::
+:::
+:::table_cell{colwidth="68" nodeId="b0a59c51-81d8-458b-9d59-ca8bbee7c544"}
+:::paragraph{nodeId="9575c196-8a19-42e2-b59e-b25ab2e899f6"}
+—
+:::
+:::
+:::table_cell{colwidth="68" nodeId="0376688d-4ac7-4bcd-a12c-a4a8f9b2be22"}
+:::paragraph{nodeId="7d4536b9-e7b6-44f0-bcbd-41d82ecaa546"}
+社区维护的企业级 MCP Server 构建、部署和运维最佳实践指南
+:::
+:::
+:::table_cell{colwidth="68" nodeId="630c8fe7-4828-463f-82f8-2882e7fb4df6"}
+:::paragraph{nodeId="fa0db573-86b4-41bf-8663-e54159d990d7"}
+⭐⭐
+:::
+:::
+:::
+:::table_row
+:::table_cell{colwidth="68"}
+:::paragraph
+4
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+:[link]{href="https://km.sankuai.com/collabpage/2749624013"}MCP Server Tool 注册中心实践[/link]
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+学城
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+美团内部 MCP Server Tool 注册中心的设计与落地，含 Tool 元数据规范、版本管理和权限控制方案
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+⭐⭐⭐
+:::
+:::
+:::
+:::table_row
+:::table_cell{colwidth="68"}
+:::paragraph
+5
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+:[link]{href="https://mcp-docs.cn/docs/best-practices/architecture"}MCP 最佳实践架构设计[/link]
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+外部
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+MCP 中文站整理的架构设计最佳实践，覆盖 Server 分层、错误处理、并发控制和生产环境部署模式
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+⭐⭐⭐
+:::
+:::
+:::
+:::table_row
+:::table_cell{colwidth="68"}
+:::paragraph
+6
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+:[link]{href="https://github.com/microsoft/mcp-case-study"}Microsoft MCP Case Study[/link]
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+外部
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+微软将 MCP 集成到 GitHub Copilot 和 Azure AI 的完整案例，含架构图、性能数据和迁移路径
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+⭐⭐
+:::
+:::
+:::
+:::table_row
+:::table_cell{colwidth="68"}
+:::paragraph
+7
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+:[link]{href="https://km.sankuai.com/collabpage/2713327163"}FRIDAY MCP-Hub 接入手册[/link]
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+学城
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+美团 FRIDAY 平台 MCP-Hub 的完整接入文档，含注册流程、调试工具和常见问题，内部接入必读
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+⭐⭐⭐
+:::
+:::
+:::
+:::table_row
+:::table_cell{colwidth="68"}
+:::paragraph
+8
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+:[link]{href="https://km.sankuai.com/collabpage/2749624013"}MCP 鉴权指南[/link]
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+学城
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+美团内部 MCP 鉴权方案全解，覆盖 OAuth 2.0、API Key、SSO 三种模式的选型与实现，含安全审计要点
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+⭐⭐⭐
+:::
+:::
+:::
+:::
+
+:::blockquote{nodeId="6f1887b0-9484-4ce2-9d06-85d1e89c2149"}
+:::paragraph{nodeId="5eddb59f-e523-499d-bfc2-64fc085f6979"}
+💡 **上手路径：** 体验 MCP → 用 Claude Desktop 连接官方 Server（如 Filesystem）；评估生态 → 浏览 awesome-mcp-servers 仓库；自建 Server → 参考 Block 的设计模式 + The New Stack 的 15 条实践；美团内部 → 走 MDP Agent 一站式流程。
+:::
+:::
+
+:::horizontal_rule{nodeId="f66aaa96-da17-4350-82ef-9b17783ac19a"}:::
+
+:::heading{level=2 nodeId="c80ba187-40a0-4549-81c0-8e20da1a441b"}
+四、踩坑与排障：MCP 的常见问题
+:::
+
+:::paragraph{nodeId="2819f005-ef09-4288-8e56-5e2469a1e939"}
+**编者按：** MCP 当前面临的最突出挑战是**安全问题**——Tool Poisoning（工具描述投毒）被认为是 MCP 最大的安全漏洞：攻击者只需在 Tool 的 description 中注入隐性指令，就可能让 AI 泄露用户敏感数据。此外，**Token 膨胀**也是工程落地的高频痛点——每个 Tool 的 Schema 都会占据上下文窗口，Server 越多消耗越大。美团内部还踩过 Spring Profile 注入泳道失败导致 404、MCP Server 进程状态管理复杂等具体工程坑。
+:::
+
+:::heading{level=3 nodeId="1c61de6e-aa55-4adb-a337-b874ce467af9"}
+安全风险（重点关注）
+:::
+
+:::table{borderColor="#dddddd" borderStyle="solid" borderWidth=1 responsive=true nodeId="d4e37a95-e7b8-4e00-8a5a-5a6555106f4b"}
+:::table_row{nodeId="35fd2850-c997-444f-bed2-b39b11a31d8c"}
+:::table_header{colwidth="68" nodeId="9ec1a4cd-f5d0-4eb9-9fc0-5ea11609c186"}
+:::paragraph{nodeId="47f9c236-d7c8-4ef5-a94a-516a677c77ff"}
+#
+:::
+:::
+:::table_header{colwidth="68" nodeId="75146494-77a2-4f24-a43a-b37584e6a271"}
+:::paragraph{nodeId="a15eb422-5ec1-4be7-a56e-a47f9f3e875f"}
+标题
+:::
+:::
+:::table_header{colwidth="68" nodeId="3a053c29-7b0d-4813-a8bc-aa764c6bc54f"}
+:::paragraph{nodeId="6e7265a6-008f-44d0-90b5-a0c2ae833159"}
+来源
+:::
+:::
+:::table_header{colwidth="68" nodeId="9b80c6f5-f1bc-4215-acfb-5092d9f96536"}
+:::paragraph{nodeId="959f7063-4257-441a-9f47-3434cf567dbb"}
+一句话摘要
+:::
+:::
+:::table_header{colwidth="68" nodeId="1791ac20-b4d5-4dee-aeed-0136cfa6f86c"}
+:::paragraph{nodeId="824ad0de-8c51-41c0-8ae2-07573b7076e5"}
+推荐
+:::
+:::
+:::
+:::table_row{nodeId="2f368001-030e-4683-ba91-9e71597de6ef"}
+:::table_cell{colwidth="68" nodeId="0cb02e35-4e36-4429-b2d7-3b8272815e4a"}
+:::paragraph{nodeId="91902f2a-94b7-4577-b73b-9b4402bab144"}
+1
+:::
+:::
+:::table_cell{colwidth="68" nodeId="9e57716f-1e90-4e39-9df4-9751ed218533"}
+:::paragraph{nodeId="b2deb712-55a2-4ecb-a522-5853ac4438e1"}
+:[link]{href="https://km.sankuai.com/collabpage/2756053140" nodeId="d6cd1cc1-43f1-4d0a-be19-5ee62c23e78f"}Skill 攻防：安全、追踪、CLI 规范与 API 鉴权[/link]
+:::
+:::
+:::table_cell{colwidth="68" nodeId="9bf4d546-31bb-422e-a90a-50fb3a5c2117"}
+:::paragraph{nodeId="21dccff1-e318-408f-b6dd-ccea8d213d0a"}
+学城
+:::
+:::
+:::table_cell{colwidth="68" nodeId="77071b32-c28e-47f7-a85e-301382f09237"}
+:::paragraph{nodeId="d694bdde-3ef1-47b6-8f31-c63a4c90cc2f"}
+系统梳理三大高危威胁——供应链投毒、Tool Poisoning + Prompt Injection 组合攻击、资源消耗攻击，给出四层防御方案
+:::
+:::
+:::table_cell{colwidth="68" nodeId="04f842f5-d9de-418b-9c23-6890d5cb5ef0"}
+:::paragraph{nodeId="aad1a9bf-61ff-423b-bdcb-a3ec54390ba7"}
+⭐⭐⭐
+:::
+:::
+:::
+:::table_row{nodeId="03478abf-0ef4-46b8-b00e-55ee048e8eab"}
+:::table_cell{colwidth="68" nodeId="77e1717b-a220-424b-8420-f88181622fa8"}
+:::paragraph{nodeId="87dfeaf2-361d-43a3-82eb-e89edf7bb6a3"}
+2
+:::
+:::
+:::table_cell{colwidth="68" nodeId="1720d282-467a-4578-8dc8-ff4e2ff45f78"}
+:::paragraph{nodeId="d0f32a6a-5861-4db3-b960-d2a57a809d55"}
+:[link]{href="https://www.elastic.co/security-labs/mcp-tools-attack-defense-recommendations" nodeId="2818e418-b0de-40ea-a36f-9c99a2adc004"}MCP Tools: Attack Vectors and Defense（Elastic Security Labs）[/link]
+:::
+:::
+:::table_cell{colwidth="68" nodeId="5d9972fc-b1ca-4e67-95a1-7bb79e735c61"}
+:::paragraph{nodeId="99a8367a-5ef4-43d9-b02d-07e391fb0ba8"}
+外部
+:::
+:::
+:::table_cell{colwidth="68" nodeId="63e89704-c04e-4bb8-8500-88c662134c4d"}
+:::paragraph{nodeId="f8318d1c-eeea-4892-8ca5-5d250a67e1f8"}
+Elastic 安全团队系统研究 MCP 四类攻击向量：Tool Poisoning、Rug-Pull、Cross-Tool Injection，附防御方案
+:::
+:::
+:::table_cell{colwidth="68" nodeId="4cbdc796-9edb-42e9-a075-eabf69c0bd3b"}
+:::paragraph{nodeId="5cd23def-39e6-452e-9a04-63cd7de78b18"}
+⭐⭐⭐
+:::
+:::
+:::
+:::table_row{nodeId="7b04ec3d-0f75-4203-8bf1-8146c65c6174"}
+:::table_cell{colwidth="68" nodeId="8c766f68-aeeb-47b4-a124-d2cdc7c9fc0e"}
+:::paragraph{nodeId="c1ec0a30-7eb5-4b55-af2d-bad6c615388f"}
+3
+:::
+:::
+:::table_cell{colwidth="68" nodeId="26909522-141e-45c8-87e2-3aa91b146de5"}
+:::paragraph{nodeId="98bedcfb-c3eb-49b6-8413-e5a2d328589e"}
+:[link]{href="https://km.sankuai.com/collabpage/2754517858" nodeId="4fc3bd19-958d-4b63-8d09-eeb303590b1e"}MCP 安全：工具描述注入攻击与双层检测框架[/link]
+:::
+:::
+:::table_cell{colwidth="68" nodeId="650a11b5-9561-473f-b9fd-747ad78e1e50"}
+:::paragraph{nodeId="b9c74f77-8c78-4091-81ab-342032915158"}
+学城
+:::
+:::
+:::table_cell{colwidth="68" nodeId="8ea8759e-23d6-408f-aefb-62117c03162a"}
+:::paragraph{nodeId="2de0136c-e1c0-4f18-b990-f043c3b669ad"}
+对 arXiv 首篇 MCP 安全论文的深度拆解，提出静态语义分析+动态行为监控的双层检测框架
+:::
+:::
+:::table_cell{colwidth="68" nodeId="7137abe4-d5fb-444c-a293-2799865ac4f2"}
+:::paragraph{nodeId="4a90a6d6-f6ea-4dea-b899-32104a2d3c02"}
+⭐⭐⭐
+:::
+:::
+:::
+:::table_row{nodeId="3a6737aa-d194-442e-be3e-5d89799ddab6"}
+:::table_cell{colwidth="68" nodeId="b6af933a-2a53-484d-87ea-b40f0f7c7fbe"}
+:::paragraph{nodeId="6021fc8c-7c8e-432d-8445-9baddc2f12dd"}
+4
+:::
+:::
+:::table_cell{colwidth="68" nodeId="394426cf-ce16-402e-a0c2-5cde15b4c6ab"}
+:::paragraph{nodeId="e3394742-67fb-4945-882e-756e848ece3b"}
+:[link]{href="https://invariantlabs.ai/blog/mcp-security-notification-tool-poisoning-attacks" nodeId="491f22c1-df59-4c27-8849-b4e37bf2e0af"}MCP Security: Tool Poisoning Attacks（Invariant Labs）[/link]
+:::
+:::
+:::table_cell{colwidth="68" nodeId="6980cdc2-e75b-49b3-b75a-4d1193aa823b"}
+:::paragraph{nodeId="54d70db1-5e16-45ba-979c-c72f01bc1889"}
+外部
+:::
+:::
+:::table_cell{colwidth="68" nodeId="181d6838-25e0-4905-adad-f14c2d2ede52"}
+:::paragraph{nodeId="4a0f50b4-f7fb-461e-9b41-ab8932b894d7"}
+首次披露 Tool Poisoning Attack 漏洞的原始报告，Anthropic、OpenAI、Cursor 等均受影响
+:::
+:::
+:::table_cell{colwidth="68" nodeId="02346d05-a5f2-463d-848a-b41b254c423d"}
+:::paragraph{nodeId="cbc5f927-ddc3-4f4f-b72c-1e635f908cd4"}
+⭐⭐⭐
+:::
+:::
+:::
+:::table_row{nodeId="75e334b8-347d-40aa-8854-309fa8a1bf5a"}
+:::table_cell{colwidth="68" nodeId="2b4067b1-fa6f-4b7b-a6c6-27dafcd52f5a"}
+:::paragraph{nodeId="77d53c15-56e4-4cc4-a58e-442f806e1a45"}
+5
+:::
+:::
+:::table_cell{colwidth="68" nodeId="abc3ce12-9224-422a-8386-5e467444d7ca"}
+:::paragraph{nodeId="e3adfc4e-2c33-44bf-be45-807e57405917"}
+:[link]{href="https://www.secrss.com/articles/80884" nodeId="0c47ad2c-0bb6-4645-8cbc-48803124a5e9"}MCP 协议的七种安全风险解析与防护[/link]
+:::
+:::
+:::table_cell{colwidth="68" nodeId="053abcc3-c6ab-4f68-ae35-3f1ed30c487b"}
+:::paragraph{nodeId="d8dfd792-ba53-49f4-b23d-e055a670f855"}
+外部
+:::
+:::
+:::table_cell{colwidth="68" nodeId="97331762-15cd-4c62-a52f-68a904e9f582"}
+:::paragraph{nodeId="c734f57c-3345-40a2-9f48-8fb06104015a"}
+火山引擎从 MCP 全生命周期角度剖析七种安全风险，提出安全准入、原生安全设计、运行时防护三维度方案
+:::
+:::
+:::table_cell{colwidth="68" nodeId="3f0aee33-62bf-4d3a-b7a3-02eaa42410cf"}
+:::paragraph{nodeId="efc2c0de-b04b-402e-bc86-c6c80a35fb68"}
+⭐⭐⭐
+:::
+:::
+:::
+:::
+
+:::heading{level=3 nodeId="1945bd29-713f-4c7b-928f-aac67e08e4d4"}
+工程踩坑与调试
+:::
+
+:::table{borderColor="#dddddd" borderStyle="solid" borderWidth=1 responsive=true nodeId="0fd7fe9f-89e7-41e9-9046-9b7591eefdc3"}
+:::table_row{nodeId="341b8e47-5551-4059-816d-59822a8ab74a"}
+:::table_header{colwidth="68" nodeId="adcaa697-8dbd-460c-a6b2-77e784877c53"}
+:::paragraph{nodeId="06afd864-2971-49ef-ba27-0073210ec8ab"}
+#
+:::
+:::
+:::table_header{colwidth="68" nodeId="7ae679d3-f8fc-429e-994d-424817861f52"}
+:::paragraph{nodeId="fe1f7264-d472-42ad-8aa1-95c7f4800d70"}
+标题
+:::
+:::
+:::table_header{colwidth="68" nodeId="fb62fee3-7fb7-48a4-b529-33ad08f58d9e"}
+:::paragraph{nodeId="99b70d22-5aa2-4495-9686-916a1b633840"}
+来源
+:::
+:::
+:::table_header{colwidth="68" nodeId="02123000-c796-4277-84dc-df4953810f00"}
+:::paragraph{nodeId="c936a516-ad56-4c26-9701-a24494db8bdf"}
+一句话摘要
+:::
+:::
+:::table_header{colwidth="68" nodeId="6615accf-766f-4dfd-974f-4e1421191c22"}
+:::paragraph{nodeId="5810c8a5-da44-4772-a508-66cb349a29ac"}
+推荐
+:::
+:::
+:::
+:::table_row{nodeId="cea19b2e-79e8-40c5-8488-a751bbacc849"}
+:::table_cell{colwidth="68" nodeId="37e8ec13-5b2d-4ff8-bf58-8ba23fbff913"}
+:::paragraph{nodeId="2a872c2a-1a16-47c8-83ae-97f8837578ca"}
+1
+:::
+:::
+:::table_cell{colwidth="68" nodeId="0198acbd-7230-44a2-920b-409ad5169e1a"}
+:::paragraph{nodeId="9aa54633-4216-44b9-9bb5-fa22ef8a3341"}
+:[link]{href="https://km.sankuai.com/collabpage/2751452962" nodeId="96f8196c-22e0-438d-8c0b-007f1e4a6228"}CLI vs MCP 踩坑实录（美团结算系统）[/link]
+:::
+:::
+:::table_cell{colwidth="68" nodeId="82e4da63-6743-474f-844b-9925a3dd8be1"}
+:::paragraph{nodeId="310b6876-8872-4469-ac38-127325fbbf3a"}
+学城
+:::
+:::
+:::table_cell{colwidth="68" nodeId="00739782-b966-4fd1-ae2f-0664e74fe246"}
+:::paragraph{nodeId="30dbc386-afbc-43e8-8741-f37ddd4634ae"}
+Spring Profile 无法注入泳道致 404、Server 进程状态管理复杂、Tool Schema 长期占据上下文浪费 Token
+:::
+:::
+:::table_cell{colwidth="68" nodeId="c0398522-09ed-44f1-98c8-155b5f927225"}
+:::paragraph{nodeId="05272b4b-d7d0-4853-bca8-b1cb0c494870"}
+⭐⭐⭐
+:::
+:::
+:::
+:::table_row{nodeId="9c04c2f3-85e5-4f17-b55f-987a8e194e7e"}
+:::table_cell{colwidth="68" nodeId="f122d353-d598-4000-9912-c8553c20a7fd"}
+:::paragraph{nodeId="ffb6bc4a-f9d2-4929-b83e-7251f1d3817b"}
+2
+:::
+:::
+:::table_cell{colwidth="68" nodeId="415f74f1-a393-4cee-8c37-970e1cb055d6"}
+:::paragraph{nodeId="555953b5-14cf-48f3-8bea-f32f4cf38447"}
+:[link]{href="https://zhuanlan.zhihu.com/p/1900491248491529108" nodeId="76ef48ba-4bed-4826-8140-08986bc0fb23"}MCP 的那些"坑"！[/link]
+:::
+:::
+:::table_cell{colwidth="68" nodeId="49851ce6-a38b-4cea-b551-b951bc675a53"}
+:::paragraph{nodeId="d1cdcd49-2d4c-410a-b8a0-4b23e7383268"}
+外部
+:::
+:::
+:::table_cell{colwidth="68" nodeId="1aad0f38-612d-4de2-aa7a-a6b324d42a71"}
+:::paragraph{nodeId="7419fbcb-8738-454e-a1b0-b855036398b6"}
+从数据安全、调用逻辑、性能表现等角度列举 MCP 隐藏陷阱，含 Token 膨胀、权限控制缺失、生态碎片化
+:::
+:::
+:::table_cell{colwidth="68" nodeId="57067965-c47e-4f23-baa0-07fed36ff52e"}
+:::paragraph{nodeId="6be8af16-e2f7-4018-90df-31580be75282"}
+⭐⭐
+:::
+:::
+:::
+:::table_row{nodeId="64348cb8-0cfd-483d-8c61-356539dd0ce5"}
+:::table_cell{colwidth="68" nodeId="efa2e3e0-4ee5-4e71-83e7-da5bfc499813"}
+:::paragraph{nodeId="7449c8a2-0299-44ec-9728-727176803247"}
+3
+:::
+:::
+:::table_cell{colwidth="68" nodeId="72f10ecc-0b97-43e3-b42c-ffbdb8b24588"}
+:::paragraph{nodeId="2f667f0f-ac97-4c13-8177-fbbc706dce62"}
+:[link]{href="https://km.sankuai.com/collabpage/2707104275" nodeId="f0b2df8d-58bb-42f8-97ea-c28962553e1f"}MCP client-server 调试思路[/link]
+:::
+:::
+:::table_cell{colwidth="68" nodeId="d89d784a-f538-4eeb-a851-9142399dfae5"}
+:::paragraph{nodeId="e579050d-5899-4beb-98ea-caf17896d7ab"}
+学城
+:::
+:::
+:::table_cell{colwidth="68" nodeId="6759ae06-1186-46c8-ada2-9f09b1be1c99"}
+:::paragraph{nodeId="b4d11282-e366-40d3-bf0f-9397bbc41435"}
+针对 MCP Server 连接失败的三种排查思路：MCP Inspector 工具、手写 Client 调试、GitHub 社区兼容性问题
+:::
+:::
+:::table_cell{colwidth="68" nodeId="71657436-2d13-4eca-9b56-21d7ef82a635"}
+:::paragraph{nodeId="abfaee12-cc27-4ebb-99c3-7533204c6b11"}
+⭐⭐
+:::
+:::
+:::
+:::table_row{nodeId="d77834a6-32b3-46f2-84b2-ed8770ec141c"}
+:::table_cell{colwidth="68" nodeId="54104d92-9c1c-408c-929a-e968f9f47626"}
+:::paragraph{nodeId="8c1cb5ee-b5a8-4708-9f3b-43292ad6d262"}
+4
+:::
+:::
+:::table_cell{colwidth="68" nodeId="d8c66d1d-076b-41ce-a17b-2b84abe2cddf"}
+:::paragraph{nodeId="bf49a468-c0ca-497c-b308-836e3d828470"}
+:[link]{href="https://cloud.tencent.com/developer/article/2614918" nodeId="8439009c-0d79-47ec-bc01-3a186f92511e"}MCP 的性能瓶颈与优化（腾讯云）[/link]
+:::
+:::
+:::table_cell{colwidth="68" nodeId="9302acd8-73b0-4e47-9dc2-b604e701da70"}
+:::paragraph{nodeId="e0eeaa14-61ee-4272-bfdb-5d4cc501d750"}
+外部
+:::
+:::
+:::table_cell{colwidth="68" nodeId="b0733ec2-176d-4a03-9327-04c780ee16e2"}
+:::paragraph{nodeId="88e9be81-c767-48b3-ab53-5dcb564e1412"}
+分析序列化开销、同步通信阻塞等瓶颈，提出优化方案，实测吞吐量提升 300%、延迟降低 70%
+:::
+:::
+:::table_cell{colwidth="68" nodeId="c02b2cd8-a1a9-4282-8a34-b686fc9cb79a"}
+:::paragraph{nodeId="2f710fef-9f70-40c3-8b9f-f426a73e9dc5"}
+⭐⭐
+:::
+:::
+:::
+:::table_row
+:::table_cell{colwidth="68"}
+:::paragraph
+5
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+:[link]{href="https://www.infoq.cn/article/mcp-development-pitfalls"}MCP 开发避坑指南[/link]
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+外部
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+InfoQ 整理的 MCP 开发高频踩坑：Tool 描述歧义、并发竞态、超时处理、版本兼容，每条附解决方案
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+⭐⭐⭐
+:::
+:::
+:::
+:::table_row
+:::table_cell{colwidth="68"}
+:::paragraph
+6
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+:[link]{href="https://cloud.tencent.com/developer/article/2614919"}MCP 踩坑：HTTPS 万能胶[/link]
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+外部
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+腾讯云开发者实战记录，专讲 MCP over HTTPS 的证书、跨域、代理等配置坑，附可复用的排查 Checklist
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+⭐⭐
+:::
+:::
+:::
+:::
+
+:::blockquote{nodeId="41ac4998-5553-41d5-b4c2-b2174f755f65"}
+:::paragraph{nodeId="170c34bf-278b-410c-94a2-9e0c0f35292d"}
+💡 **安全防线优先级：** ① 审核第三方 MCP Server 的 Tool 描述（防 Tool Poisoning）→ ② 最小权限 + 敏感操作需用户确认 → ③ 输入验证 + 输出过滤（防 Prompt Injection）→ ④ Token 用量监控（防膨胀）。产品经理需要在 PRD 中明确安全审核流程。
+:::
+:::
+
+:::horizontal_rule{nodeId="2bb24583-0794-43d1-9b87-f08ee69eb5f7"}:::
+
+:::heading{level=2 nodeId="650618ef-ebbb-40cc-90af-c1c309a297d4"}
+五、延伸阅读
+:::
+
+:::paragraph{nodeId="32253273-7468-4982-a4c4-5daf2a4e3125"}
+以下资料未归入上述分类，但值得收藏备查：
+:::
+
+:::table{borderColor="#dddddd" borderStyle="solid" borderWidth=1 responsive=true nodeId="cb35bdc8-f226-4ba9-aeb2-3074027d95f1"}
+:::table_row{nodeId="b36e647b-3cb6-4c14-91f7-91e72ec72576"}
+:::table_header{colwidth="68" nodeId="0114742e-bdff-43b9-a663-cd4a15c5cce1"}
+:::paragraph{nodeId="02e2c981-ccaa-4c78-a41d-6096e270a069"}
+#
+:::
+:::
+:::table_header{colwidth="68" nodeId="d7b28da2-bb29-4bcf-9b0e-0d2efe83e421"}
+:::paragraph{nodeId="7a8fc682-9bd7-449a-864d-da2c6e8f2052"}
+标题
+:::
+:::
+:::table_header{colwidth="68" nodeId="aef79b10-6480-46c6-acc2-7b008846beaf"}
+:::paragraph{nodeId="b3aa7624-4b7b-4bbc-b681-fa4f283d199f"}
+来源
+:::
+:::
+:::table_header{colwidth="68" nodeId="6ae5fead-0d2a-4470-a79b-321ea844e31d"}
+:::paragraph{nodeId="ed4dae3f-004a-45f4-960a-4ace03d03e39"}
+一句话摘要
+:::
+:::
+:::table_header{colwidth="68" nodeId="7ad8a626-0ec5-4b28-9f33-821ba790b17d"}
+:::paragraph{nodeId="8e3ca52d-e894-4200-ae15-b3a68a6f2c2e"}
+推荐
+:::
+:::
+:::
+:::table_row{nodeId="97d220cd-b064-44d5-9c43-d055112d1cae"}
+:::table_cell{colwidth="68" nodeId="dbdd630f-bc2a-49b6-bf59-529021e6668a"}
+:::paragraph{nodeId="50e577fe-f0e7-4729-8685-213f660b5fef"}
+1
+:::
+:::
+:::table_cell{colwidth="68" nodeId="1c3f36e5-fa70-4f6a-8077-fbfd679bc3d5"}
+:::paragraph{nodeId="8ec3b629-c792-4a8f-b8bd-7c2c4d36830d"}
+:[link]{href="https://km.sankuai.com/collabpage/2716041559" nodeId="659d7ed0-d6c1-46b3-bd86-44f49e3c9896"}MCP 技术与 Function Call 深度解析[/link]
+:::
+:::
+:::table_cell{colwidth="68" nodeId="5f822374-9a57-4688-8d85-1fe030d45346"}
+:::paragraph{nodeId="cfea05a3-88f9-4ff4-ad0e-4996525a7749"}
+学城
+:::
+:::
+:::table_cell{colwidth="68" nodeId="000cd630-9b13-4e8b-9ef3-c3751acbba4a"}
+:::paragraph{nodeId="a742bf21-1aa6-4fba-adcb-2f5d3c427043"}
+用"USB 接口 vs 工具箱"的比喻由浅入深解析 FC 和 MCP 的核心原理差异
+:::
+:::
+:::table_cell{colwidth="68" nodeId="1560e843-f509-4987-ad3e-99eb202e18eb"}
+:::paragraph{nodeId="b9037ff5-40c6-4881-a3d9-68024de56882"}
+⭐⭐⭐
+:::
+:::
+:::
+:::table_row{nodeId="ec9d53e4-45b4-4f39-b114-b545df200cc7"}
+:::table_cell{colwidth="68" nodeId="3736834f-cd6f-4442-9b0a-f9d815867f4c"}
+:::paragraph{nodeId="3370c7ca-4723-48c3-bafb-4361b0f783ee"}
+2
+:::
+:::
+:::table_cell{colwidth="68" nodeId="1d10abc8-df87-4090-b811-8874674e4676"}
+:::paragraph{nodeId="d60cb17e-e922-4248-bf96-4e9cc918d618"}
+:[link]{href="https://cloud.tencent.com/developer/article/2611540" nodeId="84dae07d-4875-4f89-9e24-796832abc7d9"}MCP vs OpenAI Tools / LangChain Tools 选择指南[/link]
+:::
+:::
+:::table_cell{colwidth="68" nodeId="370b9d42-fa52-4bd1-a652-a6d1141ceb5d"}
+:::paragraph{nodeId="269800b8-a3c2-4bcb-a650-826814572331"}
+外部
+:::
+:::
+:::table_cell{colwidth="68" nodeId="4d617754-8870-424a-9684-30304fa2a47f"}
+:::paragraph{nodeId="c9525d15-1b32-4eb4-837d-7f5efba3360e"}
+三方对比含迁移策略，适合已有存量系统的团队评估
+:::
+:::
+:::table_cell{colwidth="68" nodeId="b3e6f250-2db1-4f15-b388-43a8aca39de4"}
+:::paragraph{nodeId="15ed27ea-7b18-4a65-8b28-b06f50d5f8c0"}
+⭐⭐
+:::
+:::
+:::
+:::table_row{nodeId="e52b59c8-5494-4cb5-84da-436a73b91e65"}
+:::table_cell{colwidth="68" nodeId="bd955ba9-3e0a-43fe-ac33-b9555e332d1d"}
+:::paragraph{nodeId="8125ee79-5e02-43f9-8da1-ba8353881e1a"}
+3
+:::
+:::
+:::table_cell{colwidth="68" nodeId="552f68ef-167f-4a8a-a5e9-80ba1d94d723"}
+:::paragraph{nodeId="5a4357ee-712e-4495-8879-f212d1d02e81"}
+:[link]{href="https://km.sankuai.com/collabpage/2755388258" nodeId="62d7ad9c-4eb7-4898-a0c8-5ce12357795b"}MCP 学习资料精选[/link]
+:::
+:::
+:::table_cell{colwidth="68" nodeId="57465c3d-3fc1-417f-ba4b-f23e1737b8d5"}
+:::paragraph{nodeId="94e6945c-d2da-4c47-b14d-00556564adea"}
+学城
+:::
+:::
+:::table_cell{colwidth="68" nodeId="4f1c02f8-3565-40e1-abab-89747a22035b"}
+:::paragraph{nodeId="a2bd8d45-4ab1-412a-821a-26ab964b8c89"}
+从官方文档、多语言 SDK 到社区教程的一站式学习资源索引
+:::
+:::
+:::table_cell{colwidth="68" nodeId="a2e36c6c-4072-4eca-88bf-4eca1361a904"}
+:::paragraph{nodeId="1d61ea5c-cb1a-4f29-9081-e50847e63657"}
+⭐⭐
+:::
+:::
+:::
+:::table_row{nodeId="eeb81c25-bd47-4536-8903-804a06ce78ee"}
+:::table_cell{colwidth="68" nodeId="fd49829b-6b83-46bc-8239-bfe69271b589"}
+:::paragraph{nodeId="148e857e-a982-4acf-9302-db53d4983307"}
+4
+:::
+:::
+:::table_cell{colwidth="68" nodeId="d538da1c-dded-41a6-b472-95d5552c540b"}
+:::paragraph{nodeId="8134ac51-7b63-4a00-824e-85f253a4ef73"}
+:[link]{href="https://km.sankuai.com/collabpage/2726097396" nodeId="e0f9f18f-7b51-4d3a-97cc-d736a994d08b"}MCP remote server/client 开发手册[/link]
+:::
+:::
+:::table_cell{colwidth="68" nodeId="83d18620-9876-441c-a9cd-fd0d5629f306"}
+:::paragraph{nodeId="c3a0a503-370c-4b1b-9bb3-9e8ae0514b58"}
+学城
+:::
+:::
+:::table_cell{colwidth="68" nodeId="7f813372-5f9e-4219-ab5c-87ffd17e555f"}
+:::paragraph{nodeId="3ffeb69c-ce89-46b6-b7c8-a97b15d1e552"}
+美团 MDP-AI 团队的 MCP Remote Server 开发手册，基于 Spring AI + Streamable HTTP，含完整代码示例
+:::
+:::
+:::table_cell{colwidth="68" nodeId="8cda60d0-2dde-479e-86fd-69f2fd12ccfd"}
+:::paragraph{nodeId="180fa59c-9a71-44da-9846-6eb79805730f"}
+⭐⭐
+:::
+:::
+:::
+:::table_row{nodeId="03743cd6-45a4-486f-9995-9b3a5eb3bbf8"}
+:::table_cell{colwidth="68" nodeId="5fbba721-2973-492d-a293-92bc7dd8cbc9"}
+:::paragraph{nodeId="74ea7b57-d143-4df2-93eb-5398495ffebe"}
+5
+:::
+:::
+:::table_cell{colwidth="68" nodeId="fe581779-5b2e-4b75-932b-c566f55e1dd7"}
+:::paragraph{nodeId="bbaacaba-c6c4-4030-8178-f67caecf76cc"}
+:[link]{href="https://cloud.tencent.com/developer/article/2552440" nodeId="9c0e169e-d0b3-4209-8cc8-a21aac21f5dc"}行业应用案例：MCP 在不同垂直领域的落地实践[/link]
+:::
+:::
+:::table_cell{colwidth="68" nodeId="14e20926-ed57-4cd1-ae37-90c620bf01e2"}
+:::paragraph{nodeId="31acffd4-ac49-4cba-bd1a-6c9309ef6451"}
+外部
+:::
+:::
+:::table_cell{colwidth="68" nodeId="b00d06a4-1803-4a72-9541-2304d82b3baa"}
+:::paragraph{nodeId="dfdbaef8-b4c2-40b0-a1e6-3fb645947d85"}
+覆盖金融合规、医疗安全、制造业实时性、教育个性化等多行业的 MCP 落地方法论
+:::
+:::
+:::table_cell{colwidth="68" nodeId="82c68cd0-b6ee-4c14-8711-1680a5c33fbe"}
+:::paragraph{nodeId="fa5c5715-10db-40fd-ba6b-0825b90e1968"}
+⭐⭐
+:::
+:::
+:::
+:::table_row{nodeId="fba5b9ee-50dd-44d4-a3dc-8b64d466f30c"}
+:::table_cell{colwidth="68" nodeId="60f52b9c-b8b9-40f4-b9ff-10d51d72646c"}
+:::paragraph{nodeId="4adc3bb0-0842-4d3f-973a-e06441b1cf13"}
+6
+:::
+:::
+:::table_cell{colwidth="68" nodeId="3b83e923-bb9d-48f2-b1de-0e5b78ac1396"}
+:::paragraph{nodeId="640592d7-fa82-42d2-b56b-7f77a4d21e57"}
+:[link]{href="https://km.sankuai.com/collabpage/2605771884" nodeId="3cd5f02a-5953-46fd-a11f-bc5c72ac6532"}【20241128】MCP 专题：打破 LLM 数据孤岛[/link]
+:::
+:::
+:::table_cell{colwidth="68" nodeId="aa2d8a2b-dc21-4dbe-914a-637c5d641875"}
+:::paragraph{nodeId="b6e073d6-7545-454d-b518-29ee5f1cd059"}
+学城
+:::
+:::
+:::table_cell{colwidth="68" nodeId="8076dfb0-ee79-471a-88fd-08c98386c066"}
+:::paragraph{nodeId="7ce31409-a684-4434-8ec0-10a4e9856f10"}
+MCP 刚开源时的第一时间专题汇编，了解 MCP "诞生之初"的行业反响
+:::
+:::
+:::table_cell{colwidth="68" nodeId="972e7ee0-bffd-4ee2-8dcb-d182e583d009"}
+:::paragraph{nodeId="8e42aaac-ba66-48c9-be1e-e2e37a29a61c"}
+⭐
+:::
+:::
+:::
+:::table_row
+:::table_cell{colwidth="68"}
+:::paragraph
+7
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+:[link]{href="https://blog.csdn.net/weixin_44648216/article/details/147000000"}大模型落地选型指南：CLI / MCP / Skills 怎么选[/link]
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+外部
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+CSDN 技术博客，系统梳理 CLI、MCP、Skills 三种大模型能力扩展方式的适用场景与选型决策树
+:::
+:::
+:::table_cell{colwidth="68"}
+:::paragraph
+⭐⭐
+:::
+:::
+:::
+:::
+
+:::horizontal_rule{nodeId="ae8a3ba9-ec8a-4c8c-8364-241a649315a9"}:::
+
+:::heading{level=2 nodeId="d51bb5a7-d668-438e-ab07-92fbfe2ee5ac"}
+收录统计
+:::
+
+:::table{borderColor="#dddddd" borderStyle="solid" borderWidth=1 responsive=true nodeId="8e8fb554-396e-4b1c-a0fa-30950e6e0315"}
+:::table_row{nodeId="5069abca-67c9-4b01-bd1b-48cb046476be"}
+:::table_header{colwidth="68" nodeId="d34499e4-0750-4609-b2fa-bbe806b44a5e"}
+:::paragraph{nodeId="9d4c4d86-fbc3-42a1-9a3c-147855ece0dd"}
+维度
+:::
+:::
+:::table_header{colwidth="68" nodeId="a488a7d9-5a25-4573-9492-1ba2d0592eee"}
+:::paragraph{nodeId="03b2ef22-30b2-44f4-b958-707fb1a7f47e"}
+总计
+:::
+:::
+:::table_header{colwidth="68" nodeId="45f02bb6-3b48-4d5f-9272-61a127cbd693"}
+:::paragraph{nodeId="f330981e-cfc0-4907-bb25-8d3ceef72e1f"}
+学城
+:::
+:::
+:::table_header{colwidth="68" nodeId="1d833a01-2cb0-43c3-8eb6-2b3f2958ab78"}
+:::paragraph{nodeId="d4ecae8a-db36-4283-81e3-841db4e66f45"}
+外部 / GitHub
+:::
+:::
+:::
+:::table_row{nodeId="25c58990-d383-4592-8ff3-aa8c7f2d6e80"}
+:::table_cell{colwidth="68" nodeId="28b81ee0-6cb8-4fbd-988a-f86a5c8f3e2c"}
+:::paragraph{nodeId="8c3fbab1-f3f1-4e25-9388-c67deddc26dc"}
+概念扫盲
+:::
+:::
+:::table_cell{colwidth="68" nodeId="fd46ad00-261e-4efd-8427-9d31c66c47b7"}
+:::paragraph{nodeId="575381a7-a6e1-4386-aebd-65cfcc57242d"}
+9 篇
+:::
+:::
+:::table_cell{colwidth="68" nodeId="7e55765e-a528-4388-9d19-4b6df50495fb"}
+:::paragraph{nodeId="c70c108f-21ff-4a95-8eee-216a44fbc8fb"}
+4 篇
+:::
+:::
+:::table_cell{colwidth="68" nodeId="291c620e-61e6-470f-915d-d5c935bb9f90"}
+:::paragraph{nodeId="21f6f2e3-a53b-4693-a876-5c703b6f137c"}
+5 篇
+:::
+:::
+:::
+:::table_row{nodeId="a5e14d8c-8245-4416-8a0f-ef313d4099d1"}
+:::table_cell{colwidth="68" nodeId="16751ba5-50d2-482a-b976-2450c05d5f52"}
+:::paragraph{nodeId="6fe3394c-5c0c-4a02-aa63-0230e89e9bed"}
+产品决策
+:::
+:::
+:::table_cell{colwidth="68" nodeId="1bc50765-70a5-4fec-a117-3c9cbeaf2a41"}
+:::paragraph{nodeId="8d759943-9bf0-4179-9738-b9a0996c4059"}
+12 篇
+:::
+:::
+:::table_cell{colwidth="68" nodeId="a7cd2452-0142-43db-9b6f-f8739e45be61"}
+:::paragraph{nodeId="d1a8467f-5a0b-459c-ad80-df6835187b17"}
+6 篇
+:::
+:::
+:::table_cell{colwidth="68" nodeId="c718ff08-6fe7-418e-adca-0695bd3afe2d"}
+:::paragraph{nodeId="0235907f-9d5a-4788-ab25-04b57d476b97"}
+6 篇
+:::
+:::
+:::
+:::table_row{nodeId="574149da-0577-45cf-a65e-4931e35f0aad"}
+:::table_cell{colwidth="68" nodeId="20139b95-2fc3-4b28-b7c6-e9b3543d9bca"}
+:::paragraph{nodeId="ba79678a-386a-428c-b884-a1bde909e951"}
+落地实践
+:::
+:::
+:::table_cell{colwidth="68" nodeId="25a30ae6-68eb-4869-abc1-93efeb089472"}
+:::paragraph{nodeId="830f2080-2c18-4db1-9303-79ec5237f6d3"}
+15 篇
+:::
+:::
+:::table_cell{colwidth="68" nodeId="0657755a-44e4-45db-8da7-9dd2f6ca0d3c"}
+:::paragraph{nodeId="6d0cf631-748b-4741-9fee-957412fa6516"}
+7 篇
+:::
+:::
+:::table_cell{colwidth="68" nodeId="851dba85-96d0-455a-8b24-0984f6ad5a12"}
+:::paragraph{nodeId="4bb04b65-697d-49b7-a1c7-6c9f73bde254"}
+8 篇（含 GitHub）
+:::
+:::
+:::
+:::table_row{nodeId="56d7eab7-b42c-4bab-85c5-18c59e9648df"}
+:::table_cell{colwidth="68" nodeId="cf5352c1-e0c8-404d-bf97-10819b3f419f"}
+:::paragraph{nodeId="d3fb566e-9aea-4607-877a-b56cc8e20c93"}
+踩坑排障
+:::
+:::
+:::table_cell{colwidth="68" nodeId="19593a2e-6c02-4dfb-b32b-33d3edc45825"}
+:::paragraph{nodeId="f4541987-283b-4a70-af43-240d5ecf891c"}
+11 篇
+:::
+:::
+:::table_cell{colwidth="68" nodeId="4204c827-5e09-4705-a253-b8e4c48df750"}
+:::paragraph{nodeId="b8c1db60-f9ab-4a3e-9ed3-8512561342fe"}
+4 篇
+:::
+:::
+:::table_cell{colwidth="68" nodeId="4c00b190-7333-462d-b8ee-757d8fc3edcd"}
+:::paragraph{nodeId="ffe571b2-42d6-4245-994f-78453b78e33a"}
+7 篇
+:::
+:::
+:::
+:::table_row{nodeId="51029130-cac2-4971-b6de-57a3d06e627b"}
+:::table_cell{colwidth="68" nodeId="9fdbd07b-a9c7-42d3-826b-ce4f8f53bb81"}
+:::paragraph{nodeId="e78ffa3c-13a4-4bac-9601-cea858e2dff3"}
+延伸阅读
+:::
+:::
+:::table_cell{colwidth="68" nodeId="cc8d8956-b1d9-43c6-8223-20d5d805efa2"}
+:::paragraph{nodeId="8905ca6d-5e62-45ab-b421-f337e62ba57e"}
+7 篇
+:::
+:::
+:::table_cell{colwidth="68" nodeId="dcfbc9de-d56c-4907-82c9-4deeadbacf0a"}
+:::paragraph{nodeId="efec6ae4-820f-4514-b3a3-5ccff43df836"}
+4 篇
+:::
+:::
+:::table_cell{colwidth="68" nodeId="eec503f3-eaa3-491f-b936-fb8fc6d93cfc"}
+:::paragraph{nodeId="954d29a1-05de-4184-a638-1d4f5543d2bd"}
+3 篇
+:::
+:::
+:::
+:::table_row{nodeId="3f75953d-ff22-45e1-81a3-35bb7d6c00e1"}
+:::table_cell{colwidth="68" nodeId="5fa93303-6b46-4909-a91b-e10ce206aec5"}
+:::paragraph{nodeId="c6500a1f-1bac-43f8-9216-681be4370e49"}
+**合计**
+:::
+:::
+:::table_cell{colwidth="68" nodeId="8484fca5-7ab9-4554-8203-586b6cea4d44"}
+:::paragraph{nodeId="618c2291-faef-4c5e-a581-90234718124c"}
+**54 篇**
+:::
+:::
+:::table_cell{colwidth="68" nodeId="7c89e194-d79f-4d36-ae13-b01f7707a7c3"}
+:::paragraph{nodeId="119984ab-5c53-495d-b988-1263722fb043"}
+**25 篇（46%）**
+:::
+:::
+:::table_cell{colwidth="68" nodeId="76a383f4-1e40-4cc4-9c07-0fb1d1dec8e1"}
+:::paragraph{nodeId="d8c6330c-8b61-40d7-a2cb-6b25d4fb2375"}
+**29 篇（54%）**
+:::
+:::
+:::
+:::
+
+:::horizontal_rule{nodeId="752529b4-d59e-498c-b1cf-36186e3245d1"}:::
+
+:::blockquote{nodeId="9f38a9a8-f04a-423a-b16b-c2c981292123"}
+:::paragraph{nodeId="03c5e526-055b-45db-a704-202de2a22a27"}
+本文由 AI 辅助整理，资料收录截止 2025 年 4 月 27 日，如有补充请评论区留言。
+:::
+:::

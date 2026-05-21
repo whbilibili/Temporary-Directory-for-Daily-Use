@@ -1,0 +1,5 @@
+# 若希望开关仅本地生效、不提交团队，可取消下一行注释
+# .cursor/code-agent-config.json
+
+node_modules/
+.DS_Store

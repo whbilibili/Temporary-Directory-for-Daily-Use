@@ -1,0 +1,1636 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Graph RAG 面试题精选</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+/* ============================================================
+   设计令牌系统
+   ============================================================ */
+:root {
+  --accent-start: #667eea;
+  --accent-end:   #764ba2;
+  --accent-mid:   #7c6ef0;
+  --accent-rgb:   102, 126, 234;
+
+  --color-text-primary:   #0f0f23;
+  --color-text-secondary: #4a4a6a;
+  --color-text-muted:     #8888aa;
+  --color-text-inverse:   #ffffff;
+
+  --color-bg:        #f8f9ff;
+  --color-surface:   #ffffff;
+  --color-surface-2: #f0f2ff;
+  --color-surface-3: #e8eaff;
+
+  --color-border:       rgba(0, 0, 40, 0.08);
+  --color-border-strong: rgba(0, 0, 40, 0.16);
+
+  --space-1:  0.25rem;
+  --space-2:  0.5rem;
+  --space-3:  0.75rem;
+  --space-4:  1rem;
+  --space-5:  1.25rem;
+  --space-6:  1.5rem;
+  --space-8:  2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+
+  --radius-sm:   6px;
+  --radius-md:   12px;
+  --radius-lg:   20px;
+  --radius-xl:   32px;
+  --radius-full: 9999px;
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 20, 0.04);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 20, 0.04), 0 1px 2px rgba(0, 0, 20, 0.06);
+  --shadow-md: 0 4px 12px rgba(0, 0, 20, 0.06), 0 2px 4px rgba(0, 0, 20, 0.04);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 20, 0.08), 0 4px 8px rgba(0, 0, 20, 0.04);
+  --shadow-xl: 0 20px 60px rgba(0, 0, 20, 0.12), 0 8px 16px rgba(0, 0, 20, 0.06);
+
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Courier New', monospace;
+
+  --text-xs:   0.75rem;
+  --text-sm:   0.875rem;
+  --text-base: 1rem;
+  --text-lg:   1.125rem;
+  --text-xl:   1.25rem;
+  --text-2xl:  1.5rem;
+  --text-3xl:  1.875rem;
+  --text-4xl:  2.25rem;
+  --text-5xl:  3rem;
+
+  --leading-tight:  1.25;
+  --leading-snug:   1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+
+  --transition-fast:   150ms ease;
+  --transition-base:   250ms ease;
+  --transition-slow:   400ms ease;
+  --transition-spring: 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --container-md:  768px;
+  --container-lg:  1024px;
+  --container-xl:  1200px;
+}
+
+[data-theme="dark"] {
+  --color-text-primary:   #e8e8f0;
+  --color-text-secondary: #9898b8;
+  --color-text-muted:     #5a5a7a;
+  --color-bg:        #0f0f23;
+  --color-surface:   #1a1a2e;
+  --color-surface-2: #16213e;
+  --color-surface-3: #1e2a45;
+  --color-border:       rgba(255, 255, 255, 0.08);
+  --color-border-strong: rgba(255, 255, 255, 0.16);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-primary);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── 阅读进度条 ── */
+.progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 9999;
+  background: linear-gradient(90deg, var(--accent-start), var(--accent-end));
+  transform-origin: left center;
+  transform: scaleX(0);
+  animation: scroll-progress linear both;
+  animation-timeline: scroll(root block);
+}
+
+@keyframes scroll-progress {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+/* ── 布局 ── */
+.container {
+  max-width: var(--container-xl);
+  margin: 0 auto;
+  padding: 0 var(--space-6);
+}
+
+.container-narrow {
+  max-width: var(--container-md);
+  margin: 0 auto;
+  padding: 0 var(--space-6);
+}
+
+/* ── 深色模式切换 ── */
+.theme-toggle {
+  position: fixed;
+  top: var(--space-4);
+  right: var(--space-4);
+  z-index: 1000;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  transition: background var(--transition-base), border-color var(--transition-base), transform var(--transition-spring);
+  box-shadow: var(--shadow-md);
+}
+
+.theme-toggle:hover {
+  transform: scale(1.1);
+}
+
+.theme-toggle .icon-light { display: block; }
+.theme-toggle .icon-dark  { display: none; }
+[data-theme="dark"] .theme-toggle .icon-light { display: none; }
+[data-theme="dark"] .theme-toggle .icon-dark  { display: block; }
+
+/* ── Hero ── */
+.hero {
+  padding: var(--space-24) 0 var(--space-16);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 800px;
+  height: 800px;
+  background: radial-gradient(circle, rgba(var(--accent-rgb), 0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-badge {
+  display: inline-block;
+  padding: var(--space-1) var(--space-4);
+  background: rgba(var(--accent-rgb), 0.1);
+  color: var(--accent-mid);
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-6);
+}
+
+.hero-title {
+  font-size: clamp(var(--text-3xl), 5vw, var(--text-5xl));
+  font-weight: 800;
+  line-height: var(--leading-tight);
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-6);
+  background: linear-gradient(135deg, var(--color-text-primary) 0%, var(--accent-mid) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-subtitle {
+  font-size: var(--text-xl);
+  color: var(--color-text-secondary);
+  max-width: 640px;
+  margin: 0 auto var(--space-8);
+  line-height: var(--leading-relaxed);
+}
+
+.hero-stats {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-10);
+  flex-wrap: wrap;
+}
+
+.hero-stat {
+  text-align: center;
+}
+
+.hero-stat-value {
+  font-size: var(--text-3xl);
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--accent-start), var(--accent-end));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-stat-label {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin-top: var(--space-1);
+}
+
+/* ── 锚点导航 ── */
+.toc {
+  position: fixed;
+  left: var(--space-6);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  z-index: 100;
+}
+
+.toc-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  background: var(--color-border-strong);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  position: relative;
+}
+
+.toc-dot::after {
+  content: attr(data-label);
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+  pointer-events: none;
+  font-weight: 500;
+}
+
+.toc-dot:hover::after,
+.toc-dot.active::after {
+  opacity: 1;
+}
+
+.toc-dot.active {
+  background: var(--accent-mid);
+  transform: scale(1.4);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.2);
+}
+
+@media (max-width: 1200px) {
+  .toc { display: none; }
+}
+
+/* ── Section Header ── */
+.section-header {
+  text-align: center;
+  margin-bottom: var(--space-12);
+}
+
+.section-label {
+  display: inline-block;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--accent-mid);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: var(--space-3);
+  background: rgba(var(--accent-rgb), 0.1);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+}
+
+.section-title {
+  font-size: clamp(var(--text-2xl), 3vw, var(--text-4xl));
+  font-weight: 800;
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
+  line-height: var(--leading-tight);
+  margin-bottom: var(--space-4);
+}
+
+.section-subtitle {
+  font-size: var(--text-lg);
+  color: var(--color-text-secondary);
+  max-width: 560px;
+  margin: 0 auto;
+  line-height: var(--leading-relaxed);
+}
+
+/* ── 手风琴 ── */
+.accordion {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.accordion-item {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: var(--space-3);
+  background: var(--color-surface);
+  transition: box-shadow var(--transition-base);
+}
+
+.accordion-item:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.accordion-header {
+  width: 100%;
+  padding: var(--space-5) var(--space-6);
+  background: var(--color-surface);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  text-align: left;
+  transition: background var(--transition-base);
+  font-family: var(--font-sans);
+  gap: var(--space-4);
+}
+
+.accordion-header:hover {
+  background: var(--color-surface-2);
+}
+
+.accordion-q-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--accent-start), var(--accent-end));
+  color: white;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.accordion-title-text {
+  flex: 1;
+}
+
+.accordion-icon {
+  transition: transform var(--transition-base);
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.accordion-item.open .accordion-icon {
+  transform: rotate(180deg);
+}
+
+.accordion-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, padding 0.4s ease;
+  padding: 0 var(--space-6);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-relaxed);
+  font-size: var(--text-sm);
+}
+
+.accordion-item.open .accordion-body {
+  max-height: 3000px;
+  padding: 0 var(--space-6) var(--space-6);
+}
+
+.accordion-body h4 {
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: var(--space-5) 0 var(--space-3);
+}
+
+.accordion-body h4:first-child {
+  margin-top: 0;
+}
+
+.accordion-body p {
+  margin-bottom: var(--space-3);
+  line-height: var(--leading-relaxed);
+}
+
+.accordion-body ul, .accordion-body ol {
+  margin: var(--space-3) 0;
+  padding-left: var(--space-6);
+}
+
+.accordion-body li {
+  margin-bottom: var(--space-2);
+}
+
+.accordion-body strong {
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+/* ── 代码块 ── */
+.code-block {
+  background: #1e1e2e;
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  margin: var(--space-4) 0;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  color: #cdd6f4;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+[data-theme="dark"] .code-block {
+  background: #11111b;
+}
+
+.code-block .keyword { color: #cba6f7; }
+.code-block .function { color: #89b4fa; }
+.code-block .string { color: #a6e3a1; }
+.code-block .comment { color: #6c7086; font-style: italic; }
+.code-block .number { color: #fab387; }
+
+/* ── 对比表格 ── */
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  margin: var(--space-6) 0;
+}
+
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--color-surface);
+  font-size: var(--text-sm);
+}
+
+.comparison-table th {
+  padding: var(--space-4) var(--space-5);
+  background: var(--color-surface-2);
+  font-weight: 600;
+  text-align: left;
+  color: var(--color-text-secondary);
+  font-size: var(--text-xs);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.comparison-table td {
+  padding: var(--space-3) var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  vertical-align: top;
+}
+
+.comparison-table td:first-child {
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  background: var(--color-surface-2);
+  white-space: nowrap;
+}
+
+.comparison-table tr:last-child td {
+  border-bottom: none;
+}
+
+.comparison-table tr:hover td {
+  background: rgba(var(--accent-rgb), 0.03);
+}
+
+/* ── Callout ── */
+.callout {
+  display: flex;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-6);
+  border-radius: var(--radius-md);
+  border-left: 4px solid;
+  margin: var(--space-5) 0;
+}
+
+.callout-info {
+  background: rgba(var(--accent-rgb), 0.06);
+  border-left-color: var(--accent-mid);
+}
+
+.callout-success {
+  background: rgba(34, 197, 94, 0.06);
+  border-left-color: #22c55e;
+}
+
+.callout-warning {
+  background: rgba(245, 158, 11, 0.06);
+  border-left-color: #f59e0b;
+}
+
+.callout-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.callout-content strong {
+  display: block;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-1);
+  font-size: var(--text-sm);
+}
+
+.callout-content p {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-relaxed);
+  margin: 0;
+}
+
+/* ── 流程步骤 ── */
+.pipeline-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-5);
+  margin: var(--space-6) 0;
+}
+
+.pipeline-step {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.pipeline-step::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-start), var(--accent-end));
+}
+
+.pipeline-step:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.pipeline-step-num {
+  font-size: 2.5rem;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--accent-mid);
+  opacity: 0.12;
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-4);
+}
+
+.pipeline-step h5 {
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-2);
+}
+
+.pipeline-step p {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-relaxed);
+}
+
+/* ── 速查表格 ── */
+.quick-ref {
+  margin: var(--space-8) auto;
+  max-width: 900px;
+}
+
+/* ── 架构图 ── */
+.arch-diagram {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-8);
+  margin: var(--space-6) 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: 1.8;
+  white-space: pre;
+  overflow-x: auto;
+  color: var(--color-text-secondary);
+  box-shadow: var(--shadow-sm);
+}
+
+.arch-diagram .highlight {
+  color: var(--accent-mid);
+  font-weight: 600;
+}
+
+/* ── Footer ── */
+.footer {
+  padding: var(--space-10) 0;
+  border-top: 1px solid var(--color-border);
+  margin-top: var(--space-24);
+}
+
+.footer-text {
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+/* ── 动画 ── */
+.animate-on-scroll {
+  opacity: 0;
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.animate-on-scroll.visible {
+  opacity: 1;
+  transform: none !important;
+}
+
+.fade-up    { transform: translateY(32px); }
+.fade-left  { transform: translateX(-48px); }
+.scale-in   { transform: scale(0.88); }
+
+.stagger > *:nth-child(1)  { transition-delay: 0.00s; }
+.stagger > *:nth-child(2)  { transition-delay: 0.08s; }
+.stagger > *:nth-child(3)  { transition-delay: 0.16s; }
+.stagger > *:nth-child(4)  { transition-delay: 0.24s; }
+.stagger > *:nth-child(5)  { transition-delay: 0.32s; }
+.stagger > *:nth-child(6)  { transition-delay: 0.40s; }
+.stagger > *:nth-child(7)  { transition-delay: 0.48s; }
+.stagger > *:nth-child(8)  { transition-delay: 0.56s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-on-scroll {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .progress-bar {
+    animation: none;
+    transform: scaleX(1);
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent-mid);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+/* ── 响应式 ── */
+@media (max-width: 640px) {
+  .container, .container-narrow {
+    padding: 0 var(--space-4);
+  }
+  .hero {
+    padding: var(--space-16) 0 var(--space-12);
+  }
+  .hero-stats {
+    gap: var(--space-6);
+  }
+  .pipeline-steps {
+    grid-template-columns: 1fr;
+  }
+}
+  </style>
+</head>
+<body>
+  <div class="progress-bar" aria-hidden="true"></div>
+
+  <button id="theme-toggle" class="theme-toggle" aria-label="切换深色/浅色模式">
+    <span class="icon-light">☀️</span>
+    <span class="icon-dark">🌙</span>
+  </button>
+
+  <!-- 锚点导航 -->
+  <nav class="toc" aria-label="页面目录">
+    <div class="toc-dot active" data-target="hero" data-label="概览"></div>
+    <div class="toc-dot" data-target="level-1" data-label="基础概念"></div>
+    <div class="toc-dot" data-target="level-2" data-label="核心算法"></div>
+    <div class="toc-dot" data-target="level-3" data-label="工程实践"></div>
+    <div class="toc-dot" data-target="level-4" data-label="系统设计"></div>
+    <div class="toc-dot" data-target="level-5" data-label="深度追问"></div>
+    <div class="toc-dot" data-target="appendix" data-label="速查表"></div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero" id="hero">
+    <div class="container">
+      <div class="hero-badge animate-on-scroll fade-up">Technical Interview</div>
+      <h1 class="hero-title animate-on-scroll fade-up">Graph RAG 面试题精选</h1>
+      <p class="hero-subtitle animate-on-scroll fade-up">覆盖五个层次：基础概念 / 核心算法 / 工程实践 / 系统设计 / 深度追问</p>
+      <div class="hero-stats animate-on-scroll fade-up">
+        <div class="hero-stat">
+          <div class="hero-stat-value"><span class="counter" data-target="18">0</span></div>
+          <div class="hero-stat-label">精选题目</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value"><span class="counter" data-target="5">0</span></div>
+          <div class="hero-stat-label">递进层次</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value"><span class="counter" data-target="10">0</span></div>
+          <div class="hero-stat-label">高频考点</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 第一层：基础概念 -->
+  <section id="level-1" style="padding: var(--space-16) 0;">
+    <div class="container">
+      <div class="section-header animate-on-scroll fade-up">
+        <span class="section-label">Level 1</span>
+        <h2 class="section-title">基础概念题</h2>
+        <p class="section-subtitle">理解 Graph RAG 的核心定义、适用场景和基本组件</p>
+      </div>
+
+      <div class="accordion stagger">
+        <!-- Q1 -->
+        <div class="accordion-item animate-on-scroll fade-up">
+          <button class="accordion-header">
+            <span class="accordion-q-number">Q1</span>
+            <span class="accordion-title-text">什么是 Graph RAG？它和传统 RAG 的核心区别是什么？</span>
+            <span class="accordion-icon">▼</span>
+          </button>
+          <div class="accordion-body">
+            <p>传统 RAG 的检索单元是文本块（chunk），通过向量相似度找到最相关的若干段落后拼接给 LLM。它的本质是"局部语义匹配"，对跨文档、跨段落的关联关系无能为力。</p>
+            <p>Graph RAG 在此基础上引入了知识图谱层。核心流程分为两阶段：</p>
+            <h4>索引阶段</h4>
+            <p>对原始文档做实体抽取（Entity Extraction）和关系抽取（Relation Extraction），构建一张以实体为节点、关系为边的知识图谱；再对图做社区检测（Community Detection），将关联紧密的实体聚合成社区，并为每个社区生成摘要。</p>
+            <h4>检索阶段</h4>
+            <ul>
+              <li><strong>Local Search</strong>：从查询实体出发，沿图的邻居关系做 K 跳游走，适合"某个具体实体的详细信息"类问题。</li>
+              <li><strong>Global Search</strong>：汇总所有社区摘要，做 Map-Reduce 式全局推理，适合"整个语料库的宏观趋势"类问题。</li>
+            </ul>
+            <div class="callout callout-info">
+              <div class="callout-icon">💡</div>
+              <div class="callout-content">
+                <strong>核心区别</strong>
+                <p>传统 RAG 检索的是"相似文本片段"，Graph RAG 检索的是"结构化知识子图"，后者天然支持多跳推理和全局摘要。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="accordion-item animate-on-scroll fade-up">
+          <button class="accordion-header">
+            <span class="accordion-q-number">Q2</span>
+            <span class="accordion-title-text">Graph RAG 适合哪些场景？哪些场景不适合？</span>
+            <span class="accordion-icon">▼</span>
+          </button>
+          <div class="accordion-body">
+            <h4>适合的场景</h4>
+            <ul>
+              <li><strong>多跳推理</strong>：如"A 公司的 CEO 毕业于哪所大学？"需要跨越多个实体关系。</li>
+              <li><strong>全局摘要</strong>：如"这批财报中，哪些风险因素被反复提及？"需要跨文档聚合。</li>
+              <li><strong>关系探索</strong>：如知识图谱问答、供应链分析、医疗知识库。</li>
+              <li><strong>长文档理解</strong>：文档内部实体关系复杂，向量检索容易丢失结构信息。</li>
+            </ul>
+            <h4>不适合的场景</h4>
+            <ul>
+              <li><strong>简单事实查询</strong>：如"XX 产品的价格是多少？"传统 RAG 已足够。</li>
+              <li><strong>实时性要求极高</strong>：图的构建和社区检测是离线批处理，无法做到秒级更新。</li>
+              <li><strong>语料库极小</strong>：图结构的优势在大规模、高密度关联的语料上才能体现。</li>
+              <li><strong>非结构化程度极高</strong>：如纯图片、音频，无法直接抽取实体关系。</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="accordion-item animate-on-scroll fade-up">
+          <button class="accordion-header">
+            <span class="accordion-q-number">Q3</span>
+            <span class="accordion-title-text">什么是社区检测？Leiden 算法相比 Louvain 有什么改进？</span>
+            <span class="accordion-icon">▼</span>
+          </button>
+          <div class="accordion-body">
+            <p>社区检测是图分析中将节点划分为若干"社区"的过程，同一社区内的节点连接紧密，不同社区间连接稀疏。在 Graph RAG 中，社区对应一组语义相关的实体集合，社区摘要是 Global Search 的核心检索单元。</p>
+            <h4>Louvain 算法</h4>
+            <p>核心思想是贪心优化模块度（Modularity）：先将每个节点视为独立社区，然后反复将节点移入能最大化模块度增益的邻居社区，直到收敛。速度快，但可能产生"内部不连通"的社区。</p>
+            <h4>Leiden 算法</h4>
+            <p>在 Louvain 基础上增加了"精炼（Refinement）"阶段：在每轮社区合并后，对社区内部做子社区分裂，确保每个社区都是内部连通的。产生的社区质量更高、更稳定，且理论上保证收敛到更优解。</p>
+            <div class="callout callout-success">
+              <div class="callout-icon">✅</div>
+              <div class="callout-content">
+                <strong>关键优势</strong>
+                <p>Leiden 还支持层级社区（Hierarchical Communities），不同层级对应不同粒度的摘要，检索时可按需选择层级。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="accordion-item animate-on-scroll fade-up">
+          <button class="accordion-header">
+            <span class="accordion-q-number">Q4</span>
+            <span class="accordion-title-text">Local Search 和 Global Search 分别是什么？如何选择？</span>
+            <span class="accordion-icon">▼</span>
+          </button>
+          <div class="accordion-body">
+            <div class="table-wrapper">
+              <table class="comparison-table">
+                <thead>
+                  <tr>
+                    <th>维度</th>
+                    <th>Local Search</th>
+                    <th>Global Search</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>流程</td>
+                    <td>查询向量化 → 找种子实体 → K 跳图游走 → 收集上下文 → LLM 生成</td>
+                    <td>加载社区摘要 → Map（并行生成局部答案）→ Reduce（汇总最终答案）</td>
+                  </tr>
+                  <tr>
+                    <td>特点</td>
+                    <td>上下文精准、token 消耗少、延迟低</td>
+                    <td>覆盖全局、支持宏观推理，但 token 消耗大、延迟高</td>
+                  </tr>
+                  <tr>
+                    <td>适用</td>
+                    <td>针对特定实体的具体问题</td>
+                    <td>需要跨文档聚合的宏观问题</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p><strong>选择策略：</strong>实际系统中通常做查询意图分类，将问题路由到对应路径；也可以做 Hybrid Search，先 Local 再 Global，用 RRF 融合两路结果。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 第二层：核心算法 -->
+  <section id="level-2" style="padding: var(--space-16) 0;">
+    <div class="container">
+      <div class="section-header animate-on-scroll fade-up">
+        <span class="section-label">Level 2</span>
+        <h2 class="section-title">核心算法题</h2>
+        <p class="section-subtitle">深入实体抽取、图嵌入、检索融合等关键算法</p>
+      </div>
+
+      <div class="accordion stagger">
+        <!-- Q5 -->
+        <div class="accordion-item animate-on-scroll fade-up">
+          <button class="accordion-header">
+            <span class="accordion-q-number">Q5</span>
+            <span class="accordion-title-text">实体抽取和关系抽取的工程实现方案有哪些？</span>
+            <span class="accordion-icon">▼</span>
+          </button>
+          <div class="accordion-body">
+            <h4>方案一：基于 LLM 的 Prompt 抽取（主流方案）</h4>
+            <p>直接用 LLM 通过 Prompt 抽取实体和关系，输出结构化 JSON。</p>
+            <p>优点：无需标注数据、泛化能力强。缺点：成本高、速度慢、输出格式不稳定。</p>
+            <p>工程优化：使用 <strong>Gleaning 机制</strong>——第一轮抽取后，让 LLM 检查是否有遗漏，进行补充抽取，通常做 1-2 轮即可显著提升召回率。</p>
+            <h4>方案二：基于 NLP 工具的传统方案</h4>
+            <p>使用 spaCy、Stanford NLP、HanLP 等工具做 NER 和关系抽取。速度快、成本低，但对领域特定实体效果差。</p>
+            <h4>方案三：Fine-tuned 小模型</h4>
+            <p>在领域数据上微调 BERT/RoBERTa 等模型。在特定领域精度高，但需要标注数据、维护成本高。</p>
+            <div class="callout callout-info">
+              <div class="callout-icon">💡</div>
+              <div class="callout-content">
+                <strong>实际工程选择</strong>
+                <p>通用场景用 LLM Prompt 方案；高频、大规模场景用小模型做粗筛 + LLM 做精抽取的两阶段流水线。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Q6 -->
+        <div class="accordion-item animate-on-scroll fade-up">
+          <button class="accordion-header">
+            <span class="accordion-q-number">Q6</span>
+            <span class="accordion-title-text">什么是实体链接？为什么在 Graph RAG 中很重要？</span>
+            <span class="accordion-icon">▼</span>
+          </button>
+          <div class="accordion-body">
+            <p>实体链接（Entity Linking）是将文本中提到的实体指称映射到知识库中唯一实体的过程。例如，"苹果公司"、"Apple Inc."、"AAPL" 应该被识别为同一个实体节点。</p>
+            <h4>不做实体链接的后果</h4>
+            <ul>
+              <li><strong>图结构碎片化</strong>：本应连通的节点变成孤立节点，多跳推理断链。</li>
+              <li><strong>社区质量下降</strong>：相关实体被分散到不同社区，摘要质量变差。</li>
+              <li><strong>检索召回率低</strong>：查询"Apple"时找不到"苹果公司"相关的节点。</li>
+            </ul>
+            <h4>工程实现</h4>
+            <div class="code-block"><span class="comment"># 基于嵌入相似度的实体链接</span>
+<span class="keyword">def</span> <span class="function">entity_linking</span>(mention, entity_index, threshold=<span class="number">0.85</span>):
+    mention_emb = embed(mention)
+    candidates = []
+    <span class="keyword">for</span> entity_id, entity_emb <span class="keyword">in</span> entity_index.items():
+        sim = cosine_similarity(mention_emb, entity_emb)
+        <span class="keyword">if</span> sim > threshold:
+            candidates.append((entity_id, sim))
+    <span class="keyword">if</span> candidates:
+        <span class="keyword">return</span> max(candidates, key=<span class="keyword">lambda</span> x: x[<span class="number">1</span>])[<span class="number">0</span>]
+    <span class="keyword">else</span>:
+        <span class="keyword">return</span> create_new_entity(mention)</div>
+          </div>
+        </div>
+
+        <!-- Q7 -->
+        <div class="accordion-item animate-on-scroll fade-up">
+          <button class="accordion-header">
+            <span class="accordion-q-number">Q7</span>
+            <span class="accordion-title-text">图嵌入在 Graph RAG 中的作用？Node2Vec vs GraphSAGE</span>
+            <span class="accordion-icon">▼</span>
+          </button>
+          <div class="accordion-body">
+            <p>图嵌入将图中的节点映射为低维稠密向量，使得图结构信息可以被向量检索系统利用。主要用于：实体检索、实体链接、社区初始化。</p>
+            <div class="table-wrapper">
+              <table class="comparison-table">
+                <thead>
+                  <tr>
+                    <th>维度</th>
+                    <th>Node2Vec</th>
+                    <th>GraphSAGE</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>原理</td>
+                    <td>随机游走 + Word2Vec Skip-Gram</td>
+                    <td>聚合邻居节点特征（Inductive Learning）</td>
+                  </tr>
+                  <tr>
+                    <td>特点</td>
+                    <td>可捕获同质性或结构等价性</td>
+                    <td>可为新节点生成嵌入</td>
+                  </tr>
+                  <tr>
+                    <td>缺点</td>
+                    <td>Transductive，无法处理新节点</td>
+                    <td>需要节点有初始特征</td>
+                  </tr>
+                  <tr>
+                    <td>适用</td>
+                    <td>静态图，简单高效</td>
+                    <td>动态更新图，频繁新增实体</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Q8 -->
+        <div class="accordion-item animate-on-scroll fade-up">
+          <button class="accordion-header">
+            <span class="accordion-q-number">Q8</span>
+            <span class="accordion-title-text">RRF 是什么？在混合检索中如何应用？</span>
+            <span class="accordion-icon">▼</span>
+          </button>
+          <div class="accordion-body">
+            <p>RRF（Reciprocal Rank Fusion，倒数排名融合）是一种无参数的多路检索结果融合算法。公式：</p>
+            <div class="code-block">RRF_score(d) = Σ 1 / (k + rank_i(d))
+<span class="comment"># k 是平滑常数（通常取 60）</span></div>
+            <h4>在 Graph RAG 中融合三路结果</h4>
+            <ul>
+              <li><strong>向量检索</strong>：基于文本块嵌入的语义相似度排名</li>
+              <li><strong>图检索（Local Search）</strong>：基于图游走的实体关联度排名</li>
+              <li><strong>关键词检索（BM25）</strong>：基于词频的精确匹配排名</li>
+            </ul>
+            <div class="code-block"><span class="keyword">def</span> <span class="function">rrf_fusion</span>(results_list, k=<span class="number">60</span>):
+    scores = {}
+    <span class="keyword">for</span> results <span class="keyword">in</span> results_list:
+        <span class="keyword">for</span> rank, doc_id <span class="keyword">in</span> enumerate(results, start=<span class="number">1</span>):
+            scores[doc_id] = scores.get(doc_id, <span class="number">0</span>) + <span class="number">1.0</span> / (k + rank)
+    <span class="keyword">return</span> sorted(scores.items(), key=<span class="keyword">lambda</span> x: x[<span class="number">1</span>], reverse=<span class="keyword">True</span>)</div>
+            <p>RRF 的优势在于不需要对不同检索路径的分数做归一化，鲁棒性强，在实践中效果通常优于简单加权融合。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 第三层：工程实践 -->
+  <section id="level-3" style="padding: var(--space-16) 0;">
+    <div class="container">
+      <div class="section-header animate-on-scroll fade-up">
+        <span class="section-label">Level 3</span>
+        <h2 class="section-title">工程实践题</h2>
+        <p class="section-subtitle">索引流水线、存储架构、延迟优化与质量评估</p>
+      </div>
+
+      <div class="accordion stagger">
+        <!-- Q9 -->
+        <div class="accordion-item animate-on-scroll fade-up">
+          <button class="accordion-header">
+            <span class="accordion-q-number">Q9</span>
+            <span class="accordion-title-text">Graph RAG 的完整索引流水线是什么？</span>
+            <span class="accordion-icon">▼</span>
+          </button>
+          <div class="accordion-body">
+            <p>完整索引流水线分为六个阶段，每个阶段都有独特的工程挑战：</p>
+            <div class="pipeline-steps stagger">
+              <div class="pipeline-step">
+                <div class="pipeline-step-num">01</div>
+                <h5>文档加载与切分</h5>
+                <p>chunk 太小实体关系丢失，太大 LLM 窗口不够。通常 512-1024 token + 10-20% overlap。</p>
+              </div>
+              <div class="pipeline-step">
+                <div class="pipeline-step-num">02</div>
+                <h5>实体与关系抽取</h5>
+                <p>LLM 调用成本高，需异步并发 + semaphore 限流 + 结果缓存 + 断点续传。</p>
+              </div>
+              <div class="pipeline-step">
+                <div class="pipeline-step-num">03</div>
+                <h5>实体链接与去重</h5>
+                <p>基于嵌入相似度 + 规则（字符串归一化）的两阶段去重，避免过度合并。</p>
+              </div>
+              <div class="pipeline-step">
+                <div class="pipeline-step-num">04</div>
+                <h5>图构建</h5>
+                <p>原型用 NetworkX，生产环境迁移到 Neo4j 或 TigerGraph 处理大规模图。</p>
+              </div>
+              <div class="pipeline-step">
+                <div class="pipeline-step-num">05</div>
+                <h5>社区检测</h5>
+                <p>Leiden 算法在超大图上耗时较长，使用 graspologic 并行实现或分层采样。</p>
+              </div>
+              <div class="pipeline-step">
+                <div class="pipeline-step-num">06</div>
+                <h5>社区摘要生成</h5>
+                <p>按社区大小排序优先处理大社区；小社区（节点数 < 3）可跳过或用模板生成。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Q10 -->
+        <div class="accordion-item animate-on-scroll fade-up">
+          <button class="accordion-header">
+            <span class="accordion-q-number">Q10</span>
+            <span class="accordion-title-text">如何设计 Graph RAG 的存储架构？</span>
+            <span class="accordion-icon">▼</span>
+          </button>
+          <div class="accordion-body">
+            <p>生产级 Graph RAG 通常采用多存储协同架构：</p>
+            <div class="table-wrapper">
+              <table class="comparison-table">
+                <thead>
+                  <tr>
+                    <th>存储组件</th>
+                    <th>存储内容</th>
+                    <th>选型示例</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>图数据库</td>
+                    <td>实体节点、关系边、图结构</td>
+                    <td>Neo4j、TigerGraph、Neptune</td>
+                  </tr>
+                  <tr>
+                    <td>向量数据库</td>
+                    <td>实体嵌入、文本块嵌入、摘要嵌入</td>
+                    <td>Qdrant、Weaviate、Pinecone</td>
+                  </tr>
+                  <tr>
+                    <td>关系数据库</td>
+                    <td>文档元数据、实体属性、社区元数据</td>
+                    <td>PostgreSQL、MySQL</td>
+                  </tr>
+                  <tr>
+                    <td>缓存层</td>
+                    <td>热点查询结果、社区摘要</td>
+                    <td>Redis</td>
+                  </tr>
+                  <tr>
+                    <td>对象存储</td>
+                    <td>原始文档、Parquet 格式图快照</td>
+                    <td>S3、OSS</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <h4>关键设计决策</h4>
+            <ul>
+              <li><strong>实体嵌入</strong>：同时存图数据库（节点属性）和向量数据库（ANN 检索），通过实体 ID 关联。</li>
+              <li><strong>社区摘要</strong>：文本存关系数据库，嵌入存向量数据库，通过 community_id 关联。</li>
+              <li><strong>一致性保证</strong>：用消息队列（Kafka）做异步同步，接受最终一致性。</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Q11 -->
+        <div class="accordion-item animate-on-scroll fade-up">
+          <button class="accordion-header">
+            <span class="accordion-q-number">Q11</span>
+            <span class="accordion-title-text">Graph RAG 的检索延迟如何优化？</span>
+            <span class="accordion-icon">▼</span>
+          </button>
+          <div class="accordion-body">
+            <p>延迟主要来自三个环节：图游走查询、LLM 调用推理、上下文拼接处理。</p>
+            <h4>1. 图查询优化</h4>
+            <ul>
+              <li>为高频查询的实体属性建立索引</li>
+              <li>限制游走深度（K=2 已足够，K=3 开始指数级膨胀）</li>
+              <li>子图剪枝：提前过滤低权重边</li>
+            </ul>
+            <h4>2. 缓存策略</h4>
+            <ul>
+              <li>社区摘要缓存：静态内容永久缓存在 Redis</li>
+              <li>查询结果缓存：相似查询（嵌入相似度 > 0.95）直接返回缓存</li>
+              <li>实体嵌入缓存：热点实体嵌入缓存在内存</li>
+            </ul>
+            <h4>3. 异步与并行</h4>
+            <ul>
+              <li>Local Search 和 Global Search 并行执行，最后融合</li>
+              <li>Global Search 的 Map 阶段天然可并行</li>
+            </ul>
+            <h4>4. 自适应跳数（Adaptive K-hop）</h4>
+            <p>根据查询复杂度动态调整游走深度：先做 K=1 检索，如果置信度不够再扩展到 K=2。</p>
+          </div>
+        </div>
+
+        <!-- Q12 -->
+        <div class="accordion-item animate-on-scroll fade-up">
+          <button class="accordion-header">
+            <span class="accordion-q-number">Q12</span>
+            <span class="accordion-title-text">如何评估 Graph RAG 系统的质量？</span>
+            <span class="accordion-icon">▼</span>
+          </button>
+          <div class="accordion-body">
+            <h4>层次一：组件级评估</h4>
+            <div class="table-wrapper">
+              <table class="comparison-table">
+                <thead>
+                  <tr>
+                    <th>组件</th>
+                    <th>评估指标</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>实体抽取</td><td>Precision / Recall / F1</td></tr>
+                  <tr><td>关系抽取</td><td>Relation F1</td></tr>
+                  <tr><td>社区检测</td><td>模块度（Modularity）、社区内聚度</td></tr>
+                  <tr><td>检索</td><td>Recall@K、MRR</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <h4>层次二：端到端评估（RAGAS 框架）</h4>
+            <ul>
+              <li><strong>Faithfulness</strong>：答案是否有检索内容支撑，不产生幻觉</li>
+              <li><strong>Answer Relevancy</strong>：答案是否回答了问题</li>
+              <li><strong>Context Precision</strong>：检索到的内容有多少是有用的</li>
+              <li><strong>Context Recall</strong>：有用的内容有多少被检索到了</li>
+            </ul>
+            <h4>层次三：与传统 RAG 对比</h4>
+            <p>在多跳推理数据集（HotpotQA、MuSiQue）上，Graph RAG 通常比传统 RAG 高 15-30% 的 F1；但传统 RAG 在单跳简单问题上延迟更低、成本更低。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 第四层：系统设计 -->
+  <section id="level-4" style="padding: var(--space-16) 0;">
+    <div class="container">
+      <div class="section-header animate-on-scroll fade-up">
+        <span class="section-label">Level 4</span>
+        <h2 class="section-title">系统设计题</h2>
+        <p class="section-subtitle">从零设计生产级系统、增量更新方案</p>
+      </div>
+
+      <div class="accordion stagger">
+        <!-- Q13 -->
+        <div class="accordion-item animate-on-scroll fade-up">
+          <button class="accordion-header">
+            <span class="accordion-q-number">Q13</span>
+            <span class="accordion-title-text">从零设计一个生产级 Graph RAG 系统</span>
+            <span class="accordion-icon">▼</span>
+          </button>
+          <div class="accordion-body">
+            <h4>第一步：明确需求</h4>
+            <ul>
+              <li>语料规模：百万文档 vs 千文档 → 决定图规模和存储选型</li>
+              <li>更新频率：实时 vs 批量 → 决定索引架构</li>
+              <li>查询类型：多跳推理 vs 全局摘要 → 决定检索策略</li>
+              <li>延迟要求：秒级 vs 分钟级 → 决定缓存和并行策略</li>
+            </ul>
+            <h4>第二步：整体架构</h4>
+            <div class="arch-diagram"><span class="highlight">[文档输入]</span>
+    → [文档处理服务] (切分、清洗)
+    → [抽取服务] (实体/关系抽取，LLM 驱动，异步队列)
+    → [图构建服务] (实体链接、图更新)
+    → [社区检测服务] (Leiden，批处理)
+    → [摘要生成服务] (社区摘要，LLM 驱动)
+    → [嵌入服务] (实体嵌入、摘要嵌入)
+
+<span class="highlight">[查询输入]</span>
+    → [意图分类] (Local / Global / Hybrid)
+    → [Local Search] (实体检索 → 图游走 → 上下文拼接)
+    → [Global Search] (社区摘要 → Map-Reduce)
+    → [RRF 融合]
+    → [LLM 生成答案]</div>
+            <h4>第三步：关键技术选型</h4>
+            <ul>
+              <li><strong>图数据库</strong>：Neo4j（中小规模）或 TigerGraph（大规模）</li>
+              <li><strong>向量数据库</strong>：Qdrant（开源自部署）或 Pinecone（托管）</li>
+              <li><strong>消息队列</strong>：Kafka（解耦索引流水线各阶段）</li>
+              <li><strong>编排</strong>：Airflow 或 Prefect（批处理流水线调度）</li>
+            </ul>
+            <h4>第四步：可观测性</h4>
+            <p>每个阶段记录处理耗时、成功率、错误率。图质量监控（节点数、边数、社区数趋势）。在线 A/B 测试对比用户满意度。</p>
+          </div>
+        </div>
+
+        <!-- Q14 -->
+        <div class="accordion-item animate-on-scroll fade-up">
+          <button class="accordion-header">
+            <span class="accordion-q-number">Q14</span>
+            <span class="accordion-title-text">Graph RAG 的增量更新如何实现？</span>
+            <span class="accordion-icon">▼</span>
+          </button>
+          <div class="accordion-body">
+            <h4>难点分析</h4>
+            <p>新文档的加入可能影响：新实体加入（简单）→ 已有实体属性更新（中等）→ 新关系改变图连通性（复杂）→ 社区结构变化需重新检测（最复杂）→ 社区摘要更新（依赖社区结构）。</p>
+            <h4>三种工程方案</h4>
+            <div class="table-wrapper">
+              <table class="comparison-table">
+                <thead>
+                  <tr>
+                    <th>方案</th>
+                    <th>策略</th>
+                    <th>适用场景</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>全量重建</td>
+                    <td>定期对全量语料重新跑索引流水线</td>
+                    <td>更新频率低、规模不大</td>
+                  </tr>
+                  <tr>
+                    <td>增量图更新</td>
+                    <td>只更新受影响子图 + 局部社区重检测</td>
+                    <td>中等规模、准实时需求</td>
+                  </tr>
+                  <tr>
+                    <td>版本化图</td>
+                    <td>维护图版本号，支持历史回溯</td>
+                    <td>数据一致性要求高（法律、金融）</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="callout callout-info">
+              <div class="callout-icon">💡</div>
+              <div class="callout-content">
+                <strong>实践建议</strong>
+                <p>大多数生产系统采用"准实时"策略——新文档先进传统 RAG 索引（秒级），异步触发图更新流水线（分钟到小时级），两套索引并行服务。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 第五层：深度追问 -->
+  <section id="level-5" style="padding: var(--space-16) 0;">
+    <div class="container">
+      <div class="section-header animate-on-scroll fade-up">
+        <span class="section-label">Level 5</span>
+        <h2 class="section-title">深度追问题</h2>
+        <p class="section-subtitle">幻觉问题、多语言处理、KGQA 辨析、效果排查</p>
+      </div>
+
+      <div class="accordion stagger">
+        <!-- Q15 -->
+        <div class="accordion-item animate-on-scroll fade-up">
+          <button class="accordion-header">
+            <span class="accordion-q-number">Q15</span>
+            <span class="accordion-title-text">Graph RAG 中的"幻觉"问题比传统 RAG 更严重还是更轻？</span>
+            <span class="accordion-icon">▼</span>
+          </button>
+          <div class="accordion-body">
+            <p>答案是"取决于幻觉的类型"：</p>
+            <h4>Graph RAG 能减少的幻觉</h4>
+            <ul>
+              <li><strong>关系幻觉</strong>：通过显式的关系边避免错误关联两个实体</li>
+              <li><strong>跨文档幻觉</strong>：通过图路径提供可验证的推理链，避免"脑补"中间步骤</li>
+            </ul>
+            <h4>Graph RAG 可能引入的新幻觉</h4>
+            <ul>
+              <li><strong>抽取幻觉</strong>：LLM 抽取可能引入错误实体/关系，被固化到图中影响后续所有查询</li>
+              <li><strong>摘要幻觉</strong>：社区摘要可能不准确概括，且错误会被放大（摘要是 Global Search 主要信息来源）</li>
+            </ul>
+            <h4>工程应对</h4>
+            <ul>
+              <li>对抽取结果做置信度过滤，低置信度关系不加入图</li>
+              <li>社区摘要生成时要求 LLM 引用原文，便于溯源验证</li>
+              <li>答案生成时同时提供原始文本块作为 grounding</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Q16 -->
+        <div class="accordion-item animate-on-scroll fade-up">
+          <button class="accordion-header">
+            <span class="accordion-q-number">Q16</span>
+            <span class="accordion-title-text">如何处理多语言和跨语言场景？</span>
+            <span class="accordion-icon">▼</span>
+          </button>
+          <div class="accordion-body">
+            <h4>挑战</h4>
+            <p>同一实体在不同语言中有不同表述（"北京" vs "Beijing" vs "Pékin"），实体链接更复杂；不同语言文档可能描述同一事件；社区摘要语言需与查询语言匹配。</p>
+            <h4>工程方案</h4>
+            <ul>
+              <li><strong>多语言嵌入模型</strong>：使用 multilingual-e5、LaBSE 等，使不同语言同义实体在嵌入空间中距离接近</li>
+              <li><strong>语言标准化</strong>：将所有实体名称统一翻译为英语作为规范形式，保留原始语言名称作为别名</li>
+              <li><strong>查询时语言路由</strong>：检测查询语言，优先检索同语言文本块，通过实体 ID 关联跨语言内容</li>
+              <li><strong>多语言社区摘要</strong>：为每个社区生成多语言版本摘要，或查询时动态翻译</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Q17 -->
+        <div class="accordion-item animate-on-scroll fade-up">
+          <button class="accordion-header">
+            <span class="accordion-q-number">Q17</span>
+            <span class="accordion-title-text">GraphRAG 和 Knowledge Graph QA（KGQA）有什么区别？</span>
+            <span class="accordion-icon">▼</span>
+          </button>
+          <div class="accordion-body">
+            <div class="table-wrapper">
+              <table class="comparison-table">
+                <thead>
+                  <tr>
+                    <th>维度</th>
+                    <th>KGQA</th>
+                    <th>Graph RAG</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>前提</td>
+                    <td>已有结构化知识图谱（Wikidata、Freebase）</td>
+                    <td>有原始文档语料，图从文档中自动抽取</td>
+                  </tr>
+                  <tr>
+                    <td>任务</td>
+                    <td>将自然语言转化为图查询语言（SPARQL、Cypher）</td>
+                    <td>结合图结构检索和 LLM 生成</td>
+                  </tr>
+                  <tr>
+                    <td>特点</td>
+                    <td>答案精确、可解释，但依赖预构建图谱</td>
+                    <td>不依赖预构建图谱，但答案是生成式的</td>
+                  </tr>
+                  <tr>
+                    <td>局限</td>
+                    <td>无法处理图谱中没有的知识</td>
+                    <td>可能有幻觉</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p><strong>联系：</strong>Graph RAG 可以看作"自动构建知识图谱 + 基于图的 RAG"，而 KGQA 是"使用已有知识图谱做精确查询"。实际系统中两者可以结合。</p>
+          </div>
+        </div>
+
+        <!-- Q18 -->
+        <div class="accordion-item animate-on-scroll fade-up">
+          <button class="accordion-header">
+            <span class="accordion-q-number">Q18</span>
+            <span class="accordion-title-text">如果 Graph RAG 效果不如传统 RAG，如何排查？</span>
+            <span class="accordion-icon">▼</span>
+          </button>
+          <div class="accordion-body">
+            <h4>排查框架（从数据到模型）</h4>
+            <p><strong>Step 1：确认问题类型</strong> — 是所有问题都差，还是特定类型？如果只是简单单跳问题差，可能是正常的。</p>
+            <p><strong>Step 2：检查图质量</strong></p>
+            <div class="code-block"><span class="comment"># 图质量诊断</span>
+print(<span class="string">f"节点数: {G.number_of_nodes()}"</span>)
+print(<span class="string">f"边数: {G.number_of_edges()}"</span>)
+print(<span class="string">f"连通分量数: {nx.number_connected_components(G)}"</span>)
+print(<span class="string">f"平均度: {sum(dict(G.degree()).values()) / G.number_of_nodes():.2f}"</span>)
+<span class="comment"># 连通分量数很多 → 图碎片化严重 → 实体链接有问题</span></div>
+            <p><strong>Step 3：检查实体抽取质量</strong> — 抽取的实体是否覆盖查询中的关键实体？关系是否正确？</p>
+            <p><strong>Step 4：检查检索路径</strong> — Local Search 种子实体是否找对？Global Search 社区摘要是否包含所需信息？</p>
+            <p><strong>Step 5：检查上下文拼接</strong> — 最终送给 LLM 的上下文是否包含正确信息？是否太长导致 Lost in the Middle？</p>
+            <div class="callout callout-warning">
+              <div class="callout-icon">⚠️</div>
+              <div class="callout-content">
+                <strong>常见根因</strong>
+                <p>实体链接失败→图碎片化→多跳断链；社区摘要质量差→Global Search 效果差；查询路由错误→简单问题走了 Global，复杂问题走了 Local；chunk 切分不合理→实体关系跨 chunk 丢失。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 附录：高频考点速查 -->
+  <section id="appendix" style="padding: var(--space-16) 0;">
+    <div class="container">
+      <div class="section-header animate-on-scroll fade-up">
+        <span class="section-label">Appendix</span>
+        <h2 class="section-title">高频考点速查</h2>
+        <p class="section-subtitle">面试前快速回顾的核心要点</p>
+      </div>
+
+      <div class="quick-ref animate-on-scroll fade-up">
+        <div class="table-wrapper">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>考点</th>
+                <th>核心要点</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Graph RAG vs 传统 RAG</td><td>结构化知识 vs 文本片段；多跳推理；全局摘要</td></tr>
+              <tr><td>Leiden vs Louvain</td><td>Leiden 保证社区内部连通；支持层级社区</td></tr>
+              <tr><td>Local vs Global Search</td><td>Local：实体游走，精准低延迟；Global：社区摘要，宏观高成本</td></tr>
+              <tr><td>实体链接</td><td>防止图碎片化；嵌入相似度 + 规则两阶段</td></tr>
+              <tr><td>Gleaning 机制</td><td>多轮抽取提升召回率</td></tr>
+              <tr><td>RRF 融合</td><td>无参数多路融合；公式 1/(k+rank)</td></tr>
+              <tr><td>存储架构</td><td>图DB + 向量DB + 关系DB + Redis 四层协同</td></tr>
+              <tr><td>增量更新</td><td>全量重建 vs 局部社区重检测 vs 版本化图</td></tr>
+              <tr><td>幻觉问题</td><td>减少关系幻觉；引入抽取幻觉和摘要幻觉</td></tr>
+              <tr><td>评估指标</td><td>RAGAS 四指标；多跳数据集 HotpotQA</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p class="footer-text">Graph RAG 面试题精选 · 覆盖五个层次 · 18 道精选题目</p>
+    </div>
+  </footer>
+
+  <script>
+/* ── 深色/浅色模式切换 ── */
+(function initThemeToggle() {
+  var toggle = document.getElementById('theme-toggle');
+  if (!toggle) return;
+  var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  var saved = localStorage.getItem('theme');
+  var initial = saved || (prefersDark ? 'dark' : 'light');
+  document.documentElement.dataset.theme = initial;
+
+  toggle.addEventListener('click', function() {
+    var isDark = document.documentElement.dataset.theme === 'dark';
+    var next = isDark ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    localStorage.setItem('theme', next);
+  });
+})();
+
+/* ── 滚动进入动画 ── */
+(function initScrollAnimations() {
+  var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReducedMotion) {
+    document.querySelectorAll('.animate-on-scroll').forEach(function(el) {
+      el.classList.add('visible');
+    });
+    return;
+  }
+
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+
+  document.querySelectorAll('.animate-on-scroll').forEach(function(el) {
+    observer.observe(el);
+  });
+})();
+
+/* ── 数字计数动画 ── */
+(function initCounters() {
+  var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
+  function animateCounter(el) {
+    var target = parseFloat(el.dataset.target);
+    var duration = 1800;
+    var startTime = performance.now();
+
+    function update(currentTime) {
+      var elapsed = currentTime - startTime;
+      var progress = Math.min(elapsed / duration, 1);
+      var eased = easeOutCubic(progress);
+      el.textContent = Math.floor(eased * target);
+      if (progress < 1) requestAnimationFrame(update);
+    }
+
+    if (prefersReducedMotion) {
+      el.textContent = target;
+    } else {
+      requestAnimationFrame(update);
+    }
+  }
+
+  var counterObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        animateCounter(entry.target);
+        counterObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  document.querySelectorAll('.counter').forEach(function(el) {
+    counterObserver.observe(el);
+  });
+})();
+
+/* ── 手风琴 ── */
+(function initAccordion() {
+  document.querySelectorAll('.accordion-header').forEach(function(header) {
+    header.addEventListener('click', function() {
+      var item = header.closest('.accordion-item');
+      var isOpen = item.classList.contains('open');
+      item.classList.toggle('open', !isOpen);
+    });
+  });
+})();
+
+/* ── 锚点导航 ── */
+(function initTOC() {
+  var dots = document.querySelectorAll('.toc-dot');
+  var sections = document.querySelectorAll('section[id]');
+  if (!dots.length || !sections.length) return;
+
+  dots.forEach(function(dot) {
+    dot.addEventListener('click', function() {
+      var target = document.getElementById(dot.dataset.target);
+      if (target) target.scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+
+  var sectionObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        var id = entry.target.id;
+        dots.forEach(function(dot) {
+          dot.classList.toggle('active', dot.dataset.target === id);
+        });
+      }
+    });
+  }, { threshold: 0.3 });
+
+  sections.forEach(function(s) { sectionObserver.observe(s); });
+})();
+  </script>
+</body>
+</html>

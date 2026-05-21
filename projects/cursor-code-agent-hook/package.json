@@ -1,0 +1,11 @@
+{
+  "name": "cursor-code-agent-hook",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Cursor sessionStart hook：可开关地自动注入 Code Agent 与 Agent.md",
+  "scripts": {
+    "code-agent:on": "node .cursor/hooks/toggle.mjs on",
+    "code-agent:off": "node .cursor/hooks/toggle.mjs off",
+    "code-agent:status": "node .cursor/hooks/toggle.mjs status"
+  }
+}

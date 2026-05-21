@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python 装饰器教学 · 第一期</title>
+<style>
+/* ===== 基础变量 ===== */
+:root {
+  --bg: #FAFAF9;
+  --text: #1A1A1A;
+  --primary: #6366F1;
+  --pink: #EC4899;
+  --code-bg: #1E1E2E;
+  --code-text: #CDD6F4;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --card-bg: #FFFFFF;
+  --border: #E5E5E4;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-code: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  --font-heading: 'Inter', sans-serif;
+  /* code tokens */
+  --tk-keyword: #CBA6F7;
+  --tk-string: #A6E3A1;
+  --tk-func: #89B4FA;
+  --tk-comment: #6C7086;
+  --tk-decorator: #F9E2AF;
+  --tk-param: #FAB387;
+  --tk-number: #F38BA8;
+}
+
+/* ===== Reset & Base ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== Layout ===== */
+.container {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* ===== Header ===== */
+.hero {
+  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #EC4899 100%);
+  padding: 4rem 2rem;
+  text-align: center;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+.hero h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1.2;
+  position: relative;
+}
+.hero .subtitle {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin-top: 0.75rem;
+  position: relative;
+}
+.hero .badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 20px;
+  padding: 0.25rem 1rem;
+  font-size: 0.8rem;
+  margin-top: 1rem;
+  position: relative;
+}
+
+/* ===== TOC ===== */
+.toc {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  margin: 2rem auto;
+  max-width: 860px;
+}
+.toc h3 {
+  font-size: 1rem;
+  color: var(--primary);
+  margin-bottom: 0.75rem;
+}
+.toc ol {
+  list-style: none;
+  counter-reset: toc-counter;
+  padding: 0;
+}
+.toc li {
+  counter-increment: toc-counter;
+  margin: 0.4rem 0;
+}
+.toc li a {
+  color: var(--text);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+.toc li a:hover {
+  background: #EEF2FF;
+}
+.toc li a::before {
+  content: counter(toc-counter, decimal-leading-zero);
+  font-family: var(--font-code);
+  font-size: 0.8rem;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* ===== Section ===== */
+.section {
+  margin: 4rem 0;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.6s ease forwards;
+}
+.section:nth-child(2) { animation-delay: 0.1s; }
+.section:nth-child(3) { animation-delay: 0.2s; }
+.section:nth-child(4) { animation-delay: 0.3s; }
+.section:nth-child(5) { animation-delay: 0.4s; }
+.section:nth-child(6) { animation-delay: 0.5s; }
+.section:nth-child(7) { animation-delay: 0.6s; }
+.section:nth-child(8) { animation-delay: 0.7s; }
+
+@keyframes fadeInUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.section h2 {
+  font-family: var(--font-heading);
+  font-size: 1.75rem;
+  line-height: 1.3;
+  color: var(--primary);
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--border);
+}
+.section h3 {
+  font-size: 1.25rem;
+  line-height: 1.4;
+  margin: 1.5rem 0 0.75rem;
+  color: var(--text);
+}
+
+/* ===== Code Block ===== */
+.code-block {
+  background: var(--code-bg);
+  border-radius: 12px;
+  margin: 2rem 0;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+}
+.code-block:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+}
+.code-block .lang-label {
+  position: absolute;
+  top: 0.75rem;
+  left: 1rem;
+  font-family: var(--font-code);
+  font-size: 0.7rem;
+  color: rgba(205,214,244,0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.code-block pre {
+  padding: 2.5rem 1.5rem 1.5rem;
+  overflow-x: auto;
+  font-family: var(--font-code);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--code-text);
+}
+.code-block .line-highlight {
+  background: rgba(255,255,255,0.05);
+  display: block;
+  margin: 0 -1.5rem;
+  padding: 0 1.5rem;
+}
+
+/* Code tokens */
+.kw { color: var(--tk-keyword); }
+.str { color: var(--tk-string); }
+.fn { color: var(--tk-func); }
+.cmt { color: var(--tk-comment); }
+.dec { color: var(--tk-decorator); }
+.param { color: var(--tk-param); }
+.num { color: var(--tk-number); }
+
+/* ===== Cards ===== */
+.card {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  border-left: 4px solid var(--primary);
+}
+.card.pink { border-left-color: var(--pink); }
+.card.success { border-left-color: var(--success); }
+.card.warning { border-left-color: var(--warning); }
+
+/* ===== Analogy Block ===== */
+.analogy {
+  background: #EEF2FF;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+.analogy .icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+.analogy .content { flex: 1; }
+.analogy .content p { margin: 0; }
+
+/* ===== Warning Block ===== */
+.warning-block {
+  background: #FEF2F2;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+.warning-block .icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+.warning-block .content { flex: 1; }
+.warning-block .content p { margin: 0; }
+.warning-block .content strong { color: var(--pink); }
+
+/* ===== Collapsible ===== */
+details {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin: 1.5rem 0;
+  overflow: hidden;
+}
+details summary {
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  user-select: none;
+  transition: background 0.2s;
+}
+details summary:hover {
+  background: #F5F5F4;
+}
+details summary::before {
+  content: '▶';
+  font-size: 0.7rem;
+  transition: transform 0.2s;
+}
+details[open] summary::before {
+  transform: rotate(90deg);
+}
+details .detail-content {
+  padding: 0 1.5rem 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+/* ===== Flow Chart ===== */
+.flow-chart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin: 2rem 0;
+  flex-wrap: wrap;
+  padding: 1.5rem;
+}
+.flow-node {
+  background: var(--card-bg);
+  border: 2px solid var(--primary);
+  border-radius: 10px;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-align: center;
+  min-width: 100px;
+  box-shadow: 0 2px 8px rgba(99,102,241,0.1);
+}
+.flow-node.highlight {
+  background: var(--primary);
+  color: #fff;
+}
+.flow-arrow {
+  color: var(--primary);
+  font-size: 1.5rem;
+  padding: 0 0.5rem;
+  flex-shrink: 0;
+}
+
+/* Vertical flow */
+.flow-vertical {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  margin: 2rem auto;
+  max-width: 400px;
+}
+.flow-vertical .flow-arrow {
+  transform: rotate(90deg);
+  padding: 0.25rem 0;
+}
+
+/* ===== Equivalence ===== */
+.equivalence {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 1rem;
+  align-items: center;
+  margin: 2rem 0;
+}
+.equivalence .eq-sign {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary);
+  text-align: center;
+}
+@media (max-width: 768px) {
+  .equivalence {
+    grid-template-columns: 1fr;
+  }
+  .equivalence .eq-sign {
+    transform: rotate(90deg);
+    margin: 0.5rem 0;
+  }
+}
+
+/* ===== Timeline ===== */
+.timeline {
+  position: relative;
+  margin: 2rem 0;
+  padding-left: 2rem;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 0.75rem;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--border);
+}
+.timeline-item {
+  position: relative;
+  margin-bottom: 1.5rem;
+  padding-left: 1.5rem;
+}
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -1.6rem;
+  top: 0.5rem;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 2px solid var(--bg);
+}
+.timeline-item .time-label {
+  font-family: var(--font-code);
+  font-size: 0.8rem;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* ===== Table ===== */
+.styled-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+.styled-table thead {
+  background: var(--primary);
+  color: #fff;
+}
+.styled-table th, .styled-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.9rem;
+}
+.styled-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  background: var(--card-bg);
+}
+.styled-table tbody tr:hover {
+  background: #F5F5F4;
+}
+
+/* ===== Footer ===== */
+.footer {
+  margin-top: 4rem;
+  padding: 2rem;
+  text-align: center;
+  border-top: 1px solid var(--border);
+  color: #6B7280;
+  font-size: 0.875rem;
+}
+
+/* ===== Inline Code ===== */
+code:not(pre code) {
+  background: #F3F4F6;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-family: var(--font-code);
+  font-size: 0.85em;
+  color: var(--primary);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .hero h1 { font-size: 1.75rem; }
+  .container { padding: 0 1rem; }
+  .flow-chart { flex-direction: column; }
+  .flow-arrow { transform: rotate(90deg); }
+  .code-block pre { font-size: 0.8rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== HERO ===== -->
+<header class="hero">
+  <h1>Python 装饰器</h1>
+  <p class="subtitle">不是魔法语法，而是函数式编程的自然延伸</p>
+  <span class="badge">第一期 · 本质与核心用法</span>
+</header>
+
+<!-- ===== TOC ===== -->
+<nav class="toc container">
+  <h3>📑 本期目录</h3>
+  <ol>
+    <li><a href="#s1">前置知识回顾</a></li>
+    <li><a href="#s2">装饰器的本质</a></li>
+    <li><a href="#s3">第一个装饰器：无参装饰器</a></li>
+    <li><a href="#s4">functools.wraps 的必要性</a></li>
+    <li><a href="#s5">带参数的装饰器</a></li>
+    <li><a href="#s6">多个装饰器叠加</a></li>
+    <li><a href="#s7">实战案例</a></li>
+    <li><a href="#s8">常见陷阱与调试技巧</a></li>
+  </ol>
+</nav>
+
+<!-- ===== CONTENT ===== -->
+<main class="container">
+
+  <!-- Section 1 -->
+  <section class="section" id="s1">
+    <h2>1. 前置知识回顾</h2>
+    <p>在理解装饰器之前，需要确认两个前置概念已经就位。这里不展开讲，只用简短代码唤醒记忆。</p>
+
+    <h3>函数是一等公民</h3>
+    <p>函数可以赋值给变量、作为参数传递、作为返回值返回——和普通数据没有区别。</p>
+
+    <div class="code-block">
+      <span class="lang-label">Python</span>
+      <pre><span class="kw">def</span> <span class="fn">greet</span>(<span class="param">name</span>):
+    <span class="kw">return</span> <span class="str">f"Hello, {name}!"</span>
+
+<span class="cmt"># 函数赋值给变量</span>
+say_hi = greet
+<span class="fn">print</span>(say_hi(<span class="str">"World"</span>))  <span class="cmt"># Hello, World!</span>
+
+<span class="cmt"># 函数作为参数传递</span>
+<span class="kw">def</span> <span class="fn">call_twice</span>(<span class="param">func</span>, <span class="param">arg</span>):
+    func(arg)
+    func(arg)</pre>
+    </div>
+
+    <h3>闭包（Closure）</h3>
+    <p>内层函数可以"记住"外层函数的变量，即使外层函数已经执行完毕。</p>
+
+    <div class="code-block">
+      <span class="lang-label">Python</span>
+      <pre><span class="kw">def</span> <span class="fn">make_multiplier</span>(<span class="param">factor</span>):
+    <span class="kw">def</span> <span class="fn">multiply</span>(<span class="param">x</span>):
+        <span class="kw">return</span> x * factor  <span class="cmt"># factor 被"记住"了</span>
+    <span class="kw">return</span> multiply
+
+double = make_multiplier(<span class="num">2</span>)
+<span class="fn">print</span>(double(<span class="num">5</span>))  <span class="cmt"># 10</span></pre>
+    </div>
+
+    <div class="analogy">
+      <span class="icon">💡</span>
+      <div class="content">
+        <p><strong>闭包就像一个背包</strong>：内层函数离开外层函数时，把需要的变量装进背包带走了。无论它走到哪里，都能从背包里取出这些变量来用。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 2 -->
+  <section class="section" id="s2">
+    <h2>2. 装饰器的本质</h2>
+
+    <div class="card">
+      <p><strong>一句话定义：</strong>装饰器 = 接收函数作为参数，返回新函数的<strong>高阶函数</strong>。</p>
+    </div>
+
+    <p><code>@decorator</code> 只是一个语法糖，它等价于：</p>
+
+    <div class="equivalence">
+      <div class="code-block" style="margin:0">
+        <span class="lang-label">语法糖写法</span>
+        <pre><span class="dec">@decorator</span>
+<span class="kw">def</span> <span class="fn">func</span>():
+    ...</pre>
+      </div>
+      <div class="eq-sign">≡</div>
+      <div class="code-block" style="margin:0">
+        <span class="lang-label">等价展开</span>
+        <pre><span class="kw">def</span> <span class="fn">func</span>():
+    ...
+func = decorator(func)</pre>
+      </div>
+    </div>
+
+    <div class="analogy">
+      <span class="icon">💡</span>
+      <div class="content">
+        <p><strong>包装礼物的比喻：</strong>原函数是礼物，装饰器是包装纸。包装后礼物还在里面，但外观变了，还可能附加了蝴蝶结（额外功能）。拆开包装（调用函数），礼物本身的功能不变。</p>
+      </div>
+    </div>
+
+    <!-- Flow: 装饰器执行流程 -->
+    <h3>装饰器执行流程</h3>
+    <div class="flow-chart">
+      <div class="flow-node">定义原函数</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-node highlight">传入装饰器</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-node">返回新函数</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-node">替换原函数名</div>
+    </div>
+  </section>
+
+  <!-- Section 3 -->
+  <section class="section" id="s3">
+    <h2>3. 第一个装饰器：无参装饰器</h2>
+
+    <h3>经典三层结构</h3>
+    <div class="flow-chart">
+      <div class="flow-node">外层函数<br><small>装饰器本体</small></div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-node">内层函数<br><small>wrapper</small></div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-node highlight">调用原函数<br><small>func(*args, **kwargs)</small></div>
+    </div>
+
+    <h3>完整示例：计时装饰器</h3>
+    <div class="code-block">
+      <span class="lang-label">Python</span>
+      <pre><span class="kw">import</span> time
+
+<span class="kw">def</span> <span class="fn">timer</span>(<span class="param">func</span>):
+    <span class="str">"""计算函数执行时间的装饰器"""</span>
+    <span class="kw">def</span> <span class="fn">wrapper</span>(<span class="param">*args</span>, <span class="param">**kwargs</span>):
+<span class="line-highlight">        start = time.time()</span>
+<span class="line-highlight">        result = func(*args, **kwargs)  <span class="cmt"># 调用原函数</span></span>
+<span class="line-highlight">        end = time.time()</span>
+        <span class="fn">print</span>(<span class="str">f"{func.__name__} 耗时: {end - start:.4f}s"</span>)
+        <span class="kw">return</span> result  <span class="cmt"># 别忘了返回！</span>
+    <span class="kw">return</span> wrapper
+
+<span class="dec">@timer</span>
+<span class="kw">def</span> <span class="fn">slow_add</span>(<span class="param">a</span>, <span class="param">b</span>):
+    time.sleep(<span class="num">1</span>)
+    <span class="kw">return</span> a + b
+
+slow_add(<span class="num">1</span>, <span class="num">2</span>)  <span class="cmt"># 输出: slow_add 耗时: 1.00xxs</span></pre>
+    </div>
+
+    <details>
+      <summary>逐行执行流程拆解</summary>
+      <div class="detail-content">
+        <div class="timeline">
+          <div class="timeline-item">
+            <span class="time-label">Step 1</span>
+            <p>Python 解释器看到 <code>@timer</code>，执行 <code>slow_add = timer(slow_add)</code></p>
+          </div>
+          <div class="timeline-item">
+            <span class="time-label">Step 2</span>
+            <p><code>timer(func)</code> 被调用，<code>func</code> 指向原始的 <code>slow_add</code></p>
+          </div>
+          <div class="timeline-item">
+            <span class="time-label">Step 3</span>
+            <p><code>timer</code> 返回 <code>wrapper</code> 函数，此时 <code>slow_add</code> 这个名字指向了 <code>wrapper</code></p>
+          </div>
+          <div class="timeline-item">
+            <span class="time-label">Step 4</span>
+            <p>调用 <code>slow_add(1, 2)</code> 实际执行的是 <code>wrapper(1, 2)</code></p>
+          </div>
+          <div class="timeline-item">
+            <span class="time-label">Step 5</span>
+            <p><code>wrapper</code> 内部记录开始时间，调用 <code>func(1, 2)</code>（原始 slow_add），记录结束时间，打印耗时，返回结果</p>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <details>
+      <summary>为什么需要 *args, **kwargs？</summary>
+      <div class="detail-content">
+        <p>因为装饰器要能适配<strong>任意签名</strong>的函数。如果 wrapper 写死了参数，那这个装饰器就只能装饰特定参数的函数，复用性大打折扣。</p>
+        <div class="code-block">
+          <span class="lang-label">Python</span>
+          <pre><span class="cmt"># ❌ 只能装饰两个参数的函数</span>
+<span class="kw">def</span> <span class="fn">wrapper</span>(<span class="param">a</span>, <span class="param">b</span>):
+    ...
+
+<span class="cmt"># ✅ 能装饰任意函数</span>
+<span class="kw">def</span> <span class="fn">wrapper</span>(<span class="param">*args</span>, <span class="param">**kwargs</span>):
+    ...</pre>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- Section 4 -->
+  <section class="section" id="s4">
+    <h2>4. functools.wraps 的必要性</h2>
+
+    <h3>问题演示</h3>
+    <div class="code-block">
+      <span class="lang-label">Python</span>
+      <pre><span class="dec">@timer</span>
+<span class="kw">def</span> <span class="fn">slow_add</span>(<span class="param">a</span>, <span class="param">b</span>):
+    <span class="str">"""两数相加（慢速版）"""</span>
+    ...
+
+<span class="fn">print</span>(slow_add.__name__)  <span class="cmt"># "wrapper" 😱 不是 "slow_add"！</span>
+<span class="fn">print</span>(slow_add.__doc__)   <span class="cmt"># None 😱 文档字符串丢了！</span></pre>
+    </div>
+
+    <div class="warning-block">
+      <span class="icon">⚠️</span>
+      <div class="content">
+        <p><strong>元信息丢失</strong>会导致调试困难、文档生成失败、序列化框架出错。这在生产环境中是真实的坑。</p>
+      </div>
+    </div>
+
+    <h3>解决方案</h3>
+    <div class="code-block">
+      <span class="lang-label">Python</span>
+      <pre><span class="kw">import</span> functools
+
+<span class="kw">def</span> <span class="fn">timer</span>(<span class="param">func</span>):
+<span class="line-highlight">    <span class="dec">@functools.wraps(func)</span>  <span class="cmt"># ← 加上这一行！</span></span>
+    <span class="kw">def</span> <span class="fn">wrapper</span>(<span class="param">*args</span>, <span class="param">**kwargs</span>):
+        start = time.time()
+        result = func(*args, **kwargs)
+        <span class="fn">print</span>(<span class="str">f"{func.__name__} 耗时: {time.time()-start:.4f}s"</span>)
+        <span class="kw">return</span> result
+    <span class="kw">return</span> wrapper
+
+<span class="fn">print</span>(slow_add.__name__)  <span class="cmt"># "slow_add" ✅</span>
+<span class="fn">print</span>(slow_add.__doc__)   <span class="cmt"># "两数相加（慢速版）" ✅</span></pre>
+    </div>
+
+    <div class="card success">
+      <p><strong>工程规范：</strong>写装饰器时<strong>必须</strong>加 <code>@functools.wraps(func)</code>，这是 Python 社区的共识，没有例外。</p>
+    </div>
+  </section>
+
+  <!-- Section 5 -->
+  <section class="section" id="s5">
+    <h2>5. 带参数的装饰器</h2>
+
+    <h3>为什么需要？</h3>
+    <p>有时候我们希望装饰器的行为是可配置的，比如重试次数、日志级别、缓存过期时间等。</p>
+
+    <h3>结构：三层嵌套</h3>
+    <div class="flow-vertical">
+      <div class="flow-node" style="width:280px">最外层：接收<strong>装饰器参数</strong></div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-node" style="width:280px">中间层：接收<strong>被装饰函数</strong></div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-node highlight" style="width:280px">最内层：<strong>wrapper</strong>（实际执行逻辑）</div>
+    </div>
+
+    <h3>示例：重试装饰器</h3>
+    <div class="code-block">
+      <span class="lang-label">Python</span>
+      <pre><span class="kw">import</span> functools
+
+<span class="kw">def</span> <span class="fn">retry</span>(<span class="param">max_attempts</span>=<span class="num">3</span>):          <span class="cmt"># ← 第一层：接收装饰器参数</span>
+    <span class="kw">def</span> <span class="fn">decorator</span>(<span class="param">func</span>):            <span class="cmt"># ← 第二层：接收被装饰函数</span>
+        <span class="dec">@functools.wraps(func)</span>
+        <span class="kw">def</span> <span class="fn">wrapper</span>(<span class="param">*args</span>, <span class="param">**kwargs</span>):  <span class="cmt"># ← 第三层：wrapper</span>
+            <span class="kw">for</span> attempt <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, max_attempts + <span class="num">1</span>):
+                <span class="kw">try</span>:
+                    <span class="kw">return</span> func(*args, **kwargs)
+                <span class="kw">except</span> Exception <span class="kw">as</span> e:
+                    <span class="fn">print</span>(<span class="str">f"第 {attempt} 次失败: {e}"</span>)
+                    <span class="kw">if</span> attempt == max_attempts:
+                        <span class="kw">raise</span>
+        <span class="kw">return</span> wrapper
+    <span class="kw">return</span> decorator
+
+<span class="dec">@retry(max_attempts=<span class="num">5</span>)</span>
+<span class="kw">def</span> <span class="fn">fetch_data</span>(<span class="param">url</span>):
+    ...</pre>
+    </div>
+
+    <details>
+      <summary>心智模型：展开语法糖</summary>
+      <div class="detail-content">
+        <div class="equivalence">
+          <div class="code-block" style="margin:0">
+            <span class="lang-label">语法糖</span>
+            <pre><span class="dec">@retry(max_attempts=5)</span>
+<span class="kw">def</span> <span class="fn">fetch_data</span>(url):
+    ...</pre>
+          </div>
+          <div class="eq-sign">≡</div>
+          <div class="code-block" style="margin:0">
+            <span class="lang-label">展开</span>
+            <pre><span class="kw">def</span> <span class="fn">fetch_data</span>(url):
+    ...
+
+<span class="cmt"># 分两步理解：</span>
+decorator = retry(max_attempts=<span class="num">5</span>)
+fetch_data = decorator(fetch_data)</pre>
+          </div>
+        </div>
+        <p><code>retry(max_attempts=5)</code> 先执行，返回一个"真正的装饰器"（<code>decorator</code>），然后这个装饰器再去装饰 <code>fetch_data</code>。</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- Section 6 -->
+  <section class="section" id="s6">
+    <h2>6. 多个装饰器叠加</h2>
+
+    <div class="code-block">
+      <span class="lang-label">Python</span>
+      <pre><span class="dec">@decorator_A</span>
+<span class="dec">@decorator_B</span>
+<span class="dec">@decorator_C</span>
+<span class="kw">def</span> <span class="fn">func</span>():
+    ...
+
+<span class="cmt"># 等价于：</span>
+func = decorator_A(decorator_B(decorator_C(func)))</pre>
+    </div>
+
+    <div class="card">
+      <p><strong>执行顺序规则：</strong></p>
+      <p>装饰时（定义阶段）：<strong>从下往上</strong>（C → B → A）</p>
+      <p>调用时（运行阶段）：<strong>从上往下</strong>（A → B → C → func → C → B → A）</p>
+    </div>
+
+    <div class="analogy">
+      <span class="icon">💡</span>
+      <div class="content">
+        <p><strong>穿衣服的比喻：</strong>装饰就像穿衣服——先穿内衣（C），再穿衬衫（B），最后穿外套（A）。调用就像脱衣服——先脱外套（A 的前置逻辑），再脱衬衫（B 的前置逻辑），最后到皮肤（原函数）。</p>
+      </div>
+    </div>
+
+    <details>
+      <summary>完整示例：观察叠加顺序</summary>
+      <div class="detail-content">
+        <div class="code-block">
+          <span class="lang-label">Python</span>
+          <pre><span class="kw">def</span> <span class="fn">bold</span>(<span class="param">func</span>):
+    <span class="kw">def</span> <span class="fn">wrapper</span>():
+        <span class="kw">return</span> <span class="str">f"&lt;b&gt;{func()}&lt;/b&gt;"</span>
+    <span class="kw">return</span> wrapper
+
+<span class="kw">def</span> <span class="fn">italic</span>(<span class="param">func</span>):
+    <span class="kw">def</span> <span class="fn">wrapper</span>():
+        <span class="kw">return</span> <span class="str">f"&lt;i&gt;{func()}&lt;/i&gt;"</span>
+    <span class="kw">return</span> wrapper
+
+<span class="dec">@bold</span>
+<span class="dec">@italic</span>
+<span class="kw">def</span> <span class="fn">greet</span>():
+    <span class="kw">return</span> <span class="str">"Hello"</span>
+
+<span class="fn">print</span>(greet())
+<span class="cmt"># 输出: &lt;b&gt;&lt;i&gt;Hello&lt;/i&gt;&lt;/b&gt;</span>
+<span class="cmt"># italic 先包装，bold 再包装在外面</span></pre>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- Section 7 -->
+  <section class="section" id="s7">
+    <h2>7. 实战案例</h2>
+
+    <details>
+      <summary>案例 1：权限校验装饰器 @require_login</summary>
+      <div class="detail-content">
+        <div class="code-block">
+          <span class="lang-label">Python</span>
+          <pre><span class="kw">import</span> functools
+
+<span class="kw">def</span> <span class="fn">require_login</span>(<span class="param">func</span>):
+    <span class="str">"""检查用户是否已登录"""</span>
+    <span class="dec">@functools.wraps(func)</span>
+    <span class="kw">def</span> <span class="fn">wrapper</span>(<span class="param">*args</span>, <span class="param">**kwargs</span>):
+        user = kwargs.get(<span class="str">'user'</span>) <span class="kw">or</span> (args[<span class="num">0</span>] <span class="kw">if</span> args <span class="kw">else</span> <span class="kw">None</span>)
+        <span class="kw">if</span> <span class="kw">not</span> user <span class="kw">or not</span> user.is_authenticated:
+            <span class="kw">raise</span> PermissionError(<span class="str">"请先登录！"</span>)
+        <span class="kw">return</span> func(*args, **kwargs)
+    <span class="kw">return</span> wrapper
+
+<span class="dec">@require_login</span>
+<span class="kw">def</span> <span class="fn">view_profile</span>(<span class="param">user</span>):
+    <span class="kw">return</span> <span class="str">f"欢迎回来，{user.name}！"</span></pre>
+        </div>
+        <p>这个模式在 Web 框架中非常常见（Django 的 <code>@login_required</code>、Flask 的 <code>@auth.login_required</code>）。</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>案例 2：缓存装饰器 @cache_result</summary>
+      <div class="detail-content">
+        <div class="code-block">
+          <span class="lang-label">Python</span>
+          <pre><span class="kw">import</span> functools
+
+<span class="kw">def</span> <span class="fn">cache_result</span>(<span class="param">func</span>):
+    <span class="str">"""简化版 lru_cache：缓存函数结果"""</span>
+    cache = {}
+    <span class="dec">@functools.wraps(func)</span>
+    <span class="kw">def</span> <span class="fn">wrapper</span>(<span class="param">*args</span>):
+        <span class="kw">if</span> args <span class="kw">not in</span> cache:
+            cache[args] = func(*args)
+            <span class="fn">print</span>(<span class="str">f"计算并缓存: {args}"</span>)
+        <span class="kw">else</span>:
+            <span class="fn">print</span>(<span class="str">f"命中缓存: {args}"</span>)
+        <span class="kw">return</span> cache[args]
+    <span class="kw">return</span> wrapper
+
+<span class="dec">@cache_result</span>
+<span class="kw">def</span> <span class="fn">fibonacci</span>(<span class="param">n</span>):
+    <span class="kw">if</span> n < <span class="num">2</span>:
+        <span class="kw">return</span> n
+    <span class="kw">return</span> fibonacci(n - <span class="num">1</span>) + fibonacci(n - <span class="num">2</span>)
+
+fibonacci(<span class="num">10</span>)  <span class="cmt"># 只计算 11 次，而非 177 次</span></pre>
+        </div>
+        <p>标准库提供了更强大的 <code>@functools.lru_cache</code>，但理解原理后你就知道它内部在做什么了。</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>案例 3：日志装饰器 @log_calls</summary>
+      <div class="detail-content">
+        <div class="code-block">
+          <span class="lang-label">Python</span>
+          <pre><span class="kw">import</span> functools
+<span class="kw">import</span> logging
+
+logging.basicConfig(level=logging.INFO)
+
+<span class="kw">def</span> <span class="fn">log_calls</span>(<span class="param">func</span>):
+    <span class="str">"""记录函数调用的参数和返回值"""</span>
+    <span class="dec">@functools.wraps(func)</span>
+    <span class="kw">def</span> <span class="fn">wrapper</span>(<span class="param">*args</span>, <span class="param">**kwargs</span>):
+        args_repr = [<span class="fn">repr</span>(a) <span class="kw">for</span> a <span class="kw">in</span> args]
+        kwargs_repr = [<span class="str">f"{k}={v!r}"</span> <span class="kw">for</span> k, v <span class="kw">in</span> kwargs.items()]
+        signature = <span class="str">", "</span>.join(args_repr + kwargs_repr)
+        logging.info(<span class="str">f"调用 {func.__name__}({signature})"</span>)
+        result = func(*args, **kwargs)
+        logging.info(<span class="str">f"{func.__name__} 返回 {result!r}"</span>)
+        <span class="kw">return</span> result
+    <span class="kw">return</span> wrapper
+
+<span class="dec">@log_calls</span>
+<span class="kw">def</span> <span class="fn">add</span>(<span class="param">a</span>, <span class="param">b</span>):
+    <span class="kw">return</span> a + b
+
+add(<span class="num">3</span>, <span class="num">4</span>)
+<span class="cmt"># INFO: 调用 add(3, 4)</span>
+<span class="cmt"># INFO: add 返回 7</span></pre>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- Section 8 -->
+  <section class="section" id="s8">
+    <h2>8. 常见陷阱与调试技巧</h2>
+
+    <div class="warning-block">
+      <span class="icon">⚠️</span>
+      <div class="content">
+        <p><strong>陷阱 1：带参装饰器忘加括号</strong></p>
+      </div>
+    </div>
+    <div class="code-block">
+      <span class="lang-label">Python</span>
+      <pre><span class="cmt"># ❌ 错误：忘记加括号</span>
+<span class="dec">@retry</span>          <span class="cmt"># retry 接收的是 func，不是 max_attempts！</span>
+<span class="kw">def</span> <span class="fn">fetch</span>(): ...
+
+<span class="cmt"># ✅ 正确：即使用默认参数也要加括号</span>
+<span class="dec">@retry()</span>        <span class="cmt"># retry() 返回 decorator，decorator 接收 func</span>
+<span class="kw">def</span> <span class="fn">fetch</span>(): ...</pre>
+    </div>
+
+    <div class="warning-block">
+      <span class="icon">⚠️</span>
+      <div class="content">
+        <p><strong>陷阱 2：装饰器吞异常</strong></p>
+      </div>
+    </div>
+    <div class="code-block">
+      <span class="lang-label">Python</span>
+      <pre><span class="cmt"># ❌ 危险：异常被静默吞掉</span>
+<span class="kw">def</span> <span class="fn">safe</span>(<span class="param">func</span>):
+    <span class="kw">def</span> <span class="fn">wrapper</span>(*args, **kwargs):
+        <span class="kw">try</span>:
+            <span class="kw">return</span> func(*args, **kwargs)
+        <span class="kw">except</span>:
+            <span class="kw">pass</span>  <span class="cmt"># 😱 所有错误都消失了！</span>
+    <span class="kw">return</span> wrapper
+
+<span class="cmt"># ✅ 至少要记录日志</span>
+<span class="kw">def</span> <span class="fn">safe</span>(<span class="param">func</span>):
+    <span class="kw">def</span> <span class="fn">wrapper</span>(*args, **kwargs):
+        <span class="kw">try</span>:
+            <span class="kw">return</span> func(*args, **kwargs)
+        <span class="kw">except</span> Exception <span class="kw">as</span> e:
+            logging.error(<span class="str">f"{func.__name__} 出错: {e}"</span>)
+            <span class="kw">raise</span>  <span class="cmt"># 或者根据业务决定是否重新抛出</span>
+    <span class="kw">return</span> wrapper</pre>
+    </div>
+
+    <div class="warning-block">
+      <span class="icon">⚠️</span>
+      <div class="content">
+        <p><strong>陷阱 3：返回值丢失</strong></p>
+      </div>
+    </div>
+    <div class="code-block">
+      <span class="lang-label">Python</span>
+      <pre><span class="cmt"># ❌ 忘记 return</span>
+<span class="kw">def</span> <span class="fn">my_decorator</span>(<span class="param">func</span>):
+    <span class="kw">def</span> <span class="fn">wrapper</span>(*args, **kwargs):
+        <span class="fn">print</span>(<span class="str">"before"</span>)
+        func(*args, **kwargs)  <span class="cmt"># 😱 没有 return！</span>
+        <span class="fn">print</span>(<span class="str">"after"</span>)
+    <span class="kw">return</span> wrapper
+
+<span class="cmt"># ✅ 正确</span>
+<span class="kw">def</span> <span class="fn">my_decorator</span>(<span class="param">func</span>):
+    <span class="kw">def</span> <span class="fn">wrapper</span>(*args, **kwargs):
+        <span class="fn">print</span>(<span class="str">"before"</span>)
+        result = func(*args, **kwargs)  <span class="cmt"># ✅ 保存结果</span>
+        <span class="fn">print</span>(<span class="str">"after"</span>)
+        <span class="kw">return</span> result                    <span class="cmt"># ✅ 返回结果</span>
+    <span class="kw">return</span> wrapper</pre>
+    </div>
+  </section>
+
+  <!-- ===== Summary ===== -->
+  <section class="section" id="summary">
+    <h2>本期总结</h2>
+
+    <table class="styled-table">
+      <thead>
+        <tr>
+          <th>知识点</th>
+          <th>核心要点</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>装饰器本质</td>
+          <td>接收函数、返回新函数的高阶函数</td>
+        </tr>
+        <tr>
+          <td>语法糖</td>
+          <td><code>@deco</code> ≡ <code>func = deco(func)</code></td>
+        </tr>
+        <tr>
+          <td>无参装饰器</td>
+          <td>两层结构：decorator → wrapper</td>
+        </tr>
+        <tr>
+          <td>functools.wraps</td>
+          <td>必须加，保留原函数元信息</td>
+        </tr>
+        <tr>
+          <td>带参装饰器</td>
+          <td>三层嵌套：参数层 → decorator → wrapper</td>
+        </tr>
+        <tr>
+          <td>叠加顺序</td>
+          <td>装饰从下往上，调用从上往下</td>
+        </tr>
+        <tr>
+          <td>三大陷阱</td>
+          <td>忘括号、吞异常、丢返回值</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ===== Upcoming ===== -->
+  <section class="section" id="upcoming">
+    <h2>后续预告</h2>
+    <table class="styled-table">
+      <thead>
+        <tr>
+          <th>期数</th>
+          <th>内容</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>第二期</td>
+          <td>类装饰器、装饰类的装饰器、@property/@staticmethod 源码解析</td>
+        </tr>
+        <tr>
+          <td>第三期</td>
+          <td>装饰器与元类、异步装饰器、性能优化、标准库装饰器全景</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ===== Teaching Rhythm ===== -->
+  <section class="section" id="rhythm">
+    <h2>教学节奏参考</h2>
+    <div class="timeline">
+      <div class="timeline-item">
+        <span class="time-label">2 min</span>
+        <p><strong>前置回顾</strong> — 快速唤醒函数一等公民 + 闭包</p>
+      </div>
+      <div class="timeline-item">
+        <span class="time-label">10 min</span>
+        <p><strong>本质讲解 + 第一个装饰器</strong> — 建立心智模型（重点）</p>
+      </div>
+      <div class="timeline-item">
+        <span class="time-label">8 min</span>
+        <p><strong>wraps + 带参装饰器</strong> — 工程规范</p>
+      </div>
+      <div class="timeline-item">
+        <span class="time-label">3 min</span>
+        <p><strong>叠加顺序</strong> — 理解组合</p>
+      </div>
+      <div class="timeline-item">
+        <span class="time-label">7 min</span>
+        <p><strong>实战案例</strong> — 巩固应用</p>
+      </div>
+      <div class="timeline-item">
+        <span class="time-label">3 min</span>
+        <p><strong>陷阱总结</strong> — 避坑指南</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ===== Footer ===== -->
+<footer class="footer">
+  <p>Python 装饰器教学系列 · 第一期 · 本质与核心用法</p>
+  <p style="margin-top:0.5rem; opacity:0.7;">内部教学文档 · 技术手札风格</p>
+</footer>
+
+<!-- ===== JS: Scroll Animation ===== -->
+<script>
+(function() {
+  // Intersection Observer for scroll-triggered animations
+  const sections = document.querySelectorAll('.section');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  sections.forEach(section => {
+    section.style.opacity = '0';
+    section.style.transform = 'translateY(20px)';
+    section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    observer.observe(section);
+  });
+
+  // Smooth scroll for TOC links
+  document.querySelectorAll('.toc a').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = document.querySelector(link.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLM 运行机制 — 底层吞吐数据的基本原理</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ─────────────────────────────────────────── */
+:root {
+  --background: #F8F3EA;
+  --surface1: #FDFAF5;
+  --surface2: #F8F3EA;
+  --surface3: #F0E9DA;
+  --border: #F0E9DA;
+  --border-visible: #E4D9C8;
+  --text1: #2C2416;
+  --text2: #7A6E5F;
+  --text3: #A89880;
+  --text4: #C8BAA4;
+  --accent: #C17B3A;
+  --accent-subtle: #FDF6EC;
+  --success: #4A9B6A;
+  --success-bg: #F0FDF4;
+  --warning: #D97706;
+  --warning-bg: #FFFBEB;
+  --error: #DC4A4A;
+  --error-bg: #FEF2F2;
+  --shadow-1: 0 1px 3px rgba(44,36,22,.06), 0 1px 2px rgba(44,36,22,.04);
+  --shadow-2: 0 4px 12px rgba(44,36,22,.08), 0 2px 4px rgba(44,36,22,.05);
+  --font-body: "DM Sans", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", monospace;
+  --radius-element: 4px;
+  --radius-control: 6px;
+  --radius-component: 8px;
+  --radius-container: 12px;
+  --radius-pill: 999px;
+  --dur-fast: 120ms;
+  --dur-med: 200ms;
+}
+[data-theme="dark"] {
+  --background: #1A1510;
+  --surface1: #2C2416;
+  --surface2: #3D3530;
+  --surface3: #5A5048;
+  --border: #3D3530;
+  --border-visible: #5A5048;
+  --text1: #FDFAF5;
+  --text2: #E4D9C8;
+  --text3: #A89880;
+  --text4: #7A6E5F;
+  --accent: #E09A42;
+  --accent-subtle: #2A1808;
+  --shadow-1: 0 1px 3px rgba(0,0,0,.25), 0 1px 2px rgba(0,0,0,.15);
+  --shadow-2: 0 4px 12px rgba(0,0,0,.35), 0 2px 4px rgba(0,0,0,.20);
+}
+
+/* ── RESET ──────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  background: var(--background);
+  color: var(--text1);
+  font-size: 14px;
+  line-height: 1.6;
+  transition: background var(--dur-med) ease, color var(--dur-med) ease;
+}
+
+/* ── HEADER ─────────────────────────────────────────── */
+.site-header {
+  position: sticky; top: 0; z-index: 100;
+  height: 48px;
+  background: var(--background);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px;
+}
+.breadcrumb {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--text3);
+}
+.breadcrumb-sep { color: var(--text4); }
+.breadcrumb-current { color: var(--text2); }
+.theme-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-visible);
+  background: var(--surface3);
+  color: var(--text2);
+  font-family: var(--font-body); font-size: 12px; font-weight: 500;
+  cursor: pointer;
+  transition: background var(--dur-fast) ease;
+}
+.theme-btn:hover { background: var(--surface2); }
+
+/* ── LAYOUT ─────────────────────────────────────────── */
+.layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 24px;
+  gap: 48px;
+  align-items: start;
+}
+
+/* ── SIDEBAR TOC ────────────────────────────────────── */
+.toc {
+  position: sticky; top: 72px;
+  padding: 24px 0;
+}
+.toc-label {
+  font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--text3);
+  margin-bottom: 12px;
+}
+.toc-list { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+.toc-item a {
+  display: block;
+  padding: 5px 10px;
+  border-radius: var(--radius-control);
+  font-size: 13px; color: var(--text3);
+  text-decoration: none;
+  transition: background var(--dur-fast) ease, color var(--dur-fast) ease;
+  border-left: 2px solid transparent;
+}
+.toc-item a:hover { color: var(--text2); background: var(--surface3); }
+.toc-item.active a {
+  color: var(--accent);
+  background: var(--accent-subtle);
+  border-left-color: var(--accent);
+}
+
+/* ── ARTICLE ────────────────────────────────────────── */
+.article { padding: 40px 0 96px; max-width: 680px; }
+.article-meta {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 32px;
+}
+.article-tag {
+  display: inline-flex; align-items: center;
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--accent-subtle);
+  color: var(--accent);
+  font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.article-date, .read-time { font-size: 12px; color: var(--text3); }
+.meta-dot { color: var(--text4); font-size: 10px; }
+.article-title {
+  font-size: 28px; font-weight: 600;
+  letter-spacing: -0.01em; line-height: 1.2;
+  color: var(--text1);
+  margin-bottom: 12px;
+}
+.article-lead {
+  font-size: 16px; font-weight: 400;
+  color: var(--text2); line-height: 1.6;
+  margin-bottom: 40px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ── SECTION ────────────────────────────────────────── */
+.section { margin-bottom: 48px; }
+.section-anchor { display: block; height: 72px; margin-top: -72px; visibility: hidden; }
+h2.section-heading {
+  font-size: 20px; font-weight: 600;
+  letter-spacing: -0.01em; line-height: 1.3;
+  color: var(--text1);
+  margin-bottom: 16px;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px;
+  border-radius: var(--radius-element);
+  background: var(--accent-subtle);
+  color: var(--accent);
+  font-size: 11px; font-weight: 600;
+  flex-shrink: 0;
+}
+h3.sub-heading {
+  font-size: 15px; font-weight: 600;
+  color: var(--text1);
+  margin: 24px 0 10px;
+}
+p { font-size: 14px; color: var(--text2); line-height: 1.75; margin-bottom: 14px; }
+p:last-child { margin-bottom: 0; }
+strong { font-weight: 600; color: var(--text1); }
+
+/* ── CALLOUT ────────────────────────────────────────── */
+.callout {
+  background: var(--surface1);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-component);
+  padding: 16px 20px;
+  margin: 20px 0;
+  box-shadow: var(--shadow-1);
+}
+.callout-label {
+  font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+.callout p { font-size: 13px; color: var(--text2); margin-bottom: 0; }
+
+/* ── CODE BLOCK ─────────────────────────────────────── */
+.code-block {
+  background: var(--surface3);
+  border: 1px solid var(--border-visible);
+  border-radius: var(--radius-component);
+  padding: 16px 20px;
+  margin: 16px 0;
+  overflow-x: auto;
+}
+.code-block-label {
+  font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--text3);
+  margin-bottom: 10px;
+}
+.code-block code {
+  font-family: var(--font-mono);
+  font-size: 13px; color: var(--text1);
+  line-height: 1.7;
+  white-space: pre;
+  display: block;
+}
+code.inline {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: var(--surface3);
+  color: var(--accent);
+  padding: 1px 6px;
+  border-radius: var(--radius-element);
+  border: 1px solid var(--border-visible);
+}
+
+/* ── DATA TABLE ─────────────────────────────────────── */
+.data-table-wrap {
+  margin: 20px 0;
+  border: 1px solid var(--border-visible);
+  border-radius: var(--radius-component);
+  overflow: hidden;
+  box-shadow: var(--shadow-1);
+}
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data-table thead tr {
+  background: var(--surface3);
+  border-bottom: 1px solid var(--border-visible);
+}
+.data-table th {
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--text3);
+}
+.data-table td {
+  padding: 10px 16px;
+  color: var(--text2);
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  line-height: 1.5;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--surface2); }
+.data-table td:first-child { color: var(--text1); font-weight: 500; }
+.data-table code {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--accent); background: var(--accent-subtle);
+  padding: 1px 5px; border-radius: 3px;
+}
+
+/* ── PIPELINE ───────────────────────────────────────── */
+.pipeline {
+  display: flex; align-items: center; gap: 0;
+  margin: 24px 0; overflow-x: auto; padding-bottom: 4px;
+}
+.pipe-step { display: flex; flex-direction: column; align-items: center; gap: 6px; flex-shrink: 0; }
+.pipe-box {
+  background: var(--surface1);
+  border: 1px solid var(--border-visible);
+  border-radius: var(--radius-component);
+  padding: 10px 14px;
+  text-align: center;
+  box-shadow: var(--shadow-1);
+  min-width: 80px;
+}
+.pipe-box-num { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text3); margin-bottom: 4px; }
+.pipe-box-name { font-size: 12px; font-weight: 600; color: var(--text1); }
+.pipe-box-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.pipe-box.accent { background: var(--accent-subtle); border-color: rgba(193,123,58,.3); }
+.pipe-box.accent .pipe-box-name { color: var(--accent); }
+.pipe-arrow { font-size: 14px; color: var(--text4); padding: 0 4px; flex-shrink: 0; margin-bottom: 20px; }
+
+/* ── FORMULA CARD ───────────────────────────────────── */
+.formula-card {
+  background: var(--surface1);
+  border: 1px solid var(--border-visible);
+  border-radius: var(--radius-component);
+  padding: 20px 24px;
+  margin: 20px 0;
+  text-align: center;
+  box-shadow: var(--shadow-1);
+}
+.formula-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text3); margin-bottom: 12px; }
+.formula-body { font-family: var(--font-mono); font-size: 15px; color: var(--text1); line-height: 1.8; }
+.formula-note { font-size: 12px; color: var(--text3); margin-top: 10px; }
+
+/* ── SAMPLING GRID ──────────────────────────────────── */
+.sampling-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0; }
+.sampling-card {
+  background: var(--surface1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-component);
+  padding: 16px;
+  box-shadow: var(--shadow-1);
+}
+.sampling-card-name { font-size: 13px; font-weight: 600; color: var(--text1); margin-bottom: 6px; }
+.sampling-card-desc { font-size: 12px; color: var(--text2); line-height: 1.6; }
+.sampling-card.highlight { border-color: rgba(193,123,58,.3); background: var(--accent-subtle); }
+.sampling-card.highlight .sampling-card-name { color: var(--accent); }
+
+/* ── STAT ROW ───────────────────────────────────────── */
+.stat-row { display: flex; gap: 12px; margin: 20px 0; flex-wrap: wrap; }
+.stat-card {
+  flex: 1; min-width: 120px;
+  background: var(--surface1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-component);
+  padding: 16px;
+  box-shadow: var(--shadow-1);
+}
+.stat-value { font-size: 22px; font-weight: 600; color: var(--text1); letter-spacing: -0.01em; margin-bottom: 4px; }
+.stat-label { font-size: 11px; color: var(--text3); }
+.stat-sub { font-size: 12px; color: var(--text2); margin-top: 4px; }
+
+/* ── DIVIDER ────────────────────────────────────────── */
+.divider { height: 1px; background: var(--border); margin: 40px 0; }
+
+/* ── FOOTER ─────────────────────────────────────────── */
+.article-footer {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px;
+}
+.footer-note { font-size: 12px; color: var(--text3); }
+
+/* ── RESPONSIVE ─────────────────────────────────────── */
+@media (max-width: 768px) {
+  .layout { grid-template-columns: 1fr; gap: 0; }
+  .toc { display: none; }
+  .site-header { padding: 0 16px; }
+  .article { padding: 24px 0 64px; }
+  .sampling-grid { grid-template-columns: 1fr; }
+  .pipeline { flex-wrap: wrap; gap: 8px; }
+  .pipe-arrow { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header class="site-header">
+  <nav class="breadcrumb">
+    <span>Notes</span>
+    <span class="breadcrumb-sep">/</span>
+    <span>AI &amp; ML</span>
+    <span class="breadcrumb-sep">/</span>
+    <span class="breadcrumb-current">LLM 运行机制</span>
+  </nav>
+  <button class="theme-btn" onclick="toggleTheme()">
+    <span id="theme-icon">☀️</span>
+    <span id="theme-label">Light</span>
+  </button>
+</header>
+
+<div class="layout">
+
+  <!-- ── SIDEBAR TOC ── -->
+  <aside class="toc">
+    <div class="toc-label">目录</div>
+    <ul class="toc-list">
+      <li class="toc-item" data-section="s1"><a href="#s1">Token：模型的基本单位</a></li>
+      <li class="toc-item" data-section="s2"><a href="#s2">Transformer 架构</a></li>
+      <li class="toc-item" data-section="s3"><a href="#s3">自回归生成</a></li>
+      <li class="toc-item" data-section="s4"><a href="#s4">采样策略</a></li>
+      <li class="toc-item" data-section="s5"><a href="#s5">上下文窗口</a></li>
+      <li class="toc-item" data-section="s6"><a href="#s6">硬件现实</a></li>
+      <li class="toc-item" data-section="s7"><a href="#s7">训练 vs 推理</a></li>
+      <li class="toc-item" data-section="s8"><a href="#s8">完整推理流程</a></li>
+    </ul>
+  </aside>
+
+  <!-- ── ARTICLE ── -->
+  <main class="article">
+
+    <div class="article-meta">
+      <span class="article-tag">深度解析</span>
+      <span class="meta-dot">·</span>
+      <span class="article-date">2026</span>
+      <span class="meta-dot">·</span>
+      <span class="read-time">约 15 分钟阅读</span>
+    </div>
+
+    <h1 class="article-title">LLM 运行机制</h1>
+    <p class="article-lead">底层吞吐数据的基本原理——从 Token 到 Transformer，从自回归生成到显存带宽，完整拆解大语言模型每一次推理背后发生的事情。</p>
+
+    <!-- S1 -->
+    <div class="section">
+      <span class="section-anchor" id="s1"></span>
+      <h2 class="section-heading"><span class="section-num">1</span>Token：模型看到的世界</h2>
+      <p>LLM 不直接处理字符，也不处理单词，它处理的是 <strong>token</strong>。Token 是文本的基本计算单位，由分词器（tokenizer）切割产生。英文中，一个常见单词通常是 1 个 token；中文中，每个汉字通常对应 1–2 个 token。标点、空格、换行符也各自占用 token。</p>
+      <p>以 GPT-4 使用的 <code class="inline">cl100k_base</code> 词表为例，词表大小约为 10 万个 token。模型的每一次"输出"，本质上是从这 10 万个候选项中选出一个概率最高的。</p>
+
+      <div class="stat-row">
+        <div class="stat-card">
+          <div class="stat-value">~100K</div>
+          <div class="stat-label">词表大小</div>
+          <div class="stat-sub">GPT-4 cl100k_base</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">1–2</div>
+          <div class="stat-label">Token / 汉字</div>
+          <div class="stat-sub">中文平均比率</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">~75%</div>
+          <div class="stat-label">压缩率</div>
+          <div class="stat-sub">字符数 → Token 数</div>
+        </div>
+      </div>
+
+      <div class="callout">
+        <div class="callout-label">为什么用 Token 而不用字符？</div>
+        <p>Token 在语义上更有意义，同时大幅压缩了序列长度，降低了计算量。一段 1000 字的中文，字符数约 1000，但 token 数通常在 600–800 之间。</p>
+      </div>
+    </div>
+
+    <!-- S2 -->
+    <div class="section">
+      <span class="section-anchor" id="s2"></span>
+      <h2 class="section-heading"><span class="section-num">2</span>Transformer：处理序列的核心引擎</h2>
+      <p>现代 LLM 几乎全部基于 <strong>Transformer 架构</strong>（2017 年由 Google 提出）。它的核心创新是<strong>自注意力机制（Self-Attention）</strong>，解决了 RNN 无法并行、长距离依赖衰减的问题。</p>
+
+      <h3 class="sub-heading">2.1 输入表示：从 Token 到向量</h3>
+      <p>每个 token 首先被映射为一个高维向量，称为 <strong>embedding</strong>。GPT-4 的 embedding 维度约为 12,288。这个向量在训练中学习到了语义关系：<code class="inline">king - man + woman ≈ queen</code> 这类著名的向量运算，正是 embedding 空间的几何性质。同时，模型还会为每个 token 加上<strong>位置编码（Positional Encoding）</strong>，因为 Transformer 本身不感知顺序，位置信息必须显式注入。</p>
+
+      <h3 class="sub-heading">2.2 自注意力：让每个词"看见"其他词</h3>
+      <p>自注意力的核心思想是：序列中的每个 token，都要与其他所有 token 计算相关性，然后加权聚合信息。每个 token 的 embedding 被线性变换为三个向量：</p>
+
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead><tr><th>向量</th><th>含义</th><th>作用</th></tr></thead>
+          <tbody>
+            <tr><td><code>Query (Q)</code></td><td>我在问什么？</td><td>发起注意力查询</td></tr>
+            <tr><td><code>Key (K)</code></td><td>我能提供什么信息？</td><td>被查询的索引</td></tr>
+            <tr><td><code>Value (V)</code></td><td>我实际携带的内容</td><td>加权聚合的内容</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="formula-card">
+        <div class="formula-label">自注意力计算公式</div>
+        <div class="formula-body">Attention(Q, K, V) = softmax( QKᵀ / √d_k ) · V</div>
+        <div class="formula-note">除以 √d_k 是为了防止点积过大导致 softmax 梯度消失</div>
+      </div>
+
+      <div class="callout">
+        <div class="callout-label">直觉理解</div>
+        <p>假设句子是"猫坐在垫子上，它很舒适"。当模型处理"它"这个 token 时，自注意力会让"它"对"猫"产生高注意力权重，从而理解"它"指代的是猫。</p>
+      </div>
+
+      <h3 class="sub-heading">2.3 多头注意力与前馈网络</h3>
+      <p><strong>多头注意力（Multi-Head Attention）</strong>将 embedding 分割为多个子空间，每个头独立计算注意力，最后拼接结果。GPT-3 有 96 个注意力头，每个头可以专注于不同的语言现象：句法依存、语义相似、指代关系、时态一致……</p>
+      <p>每个 Transformer 层在注意力之后，还有一个<strong>前馈网络（FFN）</strong>，对每个 token 的表示独立做两层线性变换加激活函数（通常是 GELU）。研究表明，FFN 层是模型存储"事实知识"的主要场所——"巴黎是法国的首都"这类知识，大量编码在 FFN 的权重矩阵中。</p>
+
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead><tr><th>模型</th><th>层数</th><th>注意力头数</th><th>Embedding 维度</th></tr></thead>
+          <tbody>
+            <tr><td>GPT-3</td><td>96</td><td>96</td><td>12,288</td></tr>
+            <tr><td>LLaMA-3 70B</td><td>80</td><td>64</td><td>8,192</td></tr>
+            <tr><td>LLaMA-3 8B</td><td>32</td><td>32</td><td>4,096</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- S3 -->
+    <div class="section">
+      <span class="section-anchor" id="s3"></span>
+      <h2 class="section-heading"><span class="section-num">3</span>自回归生成：一次只输出一个 Token</h2>
+      <p>LLM 的生成过程是<strong>自回归（Autoregressive）</strong>的：模型每次只预测一个 token，然后将这个 token 追加到输入序列，再预测下一个，如此循环，直到生成结束符或达到长度上限。</p>
+      <p>这个过程分为两个关键阶段：</p>
+
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead><tr><th>阶段</th><th>操作</th><th>并行性</th><th>特点</th></tr></thead>
+          <tbody>
+            <tr><td>Prefill（预填充）</td><td>并行处理所有输入 token，计算并缓存 KV</td><td>完全并行</td><td>速度快，计算密集</td></tr>
+            <tr><td>Decode（解码）</td><td>逐个生成输出 token，追加 KV Cache</td><td>串行</td><td>吞吐瓶颈，带宽密集</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout">
+        <div class="callout-label">KV Cache 的意义</div>
+        <p>如果没有 KV Cache，每生成一个新 token 都需要重新计算所有历史 token 的 K、V，计算量随序列长度平方增长 O(n²)。KV Cache 将已计算的结果缓存起来，使解码阶段降为 O(n)，代价是显存占用随序列长度线性增长。</p>
+      </div>
+    </div>
+
+    <!-- S4 -->
+    <div class="section">
+      <span class="section-anchor" id="s4"></span>
+      <h2 class="section-heading"><span class="section-num">4</span>采样策略：如何从概率分布中选词</h2>
+      <p>模型的最后一层输出一个 <strong>logit 向量</strong>（维度等于词表大小），经过 softmax 转换为概率分布。如何从这个分布中选出下一个 token，由<strong>采样策略</strong>决定：</p>
+
+      <div class="sampling-grid">
+        <div class="sampling-card">
+          <div class="sampling-card-name">Greedy Decoding</div>
+          <div class="sampling-card-desc">每次选概率最高的 token。确定性强，但容易陷入重复和平庸。</div>
+        </div>
+        <div class="sampling-card">
+          <div class="sampling-card-name">Temperature Sampling</div>
+          <div class="sampling-card-desc">将 logit 除以温度 T。T &lt; 1 更保守，T &gt; 1 更随机，T = 0 退化为贪心。</div>
+        </div>
+        <div class="sampling-card">
+          <div class="sampling-card-name">Top-k Sampling</div>
+          <div class="sampling-card-desc">只从概率最高的 k 个 token 中采样，屏蔽长尾低概率词。</div>
+        </div>
+        <div class="sampling-card highlight">
+          <div class="sampling-card-name">Top-p (Nucleus) Sampling</div>
+          <div class="sampling-card-desc">动态选取累积概率达到 p 的最小 token 集合。比 Top-k 更自适应，是实践中的首选。</div>
+        </div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-block-label">实践推荐配置</div>
+        <code># 创造性写作
+temperature = 0.8, top_p = 0.9
+
+# 代码生成 / 精确任务
+temperature = 0.2, top_p = 0.95
+
+# 确定性输出
+temperature = 0.0  # 等价于 greedy</code>
+      </div>
+    </div>
+
+    <!-- S5 -->
+    <div class="section">
+      <span class="section-anchor" id="s5"></span>
+      <h2 class="section-heading"><span class="section-num">5</span>上下文窗口：模型的"工作记忆"</h2>
+      <p>LLM 没有持久记忆，它能"看到"的全部信息就是<strong>上下文窗口（Context Window）</strong>内的 token 序列。</p>
+
+      <div class="stat-row">
+        <div class="stat-card">
+          <div class="stat-value">128K</div>
+          <div class="stat-label">GPT-4 Turbo</div>
+          <div class="stat-sub">约 96,000 汉字</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">200K</div>
+          <div class="stat-label">Claude 3</div>
+          <div class="stat-sub">约 150,000 汉字</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">O(n²)</div>
+          <div class="stat-label">注意力复杂度</div>
+          <div class="stat-sub">序列长度翻倍→计算量×4</div>
+        </div>
+      </div>
+
+      <div class="callout">
+        <div class="callout-label">一个关键的误解</div>
+        <p>上下文窗口不等于"记忆"。每次对话都是独立的，模型不会记住上一次对话的内容，除非将历史对话显式地放入当前上下文。</p>
+      </div>
+    </div>
+
+    <!-- S6 -->
+    <div class="section">
+      <span class="section-anchor" id="s6"></span>
+      <h2 class="section-heading"><span class="section-num">6</span>推理的硬件现实：显存与带宽</h2>
+      <p>LLM 推理是<strong>显存带宽密集型</strong>任务，而非计算密集型。在解码阶段，GPU 的大部分时间花在从显存读取模型权重上，而不是做矩阵乘法。</p>
+
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead><tr><th>优化手段</th><th>原理</th><th>效果</th></tr></thead>
+          <tbody>
+            <tr><td>量化（INT8/INT4）</td><td>将权重从 FP16 压缩到更低精度</td><td>显存减半，带宽提升，速度 ×1.5–2</td></tr>
+            <tr><td>批处理（Batching）</td><td>多请求打包并行处理</td><td>GPU 利用率大幅提升</td></tr>
+            <tr><td>连续批处理</td><td>动态合并不同长度请求</td><td>吞吐量提升 5–10×</td></tr>
+            <tr><td>FlashAttention</td><td>重写注意力计算的内存访问模式</td><td>速度 ×2–4，显存减少</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="code-block">
+        <div class="code-block-label">LLaMA-3 70B 推理估算（A100 80GB）</div>
+        <code>模型权重：~140 GB（FP16）
+A100 显存带宽：~2 TB/s
+理论生成速度：~14 tokens/s（单卡）
+
+量化到 INT4 后：
+模型权重：~35 GB
+理论生成速度：~56 tokens/s（单卡）</code>
+      </div>
+    </div>
+
+    <!-- S7 -->
+    <div class="section">
+      <span class="section-anchor" id="s7"></span>
+      <h2 class="section-heading"><span class="section-num">7</span>训练与推理的本质区别</h2>
+      <p>理解 LLM 还需要区分<strong>训练</strong>和<strong>推理</strong>两个阶段：</p>
+
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead><tr><th>维度</th><th>训练</th><th>推理</th></tr></thead>
+          <tbody>
+            <tr><td>参数状态</td><td>持续更新（反向传播）</td><td>完全固定</td></tr>
+            <tr><td>计算方向</td><td>前向 + 反向传播</td><td>仅前向传播</td></tr>
+            <tr><td>成本</td><td>极高（GPT-4 估计 &gt;$1亿）</td><td>相对低廉</td></tr>
+            <tr><td>频率</td><td>一次性（或定期微调）</td><td>每次对话</td></tr>
+            <tr><td>知识更新</td><td>通过数据更新</td><td>不更新，有截止日期</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>模型的"知识"完全编码在训练后的参数中，推理时不会更新。这解释了为什么 LLM 有知识截止日期，以及为什么它有时会"幻觉"——它不是在查找事实，而是在根据训练数据的统计模式生成最可能的续写。</p>
+    </div>
+
+    <!-- S8 -->
+    <div class="section">
+      <span class="section-anchor" id="s8"></span>
+      <h2 class="section-heading"><span class="section-num">8</span>一次完整的推理流程</h2>
+      <p>将以上所有环节串联起来，一次完整的 LLM 推理流程如下：</p>
+
+      <div class="pipeline">
+        <div class="pipe-step">
+          <div class="pipe-box">
+            <div class="pipe-box-num">01</div>
+            <div class="pipe-box-name">分词</div>
+            <div class="pipe-box-sub">Tokenizer</div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step">
+          <div class="pipe-box">
+            <div class="pipe-box-num">02</div>
+            <div class="pipe-box-name">Embedding</div>
+            <div class="pipe-box-sub">向量映射</div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step">
+          <div class="pipe-box">
+            <div class="pipe-box-num">03</div>
+            <div class="pipe-box-name">位置编码</div>
+            <div class="pipe-box-sub">RoPE / APE</div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step">
+          <div class="pipe-box accent">
+            <div class="pipe-box-num">04</div>
+            <div class="pipe-box-name">Prefill</div>
+            <div class="pipe-box-sub">并行 · KV Cache</div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step">
+          <div class="pipe-box accent">
+            <div class="pipe-box-num">05</div>
+            <div class="pipe-box-name">Decode 循环</div>
+            <div class="pipe-box-sub">串行 · 逐 Token</div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step">
+          <div class="pipe-box">
+            <div class="pipe-box-num">06</div>
+            <div class="pipe-box-name">采样</div>
+            <div class="pipe-box-sub">Top-p / Temp</div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step">
+          <div class="pipe-box">
+            <div class="pipe-box-num">07</div>
+            <div class="pipe-box-name">Detokenize</div>
+            <div class="pipe-box-sub">输出文本</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-block-label">伪代码：Decode 循环</div>
+        <code>tokens = tokenize(user_input)
+kv_cache = prefill(tokens)          # 并行，一次完成
+
+while not done:
+    logits = forward(tokens[-1], kv_cache)
+    next_token = sample(logits, T=0.7, p=0.9)
+    tokens.append(next_token)
+    kv_cache.update(next_token)
+    if next_token == EOS: break
+
+return detokenize(tokens)</code>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- CONCLUSION -->
+    <div class="section">
+      <h2 class="section-heading" style="font-size:16px;color:var(--text2);">小结</h2>
+      <p>LLM 的运行机制，本质上是一个<strong>在高维空间中做条件概率估计的数学系统</strong>。它没有理解，没有意图，没有记忆——它只是在极其精确地回答一个问题：<strong>给定这些 token，下一个最可能是什么？</strong></p>
+      <p>但正是这个看似简单的问题，在足够大的模型、足够多的数据、足够深的层数之下，涌现出了令人惊叹的能力。理解这个底层机制，是使用和评估 LLM 的基础，也是避免对它产生错误期待的前提。</p>
+    </div>
+
+    <footer class="article-footer">
+      <span class="footer-note">Birchline Design System · Warm Document Craft</span>
+      <span class="footer-note">LLM 运行机制 · 深度解析</span>
+    </footer>
+
+  </main>
+</div>
+
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('theme-icon').textContent = isDark ? '☀️' : '🌙';
+  document.getElementById('theme-label').textContent = isDark ? 'Light' : 'Dark';
+}
+
+// Active TOC highlight on scroll
+const sections = document.querySelectorAll('.section-anchor');
+const tocItems = document.querySelectorAll('.toc-item');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      tocItems.forEach(item => {
+        item.classList.toggle('active', item.dataset.section === id);
+      });
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

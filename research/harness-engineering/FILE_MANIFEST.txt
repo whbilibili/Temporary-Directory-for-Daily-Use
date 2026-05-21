@@ -1,0 +1,88 @@
+# Harness 工程初始化技能 - 文件清单
+
+## 📦 技能文件（已安装）
+
+位置：~/.catpaw/skills/harness-project-init/
+
+✅ SKILL.md              - 技能定义和完整文档
+✅ init.py               - Python 初始化脚本（推荐）
+✅ init.sh               - Bash 初始化脚本
+✅ README.md             - 使用说明
+
+## 📚 Harness 文档体系规划
+
+位置：/Users/wanghong/Projects/日常临时目录/research/harness-engineering/
+
+✅ HARNESS_DOCS_BLUEPRINT.md      - 完整的文档体系规划
+✅ MAINTENANCE_RULES.md            - 维护规则和检查清单
+✅ AGENTS_TEMPLATE.md              - AGENTS.md 模板
+✅ ARCHITECTURE_TEMPLATE.md        - ARCHITECTURE.md 模板
+✅ PROGRESS_TEMPLATE.md            - progress.txt 模板
+✅ CAVEATS_TEMPLATE.md             - docs/caveats.md 模板
+✅ FEATURE_LIST_TEMPLATE.md        - feature-list.json 模板
+✅ TECH_DEBT_TEMPLATE.md           - docs/tech-debt.md 模板
+✅ DAILY_LOG_TEMPLATE.md           - memory/YYYY-MM-DD.md 模板
+✅ SYNC_STATE_TEMPLATE.md          - .sync-state.json 模板
+✅ harness-init.sh                 - Bash 初始化脚本
+✅ README-harness-engineering.md   - Harness 工程说明
+
+## 📋 总结和参考文档
+
+位置：/Users/wanghong/Projects/日常临时目录/
+
+✅ SKILL_SUMMARY.md               - 技能完整总结
+✅ QUICK_REFERENCE.md             - 快速参考卡
+✅ FINAL_SUMMARY.md               - 完成总结
+✅ FILE_MANIFEST.txt              - 本文件
+
+## 🧪 测试生成的项目
+
+位置：/Users/wanghong/Projects/日常临时目录/test-frontend/
+
+✅ harness/feature-list.json      - 任务清单
+✅ harness/progress.txt           - 进度记录
+✅ harness/ARCHITECTURE.md        - 架构文档
+✅ harness/docs/caveats.md        - 踩坑档案
+✅ harness/docs/tech-debt.md      - 技术债清单
+✅ harness/docs/CHANGELOG.md      - 变更日志
+✅ harness/memory/MEMORY.md       - 长期记忆
+✅ harness/.gitignore             - Git 忽略规则
+✅ .sync-state.json               - 同步检查点
+
+## 📊 文件统计
+
+总文件数：30+
+总代码行数：~3000 行
+总文档大小：~200 KB
+
+## 🚀 快速开始
+
+1. 查看快速参考：
+   cat /Users/wanghong/Projects/日常临时目录/QUICK_REFERENCE.md
+
+2. 查看完整总结：
+   cat /Users/wanghong/Projects/日常临时目录/SKILL_SUMMARY.md
+
+3. 运行初始化脚本：
+   python3 ~/.catpaw/skills/harness-project-init/init.py \
+     --project-name my-project \
+     --project-type frontend \
+     --root-dir ./my-project
+
+## 📚 文档导航
+
+快速参考 → 完整总结 → 详细规划 → 各种模板
+
+## ✅ 验证安装
+
+检查技能是否正确安装：
+ls -la ~/.catpaw/skills/harness-project-init/
+
+测试脚本：
+python3 ~/.catpaw/skills/harness-project-init/init.py --help
+
+## 📞 支持
+
+技能版本：1.0.0
+创建时间：2026-04-20
+维护者：Harness Engineering Team
