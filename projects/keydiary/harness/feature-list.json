@@ -108,7 +108,7 @@
       "task_id": "P0-003",
       "description": "前后端通信验证：实现 get_app_status Tauri Command + 前端 invoke 调用并展示结果",
       "priority": "1-High",
-      "status": "pending",
+      "status": "in_progress",
       "phase": "phase-0",
       "contracts": {
         "rust_module": {
