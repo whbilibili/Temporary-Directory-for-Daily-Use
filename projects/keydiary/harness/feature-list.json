@@ -1,0 +1,1592 @@
+{
+  "project": "keydiary",
+  "prd": "harness/docs/PRD/",
+  "created_at": "2026-05-25",
+  "updated_at": "2026-05-26",
+  "mode": "monolithic",
+  "tasks": [
+    {
+      "task_id": "P0-001",
+      "description": "系统托盘配置：在 tray.rs 中实现 macOS 菜单栏托盘图标 + 右键菜单（打开击刻/暂停采集占位/退出）",
+      "priority": "1-High",
+      "status": "completed",
+      "phase": "phase-0",
+      "contracts": {
+        "rust_module": {
+          "file": "app/src-tauri/src/tray.rs",
+          "api": "pub fn init(app: &AppHandle) -> Result<()>",
+          "config": {
+            "tray_id": "main-tray",
+            "icon_path": "icons/tray-icon.png",
+            "icon_as_template": true,
+            "menu_on_left_click": false
+          },
+          "menu_items": [
+            "打开击刻 → show window",
+            "暂停采集/恢复采集 → placeholder",
+            "退出 → app.exit()"
+          ]
+        },
+        "tauri_config": {
+          "file": "app/src-tauri/tauri.conf.json",
+          "changes": "添加 trayIcon 配置"
+        }
+      },
+      "verification": {
+        "auto": "cd app && npm run tauri build -- --debug 2>&1 | grep -v warning",
+        "manual": "macOS 菜单栏出现击刻图标；点击弹出菜单；点击退出完全退出进程"
+      },
+      "acceptance_criteria": [
+        "macOS 菜单栏出现击刻图标",
+        "左键点击托盘图标切换窗口显示/隐藏",
+        "右键菜单包含三个菜单项",
+        "点击退出菜单项能完全退出进程"
+      ],
+      "metadata": {
+        "files_affected": [
+          "app/src-tauri/src/tray.rs",
+          "app/src-tauri/src/main.rs",
+          "app/src-tauri/tauri.conf.json",
+          "app/src-tauri/icons/tray-icon.png"
+        ],
+        "spec_ref": "FS-0.2",
+        "layer": "backend"
+      },
+      "completed_at": "2026-05-26T10:00:00"
+    },
+    {
+      "task_id": "P0-002",
+      "description": "窗口行为管理：实现关闭即隐藏到托盘、启动默认隐藏、点击托盘切换显示/隐藏",
+      "priority": "1-High",
+      "status": "pending",
+      "phase": "phase-0",
+      "contracts": {
+        "rust_module": {
+          "file": "app/src-tauri/src/main.rs",
+          "behavior": {
+            "on_startup": "主窗口默认隐藏，只显示托盘图标",
+            "on_tray_click": "切换窗口 show/hide",
+            "on_close_request": "拦截关闭事件，改为 window.hide()，不退出进程"
+          }
+        },
+        "window_config": {
+          "file": "app/src-tauri/tauri.conf.json",
+          "default_size": [
+            800,
+            600
+          ],
+          "min_size": [
+            640,
+            480
+          ],
+          "resizable": true,
+          "visible": false
+        }
+      },
+      "verification": {
+        "auto": "cd app && npm run tauri build -- --debug 2>&1 | grep -v warning",
+        "manual": "启动 app 只看到托盘图标无窗口；点击托盘显示窗口；关闭窗口后托盘仍在；再次点击托盘窗口重新出现"
+      },
+      "acceptance_criteria": [
+        "App 启动时主窗口默认隐藏",
+        "点击托盘图标能切换窗口显示/隐藏",
+        "点击窗口关闭按钮只隐藏窗口（不退出进程）",
+        "窗口尺寸 800x600，最小 640x480"
+      ],
+      "metadata": {
+        "files_affected": [
+          "app/src-tauri/src/main.rs",
+          "app/src-tauri/src/tray.rs",
+          "app/src-tauri/tauri.conf.json"
+        ],
+        "spec_ref": "FS-0.3",
+        "layer": "backend"
+      }
+    },
+    {
+      "task_id": "P0-003",
+      "description": "前后端通信验证：实现 get_app_status Tauri Command + 前端 invoke 调用并展示结果",
+      "priority": "1-High",
+      "status": "pending",
+      "phase": "phase-0",
+      "contracts": {
+        "rust_module": {
+          "file": "app/src-tauri/src/commands.rs",
+          "command": {
+            "name": "get_app_status",
+            "params": "无",
+            "returns": "String (\"Hello, KeyDiary\")"
+          }
+        },
+        "frontend": {
+          "file": "app/src/routes/+page.svelte",
+          "behavior": "页面加载时调用 invoke('get_app_status')，显示标题 \"击刻 KeyDiary\" + 返回的状态文字"
+        }
+      },
+      "verification": {
+        "auto": "cd app && npm run tauri build -- --debug 2>&1 | grep -v warning",
+        "manual": "主窗口显示 \"击刻 KeyDiary\" 标题 + 从 Rust 返回的状态文字"
+      },
+      "acceptance_criteria": [
+        "主窗口显示 \"击刻 KeyDiary\" 标题",
+        "页面显示从 Rust 侧返回的状态文字"
+      ],
+      "metadata": {
+        "files_affected": [
+          "app/src-tauri/src/commands.rs",
+          "app/src-tauri/src/main.rs",
+          "app/src/routes/+page.svelte"
+        ],
+        "spec_ref": "FS-0.4",
+        "layer": "fullstack"
+      }
+    },
+    {
+      "task_id": "P0-004",
+      "description": "SQLite 数据库初始化：首次启动创建 ~/.keydiary/data.db 空数据库文件",
+      "priority": "1-High",
+      "status": "pending",
+      "phase": "phase-0",
+      "contracts": {
+        "rust_module": {
+          "file": "app/src-tauri/src/db.rs",
+          "api": "pub fn init(app: &AppHandle) -> Result<()>",
+          "behavior": "检查 ~/.keydiary/ 目录是否存在，不存在则创建；打开/创建 data.db 文件；Phase 0 不建表"
+        },
+        "dependency": {
+          "crate": "rusqlite",
+          "file": "app/src-tauri/Cargo.toml"
+        }
+      },
+      "verification": {
+        "auto": "cd app && npm run tauri build -- --debug 2>&1 | grep -v warning",
+        "manual": "App 启动后 ~/.keydiary/data.db 文件被创建；文件可用 sqlite3 命令打开"
+      },
+      "acceptance_criteria": [
+        "App 启动后 ~/.keydiary/data.db 文件被创建",
+        "目录 ~/.keydiary/ 不存在时自动创建",
+        "文件为合法的 SQLite 数据库"
+      ],
+      "metadata": {
+        "files_affected": [
+          "app/src-tauri/src/db.rs",
+          "app/src-tauri/src/main.rs",
+          "app/src-tauri/Cargo.toml"
+        ],
+        "spec_ref": "FS-0.5",
+        "layer": "data"
+      }
+    },
+    {
+      "task_id": "P1-001",
+      "description": "Accessibility 权限检测与引导页：实现权限检测 Command + 前端引导页面 + 每 2 秒轮询状态",
+      "priority": "1-High",
+      "status": "pending",
+      "phase": "phase-1",
+      "contracts": {
+        "rust_commands": {
+          "file": "app/src-tauri/src/commands.rs",
+          "commands": [
+            {
+              "name": "check_accessibility_permission",
+              "params": "无",
+              "returns": "bool"
+            },
+            {
+              "name": "open_accessibility_settings",
+              "params": "无",
+              "returns": "void (打开系统设置辅助功能页)"
+            }
+          ]
+        },
+        "frontend": {
+          "file": "app/src/lib/components/PermissionGuide.svelte",
+          "behavior": "未授权时全屏显示引导页（说明文字+操作指引+跳转按钮）；每 2 秒轮询权限状态；授权后自动切换到主界面"
+        }
+      },
+      "verification": {
+        "manual": "未授权时显示引导页面；点击按钮跳转到系统设置对应页面；授权后页面自动切换到主界面"
+      },
+      "acceptance_criteria": [
+        "App 启动时调用 AXIsProcessTrusted() 检测权限",
+        "未授权时显示引导页面",
+        "点击按钮能跳转到系统设置对应页面",
+        "授权后页面自动切换到主界面（无需重启 app）"
+      ],
+      "metadata": {
+        "files_affected": [
+          "app/src-tauri/src/commands.rs",
+          "app/src/lib/components/PermissionGuide.svelte",
+          "app/src/routes/+page.svelte"
+        ],
+        "spec_ref": "FS-1.1",
+        "layer": "fullstack"
+      }
+    },
+    {
+      "task_id": "P1-002",
+      "description": "按键采集引擎：在独立线程中用 CGEventTap 监听 keyDown 事件，实现 SecureInput 检测与跳过",
+      "priority": "1-High",
+      "status": "pending",
+      "phase": "phase-1",
+      "contracts": {
+        "rust_module": {
+          "file": "app/src-tauri/src/collector.rs",
+          "api": "pub fn start(tx: Sender<KeyEvent>) -> JoinHandle<()>",
+          "config": {
+            "tap_location": "CGEventTapLocation::Session",
+            "tap_options": "CGEventTapOptions::ListenOnly",
+            "event_types": [
+              "CGEventType::KeyDown"
+            ],
+            "thread": "独立线程 + CFRunLoop::run_current()"
+          },
+          "privacy": {
+            "secure_input": "CGSIsSecureEventInputSet() 返回 true 时丢弃事件",
+            "no_sequence": "只记录 key_code，不记录时序",
+            "no_network": true
+          }
+        }
+      },
+      "verification": {
+        "auto": "cd app/src-tauri && cargo clippy && cargo fmt --check",
+        "manual": "授权后按键采集自动开始；CPU 占用 < 1%；密码输入框中打字时不被记录"
+      },
+      "acceptance_criteria": [
+        "授权后按键采集自动开始",
+        "CPU 占用 < 1%（Activity Monitor 观察 5 分钟）",
+        "内存占用 < 50MB",
+        "SecureInput 模式下跳过采集",
+        "只监听不拦截/修改系统事件"
+      ],
+      "metadata": {
+        "files_affected": [
+          "app/src-tauri/src/collector.rs",
+          "app/src-tauri/src/main.rs",
+          "app/src-tauri/Cargo.toml"
+        ],
+        "spec_ref": "FS-1.2",
+        "layer": "backend"
+      }
+    },
+    {
+      "task_id": "P1-003",
+      "description": "内存聚合器 Aggregator：HashMap 缓冲 + 60 秒定时 flush + UPSERT 写入 SQLite",
+      "priority": "1-High",
+      "status": "pending",
+      "phase": "phase-1",
+      "contracts": {
+        "rust_module": {
+          "file": "app/src-tauri/src/aggregator.rs",
+          "data_structure": "HashMap<(date: String, time_bucket: String, key_code: u16), count: u32>",
+          "time_bucket": "5 分钟粒度（对齐到 0/5/10/.../55 分）",
+          "flush_trigger": "每 60 秒或 buffer 达到 1000 条",
+          "flush_sql": "INSERT ... ON CONFLICT(date, time_bucket, key_code) DO UPDATE SET count = count + excluded.count",
+          "thread_safety": "Arc<Mutex<Aggregator>>",
+          "failure_handling": "flush 失败保留 buffer 数据下次重试",
+          "shutdown": "退出前执行最终 flush（不丢数据）"
+        }
+      },
+      "verification": {
+        "auto": "cd app/src-tauri && cargo clippy && cargo fmt --check",
+        "manual": "正常打字 1 分钟后 SQLite 中有数据；退出 app 前执行最终 flush；重启后历史数据仍在"
+      },
+      "acceptance_criteria": [
+        "正常打字 1 分钟后 SQLite 中有数据（flush 生效）",
+        "退出 app 前执行一次最终 flush（不丢数据）",
+        "重启 app 后历史数据仍在",
+        "flush 失败时保留 buffer 数据下次重试"
+      ],
+      "metadata": {
+        "files_affected": [
+          "app/src-tauri/src/aggregator.rs",
+          "app/src-tauri/src/main.rs"
+        ],
+        "spec_ref": "FS-1.3",
+        "layer": "backend"
+      }
+    },
+    {
+      "task_id": "P1-004",
+      "description": "数据库 Schema 建表：创建 key_events 表 + daily_summary 表 + 索引 + UNIQUE 约束",
+      "priority": "1-High",
+      "status": "pending",
+      "phase": "phase-1",
+      "contracts": {
+        "rust_module": {
+          "file": "app/src-tauri/src/db.rs",
+          "tables": {
+            "key_events": {
+              "columns": [
+                "id INTEGER PK AUTOINCREMENT",
+                "date TEXT NOT NULL",
+                "time_bucket TEXT NOT NULL",
+                "key_code INTEGER NOT NULL",
+                "key_label TEXT NOT NULL",
+                "count INTEGER NOT NULL DEFAULT 0",
+                "created_at TEXT DEFAULT datetime('now','localtime')"
+              ],
+              "unique": "UNIQUE(date, time_bucket, key_code)",
+              "indexes": [
+                "idx_key_events_date(date)",
+                "idx_key_events_date_key(date, key_code)"
+              ]
+            },
+            "daily_summary": {
+              "columns": [
+                "date TEXT PK",
+                "total_keystrokes INTEGER NOT NULL DEFAULT 0",
+                "active_minutes INTEGER NOT NULL DEFAULT 0",
+                "peak_kpm INTEGER NOT NULL DEFAULT 0",
+                "updated_at TEXT DEFAULT datetime('now','localtime')"
+              ]
+            }
+          }
+        }
+      },
+      "verification": {
+        "auto": "sqlite3 ~/.keydiary/data.db '.tables' | grep -q 'key_events'",
+        "manual": "App 启动时自动建表；数据插入和查询性能满足实时要求"
+      },
+      "acceptance_criteria": [
+        "App 启动时自动建表（不存在则创建）",
+        "UNIQUE 约束生效（重复数据使用 UPSERT）",
+        "索引正确创建"
+      ],
+      "metadata": {
+        "files_affected": [
+          "app/src-tauri/src/db.rs"
+        ],
+        "spec_ref": "FS-1.4",
+        "layer": "data"
+      }
+    },
+    {
+      "task_id": "P1-005",
+      "description": "keycode 到 label 映射模块：覆盖字母/数字/修饰键/功能键/方向键/符号键约 60-80 个键",
+      "priority": "1-High",
+      "status": "pending",
+      "phase": "phase-1",
+      "contracts": {
+        "rust_module": {
+          "file": "app/src-tauri/src/keymap.rs",
+          "api": "pub fn keycode_to_label(code: u16) -> &'static str",
+          "coverage": "A-Z(字母), 0-9(数字), Cmd/Shift/Option/Ctrl/CapsLock(修饰), F1-F12/Esc/Tab/Space/Return/Delete(功能), 方向键, 常用符号, 未知→\"?\""
+        }
+      },
+      "verification": {
+        "auto": "cd app/src-tauri && cargo test",
+        "manual": "热力图上每个键显示正确的标签文字；无常用键显示为 \"?\""
+      },
+      "acceptance_criteria": [
+        "覆盖 60-80 个常用键的映射",
+        "未知键码返回 \"?\"",
+        "热力图上每个键显示正确的标签文字"
+      ],
+      "metadata": {
+        "files_affected": [
+          "app/src-tauri/src/keymap.rs",
+          "app/src-tauri/src/lib.rs"
+        ],
+        "spec_ref": "FS-1.5",
+        "layer": "backend"
+      }
+    },
+    {
+      "task_id": "P1-006",
+      "description": "键盘热力图 SVG 渲染：QWERTY 布局 + HSL 色彩映射 + 10 秒定时刷新 + get_today_heatmap Command",
+      "priority": "1-High",
+      "status": "pending",
+      "phase": "phase-1",
+      "contracts": {
+        "rust_command": {
+          "file": "app/src-tauri/src/commands.rs",
+          "command": {
+            "name": "get_today_heatmap",
+            "params": "无",
+            "returns": "Vec<{key_code, key_label, total}>"
+          }
+        },
+        "frontend": {
+          "file": "app/src/lib/components/Heatmap.svelte",
+          "render": {
+            "container": "<svg viewBox=\"0 0 1000 400\">",
+            "key_shape": "圆角矩形 rx=6 + 居中文字",
+            "key_gap": "4px",
+            "stroke": "#333, 1px",
+            "color_formula": "hsl(240 - intensity * 240, 80%, 50% + (1 - intensity) * 30%)",
+            "rows": 5,
+            "refresh": "每 10 秒调用 invoke('get_today_heatmap')"
+          }
+        },
+        "keyboard_layout_data": {
+          "file": "app/src/lib/data/keyboard-layout.ts",
+          "format": "Array<{ code, label, x, y, width, height }> (归一化坐标 0-1)"
+        }
+      },
+      "verification": {
+        "manual": "正常打字 1 分钟后打开主窗口能看到热力图；常用键颜色明显偏暖；热力图每 10 秒自动刷新"
+      },
+      "acceptance_criteria": [
+        "正常打字 1 分钟后打开主窗口能看到热力图",
+        "常用键（Space, E, T）颜色明显偏暖",
+        "热力图每 10 秒自动刷新",
+        "标准 QWERTY 5 行键盘布局"
+      ],
+      "metadata": {
+        "files_affected": [
+          "app/src-tauri/src/commands.rs",
+          "app/src/lib/components/Heatmap.svelte",
+          "app/src/lib/data/keyboard-layout.ts",
+          "app/src/routes/+page.svelte"
+        ],
+        "spec_ref": "FS-1.6",
+        "layer": "fullstack"
+      }
+    },
+    {
+      "task_id": "P1-007",
+      "description": "实时统计面板：今日击键 + 当前 KPM（滑动窗口 + Tauri Event 推送）+ 运行时长三卡片",
+      "priority": "1-High",
+      "status": "pending",
+      "phase": "phase-1",
+      "contracts": {
+        "rust_commands": {
+          "file": "app/src-tauri/src/commands.rs",
+          "commands": [
+            {
+              "name": "get_today_total",
+              "params": "无",
+              "returns": "u64"
+            }
+          ],
+          "events": [
+            {
+              "name": "kpm_update",
+              "payload": "{ kpm: u32 }",
+              "frequency": "每秒推送",
+              "logic": "维护最近 60 秒击键计数滑动窗口"
+            }
+          ]
+        },
+        "frontend": {
+          "file": "app/src/lib/components/StatsPanel.svelte",
+          "cards": [
+            {
+              "label": "今日击键",
+              "source": "get_today_total Command",
+              "refresh": "10 秒"
+            },
+            {
+              "label": "当前 KPM",
+              "source": "kpm_update Event",
+              "refresh": "1 秒"
+            },
+            {
+              "label": "运行时长",
+              "source": "前端计时器",
+              "refresh": "1 秒"
+            }
+          ]
+        }
+      },
+      "verification": {
+        "manual": "今日击键总数实时递增；KPM 数字每秒更新；停止打字后 KPM 逐渐降为 0"
+      },
+      "acceptance_criteria": [
+        "今日击键总数实时递增",
+        "当前 KPM 数字每秒更新",
+        "KPM 在停止打字后逐渐降为 0",
+        "运行时长正确显示"
+      ],
+      "metadata": {
+        "files_affected": [
+          "app/src-tauri/src/commands.rs",
+          "app/src-tauri/src/aggregator.rs",
+          "app/src/lib/components/StatsPanel.svelte"
+        ],
+        "spec_ref": "FS-1.7",
+        "layer": "fullstack"
+      }
+    },
+    {
+      "task_id": "P1-008",
+      "description": "采集状态指示器：get_collector_status Command + 前端状态点（绿/黄/红）",
+      "priority": "2-Medium",
+      "status": "pending",
+      "phase": "phase-1",
+      "contracts": {
+        "rust_command": {
+          "file": "app/src-tauri/src/commands.rs",
+          "command": {
+            "name": "get_collector_status",
+            "params": "无",
+            "returns": "{ status: \"running\" | \"paused\" | \"no_permission\" }"
+          }
+        },
+        "frontend": {
+          "file": "app/src/lib/components/StatusIndicator.svelte",
+          "states": {
+            "running": "绿色圆点 + \"采集中\"",
+            "paused": "黄色圆点 + \"已暂停\"",
+            "no_permission": "红色圆点 + \"未授权\""
+          }
+        }
+      },
+      "verification": {
+        "manual": "正常运行时显示绿色\"采集中\"；权限被撤销时自动切换到红色\"未授权\""
+      },
+      "acceptance_criteria": [
+        "正常运行时显示绿色\"采集中\"",
+        "权限被撤销时自动切换到红色\"未授权\"",
+        "暂停时显示黄色\"已暂停\""
+      ],
+      "metadata": {
+        "files_affected": [
+          "app/src-tauri/src/commands.rs",
+          "app/src/lib/components/StatusIndicator.svelte"
+        ],
+        "spec_ref": "FS-1.8",
+        "layer": "fullstack"
+      }
+    },
+    {
+      "task_id": "P2-001",
+      "description": "前台应用名采集：每次 keyDown 时记录当前前台应用 + app_usage 表设计与写入",
+      "priority": "1-High",
+      "status": "pending",
+      "phase": "phase-2",
+      "contracts": {
+        "rust_module": {
+          "file": "app/src-tauri/src/collector.rs",
+          "addition": "NSWorkspace.shared.frontmostApplication.localizedName 获取应用名；5 秒缓存窗口避免重复查询"
+        },
+        "data_layer": {
+          "file": "app/src-tauri/src/db.rs",
+          "table": {
+            "name": "app_usage",
+            "columns": [
+              "id INTEGER PK AUTOINCREMENT",
+              "date TEXT NOT NULL",
+              "time_bucket TEXT NOT NULL",
+              "app_name TEXT NOT NULL",
+              "key_count INTEGER NOT NULL DEFAULT 0"
+            ],
+            "unique": "UNIQUE(date, time_bucket, app_name)",
+            "indexes": [
+              "idx_app_usage_date(date)"
+            ]
+          }
+        }
+      },
+      "verification": {
+        "auto": "sqlite3 ~/.keydiary/data.db '.tables' | grep -q 'app_usage'",
+        "manual": "在不同应用间切换打字，各应用的 key_count 独立累计"
+      },
+      "acceptance_criteria": [
+        "app_usage 表正确记录了应用名",
+        "在不同应用间切换打字，各应用的 key_count 独立累计",
+        "5 秒缓存窗口内不重复查询系统 API"
+      ],
+      "metadata": {
+        "files_affected": [
+          "app/src-tauri/src/collector.rs",
+          "app/src-tauri/src/aggregator.rs",
+          "app/src-tauri/src/db.rs"
+        ],
+        "spec_ref": "FS-2.1",
+        "layer": "data"
+      }
+    },
+    {
+      "task_id": "P2-002",
+      "description": "KPM 时间曲线：get_kpm_timeline Command + D3.js 面积图（curveMonotoneX）+ Hover tooltip",
+      "priority": "1-High",
+      "status": "pending",
+      "phase": "phase-2",
+      "contracts": {
+        "rust_command": {
+          "file": "app/src-tauri/src/commands.rs",
+          "command": {
+            "name": "get_kpm_timeline",
+            "params": "{ date: String }",
+            "returns": "Vec<{ time: String, kpm: f64 }>"
+          },
+          "sql": "SELECT time_bucket, CAST(SUM(count) AS REAL) / 5 as kpm FROM key_events WHERE date = ? GROUP BY time_bucket ORDER BY time_bucket"
+        },
+        "frontend": {
+          "file": "app/src/lib/components/KpmTimeline.svelte",
+          "render": {
+            "type": "D3.js area chart",
+            "x_axis": "00:00 → 23:55（每 5 分钟一个数据点）",
+            "y_axis": "0 → max(kpm) × 1.1",
+            "curve": "d3.curveMonotoneX",
+            "fill": "rgba(99, 179, 237, 0.3)",
+            "stroke": "#4299e1, 2px",
+            "hover": "tooltip 显示具体时间点的 KPM 值",
+            "reference_line": "个人日均 KPM 水平虚线"
+          }
+        },
+        "dependency": {
+          "npm": [
+            "d3",
+            "@types/d3"
+          ]
+        }
+      },
+      "verification": {
+        "manual": "KPM 曲线正确反映全天打字节奏；无数据时间段曲线断开或归零；Hover tooltip 显示正确"
+      },
+      "acceptance_criteria": [
+        "KPM 曲线正确反映全天打字节奏（高峰/低谷清晰可辨）",
+        "无数据的时间段不显示",
+        "Hover tooltip 显示正确的时间和 KPM 值",
+        "有个人日均 KPM 参考线"
+      ],
+      "metadata": {
+        "files_affected": [
+          "app/src-tauri/src/commands.rs",
+          "app/src/lib/components/KpmTimeline.svelte",
+          "app/package.json"
+        ],
+        "spec_ref": "FS-2.2",
+        "layer": "fullstack"
+      }
+    },
+    {
+      "task_id": "P2-003",
+      "description": "今日之最统计卡片：get_daily_highlights Command + 5 张数据卡片（总击键/峰值KPM/活跃时间/最长心流/后悔指数）",
+      "priority": "1-High",
+      "status": "pending",
+      "phase": "phase-2",
+      "contracts": {
+        "rust_command": {
+          "file": "app/src-tauri/src/commands.rs",
+          "command": {
+            "name": "get_daily_highlights",
+            "params": "{ date: String }",
+            "returns": "DailyHighlights { total_keystrokes, peak_kpm, active_minutes, top_keys: Vec<{key, count}>, longest_flow: {start, end, minutes}, undo_count, backspace_count }"
+          },
+          "flow_definition": "连续有数据的时间桶（相邻桶间隔 ≤ 5 分钟即视为连续）"
+        },
+        "frontend": {
+          "file": "app/src/lib/components/DailyHighlights.svelte",
+          "cards": [
+            {
+              "label": "总击键",
+              "format": "千位分隔符 + ≈ N 页 A4"
+            },
+            {
+              "label": "峰值 KPM",
+              "subtitle": "\"你最快的 1 分钟\""
+            },
+            {
+              "label": "活跃时间",
+              "subtitle": "\"有击键的时段总长\""
+            },
+            {
+              "label": "最长心流",
+              "format": "N min + 时间范围"
+            },
+            {
+              "label": "后悔指数",
+              "format": "↩ N 次 + ⌫ N 次"
+            }
+          ]
+        }
+      },
+      "verification": {
+        "manual": "5 张统计卡片数据正确；趣味文案计算正确（不出现 0 页/NaN）；无数据时显示默认状态"
+      },
+      "acceptance_criteria": [
+        "5 张统计卡片数据正确",
+        "趣味文案计算正确（不出现\"0 页\"\"NaN\"）",
+        "无数据时显示默认状态（如 \"—\" 或 \"暂无数据\"）",
+        "数字使用千位分隔符格式化"
+      ],
+      "metadata": {
+        "files_affected": [
+          "app/src-tauri/src/commands.rs",
+          "app/src/lib/components/DailyHighlights.svelte"
+        ],
+        "spec_ref": "FS-2.3",
+        "layer": "fullstack"
+      }
+    },
+    {
+      "task_id": "P2-004",
+      "description": "应用分布饼图：get_app_distribution Command + D3.js 环形图 + 固定颜色映射 + Hover 交互",
+      "priority": "2-Medium",
+      "status": "pending",
+      "phase": "phase-2",
+      "contracts": {
+        "rust_command": {
+          "file": "app/src-tauri/src/commands.rs",
+          "command": {
+            "name": "get_app_distribution",
+            "params": "{ date: String }",
+            "returns": "Vec<{ app_name: String, count: u64, percentage: f64 }> (Top 8, 超出归入\"其他\")"
+          }
+        },
+        "frontend": {
+          "file": "app/src/lib/components/AppDistribution.svelte",
+          "render": {
+            "type": "D3.js donut chart",
+            "color_mapping": "VSCode=蓝, Chrome=红, Terminal=绿, Slack=紫, 其他=灰",
+            "center_text": "总击键数",
+            "hover": "显示应用名 + 击键数 + 百分比",
+            "legend": "右侧图例：应用名 + 色块 + 百分比"
+          }
+        }
+      },
+      "verification": {
+        "manual": "饼图能区分出主要应用；各扇区百分比之和=100%；少于 2 个应用时仍然正确渲染"
+      },
+      "acceptance_criteria": [
+        "饼图能区分出主要应用",
+        "各扇区百分比之和 = 100%",
+        "少于 2 个应用时仍然正确渲染",
+        "Hover 显示应用名+击键数+百分比"
+      ],
+      "metadata": {
+        "files_affected": [
+          "app/src-tauri/src/commands.rs",
+          "app/src/lib/components/AppDistribution.svelte"
+        ],
+        "spec_ref": "FS-2.4",
+        "layer": "fullstack"
+      }
+    },
+    {
+      "task_id": "P2-005",
+      "description": "日历导航组件：月历视图 + 有数据日期高亮 + 点击切换全页数据 + 今天按钮",
+      "priority": "2-Medium",
+      "status": "pending",
+      "phase": "phase-2",
+      "contracts": {
+        "rust_command": {
+          "file": "app/src-tauri/src/commands.rs",
+          "command": {
+            "name": "get_dates_with_data",
+            "params": "{ year_month: String }",
+            "returns": "Vec<String> (该月有数据的日期列表)"
+          },
+          "sql": "SELECT DISTINCT date FROM daily_summary WHERE date BETWEEN ? AND ?"
+        },
+        "frontend": {
+          "file": "app/src/lib/components/Calendar.svelte",
+          "features": [
+            "月历网格（周一起始）",
+            "左右箭头切换月份",
+            "今天按钮",
+            "有数据=可点击, 无数据=灰色",
+            "当前选中=高亮圆圈"
+          ],
+          "behavior": "点击有数据的日期 → 页面内所有图表/卡片切换到对应日期"
+        },
+        "state": {
+          "file": "app/src/lib/stores/dateStore.ts",
+          "description": "当前选中日期的全局 store，所有图表组件订阅此 store"
+        }
+      },
+      "verification": {
+        "manual": "点击历史日期所有图表切换到对应数据；无数据日期灰色不可点击；点击\"今天\"回到当日；月份切换流畅"
+      },
+      "acceptance_criteria": [
+        "点击历史日期，所有图表切换到对应数据",
+        "无数据日期灰色不可点击",
+        "点击\"今天\"回到当日",
+        "月份切换流畅，无明显延迟"
+      ],
+      "metadata": {
+        "files_affected": [
+          "app/src-tauri/src/commands.rs",
+          "app/src/lib/components/Calendar.svelte",
+          "app/src/lib/stores/dateStore.ts",
+          "app/src/routes/+page.svelte"
+        ],
+        "spec_ref": "FS-2.5",
+        "layer": "fullstack"
+      }
+    },
+    {
+      "task_id": "P2-006",
+      "description": "daily_summary 自动更新：每次 Aggregator flush 后同步更新聚合统计表",
+      "priority": "1-High",
+      "status": "pending",
+      "phase": "phase-2",
+      "contracts": {
+        "rust_module": {
+          "file": "app/src-tauri/src/aggregator.rs",
+          "addition": "flush 完成后调用 db::update_daily_summary(date)，计算 total_keystrokes/active_minutes/peak_kpm，使用 INSERT OR REPLACE 语义"
+        }
+      },
+      "verification": {
+        "auto": "sqlite3 ~/.keydiary/data.db \"SELECT * FROM daily_summary WHERE date=date('now','localtime');\"",
+        "manual": "daily_summary 数据与 key_events 聚合结果一致；查询响应 < 10ms"
+      },
+      "acceptance_criteria": [
+        "daily_summary 数据与 key_events 聚合结果一致",
+        "页面查询 daily_summary 时响应 < 10ms",
+        "每次 flush 后自动更新"
+      ],
+      "metadata": {
+        "files_affected": [
+          "app/src-tauri/src/aggregator.rs",
+          "app/src-tauri/src/db.rs"
+        ],
+        "spec_ref": "FS-2.6",
+        "layer": "data"
+      }
+    },
+    {
+      "task_id": "P3-001",
+      "description": "每日分享卡片渲染引擎：OffscreenCanvas 生成 1080x1920 竖版 PNG（热力图+数据+品牌水印）",
+      "priority": "1-High",
+      "status": "pending",
+      "phase": "phase-3",
+      "contracts": {
+        "frontend": {
+          "file": "app/src/lib/components/CardRenderer.svelte",
+          "spec": {
+            "size": "1080 x 1920 px",
+            "format": "PNG",
+            "background": "深色渐变 #1a1a2e -> #16213e",
+            "content_blocks": [
+              "日期标题",
+              "迷你键盘热力图",
+              "核心数据区（总击键/峰值KPM/活跃时间/最长心流）",
+              "迷你 KPM 曲线",
+              "最爱按键 Top 3",
+              "后悔指数",
+              "品牌水印 \"Made with 击刻 KeyDiary\""
+            ],
+            "font": "系统字体（SF Pro Display / PingFang SC）",
+            "dpi": "考虑 devicePixelRatio"
+          },
+          "colors": {
+            "text_primary": "#e0e0e0",
+            "accent": "#4fd1c5",
+            "text_secondary": "rgba(255, 255, 255, 0.6)",
+            "divider": "rgba(255, 255, 255, 0.1)"
+          }
+        }
+      },
+      "verification": {
+        "manual": "点击后 < 2 秒内生成预览图；视觉精美文字清晰不模糊；卡片底部有品牌水印"
+      },
+      "acceptance_criteria": [
+        "点击后 < 2 秒内生成预览图",
+        "预览图视觉精美，文字清晰不模糊（1080x1920 高清）",
+        "卡片底部有品牌水印文字",
+        "DPI 处理正确"
+      ],
+      "metadata": {
+        "files_affected": [
+          "app/src/lib/components/CardRenderer.svelte",
+          "app/src/lib/utils/canvas-helpers.ts"
+        ],
+        "spec_ref": "FS-3.1",
+        "layer": "ui"
+      }
+    },
+    {
+      "task_id": "P3-002",
+      "description": "卡片预览与导出交互：模态预览窗口 + 保存到本地 + 复制到剪贴板 + toast 提示",
+      "priority": "1-High",
+      "status": "pending",
+      "phase": "phase-3",
+      "contracts": {
+        "rust_commands": {
+          "file": "app/src-tauri/src/commands.rs",
+          "commands": [
+            {
+              "name": "save_card_image",
+              "params": "png_data: Vec<u8>",
+              "returns": "Result<String, String>",
+              "notes": "弹出保存对话框，默认文件名 \"击刻-YYYYMMDD.png\""
+            },
+            {
+              "name": "copy_image_to_clipboard",
+              "params": "png_data: Vec<u8>",
+              "returns": "Result<(), String>",
+              "notes": "通过 NSPasteboard 写入 PNG"
+            }
+          ]
+        },
+        "frontend": {
+          "file": "app/src/lib/components/CardPreview.svelte",
+          "flow": [
+            "用户点击[生成分享卡片]",
+            "收集当前日期数据",
+            "调用渲染引擎生成 PNG",
+            "弹出模态预览窗口",
+            "用户选择：保存/复制/取消",
+            "完成后 toast 提示"
+          ]
+        },
+        "dependency": {
+          "tauri_plugin": "tauri-plugin-dialog"
+        }
+      },
+      "verification": {
+        "manual": "能保存为 PNG 到本地；能复制到剪贴板粘贴到微信发送；保存/复制后有 toast 提示；取消无副作用"
+      },
+      "acceptance_criteria": [
+        "能保存为 PNG 文件到本地",
+        "能复制到剪贴板，粘贴到微信聊天框可发送",
+        "保存/复制后有 toast 成功提示",
+        "取消时无副作用"
+      ],
+      "metadata": {
+        "files_affected": [
+          "app/src-tauri/src/commands.rs",
+          "app/src/lib/components/CardPreview.svelte",
+          "app/src-tauri/Cargo.toml"
+        ],
+        "spec_ref": "FS-3.2",
+        "layer": "fullstack"
+      }
+    },
+    {
+      "task_id": "P3-003",
+      "description": "每周周报数据聚合：weekly_reports 表 + get_weekly_report/list_available_weeks Commands + 每周一自动生成",
+      "priority": "1-High",
+      "status": "pending",
+      "phase": "phase-3",
+      "contracts": {
+        "data_layer": {
+          "file": "app/src-tauri/src/db.rs",
+          "table": {
+            "name": "weekly_reports",
+            "columns": [
+              "id INTEGER PK AUTOINCREMENT",
+              "week_start TEXT UNIQUE NOT NULL",
+              "week_end TEXT NOT NULL",
+              "report_json TEXT NOT NULL",
+              "created_at TEXT DEFAULT datetime('now','localtime')"
+            ]
+          }
+        },
+        "rust_commands": {
+          "file": "app/src-tauri/src/commands.rs",
+          "commands": [
+            {
+              "name": "get_weekly_report",
+              "params": "{ week_start: String }",
+              "returns": "WeeklyReport (total_keystrokes, daily_average, total_active_hours, most_productive_day, total_flow_minutes, top_apps, daily_breakdown, fun_fact)"
+            },
+            {
+              "name": "list_available_weeks",
+              "params": "无",
+              "returns": "Vec<{ week_start, week_end }>"
+            }
+          ]
+        },
+        "auto_generation": {
+          "trigger": "每周一 00:01 自动为上一周生成周报存入 weekly_reports 表",
+          "notification": "周一首次打开 app 时弹出通知"
+        }
+      },
+      "verification": {
+        "auto": "sqlite3 ~/.keydiary/data.db '.tables' | grep -q 'weekly_reports'",
+        "manual": "周报数据聚合正确（总击键=7天之和）；无数据的周显示\"本周暂无数据\""
+      },
+      "acceptance_criteria": [
+        "周报数据聚合正确（总击键 = 7 天之和）",
+        "无数据的周显示\"本周暂无数据\"",
+        "每周一自动生成上周报告"
+      ],
+      "metadata": {
+        "files_affected": [
+          "app/src-tauri/src/db.rs",
+          "app/src-tauri/src/commands.rs"
+        ],
+        "spec_ref": "FS-3.3",
+        "layer": "data"
+      }
+    },
+    {
+      "task_id": "P3-004",
+      "description": "趣味文案生成引擎：纯规则驱动将周报数据转化为有趣比喻文案",
+      "priority": "2-Medium",
+      "status": "pending",
+      "phase": "phase-3",
+      "contracts": {
+        "rust_module": {
+          "file": "app/src-tauri/src/fun_facts.rs",
+          "api": "pub fn generate_fun_fact(total: u64) -> String",
+          "rules": [
+            {
+              "condition": "total >= 80000",
+              "template": "本周你按键 {N} 次，相当于写了 {novels} 部短篇小说！"
+            },
+            {
+              "condition": "total >= 125000",
+              "template": "本周你按键 {N} 次，相当于打了一本 {pages} 页的小册子。"
+            },
+            {
+              "condition": "default",
+              "template": "本周你按键 {N} 次，活跃了 {hours} 小时。"
+            }
+          ]
+        }
+      },
+      "verification": {
+        "auto": "cd app/src-tauri && cargo test",
+        "manual": "文案合理不出现异常值；数字使用千位分隔符"
+      },
+      "acceptance_criteria": [
+        "文案合理，不出现 \"0 页\"、\"NaN\" 等异常",
+        "数字使用千位分隔符格式化",
+        "规则覆盖所有数量级"
+      ],
+      "metadata": {
+        "files_affected": [
+          "app/src-tauri/src/fun_facts.rs",
+          "app/src-tauri/src/lib.rs"
+        ],
+        "spec_ref": "FS-3.4",
+        "layer": "backend"
+      }
+    },
+    {
+      "task_id": "P3-005",
+      "description": "周报卡片渲染 + 周报 Tab 页面：7 天柱状图 + 本周亮点 + Tab 导航扩展（日记/周报）",
+      "priority": "1-High",
+      "status": "pending",
+      "phase": "phase-3",
+      "contracts": {
+        "frontend_card": {
+          "file": "app/src/lib/components/WeeklyCardRenderer.svelte",
+          "content_blocks": [
+            "标题\"击刻周报\"",
+            "日期范围",
+            "本周总击键（大字）",
+            "趣味文案",
+            "7天柱状图（每日击键对比）",
+            "本周亮点（最高效日/心流总计/最快速度）",
+            "应用分布横向百分比条",
+            "品牌水印"
+          ]
+        },
+        "frontend_page": {
+          "file": "app/src/routes/weekly/+page.svelte",
+          "layout": "顶部周选择器(<- 第N周 ->) + 中间周报卡片预览 + 底部[导出图片]按钮"
+        },
+        "navigation": {
+          "file": "app/src/routes/+layout.svelte",
+          "tabs": [
+            "日记",
+            "周报"
+          ]
+        }
+      },
+      "verification": {
+        "manual": "Tab 切换正常；周报 Tab 能查看本周/历史周报告；每日柱状图数据正确；导出功能正常"
+      },
+      "acceptance_criteria": [
+        "Tab 切换正常",
+        "周报 Tab 能查看本周/历史周的报告",
+        "周报卡片每日柱状图数据正确",
+        "7 天柱状图比例合理（最高的满格）",
+        "导出图片流程复用每日卡片逻辑"
+      ],
+      "metadata": {
+        "files_affected": [
+          "app/src/lib/components/WeeklyCardRenderer.svelte",
+          "app/src/routes/weekly/+page.svelte",
+          "app/src/routes/+layout.svelte"
+        ],
+        "spec_ref": "FS-3.5 + FS-3.6",
+        "layer": "ui"
+      }
+    },
+    {
+      "task_id": "P4-001",
+      "description": "成就系统数据模型：achievements 表 + 8 项初始记录 + get_achievements Command",
+      "priority": "2-Medium",
+      "status": "pending",
+      "phase": "phase-4",
+      "contracts": {
+        "data_layer": {
+          "file": "app/src-tauri/src/db.rs",
+          "table": {
+            "name": "achievements",
+            "columns": [
+              "id TEXT PK",
+              "unlocked_at TEXT NULLABLE",
+              "progress REAL NOT NULL DEFAULT 0",
+              "notified INTEGER NOT NULL DEFAULT 0"
+            ]
+          },
+          "init": "App 首次启动时插入 8 条成就记录（未解锁状态）"
+        },
+        "rust_command": {
+          "file": "app/src-tauri/src/commands.rs",
+          "command": {
+            "name": "get_achievements",
+            "params": "无",
+            "returns": "Vec<Achievement { id, name, icon, unlocked_at, progress, description }>"
+          }
+        },
+        "achievement_definitions": {
+          "list": [
+            "first_day(初次记录)",
+            "10k_club(万键俱乐部)",
+            "100k_club(十万大关)",
+            "flow_master(心流大师)",
+            "vim_disciple(Vim信徒)",
+            "shortcut_ninja(快捷键忍者)",
+            "night_owl(夜猫子)",
+            "steady_hand(稳定输出)"
+          ]
+        }
+      },
+      "verification": {
+        "auto": "sqlite3 ~/.keydiary/data.db \"SELECT COUNT(*) FROM achievements;\" | grep -q '8'",
+        "manual": "achievements 表包含 8 条初始记录；进度字段正确反映当前状态"
+      },
+      "acceptance_criteria": [
+        "achievements 表包含 8 条初始记录",
+        "进度字段正确反映当前状态",
+        "get_achievements Command 返回完整信息"
+      ],
+      "metadata": {
+        "files_affected": [
+          "app/src-tauri/src/db.rs",
+          "app/src-tauri/src/commands.rs"
+        ],
+        "spec_ref": "FS-4.1",
+        "layer": "data"
+      }
+    },
+    {
+      "task_id": "P4-002",
+      "description": "成就判定引擎：每 60 秒随 flush 异步检查 8 项成就条件 + 更新 progress + Tauri Event 通知",
+      "priority": "2-Medium",
+      "status": "pending",
+      "phase": "phase-4",
+      "contracts": {
+        "rust_module": {
+          "file": "app/src-tauri/src/achievements.rs",
+          "api": "pub fn check_achievements(db: &Connection, app: &AppHandle) -> Result<()>",
+          "trigger": "每次 Aggregator flush 后异步调用",
+          "judgments": {
+            "first_day": "今日有任何数据",
+            "10k_club": "今日 total_keystrokes >= 10000",
+            "100k_club": "今日 total_keystrokes >= 100000",
+            "flow_master": "最近连续 7 天每天心流 >= 30 分钟",
+            "vim_disciple": "累计 hjkl 总数 > 方向键总数",
+            "shortcut_ninja": "今日含修饰键组合 > 300 次",
+            "night_owl": "最近 3 天凌晨 00:00-04:00 各有 > 1000 击键",
+            "steady_hand": "最近 14 天日击键数标准差/均值 < 0.25"
+          },
+          "event": "app.emit(\"achievement_unlocked\", { id, name, icon })",
+          "constraint": "不重复解锁已解锁的成就；判定延迟 < 100ms 不阻塞 flush"
+        }
+      },
+      "verification": {
+        "auto": "cd app/src-tauri && cargo test",
+        "manual": "连续使用 1 天后自动解锁\"初次记录\"；进度字段随数据变化更新；不重复解锁"
+      },
+      "acceptance_criteria": [
+        "连续使用 1 天后自动解锁 \"初次记录\"",
+        "进度字段随实际数据变化而更新",
+        "不重复解锁已解锁的成就",
+        "判定延迟 < 100ms"
+      ],
+      "metadata": {
+        "files_affected": [
+          "app/src-tauri/src/achievements.rs",
+          "app/src-tauri/src/aggregator.rs",
+          "app/src-tauri/src/lib.rs"
+        ],
+        "spec_ref": "FS-4.2",
+        "layer": "backend"
+      }
+    },
+    {
+      "task_id": "P4-003",
+      "description": "成就解锁动画 + 成就展示页面：全屏 overlay 弹入动画 + 成就 Tab（已解锁/未解锁/进度条）",
+      "priority": "2-Medium",
+      "status": "pending",
+      "phase": "phase-4",
+      "contracts": {
+        "frontend_animation": {
+          "file": "app/src/lib/components/AchievementUnlock.svelte",
+          "spec": {
+            "duration": "2-3 秒",
+            "content": "成就图标从中心放大弹入 + 名称 + \"已解锁！\"文字渐入",
+            "interaction": "自动消失或点击关闭",
+            "z_index": "全屏 overlay 覆盖所有内容",
+            "queue": "多个成就同时解锁时依次播放"
+          }
+        },
+        "frontend_page": {
+          "file": "app/src/routes/achievements/+page.svelte",
+          "display": {
+            "unlocked": "全彩图标 + 名称 + 解锁日期",
+            "locked_with_progress": "灰色图标 + 名称 + 进度条/进度文字",
+            "locked": "灰色图标 + 名称",
+            "hover": "显示解锁条件说明文字"
+          }
+        },
+        "navigation": {
+          "file": "app/src/routes/+layout.svelte",
+          "tabs": [
+            "日记",
+            "周报",
+            "成就"
+          ]
+        }
+      },
+      "verification": {
+        "manual": "成就解锁时有全屏动画弹出；动画流畅无卡顿；成就页显示所有 8 个成就状态；已解锁显示日期；未解锁显示进度"
+      },
+      "acceptance_criteria": [
+        "成就解锁时有全屏动画弹出",
+        "动画流畅无卡顿",
+        "多个成就同时解锁时依次播放",
+        "成就页面显示所有 8 个成就的状态",
+        "已解锁的显示解锁日期",
+        "未解锁的显示进度"
+      ],
+      "metadata": {
+        "files_affected": [
+          "app/src/lib/components/AchievementUnlock.svelte",
+          "app/src/routes/achievements/+page.svelte",
+          "app/src/routes/+layout.svelte"
+        ],
+        "spec_ref": "FS-4.3 + FS-4.4",
+        "layer": "ui"
+      }
+    },
+    {
+      "task_id": "P4-004",
+      "description": "视觉主题系统：4 套 CSS 变量主题（赛博朋克/极简/自然/复古）+ 热力图色谱三段插值适配",
+      "priority": "2-Medium",
+      "status": "pending",
+      "phase": "phase-4",
+      "contracts": {
+        "frontend": {
+          "file": "app/src/lib/themes/",
+          "themes": [
+            {
+              "id": "cyberpunk",
+              "name": "赛博朋克",
+              "style": "深色底 + 霓虹色热力（默认）"
+            },
+            {
+              "id": "minimal",
+              "name": "极简黑白",
+              "style": "灰度热力图，专注内容"
+            },
+            {
+              "id": "nature",
+              "name": "自然渐变",
+              "style": "蓝绿色系，护眼舒适"
+            },
+            {
+              "id": "retro",
+              "name": "复古终端",
+              "style": "黑底绿字 CRT 风格"
+            }
+          ],
+          "css_variables": [
+            "--color-background",
+            "--color-surface",
+            "--color-text",
+            "--color-text-secondary",
+            "--color-border",
+            "--color-heatmap-cold",
+            "--color-heatmap-warm",
+            "--color-heatmap-hot",
+            "--color-accent",
+            "--color-chart-line",
+            "--color-chart-fill"
+          ],
+          "switch_mechanism": "修改 document.documentElement CSS 变量，立即生效",
+          "heatmap_adaptation": "intensity < 0.5: Cold→Warm 线性插值; intensity >= 0.5: Warm→Hot 线性插值"
+        }
+      },
+      "verification": {
+        "manual": "切换主题后热力图/曲线/卡片配色全部跟随变化；4 套主题视觉各有特色；主题选择重启后保持"
+      },
+      "acceptance_criteria": [
+        "切换主题后热力图、曲线、卡片配色全部跟随变化",
+        "4 套主题视觉各有特色，无明显 UI bug",
+        "主题选择重启后保持",
+        "热力图色谱三段插值正确"
+      ],
+      "metadata": {
+        "files_affected": [
+          "app/src/lib/themes/cyberpunk.css",
+          "app/src/lib/themes/minimal.css",
+          "app/src/lib/themes/nature.css",
+          "app/src/lib/themes/retro.css",
+          "app/src/lib/themes/index.ts",
+          "app/src/lib/components/Heatmap.svelte"
+        ],
+        "spec_ref": "FS-4.5",
+        "layer": "ui"
+      }
+    },
+    {
+      "task_id": "P4-005",
+      "description": "设置面板：settings 表 + get_settings/update_setting Commands + 前端设置页（主题/布局/排除应用/工作时段/开机自启）",
+      "priority": "2-Medium",
+      "status": "pending",
+      "phase": "phase-4",
+      "contracts": {
+        "data_layer": {
+          "file": "app/src-tauri/src/db.rs",
+          "table": {
+            "name": "settings",
+            "columns": [
+              "key TEXT PK",
+              "value TEXT NOT NULL"
+            ]
+          },
+          "default_settings": {
+            "theme": "\"cyberpunk\"",
+            "keyboard_layout": "\"qwerty\"",
+            "excluded_apps": "\"[]\"",
+            "work_hours_enabled": "\"false\"",
+            "work_hours_start": "\"00:00\"",
+            "work_hours_end": "\"23:59\"",
+            "auto_start": "\"false\""
+          }
+        },
+        "rust_commands": {
+          "file": "app/src-tauri/src/commands.rs",
+          "commands": [
+            {
+              "name": "get_settings",
+              "params": "无",
+              "returns": "HashMap<String, String>"
+            },
+            {
+              "name": "update_setting",
+              "params": "{ key, value }",
+              "returns": "Result<(), String>"
+            },
+            {
+              "name": "get_installed_apps",
+              "params": "无",
+              "returns": "Vec<String>"
+            }
+          ]
+        },
+        "frontend": {
+          "file": "app/src/routes/settings/+page.svelte",
+          "sections": [
+            "视觉主题（4选1）",
+            "键盘布局（QWERTY/Colemak/Dvorak）",
+            "排除应用（复选框列表+搜索）",
+            "工作时段（开关+时间选择）",
+            "开机自启（开关）",
+            "数据导出（按钮）"
+          ]
+        }
+      },
+      "verification": {
+        "manual": "所有设置项可正常修改并持久化；重启 app 后设置保持"
+      },
+      "acceptance_criteria": [
+        "所有设置项可正常修改并持久化",
+        "重启 app 后设置保持",
+        "设置修改立即生效"
+      ],
+      "metadata": {
+        "files_affected": [
+          "app/src-tauri/src/db.rs",
+          "app/src-tauri/src/commands.rs",
+          "app/src/routes/settings/+page.svelte"
+        ],
+        "spec_ref": "FS-4.6",
+        "layer": "fullstack"
+      }
+    },
+    {
+      "task_id": "P4-006",
+      "description": "排除应用功能：采集回调中检查前台应用是否在排除列表 + 命中则跳过记录",
+      "priority": "2-Medium",
+      "status": "pending",
+      "phase": "phase-4",
+      "contracts": {
+        "rust_module": {
+          "file": "app/src-tauri/src/collector.rs",
+          "addition": "采集回调中获取当前前台应用名，与 settings 中 excluded_apps 列表比对，命中则 skip"
+        }
+      },
+      "verification": {
+        "manual": "在排除应用中打字时击键数不增长；切回非排除应用后恢复采集；排除列表修改立即生效"
+      },
+      "acceptance_criteria": [
+        "在排除应用中打字时击键数不增长",
+        "切回非排除应用后恢复采集",
+        "排除列表修改立即生效（无需重启）"
+      ],
+      "metadata": {
+        "files_affected": [
+          "app/src-tauri/src/collector.rs"
+        ],
+        "spec_ref": "FS-4.7",
+        "layer": "backend"
+      }
+    },
+    {
+      "task_id": "P4-007",
+      "description": "数据导出：export_data Command 支持 JSON/CSV 格式 + 日期范围筛选 + 文件保存对话框",
+      "priority": "2-Medium",
+      "status": "pending",
+      "phase": "phase-4",
+      "contracts": {
+        "rust_command": {
+          "file": "app/src-tauri/src/commands.rs",
+          "command": {
+            "name": "export_data",
+            "params": "{ format: \"json\" | \"csv\", date_range?: { start, end } }",
+            "returns": "Result<String, String> (保存路径)"
+          },
+          "json_structure": "{ exported_at, app_version, days: [{ date, total_keystrokes, active_minutes, peak_kpm, keys: [{key, count}], apps: [{app, count}], timeline: [{bucket, kpm}] }] }",
+          "csv_format": "每行一条 (date, key_label, count, time_bucket)"
+        }
+      },
+      "verification": {
+        "manual": "导出的 JSON 内容完整可读；CSV 格式可被 Excel 正确打开；支持按日期范围筛选导出"
+      },
+      "acceptance_criteria": [
+        "导出的 JSON 内容完整可读",
+        "CSV 格式可被 Excel 正确打开",
+        "支持按日期范围筛选导出"
+      ],
+      "metadata": {
+        "files_affected": [
+          "app/src-tauri/src/commands.rs"
+        ],
+        "spec_ref": "FS-4.8",
+        "layer": "backend"
+      }
+    },
+    {
+      "task_id": "P4-008",
+      "description": "键盘布局切换：3 套预置布局数据（QWERTY/Colemak/Dvorak）+ 热力图坐标重排 + label 重映射",
+      "priority": "3-Low",
+      "status": "pending",
+      "phase": "phase-4",
+      "contracts": {
+        "frontend": {
+          "file": "app/src/lib/data/keyboard-layout.ts",
+          "layouts": [
+            "qwerty (默认)",
+            "colemak",
+            "dvorak"
+          ],
+          "behavior": "切换布局后热力图键位坐标重新排列；keycode→label 映射根据布局变化；物理键码不变（数据层不受影响）"
+        }
+      },
+      "verification": {
+        "manual": "切换布局后热力图键位标签正确；数据不丢失（只是渲染变化）"
+      },
+      "acceptance_criteria": [
+        "切换布局后热力图键位标签正确",
+        "数据不丢失（只是渲染变化）",
+        "3 种布局都能正确渲染"
+      ],
+      "metadata": {
+        "files_affected": [
+          "app/src/lib/data/keyboard-layout.ts",
+          "app/src/lib/components/Heatmap.svelte"
+        ],
+        "spec_ref": "FS-4.9",
+        "layer": "ui"
+      }
+    },
+    {
+      "task_id": "P4-009",
+      "description": "开机自启：使用 auto-launch crate 实现 macOS Login Items 机制 + 设置面板开关联动",
+      "priority": "3-Low",
+      "status": "pending",
+      "phase": "phase-4",
+      "contracts": {
+        "rust_module": {
+          "file": "app/src-tauri/src/commands.rs",
+          "implementation": "auto-launch crate macOS Login Items 机制",
+          "api": "update_setting(\"auto_start\", value) 时联动 auto-launch 注册/注销"
+        },
+        "dependency": {
+          "crate": "auto-launch"
+        }
+      },
+      "verification": {
+        "manual": "开启后重启系统 app 自动启动；关闭后重启系统 app 不自动启动"
+      },
+      "acceptance_criteria": [
+        "开启后重启系统，app 自动启动",
+        "关闭后重启系统，app 不自动启动"
+      ],
+      "metadata": {
+        "files_affected": [
+          "app/src-tauri/src/commands.rs",
+          "app/src-tauri/Cargo.toml"
+        ],
+        "spec_ref": "FS-4.10",
+        "layer": "backend"
+      }
+    }
+  ],
+  "phase_dependencies": {
+    "phase-0": [],
+    "phase-1": [
+      "phase-0"
+    ],
+    "phase-2": [
+      "phase-1"
+    ],
+    "phase-3": [
+      "phase-2"
+    ],
+    "phase-4": [
+      "phase-2"
+    ]
+  },
+  "phase_summary": [
+    {
+      "phase": "phase-0",
+      "name": "项目骨架与技术选型",
+      "task_count": 4,
+      "status": "in_progress",
+      "completed": 2
+    },
+    {
+      "phase": "phase-1",
+      "name": "最小核心功能：按键采集与热力图",
+      "task_count": 8,
+      "status": "pending",
+      "completed": 0
+    },
+    {
+      "phase": "phase-2",
+      "name": "日记体验完善：曲线与统计",
+      "task_count": 6,
+      "status": "pending",
+      "completed": 0
+    },
+    {
+      "phase": "phase-3",
+      "name": "社交传播能力：分享卡片与周报",
+      "task_count": 5,
+      "status": "pending",
+      "completed": 0
+    },
+    {
+      "phase": "phase-4",
+      "name": "精细化打磨：成就·主题·设置",
+      "task_count": 9,
+      "status": "pending",
+      "completed": 0
+    }
+  ]
+}
