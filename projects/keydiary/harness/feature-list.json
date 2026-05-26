@@ -147,7 +147,7 @@
       "task_id": "P0-004",
       "description": "SQLite 数据库初始化：首次启动创建 ~/.keydiary/data.db 空数据库文件",
       "priority": "1-High",
-      "status": "pending",
+      "status": "in_progress",
       "phase": "phase-0",
       "contracts": {
         "rust_module": {
