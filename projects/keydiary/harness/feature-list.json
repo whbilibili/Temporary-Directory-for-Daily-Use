@@ -58,7 +58,7 @@
       "task_id": "P0-002",
       "description": "窗口行为管理：实现关闭即隐藏到托盘、启动默认隐藏、点击托盘切换显示/隐藏",
       "priority": "1-High",
-      "status": "in_progress",
+      "status": "completed",
       "phase": "phase-0",
       "contracts": {
         "rust_module": {
@@ -101,7 +101,8 @@
         ],
         "spec_ref": "FS-0.3",
         "layer": "backend"
-      }
+      },
+      "completed_at": "2026-05-26T15:24:00"
     },
     {
       "task_id": "P0-003",

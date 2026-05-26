@@ -15,6 +15,13 @@ pub fn run() {
             tray::init(app.handle())?;
             Ok(())
         })
+        .on_window_event(|window, event| {
+            if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                // 拦截关闭事件：隐藏窗口而非退出进程
+                api.prevent_close();
+                let _ = window.hide();
+            }
+        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

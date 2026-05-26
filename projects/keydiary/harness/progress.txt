@@ -15,11 +15,12 @@ T0-1 已完成（Tauri + SvelteKit 项目初始化），T0-2/P0-001 已完成（
 - [x] T0-1: 初始化 Tauri + SvelteKit 项目 (create-tauri-app, npm install)
 - [x] Harness 文档体系初始化
 - [x] P0-001: 系统托盘配置（tray.rs + 右键菜单 + 左键 toggle 窗口）
+- [x] P0-002: 窗口行为管理（关闭即隐藏到托盘、启动默认隐藏、托盘 toggle）
 
 ### [Next Steps]
-1. P0-002: 窗口行为管理（关闭即隐藏到托盘、启动默认隐藏）
-2. P0-003: 前后端通信验证（get_app_status Command + 前端 invoke）
-3. P0-004: SQLite 数据库初始化
+1. P0-003: 前后端通信验证（get_app_status Command + 前端 invoke）
+2. P0-004: SQLite 数据库初始化
+3. Phase 1 任务（需 Phase 0 全部完成后开始）
 
 ### [Blockers]
 无
@@ -27,6 +28,7 @@ T0-1 已完成（Tauri + SvelteKit 项目初始化），T0-2/P0-001 已完成（
 ### [Dead Ends]
 - DMG 打包失败：productName 含中文空格（"击刻 KeyDiary"）导致 bundle_dmg.sh 脚本路径解析错误。暂不影响开发和 .app 打包。修复方案：改用英文 productName 或等 Tauri 修复上游脚本。
 
-### [Session History]
+### [Session Log]
 - 2026-05-25 Session 1: 项目初始化 + Harness 文档体系搭建
 - 2026-05-26 Session 2: P0-001 系统托盘完成（tray.rs 创建、lib.rs 集成、tauri.conf.json 更新、托盘图标生成）
+- 2026-05-26 Session 3: P0-002 已完成（窗口关闭拦截 + 启动默认隐藏），下一步请从 P0-003 开始
