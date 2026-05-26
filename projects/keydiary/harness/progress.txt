@@ -1,6 +1,6 @@
 ### [Current Focus]
 Phase 0 — 项目骨架与技术选型
-T0-1 已完成（Tauri + SvelteKit 项目初始化），T0-2/P0-001 已完成（系统托盘），剩余 P0-002/P0-003/P0-004 待实现。
+T0-1/P0-001/P0-002/P0-003 已完成，剩余 P0-004（SQLite 初始化）待实现。
 
 ### [Key Decisions]
 - 2026-05-25: 选定 Tauri 2.0 + SvelteKit + TypeScript 作为技术栈
@@ -16,11 +16,11 @@ T0-1 已完成（Tauri + SvelteKit 项目初始化），T0-2/P0-001 已完成（
 - [x] Harness 文档体系初始化
 - [x] P0-001: 系统托盘配置（tray.rs + 右键菜单 + 左键 toggle 窗口）
 - [x] P0-002: 窗口行为管理（关闭即隐藏到托盘、启动默认隐藏、托盘 toggle）
+- [x] P0-003: 前后端通信验证（commands.rs + get_app_status + 前端 invoke 展示）
 
 ### [Next Steps]
-1. P0-003: 前后端通信验证（get_app_status Command + 前端 invoke）
-2. P0-004: SQLite 数据库初始化
-3. Phase 1 任务（需 Phase 0 全部完成后开始）
+1. P0-004: SQLite 数据库初始化
+2. Phase 1 任务（需 Phase 0 全部完成后开始）
 
 ### [Blockers]
 无
@@ -32,3 +32,4 @@ T0-1 已完成（Tauri + SvelteKit 项目初始化），T0-2/P0-001 已完成（
 - 2026-05-25 Session 1: 项目初始化 + Harness 文档体系搭建
 - 2026-05-26 Session 2: P0-001 系统托盘完成（tray.rs 创建、lib.rs 集成、tauri.conf.json 更新、托盘图标生成）
 - 2026-05-26 Session 3: P0-002 已完成（窗口关闭拦截 + 启动默认隐藏），下一步请从 P0-003 开始
+- 2026-05-26 Session 4: P0-003 已完成（commands.rs 新建 + get_app_status Command + 前端 invoke 展示），下一步请从 P0-004 开始

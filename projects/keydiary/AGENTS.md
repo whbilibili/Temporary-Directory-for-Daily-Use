@@ -29,7 +29,9 @@ keydiary/
     ├── src/                  # 前端代码（Svelte）
     ├── src-tauri/            # Rust 后端
     │   ├── src/main.rs       # 入口 + Tauri 初始化
-    │   └── src/lib.rs        # 核心逻辑
+    │   ├── src/lib.rs        # 模块注册 + Tauri Builder 配置
+    │   ├── src/commands.rs   # IPC 命令：暴露给前端的所有接口
+    │   └── src/tray.rs       # 托盘：图标 + 菜单 + 状态切换
     ├── package.json          # 前端依赖
     └── vite.config.js        # 构建配置
 ```
@@ -59,7 +61,7 @@ npm run dev             # 仅启动前端 dev server
 
 | Phase | 交付内容 | 状态 |
 |-------|----------|------|
-| 0 | 项目骨架 + 托盘图标 + SQLite | ✅ 已完成 |
+| 0 | 项目骨架 + 托盘图标 + SQLite | 🔄 进行中 (3/4) |
 | 1 | 按键采集 + 热力图渲染 | 🔜 待开始 |
 | 2 | KPM 曲线 + 今日之最 + 日历 | ⏳ 排队中 |
 | 3 | 分享卡片 + 周报 | ⏳ 排队中 |
