@@ -1,6 +1,6 @@
 ### [Current Focus]
-Phase 0 — 项目骨架与技术选型
-T0-1/P0-001/P0-002/P0-003 已完成，剩余 P0-004（SQLite 初始化）待实现。
+Phase 0 全部完成 ✅ — 下一步进入 Phase 1（最小核心功能：按键采集与热力图）
+第一个 Phase 1 任务：P1-001（Accessibility 权限检测与引导页）
 
 ### [Key Decisions]
 - 2026-05-25: 选定 Tauri 2.0 + SvelteKit + TypeScript 作为技术栈
@@ -10,6 +10,7 @@ T0-1/P0-001/P0-002/P0-003 已完成，剩余 P0-004（SQLite 初始化）待实�
 - 2026-05-25: 隐私原则——不记录按键序列，只记录频次聚合数据
 - 2026-05-26: 托盘使用 Tauri 2.x TrayIconBuilder，menu_on_left_click(false) 虽已 deprecated 但仍需使用
 - 2026-05-26: DMG 打包因中文产品名路径问题会失败，.app 打包正常（后续可通过英文 productName 解决）
+- 2026-05-26: SQLite 使用 WAL 模式（journal_mode=WAL），提升并发性能并确保初始化时写入有效 header
 
 ### [Completed]
 - [x] T0-1: 初始化 Tauri + SvelteKit 项目 (create-tauri-app, npm install)
@@ -17,10 +18,12 @@ T0-1/P0-001/P0-002/P0-003 已完成，剩余 P0-004（SQLite 初始化）待实�
 - [x] P0-001: 系统托盘配置（tray.rs + 右键菜单 + 左键 toggle 窗口）
 - [x] P0-002: 窗口行为管理（关闭即隐藏到托盘、启动默认隐藏、托盘 toggle）
 - [x] P0-003: 前后端通信验证（commands.rs + get_app_status + 前端 invoke 展示）
+- [x] P0-004: SQLite 数据库初始化（db.rs + rusqlite bundled + WAL 模式 + ~/.keydiary/data.db 创建）
 
 ### [Next Steps]
-1. P0-004: SQLite 数据库初始化
-2. Phase 1 任务（需 Phase 0 全部完成后开始）
+1. P1-001: Accessibility 权限检测与引导页
+2. P1-002: 按键采集引擎（CGEventTap）
+3. P1-003: 内存聚合器 Aggregator
 
 ### [Blockers]
 无
@@ -33,3 +36,4 @@ T0-1/P0-001/P0-002/P0-003 已完成，剩余 P0-004（SQLite 初始化）待实�
 - 2026-05-26 Session 2: P0-001 系统托盘完成（tray.rs 创建、lib.rs 集成、tauri.conf.json 更新、托盘图标生成）
 - 2026-05-26 Session 3: P0-002 已完成（窗口关闭拦截 + 启动默认隐藏），下一步请从 P0-003 开始
 - 2026-05-26 Session 4: P0-003 已完成（commands.rs 新建 + get_app_status Command + 前端 invoke 展示），下一步请从 P0-004 开始
+- 2026-05-26 Session 5: P0-004 已完成（db.rs 新建 + rusqlite bundled 依赖 + WAL 模式初始化 + Phase 0 全部完成），下一步请从 P1-001 开始

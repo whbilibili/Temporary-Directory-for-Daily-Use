@@ -1,4 +1,5 @@
 mod commands;
+mod db;
 mod tray;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -8,6 +9,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![commands::get_app_status])
         .setup(|app| {
             tray::init(app.handle())?;
+            db::init(app.handle()).expect("数据库初始化失败");
             Ok(())
         })
         .on_window_event(|window, event| {

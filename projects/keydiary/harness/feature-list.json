@@ -147,7 +147,7 @@
       "task_id": "P0-004",
       "description": "SQLite 数据库初始化：首次启动创建 ~/.keydiary/data.db 空数据库文件",
       "priority": "1-High",
-      "status": "in_progress",
+      "status": "completed",
       "phase": "phase-0",
       "contracts": {
         "rust_module": {
@@ -177,7 +177,8 @@
         ],
         "spec_ref": "FS-0.5",
         "layer": "data"
-      }
+      },
+      "completed_at": "2026-05-26T15:50:00"
     },
     {
       "task_id": "P1-001",
@@ -1559,8 +1560,8 @@
       "phase": "phase-0",
       "name": "项目骨架与技术选型",
       "task_count": 4,
-      "status": "in_progress",
-      "completed": 2
+      "status": "completed",
+      "completed": 4
     },
     {
       "phase": "phase-1",
