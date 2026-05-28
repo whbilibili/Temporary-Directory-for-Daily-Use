@@ -1,0 +1,36 @@
+{
+  "$schema": "./feature-registry.schema.json",
+  "_meta": {
+    "description": "产品功能注册表 — 记录所有已有/已规划功能，防止重复设计和冲突",
+    "last_updated": "",
+    "total_features": 0
+  },
+  "features": [
+    {
+      "id": "feat-example-001",
+      "name": "示例功能（请删除）",
+      "status": "example",
+      "module": "core",
+      "description": "这是一个示例条目，展示结构格式",
+      "target_persona": ["persona-001"],
+      "priority": "P1",
+      "prd_link": "outputs/prds/2025-01-01-示例功能.md",
+      "created_at": "2025-01-01",
+      "dependencies": [],
+      "notes": "新增功能时复制此条目并修改"
+    }
+  ],
+  "_field_spec": {
+    "id": "feat-{module}-{序号}，全局唯一",
+    "name": "功能名称，简短明确",
+    "status": "planned | in-design | in-dev | launched | deprecated",
+    "module": "功能所属模块",
+    "description": "一句话描述功能做什么",
+    "target_persona": "服务的用户画像 ID 列表",
+    "priority": "P0(必须) | P1(重要) | P2(nice-to-have) | P3(未来考虑)",
+    "prd_link": "对应 PRD 文档相对路径",
+    "created_at": "YYYY-MM-DD",
+    "dependencies": "依赖的其他功能 ID 列表",
+    "notes": "备注信息"
+  }
+}
