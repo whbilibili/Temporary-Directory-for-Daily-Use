@@ -385,7 +385,7 @@
       "task_id": "PLANT-005",
       "description": "Build the plant list page with photo-led cards and a next-due summary for each active plant.",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {

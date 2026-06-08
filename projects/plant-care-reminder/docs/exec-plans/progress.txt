@@ -1,30 +1,30 @@
 ### [Current Focus]
-`PLANT-004` 已完成：植物编辑流已经接通。后端 [plants.ts](../app/convex/plants.ts) 新增了 `getPlantForEdit` query 和 `updatePlant` mutation，前端 [EditPlantPage.tsx](../app/src/features/plants/EditPlantPage.tsx) 通过 `/plants/:plantId/edit` 复用同一套 `PlantForm`，能预填充现有字段、保留原图或替换图片，更新成功后回到 `/plants`。下一线任务切换为 `PLANT-005`。
+`PLANT-005` 已完成：`/plants` 现在已经是真实的植物列表页。后端 [plants.ts](../app/convex/plants.ts) 新增了 `listPlantsWithNextDue`，会按当前家庭读取 active plants，并为每张卡片拼出最近的 enabled care task 摘要；前端新增 [PlantListPage.tsx](../app/src/features/plants/PlantListPage.tsx) 和 [PlantCard.tsx](../app/src/features/plants/PlantCard.tsx)，移动端下会显示 photo-led 卡片、最近到期信息和空列表状态。下一线任务切换为 `PLANT-006`。
 
 ### [Key Decisions]
-- 这轮没有为 edit 单独造第二套 form state，而是继续复用 `PlantForm` / `usePlantForm`，只在编辑页额外注入 query 回来的初始值。
-- Router 这轮补了最小动态路径解析能力：真实 URL 允许 `/plants/:plantId/edit`，内部壳路径统一收敛成 `/plants/edit` 并携带 `plantId` 参数，避免提前把整套路由系统重写成通用 matcher。
-- `updatePlant` 继续沿用 API contract 的 `note` 单数名，但 patch 到现有 schema 时仍映射为 `notes`，同时允许 `imageStorageId` 保持原值不变，满足“替换或保留当前图片”两种路径。
+- “只显示 active plants” 这条约束已经放在后端 `listPlantsWithNextDue` query 层处理，而不是前端拉全量后筛。
+- 列表卡片的最近到期摘要以 `plantTasks` 中最近的 enabled task 为准；没有任务时，卡片会明确显示还未添加 care routine。
+- 当前还没有植物详情页，所以卡片这一轮只承担信息展示和 `Edit profile` 入口，不提前绑定详情跳转，保持 `PLANT-006` 的范围干净。
 
 ### [Blockers & Solutions]
-- 当前 router 之前只支持静态路径，`/plants/:plantId/edit` 无法识别；这轮通过最小动态解析补上 `plantId` 参数，不扩散到其他业务路由。
-- `usePlantForm` 之前只在 mount 时吃一次初始值，不足以承接编辑页的异步预填充；这轮补了对 `initialValue` 变化的同步逻辑，避免 edit 页手写重复 reset 流程。
-- 浏览器级移动端验证依旧受宿主 Playwright 限制影响，所以这轮以 `npm run test` 和 `npx convex dev --once --typecheck enable` 为主，没有伪造浏览器截图结果。
+- 当前仓库里还没有 care task 创建流，所以真实 next-due 数据样本不足；这轮通过后端 list-ready contract + 前端 smoke test 的方式先钉住渲染层和摘要格式。
+- 替换 `/plants` 占位壳时，最初误删了 `/todo` placeholder 仍在用的 `formatTaskTypeLabel` / `formatDueDate` import；这轮已补回，并重新通过测试。
+- 浏览器级移动端验证依旧受宿主 Playwright 限制影响，所以这轮优先用路由测试覆盖卡片层级、图片回退和空列表状态。
 
 ### [Verification]
 - `cd app && npm run typecheck`
 - `cd app && npm run test`
 - `cd app && npx convex dev --once --typecheck enable`
 - `npm run test` 新覆盖：
-  - `/plants/:plantId/edit` 会正确预填充现有植物字段和图片预览
-  - edit flow 提交时会保留未替换的 `imageStorageId`
-  - 更新成功后会回跳 `/plants`
-- `getPlantForEdit` / `updatePlant` 的 family scope、id 参数和 patch 类型边界已通过 Convex codegen/typecheck 验证
+  - `/plants` 会渲染 active plant card、图片和最近到期摘要
+  - 植物为空时会显示空列表状态和新增入口
+  - 原有受保护路由 smoke case 在替换 `/plants` 页面后仍保持通过
+- `listPlantsWithNextDue` 的 family scope、active-only 过滤和 query 类型边界已通过 Convex codegen/typecheck 验证
 
 ### [Dead Ends]
-- 不要在 `PLANT-004` 里顺手把 `/plants` 做成真实列表页或 `/plants/:plantId` 详情页；那分别属于 `PLANT-005` 和 `PLANT-006`。
-- 不要为了 edit flow 去重命名整个 schema 里的 `notes` 字段；本轮只需要 API 层继续兼容 `note` -> `notes` 映射。
+- 不要在 `PLANT-005` 里顺手把 `/plants/:plantId` 详情页做出来；那是 `PLANT-006` 的范围。
+- 不要把“只显示 active plants”留给前端过滤；这会削弱家庭隔离后的列表 contract。
 
 ### [Next Steps]
-1. 进入 `PLANT-005`，实现真实的家庭植物列表卡片和 next-due 摘要。
-2. 列表页落地后，再进入 `PLANT-006` 做植物详情页和启用任务区块。
+1. 进入 `PLANT-006`，做植物详情页、封面图、资料元信息和启用任务区块入口。
+2. 详情页落地后，再进入 `PLANT-007` 处理 archive / restore 生命周期。

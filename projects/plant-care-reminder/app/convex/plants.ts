@@ -98,6 +98,56 @@ export const getPlantForEdit = query({
   },
 });
 
+export const listPlantsWithNextDue = query({
+  args: {},
+  handler: async (ctx) => {
+    const currentUserContext = await requireCurrentFamilyMember(ctx);
+    const plants = await ctx.db
+      .query("plants")
+      .withIndex("by_familyId_and_isArchived", (q) =>
+        q.eq("familyId", currentUserContext.familyId).eq("isArchived", false),
+      )
+      .collect();
+
+    const plantsWithNextDue = await Promise.all(
+      plants.map(async (plant) => {
+        const [imageUrl, tasks] = await Promise.all([
+          plant.imageStorageId ? ctx.storage.getUrl(plant.imageStorageId) : Promise.resolve(null),
+          ctx.db
+            .query("plantTasks")
+            .withIndex("by_plantId", (q) => q.eq("plantId", plant._id))
+            .collect(),
+        ]);
+
+        const nextDueTask = tasks
+          .filter((task) => task.enabled)
+          .sort((left, right) => left.nextDueAt - right.nextDueAt)[0];
+
+        return {
+          id: plant._id,
+          name: plant.name,
+          description: plant.description ?? null,
+          location: plant.location ?? null,
+          imageUrl,
+          nextDueTask: nextDueTask
+            ? {
+                taskType: nextDueTask.taskType,
+                customLabel: nextDueTask.customLabel ?? null,
+                nextDueAt: nextDueTask.nextDueAt,
+              }
+            : null,
+        };
+      }),
+    );
+
+    plantsWithNextDue.sort((left, right) => left.name.localeCompare(right.name));
+
+    return {
+      plants: plantsWithNextDue,
+    };
+  },
+});
+
 export const updatePlant = mutation({
   args: {
     plantId: v.id("plants"),

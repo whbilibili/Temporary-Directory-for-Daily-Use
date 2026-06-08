@@ -25,7 +25,7 @@
       "file": "docs/exec-plans/modules/plant-registry.json",
       "description": "Implement plant image handling, plant CRUD, list/detail views and archive lifecycle.",
       "task_count": 7,
-      "completed": 4,
+      "completed": 5,
       "depends_on": ["infra", "family-access"]
     },
     {
@@ -161,7 +161,7 @@
       "task_id": "PLANT-005",
       "module": "plant-registry",
       "description": "Build the plant list page with next-due summaries on each card.",
-      "status": "pending",
+      "status": "completed",
       "priority": "1-High"
     },
     {

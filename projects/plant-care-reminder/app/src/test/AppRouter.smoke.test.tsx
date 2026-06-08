@@ -394,6 +394,72 @@ describe("AppShell smoke coverage", () => {
     expect(window.sessionStorage.getItem("plant-care-reminder:create-plant-success")).toBe("1");
   });
 
+  it("renders active plant cards with next-due summaries on the plant board", async () => {
+    renderWithProviders(
+      <AppShell
+        pathname="/plants"
+        routeContext={{
+          userId: "user_1",
+          familyId: "family_1",
+          displayName: "Wang",
+        }}
+      />,
+      {
+        route: "/plants",
+        queryResult: {
+          plants: [
+            {
+              id: "plant_1",
+              name: "Monstera deliciosa",
+              description: "Bright indirect light and large split leaves.",
+              location: "Dining room shelf",
+              imageUrl: "https://cdn.test/monstera.jpg",
+              nextDueTask: {
+                taskType: "watering",
+                customLabel: null,
+                nextDueAt: Date.now() + 2 * 24 * 60 * 60 * 1000,
+              },
+            },
+          ],
+        },
+      },
+    );
+
+    await waitFor(() => expect(window.location.pathname).toBe("/plants"));
+    expect(screen.getByRole("heading", { name: /shared plant registry/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /monstera deliciosa/i })).toBeInTheDocument();
+    expect(screen.getByText(/dining room shelf/i)).toBeInTheDocument();
+    expect(screen.getByText(/watering/i)).toBeInTheDocument();
+    expect(screen.getByText(/due in 2 days|due tomorrow|due today|due /i)).toBeInTheDocument();
+    expect(screen.getByAltText(/monstera deliciosa cover/i)).toHaveAttribute(
+      "src",
+      "https://cdn.test/monstera.jpg",
+    );
+  });
+
+  it("renders the empty plant-board state when the household has no active plants", async () => {
+    renderWithProviders(
+      <AppShell
+        pathname="/plants"
+        routeContext={{
+          userId: "user_1",
+          familyId: "family_1",
+          displayName: "Wang",
+        }}
+      />,
+      {
+        route: "/plants",
+        queryResult: {
+          plants: [],
+        },
+      },
+    );
+
+    await waitFor(() => expect(window.location.pathname).toBe("/plants"));
+    expect(screen.getByText(/your shared plant board is empty/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /add plant/i })).toBeInTheDocument();
+  });
+
   it("loads the edit-plant route with prefilled data for the current family", async () => {
     renderWithProviders(
       <AppShell
