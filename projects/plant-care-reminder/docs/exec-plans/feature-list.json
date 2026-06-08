@@ -1,0 +1,285 @@
+{
+  "project": "plant-care-reminder",
+  "prd": "docs/product-specs/2026-06-05-mvp-requirements.md",
+  "created_at": "2026-06-05",
+  "mode": "modular",
+  "module_index": [
+    {
+      "module": "infra",
+      "file": "docs/exec-plans/modules/infra.json",
+      "description": "Prepare the Convex-backed app foundation: schema, auth, shared contracts, route shell, PWA baseline and test harness.",
+      "task_count": 7,
+      "completed": 7,
+      "depends_on": []
+    },
+    {
+      "module": "family-access",
+      "file": "docs/exec-plans/modules/family-access.json",
+      "description": "Implement login, profile bootstrap, onboarding, family creation/join and shared household settings.",
+      "task_count": 6,
+      "completed": 5,
+      "depends_on": ["infra"]
+    },
+    {
+      "module": "plant-registry",
+      "file": "docs/exec-plans/modules/plant-registry.json",
+      "description": "Implement plant image handling, plant CRUD, list/detail views and archive lifecycle.",
+      "task_count": 7,
+      "completed": 0,
+      "depends_on": ["infra", "family-access"]
+    },
+    {
+      "module": "care-reminders",
+      "file": "docs/exec-plans/modules/care-reminders.json",
+      "description": "Implement care-task scheduling, due inbox, completion flow and notification delivery.",
+      "task_count": 8,
+      "completed": 0,
+      "depends_on": ["infra", "family-access", "plant-registry"]
+    }
+  ],
+  "tasks_summary": [
+    {
+      "task_id": "INFRA-001",
+      "module": "infra",
+      "description": "Scaffold the app workspace with Vite React TypeScript and Convex runtime bindings.",
+      "status": "completed",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "INFRA-002",
+      "module": "infra",
+      "description": "Define Convex schema, auth config and shared validators for all MVP entities.",
+      "status": "completed",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "INFRA-003",
+      "module": "infra",
+      "description": "Add current-user and current-family context helpers for route guards and feature modules.",
+      "status": "completed",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "INFRA-004",
+      "module": "infra",
+      "description": "Build the root route shell with protected routes, onboarding redirects and bottom navigation.",
+      "status": "completed",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "INFRA-005",
+      "module": "infra",
+      "description": "Create shared UI primitives, form helpers and domain formatters for mobile-first screens.",
+      "status": "completed",
+      "priority": "2-Medium"
+    },
+    {
+      "task_id": "INFRA-006",
+      "module": "infra",
+      "description": "Set up test utilities, Convex-friendly fixtures and smoke checks for feature modules.",
+      "status": "completed",
+      "priority": "2-Medium"
+    },
+    {
+      "task_id": "INFRA-007",
+      "module": "infra",
+      "description": "Add the PWA manifest, service-worker registration and install entry points.",
+      "status": "completed",
+      "priority": "2-Medium"
+    },
+    {
+      "task_id": "ACCESS-001",
+      "module": "family-access",
+      "description": "Build the email login screen and session bootstrap flow.",
+      "status": "completed",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "ACCESS-002",
+      "module": "family-access",
+      "description": "Capture and persist the user display name/profile after first login.",
+      "status": "completed",
+      "priority": "2-Medium"
+    },
+    {
+      "task_id": "ACCESS-003",
+      "module": "family-access",
+      "description": "Implement the onboarding chooser that routes users to create or join a family.",
+      "status": "completed",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "ACCESS-004",
+      "module": "family-access",
+      "description": "Implement family creation with invite-code generation and initial admin membership.",
+      "status": "completed",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "ACCESS-005",
+      "module": "family-access",
+      "description": "Implement joining a family by invite code with single-family enforcement.",
+      "status": "completed",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "ACCESS-006",
+      "module": "family-access",
+      "description": "Render family settings with members list, invite code and household summary.",
+      "status": "pending",
+      "priority": "2-Medium"
+    },
+    {
+      "task_id": "PLANT-001",
+      "module": "plant-registry",
+      "description": "Create image upload helpers and storage contracts for plant cover photos.",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "PLANT-002",
+      "module": "plant-registry",
+      "description": "Define plant form validation, DTO mapping and reusable plant editor state.",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "PLANT-003",
+      "module": "plant-registry",
+      "description": "Implement the create-plant flow with optional image upload.",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "PLANT-004",
+      "module": "plant-registry",
+      "description": "Implement the edit-plant flow with image replacement and field updates.",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "PLANT-005",
+      "module": "plant-registry",
+      "description": "Build the plant list page with next-due summaries on each card.",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "PLANT-006",
+      "module": "plant-registry",
+      "description": "Build the plant detail page with profile metadata and enabled care tasks.",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "PLANT-007",
+      "module": "plant-registry",
+      "description": "Implement archive and restore behavior without deleting care history.",
+      "status": "pending",
+      "priority": "2-Medium"
+    },
+    {
+      "task_id": "CARE-001",
+      "module": "care-reminders",
+      "description": "Create shared task enums, labels and next-due scheduling helpers.",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "CARE-002",
+      "module": "care-reminders",
+      "description": "Implement the create-task flow for interval-based plant care tasks.",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "CARE-003",
+      "module": "care-reminders",
+      "description": "Implement the edit, enable-disable and delete task flows.",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "CARE-004",
+      "module": "care-reminders",
+      "description": "Render the reusable task list section inside the plant detail page.",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "CARE-005",
+      "module": "care-reminders",
+      "description": "Build the due inbox with overdue, today and upcoming task groups.",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "CARE-006",
+      "module": "care-reminders",
+      "description": "Implement task completion, completion logs and realtime next-due recomputation.",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "CARE-007",
+      "module": "care-reminders",
+      "description": "Implement notification permission prompts and push subscription persistence.",
+      "status": "pending",
+      "priority": "2-Medium"
+    },
+    {
+      "task_id": "CARE-008",
+      "module": "care-reminders",
+      "description": "Implement scheduled due scanning and deduplicated reminder delivery.",
+      "status": "pending",
+      "priority": "2-Medium"
+    }
+  ],
+  "cross_module_dependencies": [
+    {
+      "from": "ACCESS-001",
+      "to": "INFRA-004",
+      "reason": "Session bootstrap needs the root route shell and protected-route behavior."
+    },
+    {
+      "from": "ACCESS-004",
+      "to": "INFRA-002",
+      "reason": "Family creation depends on schema, auth and validator definitions."
+    },
+    {
+      "from": "PLANT-001",
+      "to": "INFRA-002",
+      "reason": "Image upload contracts depend on schema and storage-ready validators."
+    },
+    {
+      "from": "PLANT-005",
+      "to": "ACCESS-005",
+      "reason": "Plant queries require an authenticated user already scoped to a family."
+    },
+    {
+      "from": "CARE-002",
+      "to": "PLANT-006",
+      "reason": "Task creation starts from the plant detail workflow."
+    },
+    {
+      "from": "CARE-005",
+      "to": "PLANT-005",
+      "reason": "The due inbox reuses family-scoped plant and task summary data."
+    },
+    {
+      "from": "CARE-006",
+      "to": "CARE-001",
+      "reason": "Completion relies on shared scheduling helpers and task type contracts."
+    },
+    {
+      "from": "CARE-007",
+      "to": "INFRA-007",
+      "reason": "Push subscriptions require the PWA manifest and service-worker baseline."
+    },
+    {
+      "from": "CARE-008",
+      "to": "CARE-007",
+      "reason": "Reminder delivery depends on persisted push subscriptions."
+    }
+  ]
+}
