@@ -97,7 +97,7 @@
       "task_id": "PLANT-002",
       "description": "Define plant form validation, DTO mapping and reusable editor state for name, description, note, location and image reference.",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {

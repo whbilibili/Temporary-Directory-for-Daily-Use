@@ -10,10 +10,11 @@ import { CreateFamilyPage } from "../features/family/CreateFamilyPage";
 import { FamilyOnboardingChoicePage } from "../features/family/FamilyOnboardingChoicePage";
 import { FamilySettingsPage } from "../features/family/FamilySettingsPage";
 import { JoinFamilyPage } from "../features/family/JoinFamilyPage";
+import { PlantForm } from "../features/plants/PlantForm";
 import {
-  PlantImageField,
-  type PlantImageValue,
-} from "../features/plants/PlantImageField";
+  type PlantMutationPayload,
+} from "../features/plants/plantSchema";
+import { usePlantForm } from "../features/plants/usePlantForm";
 import { BottomNav } from "../components/navigation/BottomNav";
 import { formatDueDate, formatTaskTypeLabel } from "../lib/formatters";
 import { RouteGate } from "./RouteGate";
@@ -68,31 +69,36 @@ export function AppShell({ pathname, routeContext }: AppShellProps) {
 }
 
 function PlantImageUploadSandbox() {
-  const [imageValue, setImageValue] = useState<PlantImageValue>({
-    previewUrl: null,
-    storageId: null,
+  const [draftPayload, setDraftPayload] = useState<PlantMutationPayload | null>(null);
+  const form = usePlantForm({
+    onSubmit: async (payload) => {
+      setDraftPayload(payload);
+    },
   });
 
   return (
     <section style={protectedCardStyle}>
-      <PageHeader
-        eyebrow="Plants"
-        title="Plant photo upload contract"
+      <PlantForm
+        form={form}
+        submitLabel="Validate plant draft"
         description={
           <p style={bodyStyle}>
-            This module slice only prepares the storage handshake. The upcoming create and edit
-            flows will reuse the same image field and keep the saved value as a storage id.
+            This shared editor contract now covers name, description, note, location, and the
+            uploaded image reference. Create and edit routes can both wrap this same form.
           </p>
         }
+        title="Plant editor contract"
       />
-      <div style={{ ...stackStyle, marginTop: "24px" }}>
-        <PlantImageField onChange={setImageValue} value={imageValue} />
-      </div>
       <div style={placeholderRowStyle}>
         <p style={hintStyle}>
-          Once the upload finishes, the form value becomes a Convex storage id plus a preview URL
-          that later plant editors can render without storing raw file data on the document.
+          Optional text fields collapse to `null` in the submit payload, while the form draft
+          keeps user-entered strings intact until validation runs.
         </p>
+        {draftPayload ? (
+          <pre style={payloadPreviewStyle}>
+            {JSON.stringify(draftPayload, null, 2)}
+          </pre>
+        ) : null}
       </div>
     </section>
   );
@@ -272,4 +278,15 @@ const placeholderRowStyle: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
   gap: "10px",
+};
+
+const payloadPreviewStyle: React.CSSProperties = {
+  margin: 0,
+  padding: "14px",
+  borderRadius: "16px",
+  background: "#e2e8f0",
+  color: "#0f172a",
+  fontSize: "0.85rem",
+  lineHeight: 1.6,
+  overflowX: "auto",
 };
