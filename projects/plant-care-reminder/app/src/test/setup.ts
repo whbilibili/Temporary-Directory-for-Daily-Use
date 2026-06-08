@@ -7,12 +7,16 @@ import type { RouteContext } from "../app/router";
 
 const mockUseQuery = vi.fn();
 const mockUseMutation = vi.fn(() => vi.fn());
+const mockConvexClientQuery = vi.fn();
 const mockSignIn = vi.fn();
 const mockSignOut = vi.fn();
 
 vi.mock("convex/react", () => ({
   ConvexProvider: ({ children }: { children: unknown }) => children,
   ConvexProviderWithAuth: ({ children }: { children: unknown }) => children,
+  useConvex: () => ({
+    query: mockConvexClientQuery,
+  }),
   useMutation: () => mockUseMutation(),
   useQuery: () => mockUseQuery(),
 }));
@@ -37,6 +41,10 @@ export function setMockMutationHandler(handler: ReturnType<typeof vi.fn>) {
   mockUseMutation.mockReturnValue(handler);
 }
 
+export function setMockConvexQueryHandler(handler: ReturnType<typeof vi.fn>) {
+  mockConvexClientQuery.mockImplementation(handler);
+}
+
 export function resetSessionStorage() {
   window.sessionStorage.clear();
 }
@@ -45,6 +53,7 @@ function resetConvexMocks() {
   mockUseQuery.mockReset();
   mockUseMutation.mockReset();
   mockUseMutation.mockReturnValue(vi.fn());
+  mockConvexClientQuery.mockReset();
   mockSignIn.mockReset();
   mockSignOut.mockReset();
 }
@@ -73,6 +82,11 @@ beforeAll(() => {
   }
 
   vi.stubGlobal("ResizeObserver", ResizeObserverMock);
+  vi.stubGlobal("URL", {
+    ...URL,
+    createObjectURL: vi.fn(() => "blob:plant-preview"),
+    revokeObjectURL: vi.fn(),
+  });
 });
 
 afterEach(() => {

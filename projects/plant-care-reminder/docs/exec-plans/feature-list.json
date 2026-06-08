@@ -25,7 +25,7 @@
       "file": "docs/exec-plans/modules/plant-registry.json",
       "description": "Implement plant image handling, plant CRUD, list/detail views and archive lifecycle.",
       "task_count": 7,
-      "completed": 0,
+      "completed": 1,
       "depends_on": ["infra", "family-access"]
     },
     {
@@ -133,7 +133,7 @@
       "task_id": "PLANT-001",
       "module": "plant-registry",
       "description": "Create image upload helpers and storage contracts for plant cover photos.",
-      "status": "pending",
+      "status": "completed",
       "priority": "1-High"
     },
     {

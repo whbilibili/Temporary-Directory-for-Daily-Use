@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import { Button } from "../components/ui/Button";
 import { EmptyState } from "../components/ui/EmptyState";
 import { InputField } from "../components/ui/InputField";
@@ -8,6 +10,10 @@ import { CreateFamilyPage } from "../features/family/CreateFamilyPage";
 import { FamilyOnboardingChoicePage } from "../features/family/FamilyOnboardingChoicePage";
 import { FamilySettingsPage } from "../features/family/FamilySettingsPage";
 import { JoinFamilyPage } from "../features/family/JoinFamilyPage";
+import {
+  PlantImageField,
+  type PlantImageValue,
+} from "../features/plants/PlantImageField";
 import { BottomNav } from "../components/navigation/BottomNav";
 import { formatDueDate, formatTaskTypeLabel } from "../lib/formatters";
 import { RouteGate } from "./RouteGate";
@@ -42,11 +48,7 @@ export function AppShell({ pathname, routeContext }: AppShellProps) {
             <JoinFamilyPage />
           ) : null}
           {pathname === "/plants" ? (
-            <ProtectedRoutePlaceholder
-              eyebrow="Plants"
-              title="Shared plant registry"
-              description="This shell is ready for the plant list module. Cards here will show cover photos and the next due task."
-            />
+            <PlantImageUploadSandbox />
           ) : null}
           {pathname === "/todo" ? (
             <ProtectedRoutePlaceholder
@@ -62,6 +64,37 @@ export function AppShell({ pathname, routeContext }: AppShellProps) {
         {hasFamily ? <BottomNav pathname={pathname} /> : null}
       </div>
     </RouteGate>
+  );
+}
+
+function PlantImageUploadSandbox() {
+  const [imageValue, setImageValue] = useState<PlantImageValue>({
+    previewUrl: null,
+    storageId: null,
+  });
+
+  return (
+    <section style={protectedCardStyle}>
+      <PageHeader
+        eyebrow="Plants"
+        title="Plant photo upload contract"
+        description={
+          <p style={bodyStyle}>
+            This module slice only prepares the storage handshake. The upcoming create and edit
+            flows will reuse the same image field and keep the saved value as a storage id.
+          </p>
+        }
+      />
+      <div style={{ ...stackStyle, marginTop: "24px" }}>
+        <PlantImageField onChange={setImageValue} value={imageValue} />
+      </div>
+      <div style={placeholderRowStyle}>
+        <p style={hintStyle}>
+          Once the upload finishes, the form value becomes a Convex storage id plus a preview URL
+          that later plant editors can render without storing raw file data on the document.
+        </p>
+      </div>
+    </section>
   );
 }
 

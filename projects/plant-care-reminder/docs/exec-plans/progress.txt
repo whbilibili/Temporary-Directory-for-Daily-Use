@@ -1,29 +1,29 @@
 ### [Current Focus]
-`ACCESS-006` 已完成：`/settings` 现在接上了真实家庭摘要、邀请码和成员列表，已经从占位卡片切成只读家庭信息页。下一线任务切换为 `PLANT-001`，开始补植物封面图上传辅助与存储契约。
+`PLANT-001` 已完成：植物封面图上传基础链路已经接通，当前 app 壳页里可复用的 `PlantImageField` 会先申请 Convex upload URL，上传文件拿到 `storageId`，再回查可预览 URL，外层表单最终只持有 `storageId + previewUrl` 这组 editor value。下一线任务切换为 `PLANT-002`。
 
 ### [Key Decisions]
-- 这轮新增了 `getFamilySettingsSummary` query，把家庭摘要、邀请码和成员列表统一从后端拼好后返回给 `/settings` 页面，避免前端自己拼多次 query。
-- 成员列表的展示排序收敛成：`admin` 优先、当前用户优先、再按加入时间排序。这样家庭设置页在移动端里更容易理解谁是管理员、谁是自己。
-- 邀请码复制能力保持成轻量按钮，不引入新的全局 toast；复制成功只把按钮文案切成 `Copied`，失败时退化成页内提示文案。
+- 后端新增 `generatePlantImageUploadUrl` 和 `getPlantImageUrl` 两条 plants 存储契约，均要求当前用户已登录且已加入家庭，避免匿名态获取上传能力。
+- 前端不在 `plants` 文档里持久化原始图片地址，只保留 `imageStorageId`；预览地址始终由 helper 在上传后临时解析出来。
+- 上传错误只影响图片字段内部状态。已有表单值和旧预览不会被失败上传覆盖，这样后续 create/edit 表单可以安全复用。
 
 ### [Blockers & Solutions]
-- 设置页本身会发起新的 query，所以测试 harness 这轮补了自定义 query 返回值入口，避免沿用之前 routeContext-only 的 mock 方式导致 settings 组件拿到错误数据结构。
-- 浏览器级移动端截图这轮没有继续强行重试；当前环境里 Playwright 的宿主限制没有变化，因此我把验收重点放在 query+页面结构测试和 Convex 同步通过上。
+- Convex upload endpoint 只返回 `storageId`。为满足即时预览，这轮额外补了 `getPlantImageUrl`，由后端统一把 storage id 解析成签名 URL。
+- 当前还没有真实 `/plants/new` 和 `/plants/:plantId/edit` 页面，所以先把图片字段挂进 `/plants` 壳页做集成承载，等 `PLANT-002`、`PLANT-003` 再接入正式表单。
+- 浏览器级实跑仍被当前宿主环境的 Playwright 限制拦住，报错是 `bootstrap_check_in ... Permission denied (1100)`；因此这轮运行态验证以 Vitest 组件测试和 Convex codegen/typecheck 为主，未伪造浏览器成功记录。
 
 ### [Verification]
 - `cd app && npm run typecheck`
 - `cd app && npm run test`
 - `cd app && npx convex dev --once --typecheck enable`
-- `npm run test` 现在额外覆盖：
-  - `/settings` 会渲染家庭名称、邀请码、复制按钮和成员列表
-  - 成员列表里同时可见 `Admin`、`Member` 角色和当前用户标签
-- 这轮没有补新的浏览器级移动端截图验证；当前环境里 Playwright 仍已知受宿主沙箱限制影响。
+- `npm run test` 新覆盖：
+  - 选中文件后会请求 upload URL、上传到 Convex storage、回填 `storageId + previewUrl`
+  - 上传失败时会显示错误且保留旧预览，不清空外层值
+- 额外实跑尝试：起了 `npm run dev -- --host 127.0.0.1 --port 4174`，但 Playwright 仍被宿主沙箱拦截，未拿到浏览器截图
 
 ### [Dead Ends]
-- 不要在 `PLANT-001` 里把家庭设置页 query 再改回前端多次拼装；后续植物模块只需要消费稳定的家庭上下文，不应反向污染家庭摘要查询。
-- 当前邀请码复制状态是页内局部状态，不要在后续模块里把它升级成跨页全局状态；这会让设置页承担不必要的全局复杂度。
+- 不要在 `PLANT-001` 里顺手把植物创建表单一起落地；这会越过 `PLANT-002` 的 editor contract 边界。
+- 不要把 storage preview URL 直接持久化进 `plants`；schema 已经明确只保存 `imageStorageId`。
 
 ### [Next Steps]
-1. 实现 `PLANT-001`，补植物封面图上传辅助和存储契约，为后续 create/edit 植物表单准备好上传链路。
-2. 植物模块开始后，继续保持家庭访问控制边界不变，只在当前家庭上下文内读写植物和图片。
-3. 进入真正植物 CRUD 之前，先把图片上传路径稳定下来，避免 `PLANT-003` 和 `PLANT-004` 同时改动存储接口。
+1. 进入 `PLANT-002`，补植物表单 validation、DTO mapping 和 create/edit 共用 editor state。
+2. 让 `PLANT-003` 直接复用这轮的 `PlantImageField` 和 upload helper，把 create-plant flow 保持成纯表单拼装。
