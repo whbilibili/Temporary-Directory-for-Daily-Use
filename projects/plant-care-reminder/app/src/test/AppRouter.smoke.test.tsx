@@ -277,4 +277,55 @@ describe("AppShell smoke coverage", () => {
       ),
     );
   });
+
+  it("renders the family settings summary, invite code, and members list for family members", async () => {
+    renderWithProviders(
+      <AppShell
+        pathname="/settings"
+        routeContext={{
+          userId: "user_1",
+          familyId: "family_1",
+          displayName: "Wang",
+        }}
+      />,
+      {
+        route: "/settings",
+        queryResult: {
+          familyName: "Wang Family Greenhouse",
+          inviteCode: "ABCD12",
+          memberCount: 2,
+          members: [
+            {
+              id: "member_1",
+              userId: "user_1",
+              role: "admin",
+              joinedAt: 1,
+              displayName: "Wang",
+              email: "wang@example.com",
+              isCurrentUser: true,
+            },
+            {
+              id: "member_2",
+              userId: "user_2",
+              role: "member",
+              joinedAt: 2,
+              displayName: "Li",
+              email: "li@example.com",
+              isCurrentUser: false,
+            },
+          ],
+        },
+      },
+    );
+
+    await waitFor(() => expect(window.location.pathname).toBe("/settings"));
+    expect(screen.getByRole("heading", { name: /wang family greenhouse/i })).toBeInTheDocument();
+    expect(screen.getByText("ABCD12")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /copy code/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /household members/i })).toBeInTheDocument();
+    expect(screen.getByText("Wang")).toBeInTheDocument();
+    expect(screen.getByText("Li")).toBeInTheDocument();
+    expect(screen.getByText("Admin")).toBeInTheDocument();
+    expect(screen.getByText("Member")).toBeInTheDocument();
+  });
 });

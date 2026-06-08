@@ -6,6 +6,7 @@ import { AuthPage } from "../features/auth/AuthPage";
 import { ProfileBootstrapForm } from "../features/auth/ProfileBootstrapForm";
 import { CreateFamilyPage } from "../features/family/CreateFamilyPage";
 import { FamilyOnboardingChoicePage } from "../features/family/FamilyOnboardingChoicePage";
+import { FamilySettingsPage } from "../features/family/FamilySettingsPage";
 import { JoinFamilyPage } from "../features/family/JoinFamilyPage";
 import { BottomNav } from "../components/navigation/BottomNav";
 import { formatDueDate, formatTaskTypeLabel } from "../lib/formatters";
@@ -55,11 +56,7 @@ export function AppShell({ pathname, routeContext }: AppShellProps) {
             />
           ) : null}
           {pathname === "/settings" ? (
-            <ProtectedRoutePlaceholder
-              eyebrow="Settings"
-              title="Family controls"
-              description="This route is reserved for household details, invite code sharing, and member visibility."
-            />
+            <FamilySettingsPage />
           ) : null}
         </main>
         {hasFamily ? <BottomNav pathname={pathname} /> : null}

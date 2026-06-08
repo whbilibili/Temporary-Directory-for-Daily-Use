@@ -472,7 +472,7 @@
       "task_id": "ACCESS-006",
       "description": "Render family settings with household summary, current invite code and members list for the shared family space.",
       "priority": "2-Medium",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {

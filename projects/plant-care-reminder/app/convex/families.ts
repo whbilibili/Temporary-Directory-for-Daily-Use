@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 
-import { mutation } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
 import { getCurrentUserContext as loadCurrentUserContext } from "./lib/auth";
 
 const INVITE_CODE_LENGTH = 6;
@@ -131,6 +131,62 @@ export const joinFamilyByInviteCode = mutation({
 
     return {
       familyId: family._id,
+    };
+  },
+});
+
+export const getFamilySettingsSummary = query({
+  args: {},
+  handler: async (ctx) => {
+    const currentUserContext = await loadCurrentUserContext(ctx);
+
+    if (!currentUserContext.userId || !currentUserContext.familyId) {
+      throw new Error("You must belong to a family to view family settings.");
+    }
+
+    const family = await ctx.db.get(currentUserContext.familyId);
+    if (!family) {
+      throw new Error("Family record not found.");
+    }
+
+    const memberships = await ctx.db
+      .query("familyMembers")
+      .withIndex("by_familyId", (q) => q.eq("familyId", currentUserContext.familyId!))
+      .collect();
+
+    const members = await Promise.all(
+      memberships.map(async (membership) => {
+        const user = await ctx.db.get(membership.userId);
+
+        return {
+          id: membership._id,
+          userId: membership.userId,
+          role: membership.role,
+          joinedAt: membership.joinedAt,
+          displayName: user?.displayName ?? user?.name ?? null,
+          email: user?.email ?? null,
+          isCurrentUser: membership.userId === currentUserContext.userId,
+        };
+      }),
+    );
+
+    members.sort((left, right) => {
+      if (left.role !== right.role) {
+        return left.role === "admin" ? -1 : 1;
+      }
+
+      if (left.isCurrentUser !== right.isCurrentUser) {
+        return left.isCurrentUser ? -1 : 1;
+      }
+
+      return left.joinedAt - right.joinedAt;
+    });
+
+    return {
+      familyName: family.name,
+      inviteCode: family.inviteCode,
+      memberCount: members.length,
+      members,
     };
   },
 });

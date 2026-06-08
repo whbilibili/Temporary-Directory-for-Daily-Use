@@ -17,7 +17,7 @@
       "file": "docs/exec-plans/modules/family-access.json",
       "description": "Implement login, profile bootstrap, onboarding, family creation/join and shared household settings.",
       "task_count": 6,
-      "completed": 5,
+      "completed": 6,
       "depends_on": ["infra"]
     },
     {
@@ -126,7 +126,7 @@
       "task_id": "ACCESS-006",
       "module": "family-access",
       "description": "Render family settings with members list, invite code and household summary.",
-      "status": "pending",
+      "status": "completed",
       "priority": "2-Medium"
     },
     {
