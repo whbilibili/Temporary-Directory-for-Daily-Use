@@ -186,7 +186,7 @@
       "task_id": "PLANT-003",
       "description": "Implement the create-plant flow with optional cover photo upload and family-scoped ownership checks.",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {

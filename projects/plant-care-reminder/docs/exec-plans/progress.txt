@@ -1,28 +1,30 @@
 ### [Current Focus]
-`PLANT-002` 已完成：植物 editor contract 现在已经独立成共享表单层。[`plantSchema`](../app/src/features/plants/plantSchema.ts) 统一处理 validation 和 DTO mapping，[`usePlantForm`](../app/src/features/plants/usePlantForm.ts) 维护可复用 draft state，[`PlantForm`](../app/src/features/plants/PlantForm.tsx) 负责字段布局和图片字段集成。下一线任务切换为 `PLANT-003`。
+`PLANT-003` 已完成：植物创建流已经接通。后端 [plants.ts](../app/convex/plants.ts) 新增 `createPlant` mutation，前端 [CreatePlantPage.tsx](../app/src/features/plants/CreatePlantPage.tsx) 把共享 `PlantForm` 接到了 `/plants/new`，成功后会回到 `/plants`，并保留轻量 success flag 作为列表占位页反馈。下一线任务切换为 `PLANT-004`。
 
 ### [Key Decisions]
-- `PLANT-002` 没有新增后端接口，只产出了前端共享契约：表单 draft、校验结果和提交 payload mapping。
-- 植物表单规则按产品规格落地：`name` 必填，`description`、`note`、`location`、`imageStorageId` 保持可选；空白字符串在 DTO 层统一折叠成 `null`。
-- 当前 domain/schema 侧历史上仍是 `notes` 复数名，这轮 editor contract 对外统一用 `note`，但 edit hydration 会兼容从现有 `Plant.notes` 载入，避免后续 create/edit 再做 shape conversion。
+- `createPlant` 的 API 契约沿用任务定义里的 `note` 单数名，但写入数据库时映射到现有 schema 字段 `notes`，避免为了本轮创建流去改已有数据字段命名。
+- `/plants/new` 被纳入受保护路由集合，`BottomNav` 的 Plants tab 也改成对整个 `/plants*` 路径族高亮，避免进入新建页后导航状态错位。
+- 当前 `/plants` 还不是正式列表页，所以这轮只把它升级成“列表占位 + 新建入口 + 成功反馈”，不提前实现真实 plant cards，保持 `PLANT-005` 的范围干净。
 
 ### [Blockers & Solutions]
-- 当前共享 UI 里只有单行 `InputField`，没有 textarea primitive；这轮把多行字段局部收在 `PlantForm` 内，没有越界扩展新的全局组件任务。
-- `PLANT-002` metadata 没列测试文件，但为了证明 create/edit 共用 contract 不跑偏，补了 `PlantForm.test.tsx`；这是本轮唯一的最小超范围改动。
-- 浏览器级移动端验证依旧受宿主 Playwright 限制影响，所以这轮以前端组件测试覆盖字段层级、错误提示和 edit 预填充为主，没有伪造浏览器截图结果。
+- Convex 类型检查一开始卡在 `requireCurrentFamilyMember` 的返回类型仍带 `null`，即使运行时 guard 已保证有值；这轮通过显式收窄 helper 返回类型解决，避免 create mutation 在 `familyId` / `createdBy` 上继续报错。
+- 创建页最初只有成功路径，没有 mutation 失败提示；这轮已在 `CreatePlantPage` 内补上页内错误文案，保证失败路径可见。
+- 浏览器级移动端验证依旧受宿主 Playwright 限制影响，所以这轮以 `npm run test` 和 `npx convex dev --once --typecheck enable` 为主，没有伪造浏览器截图结果。
 
 ### [Verification]
 - `cd app && npm run typecheck`
 - `cd app && npm run test`
+- `cd app && npx convex dev --once --typecheck enable`
 - `npm run test` 新覆盖：
-  - 缺少 `name` 时会显示自定义错误，而不是走浏览器原生校验
-  - optional 文本字段会被统一归一成 `null` payload
-  - edit 预填充可以从现有 `Plant.notes` 和 `imageStorageId` 正确映射到共享 editor state
+  - `/plants/new` 对已入家庭用户可访问，且 Plants tab 维持当前高亮
+  - create flow 会把规范化后的 payload 交给 `createPlant` mutation，并在成功后回跳 `/plants`
+  - create success flag 会写入 session storage
+- `createPlant` 的 family scope 和后端类型边界已通过 Convex codegen/typecheck 验证
 
 ### [Dead Ends]
-- 不要在 `PLANT-002` 里顺手接 create/edit mutation；这会越过 `PLANT-003` 和 `PLANT-004`。
-- 不要把表单 draft shape 设计成 create 和 edit 两套不同结构；这正是本任务要避免的 shape conversion 问题。
+- 不要在 `PLANT-003` 里把 `/plants` 直接做成真实列表页；那是 `PLANT-005` 的范围。
+- 不要为了 create flow 去重命名整个 schema 里的 `notes` 字段；本轮只需要 API 层兼容 `note` -> `notes` 映射。
 
 ### [Next Steps]
-1. 进入 `PLANT-003`，把 create-plant mutation 和 `/plants/new` 接到这套共享 editor contract 上。
-2. create 流接通后，再进入 `PLANT-004` 用同一 form state 做 edit 和图片替换。
+1. 进入 `PLANT-004`，用同一套 `PlantForm` 和 upload helper 接 edit flow 与图片替换。
+2. edit 接通后，再进入 `PLANT-005` 实现真实的家庭植物列表卡片和 next-due 摘要。

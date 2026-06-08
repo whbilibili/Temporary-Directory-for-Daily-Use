@@ -10,11 +10,11 @@ import { CreateFamilyPage } from "../features/family/CreateFamilyPage";
 import { FamilyOnboardingChoicePage } from "../features/family/FamilyOnboardingChoicePage";
 import { FamilySettingsPage } from "../features/family/FamilySettingsPage";
 import { JoinFamilyPage } from "../features/family/JoinFamilyPage";
-import { PlantForm } from "../features/plants/PlantForm";
+import { CreatePlantPage } from "../features/plants/CreatePlantPage";
+import { clearCreatePlantSuccess, hasCreatePlantSuccessFlag } from "../features/plants/createPlantSuccess";
 import {
   type PlantMutationPayload,
 } from "../features/plants/plantSchema";
-import { usePlantForm } from "../features/plants/usePlantForm";
 import { BottomNav } from "../components/navigation/BottomNav";
 import { formatDueDate, formatTaskTypeLabel } from "../lib/formatters";
 import { RouteGate } from "./RouteGate";
@@ -49,7 +49,10 @@ export function AppShell({ pathname, routeContext }: AppShellProps) {
             <JoinFamilyPage />
           ) : null}
           {pathname === "/plants" ? (
-            <PlantImageUploadSandbox />
+            <PlantBoardPlaceholder />
+          ) : null}
+          {pathname === "/plants/new" ? (
+            <CreatePlantPage />
           ) : null}
           {pathname === "/todo" ? (
             <ProtectedRoutePlaceholder
@@ -68,38 +71,58 @@ export function AppShell({ pathname, routeContext }: AppShellProps) {
   );
 }
 
-function PlantImageUploadSandbox() {
-  const [draftPayload, setDraftPayload] = useState<PlantMutationPayload | null>(null);
-  const form = usePlantForm({
-    onSubmit: async (payload) => {
-      setDraftPayload(payload);
-    },
+function PlantBoardPlaceholder() {
+  const [lastCreatedPayload, setLastCreatedPayload] = useState<PlantMutationPayload | null>(() => {
+    if (!hasCreatePlantSuccessFlag()) {
+      return null;
+    }
+
+    clearCreatePlantSuccess();
+    return {
+      name: "Recently added plant",
+      description: null,
+      note: null,
+      location: null,
+      imageStorageId: null,
+    };
   });
 
   return (
     <section style={protectedCardStyle}>
-      <PlantForm
-        form={form}
-        submitLabel="Validate plant draft"
+      <PageHeader
+        eyebrow="Plants"
+        title="Shared plant registry"
         description={
           <p style={bodyStyle}>
-            This shared editor contract now covers name, description, note, location, and the
-            uploaded image reference. Create and edit routes can both wrap this same form.
+            The real list screen lands in `PLANT-005`. For now this route already owns the create
+            entrypoint and preserves the family-scoped create flow.
           </p>
         }
-        title="Plant editor contract"
+        actions={
+          <Button fullWidth={false} onClick={() => navigate("/plants/new")} type="button">
+            Add plant
+          </Button>
+        }
       />
-      <div style={placeholderRowStyle}>
-        <p style={hintStyle}>
-          Optional text fields collapse to `null` in the submit payload, while the form draft
-          keeps user-entered strings intact until validation runs.
-        </p>
-        {draftPayload ? (
-          <pre style={payloadPreviewStyle}>
-            {JSON.stringify(draftPayload, null, 2)}
-          </pre>
-        ) : null}
+      <div style={placeholderPanelStyle}>
+        <EmptyState
+          badge={lastCreatedPayload ? "Saved" : "Placeholder"}
+          title={lastCreatedPayload ? "Plant created successfully" : "Your plant board starts empty"}
+          description={
+            lastCreatedPayload
+              ? "The new plant record is now stored for this household. The dedicated plant list card UI arrives in the next plant module."
+              : "Use the create flow now, then the later list module will replace this holding state with real family-scoped plant cards."
+          }
+          minHeight="180px"
+        />
       </div>
+      {lastCreatedPayload ? (
+        <div style={placeholderRowStyle}>
+          <pre style={payloadPreviewStyle}>
+            {JSON.stringify(lastCreatedPayload, null, 2)}
+          </pre>
+        </div>
+      ) : null}
     </section>
   );
 }

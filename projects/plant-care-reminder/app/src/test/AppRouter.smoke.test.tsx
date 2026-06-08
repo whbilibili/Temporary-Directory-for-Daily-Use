@@ -328,4 +328,69 @@ describe("AppShell smoke coverage", () => {
     expect(screen.getByText("Admin")).toBeInTheDocument();
     expect(screen.getByText("Member")).toBeInTheDocument();
   });
+
+  it("renders the create-plant route for family members", async () => {
+    renderWithProviders(
+      <AppShell
+        pathname="/plants/new"
+        routeContext={{
+          userId: "user_1",
+          familyId: "family_1",
+          displayName: "Wang",
+        }}
+      />,
+      {
+        route: "/plants/new",
+      },
+    );
+
+    await waitFor(() => expect(window.location.pathname).toBe("/plants/new"));
+    expect(screen.getByRole("heading", { name: /add a plant to your shared home/i })).toBeInTheDocument();
+    expect(screen.getByLabelText(/plant name/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /plants/i })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+  });
+
+  it("submits the create-plant flow and routes back to the plant board", async () => {
+    const mutationHandler = vi.fn().mockResolvedValue({
+      plantId: "plant_1",
+    });
+    setMockMutationHandler(mutationHandler);
+
+    renderWithProviders(
+      <AppShell
+        pathname="/plants/new"
+        routeContext={{
+          userId: "user_1",
+          familyId: "family_1",
+          displayName: "Wang",
+        }}
+      />,
+      {
+        route: "/plants/new",
+      },
+    );
+
+    fireEvent.change(screen.getByLabelText(/plant name/i), {
+      target: { value: "Monstera deliciosa" },
+    });
+    fireEvent.change(screen.getByLabelText(/location/i), {
+      target: { value: "Dining room shelf" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /save plant/i }));
+
+    await waitFor(() =>
+      expect(mutationHandler).toHaveBeenCalledWith({
+        name: "Monstera deliciosa",
+        description: null,
+        note: null,
+        location: "Dining room shelf",
+        imageStorageId: null,
+      }),
+    );
+    await waitFor(() => expect(window.location.pathname).toBe("/plants"));
+    expect(window.sessionStorage.getItem("plant-care-reminder:create-plant-success")).toBe("1");
+  });
 });
