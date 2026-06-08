@@ -13,6 +13,7 @@ import { JoinFamilyPage } from "../features/family/JoinFamilyPage";
 import { CreatePlantPage } from "../features/plants/CreatePlantPage";
 import { clearCreatePlantSuccess, hasCreatePlantSuccessFlag } from "../features/plants/createPlantSuccess";
 import { EditPlantPage } from "../features/plants/EditPlantPage";
+import { PlantDetailPage } from "../features/plants/PlantDetailPage";
 import { PlantListPage } from "../features/plants/PlantListPage";
 import { BottomNav } from "../components/navigation/BottomNav";
 import { formatDueDate, formatTaskTypeLabel } from "../lib/formatters";
@@ -50,6 +51,9 @@ export function AppShell({ pathname, routeContext, routeParams }: AppShellProps)
           ) : null}
           {pathname === "/plants" ? (
             <PlantListPage />
+          ) : null}
+          {pathname === "/plants/detail" ? (
+            <PlantDetailPage plantId={routeParams?.plantId ?? null} />
           ) : null}
           {pathname === "/plants/new" ? (
             <CreatePlantPage />

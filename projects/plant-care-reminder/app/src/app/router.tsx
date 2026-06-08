@@ -12,6 +12,7 @@ export type AppPath =
   | "/onboarding/create-family"
   | "/onboarding/join-family"
   | "/plants"
+  | "/plants/detail"
   | "/plants/new"
   | "/plants/edit"
   | "/todo"
@@ -47,6 +48,16 @@ function normalizePath(pathname: string): AppRoute {
     };
   }
 
+  const plantDetailMatch = pathname.match(/^\/plants\/([^/]+)$/);
+  if (plantDetailMatch) {
+    return {
+      pathname: "/plants/detail",
+      params: {
+        plantId: decodeURIComponent(plantDetailMatch[1]),
+      },
+    };
+  }
+
   if (
     pathname === "/login" ||
     pathname === "/onboarding" ||
@@ -54,6 +65,7 @@ function normalizePath(pathname: string): AppRoute {
     pathname === "/onboarding/create-family" ||
     pathname === "/onboarding/join-family" ||
     pathname === "/plants" ||
+    pathname === "/plants/detail" ||
     pathname === "/plants/new" ||
     pathname === "/todo" ||
     pathname === "/settings"

@@ -17,11 +17,12 @@ export interface PlantListCardData {
 }
 
 interface PlantCardProps {
+  onOpen: (plantId: string) => void;
   onEdit: (plantId: string) => void;
   plant: PlantListCardData;
 }
 
-export function PlantCard({ onEdit, plant }: PlantCardProps) {
+export function PlantCard({ onEdit, onOpen, plant }: PlantCardProps) {
   const nextDueTitle = plant.nextDueTask
     ? formatTaskTypeLabel(plant.nextDueTask.taskType, plant.nextDueTask.customLabel)
     : "No care tasks yet";
@@ -57,8 +58,11 @@ export function PlantCard({ onEdit, plant }: PlantCardProps) {
           <p style={dueCopyStyle}>{nextDueCopy}</p>
         </div>
         <div style={actionsStyle}>
+          <Button fullWidth={false} onClick={() => onOpen(plant.id)} type="button">
+            Open profile
+          </Button>
           <Button fullWidth={false} onClick={() => onEdit(plant.id)} type="button" variant="secondary">
-            Edit profile
+            Edit
           </Button>
         </div>
       </div>
@@ -184,4 +188,6 @@ const dueCopyStyle: React.CSSProperties = {
 const actionsStyle: React.CSSProperties = {
   display: "flex",
   justifyContent: "flex-start",
+  flexWrap: "wrap",
+  gap: "10px",
 };

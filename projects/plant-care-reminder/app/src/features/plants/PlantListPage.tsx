@@ -89,7 +89,12 @@ export function PlantListPage() {
       ) : (
         <div style={listStyle}>
           {filteredPlants.map((plant) => (
-            <PlantCard key={plant.id} onEdit={(plantId) => navigate(`/plants/${plantId}/edit`)} plant={plant} />
+            <PlantCard
+              key={plant.id}
+              onEdit={(plantId) => navigate(`/plants/${plantId}/edit`)}
+              onOpen={(plantId) => navigate(`/plants/${plantId}`)}
+              plant={plant}
+            />
           ))}
         </div>
       )}

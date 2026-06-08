@@ -488,7 +488,7 @@
       "task_id": "PLANT-006",
       "description": "Build the plant detail page with profile metadata, cover photo and the enabled care-task section entry points.",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {

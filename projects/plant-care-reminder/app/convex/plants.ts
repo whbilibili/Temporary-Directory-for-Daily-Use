@@ -98,6 +98,57 @@ export const getPlantForEdit = query({
   },
 });
 
+export const getPlantDetail = query({
+  args: {
+    plantId: v.id("plants"),
+  },
+  handler: async (ctx, args) => {
+    const currentUserContext = await requireCurrentFamilyMember(ctx);
+    const plant = await ctx.db.get(args.plantId);
+
+    if (!plant || plant.familyId !== currentUserContext.familyId) {
+      return null;
+    }
+
+    const [imageUrl, tasks] = await Promise.all([
+      plant.imageStorageId ? ctx.storage.getUrl(plant.imageStorageId) : Promise.resolve(null),
+      ctx.db
+        .query("plantTasks")
+        .withIndex("by_plantId", (q) => q.eq("plantId", plant._id))
+        .collect(),
+    ]);
+
+    const enabledTasks = tasks
+      .filter((task) => task.enabled)
+      .sort((left, right) => left.nextDueAt - right.nextDueAt)
+      .map((task) => ({
+        id: task._id,
+        taskType: task.taskType,
+        customLabel: task.customLabel ?? null,
+        intervalDays: task.intervalDays,
+        nextDueAt: task.nextDueAt,
+        lastCompletedAt: task.lastCompletedAt ?? null,
+      }));
+
+    return {
+      plant: {
+        id: plant._id,
+        familyId: plant.familyId,
+        name: plant.name,
+        description: plant.description ?? null,
+        note: plant.notes ?? null,
+        location: plant.location ?? null,
+        imageUrl,
+        createdAt: plant.createdAt,
+        updatedAt: plant.updatedAt,
+        isArchived: plant.isArchived,
+        archivedAt: plant.archivedAt ?? null,
+      },
+      tasks: enabledTasks,
+    };
+  },
+});
+
 export const listPlantsWithNextDue = query({
   args: {},
   handler: async (ctx) => {
