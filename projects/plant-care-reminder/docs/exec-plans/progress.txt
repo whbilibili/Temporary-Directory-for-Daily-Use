@@ -1,14 +1,14 @@
 ### [Current Focus]
-`PLANT-003` 已完成：植物创建流已经接通。后端 [plants.ts](../app/convex/plants.ts) 新增 `createPlant` mutation，前端 [CreatePlantPage.tsx](../app/src/features/plants/CreatePlantPage.tsx) 把共享 `PlantForm` 接到了 `/plants/new`，成功后会回到 `/plants`，并保留轻量 success flag 作为列表占位页反馈。下一线任务切换为 `PLANT-004`。
+`PLANT-004` 已完成：植物编辑流已经接通。后端 [plants.ts](../app/convex/plants.ts) 新增了 `getPlantForEdit` query 和 `updatePlant` mutation，前端 [EditPlantPage.tsx](../app/src/features/plants/EditPlantPage.tsx) 通过 `/plants/:plantId/edit` 复用同一套 `PlantForm`，能预填充现有字段、保留原图或替换图片，更新成功后回到 `/plants`。下一线任务切换为 `PLANT-005`。
 
 ### [Key Decisions]
-- `createPlant` 的 API 契约沿用任务定义里的 `note` 单数名，但写入数据库时映射到现有 schema 字段 `notes`，避免为了本轮创建流去改已有数据字段命名。
-- `/plants/new` 被纳入受保护路由集合，`BottomNav` 的 Plants tab 也改成对整个 `/plants*` 路径族高亮，避免进入新建页后导航状态错位。
-- 当前 `/plants` 还不是正式列表页，所以这轮只把它升级成“列表占位 + 新建入口 + 成功反馈”，不提前实现真实 plant cards，保持 `PLANT-005` 的范围干净。
+- 这轮没有为 edit 单独造第二套 form state，而是继续复用 `PlantForm` / `usePlantForm`，只在编辑页额外注入 query 回来的初始值。
+- Router 这轮补了最小动态路径解析能力：真实 URL 允许 `/plants/:plantId/edit`，内部壳路径统一收敛成 `/plants/edit` 并携带 `plantId` 参数，避免提前把整套路由系统重写成通用 matcher。
+- `updatePlant` 继续沿用 API contract 的 `note` 单数名，但 patch 到现有 schema 时仍映射为 `notes`，同时允许 `imageStorageId` 保持原值不变，满足“替换或保留当前图片”两种路径。
 
 ### [Blockers & Solutions]
-- Convex 类型检查一开始卡在 `requireCurrentFamilyMember` 的返回类型仍带 `null`，即使运行时 guard 已保证有值；这轮通过显式收窄 helper 返回类型解决，避免 create mutation 在 `familyId` / `createdBy` 上继续报错。
-- 创建页最初只有成功路径，没有 mutation 失败提示；这轮已在 `CreatePlantPage` 内补上页内错误文案，保证失败路径可见。
+- 当前 router 之前只支持静态路径，`/plants/:plantId/edit` 无法识别；这轮通过最小动态解析补上 `plantId` 参数，不扩散到其他业务路由。
+- `usePlantForm` 之前只在 mount 时吃一次初始值，不足以承接编辑页的异步预填充；这轮补了对 `initialValue` 变化的同步逻辑，避免 edit 页手写重复 reset 流程。
 - 浏览器级移动端验证依旧受宿主 Playwright 限制影响，所以这轮以 `npm run test` 和 `npx convex dev --once --typecheck enable` 为主，没有伪造浏览器截图结果。
 
 ### [Verification]
@@ -16,15 +16,15 @@
 - `cd app && npm run test`
 - `cd app && npx convex dev --once --typecheck enable`
 - `npm run test` 新覆盖：
-  - `/plants/new` 对已入家庭用户可访问，且 Plants tab 维持当前高亮
-  - create flow 会把规范化后的 payload 交给 `createPlant` mutation，并在成功后回跳 `/plants`
-  - create success flag 会写入 session storage
-- `createPlant` 的 family scope 和后端类型边界已通过 Convex codegen/typecheck 验证
+  - `/plants/:plantId/edit` 会正确预填充现有植物字段和图片预览
+  - edit flow 提交时会保留未替换的 `imageStorageId`
+  - 更新成功后会回跳 `/plants`
+- `getPlantForEdit` / `updatePlant` 的 family scope、id 参数和 patch 类型边界已通过 Convex codegen/typecheck 验证
 
 ### [Dead Ends]
-- 不要在 `PLANT-003` 里把 `/plants` 直接做成真实列表页；那是 `PLANT-005` 的范围。
-- 不要为了 create flow 去重命名整个 schema 里的 `notes` 字段；本轮只需要 API 层兼容 `note` -> `notes` 映射。
+- 不要在 `PLANT-004` 里顺手把 `/plants` 做成真实列表页或 `/plants/:plantId` 详情页；那分别属于 `PLANT-005` 和 `PLANT-006`。
+- 不要为了 edit flow 去重命名整个 schema 里的 `notes` 字段；本轮只需要 API 层继续兼容 `note` -> `notes` 映射。
 
 ### [Next Steps]
-1. 进入 `PLANT-004`，用同一套 `PlantForm` 和 upload helper 接 edit flow 与图片替换。
-2. edit 接通后，再进入 `PLANT-005` 实现真实的家庭植物列表卡片和 next-due 摘要。
+1. 进入 `PLANT-005`，实现真实的家庭植物列表卡片和 next-due 摘要。
+2. 列表页落地后，再进入 `PLANT-006` 做植物详情页和启用任务区块。

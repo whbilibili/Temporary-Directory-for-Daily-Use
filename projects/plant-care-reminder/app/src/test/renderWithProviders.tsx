@@ -5,7 +5,7 @@ import type { AppPath, RouteContext } from "../app/router";
 import { setMockCurrentUserContext, setMockQueryResult } from "./setup";
 
 interface RenderWithProvidersOptions {
-  route?: AppPath | "/";
+  route?: AppPath | "/" | string;
   queryResult?: unknown;
   routeContext?: RouteContext | undefined;
 }

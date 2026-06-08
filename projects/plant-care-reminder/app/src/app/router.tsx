@@ -13,6 +13,7 @@ export type AppPath =
   | "/onboarding/join-family"
   | "/plants"
   | "/plants/new"
+  | "/plants/edit"
   | "/todo"
   | "/settings";
 
@@ -22,13 +23,30 @@ export interface RouteContext {
   displayName: string | null;
 }
 
-export function navigate(to: AppPath, replace = false) {
+export interface AppRoute {
+  params: {
+    plantId?: string;
+  };
+  pathname: AppPath;
+}
+
+export function navigate(to: AppPath | string, replace = false) {
   const historyMethod = replace ? window.history.replaceState : window.history.pushState;
   historyMethod.call(window.history, null, "", to);
   window.dispatchEvent(new PopStateEvent("popstate"));
 }
 
-function normalizePath(pathname: string): AppPath {
+function normalizePath(pathname: string): AppRoute {
+  const plantEditMatch = pathname.match(/^\/plants\/([^/]+)\/edit$/);
+  if (plantEditMatch) {
+    return {
+      pathname: "/plants/edit",
+      params: {
+        plantId: decodeURIComponent(plantEditMatch[1]),
+      },
+    };
+  }
+
   if (
     pathname === "/login" ||
     pathname === "/onboarding" ||
@@ -40,32 +58,44 @@ function normalizePath(pathname: string): AppPath {
     pathname === "/todo" ||
     pathname === "/settings"
   ) {
-    return pathname;
+    return {
+      pathname,
+      params: {},
+    };
   }
 
-  return "/";
+  return {
+    pathname: "/",
+    params: {},
+  };
 }
 
-function usePathname() {
-  const [pathname, setPathname] = useState<AppPath>(() =>
+function useCurrentRoute() {
+  const [route, setRoute] = useState<AppRoute>(() =>
     normalizePath(window.location.pathname),
   );
 
   useEffect(() => {
-    const syncPathname = () => {
-      setPathname(normalizePath(window.location.pathname));
+    const syncRoute = () => {
+      setRoute(normalizePath(window.location.pathname));
     };
 
-    window.addEventListener("popstate", syncPathname);
-    return () => window.removeEventListener("popstate", syncPathname);
+    window.addEventListener("popstate", syncRoute);
+    return () => window.removeEventListener("popstate", syncRoute);
   }, []);
 
-  return pathname;
+  return route;
 }
 
 export function AppRouter() {
-  const pathname = usePathname();
+  const route = useCurrentRoute();
   const routeContext = useQuery(api.users.getCurrentUserContext, {});
 
-  return <AppShell pathname={pathname} routeContext={routeContext} />;
+  return (
+    <AppShell
+      pathname={route.pathname}
+      routeContext={routeContext}
+      routeParams={route.params}
+    />
+  );
 }

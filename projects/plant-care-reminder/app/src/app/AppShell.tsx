@@ -12,6 +12,7 @@ import { FamilySettingsPage } from "../features/family/FamilySettingsPage";
 import { JoinFamilyPage } from "../features/family/JoinFamilyPage";
 import { CreatePlantPage } from "../features/plants/CreatePlantPage";
 import { clearCreatePlantSuccess, hasCreatePlantSuccessFlag } from "../features/plants/createPlantSuccess";
+import { EditPlantPage } from "../features/plants/EditPlantPage";
 import {
   type PlantMutationPayload,
 } from "../features/plants/plantSchema";
@@ -19,14 +20,15 @@ import { BottomNav } from "../components/navigation/BottomNav";
 import { formatDueDate, formatTaskTypeLabel } from "../lib/formatters";
 import { RouteGate } from "./RouteGate";
 import { navigate } from "./router";
-import type { AppPath, RouteContext } from "./router";
+import type { AppPath, AppRoute, RouteContext } from "./router";
 
 interface AppShellProps {
   pathname: AppPath;
   routeContext: RouteContext | undefined;
+  routeParams?: AppRoute["params"];
 }
 
-export function AppShell({ pathname, routeContext }: AppShellProps) {
+export function AppShell({ pathname, routeContext, routeParams }: AppShellProps) {
   const hasFamily = routeContext?.familyId !== null && routeContext !== undefined;
   const displayName = routeContext?.displayName?.trim() || "Plant keeper";
 
@@ -53,6 +55,9 @@ export function AppShell({ pathname, routeContext }: AppShellProps) {
           ) : null}
           {pathname === "/plants/new" ? (
             <CreatePlantPage />
+          ) : null}
+          {pathname === "/plants/edit" ? (
+            <EditPlantPage plantId={routeParams?.plantId ?? null} />
           ) : null}
           {pathname === "/todo" ? (
             <ProtectedRoutePlaceholder

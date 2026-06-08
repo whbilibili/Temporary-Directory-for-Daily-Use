@@ -393,4 +393,93 @@ describe("AppShell smoke coverage", () => {
     await waitFor(() => expect(window.location.pathname).toBe("/plants"));
     expect(window.sessionStorage.getItem("plant-care-reminder:create-plant-success")).toBe("1");
   });
+
+  it("loads the edit-plant route with prefilled data for the current family", async () => {
+    renderWithProviders(
+      <AppShell
+        pathname="/plants/edit"
+        routeContext={{
+          userId: "user_1",
+          familyId: "family_1",
+          displayName: "Wang",
+        }}
+        routeParams={{
+          plantId: "plant_1",
+        }}
+      />,
+      {
+        route: "/plants/plant_1/edit",
+        queryResult: {
+          plantId: "plant_1",
+          name: "Bird of Paradise",
+          description: "Tall leaves by the balcony.",
+          note: "Water every Saturday.",
+          location: "Sunroom corner",
+          imageStorageId: "storage_1",
+          imagePreviewUrl: "https://cdn.test/bird-of-paradise.jpg",
+        },
+      },
+    );
+
+    await waitFor(() => expect(window.location.pathname).toBe("/plants/plant_1/edit"));
+    expect(screen.getByRole("heading", { name: /edit your shared plant profile/i })).toBeInTheDocument();
+    expect(screen.getByLabelText(/plant name/i)).toHaveValue("Bird of Paradise");
+    expect(screen.getByLabelText(/description/i)).toHaveValue("Tall leaves by the balcony.");
+    expect(screen.getByLabelText(/care note/i)).toHaveValue("Water every Saturday.");
+    expect(screen.getByLabelText(/location/i)).toHaveValue("Sunroom corner");
+    expect(screen.getByAltText(/selected plant cover preview/i)).toHaveAttribute(
+      "src",
+      "https://cdn.test/bird-of-paradise.jpg",
+    );
+  });
+
+  it("submits the edit-plant flow and keeps the existing image when unchanged", async () => {
+    const mutationHandler = vi.fn().mockResolvedValue({
+      ok: true,
+    });
+    setMockMutationHandler(mutationHandler);
+
+    renderWithProviders(
+      <AppShell
+        pathname="/plants/edit"
+        routeContext={{
+          userId: "user_1",
+          familyId: "family_1",
+          displayName: "Wang",
+        }}
+        routeParams={{
+          plantId: "plant_1",
+        }}
+      />,
+      {
+        route: "/plants/plant_1/edit",
+        queryResult: {
+          plantId: "plant_1",
+          name: "Bird of Paradise",
+          description: "Tall leaves by the balcony.",
+          note: "Water every Saturday.",
+          location: "Sunroom corner",
+          imageStorageId: "storage_1",
+          imagePreviewUrl: "https://cdn.test/bird-of-paradise.jpg",
+        },
+      },
+    );
+
+    fireEvent.change(screen.getByLabelText(/location/i), {
+      target: { value: "South window ledge" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /update plant/i }));
+
+    await waitFor(() =>
+      expect(mutationHandler).toHaveBeenCalledWith({
+        plantId: "plant_1",
+        name: "Bird of Paradise",
+        description: "Tall leaves by the balcony.",
+        note: "Water every Saturday.",
+        location: "South window ledge",
+        imageStorageId: "storage_1",
+      }),
+    );
+    await waitFor(() => expect(window.location.pathname).toBe("/plants"));
+  });
 });

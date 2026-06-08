@@ -286,7 +286,7 @@
       "task_id": "PLANT-004",
       "description": "Implement the edit-plant flow with image replacement, field updates and family-scoped ownership checks.",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {

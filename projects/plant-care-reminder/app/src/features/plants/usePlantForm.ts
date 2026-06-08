@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import type { PlantImageValue } from "./PlantImageField";
 import {
@@ -38,6 +38,12 @@ export function usePlantForm({
   );
   const [errors, setErrors] = useState<PlantFormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    setValues(createPlantEditorValues(initialValue));
+    setErrors({});
+    setIsSubmitting(false);
+  }, [initialValue]);
 
   const setFieldValue = (field: PlantFieldName, value: string) => {
     setValues((currentValues) => ({

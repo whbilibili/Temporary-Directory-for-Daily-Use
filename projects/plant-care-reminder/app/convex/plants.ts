@@ -70,6 +70,66 @@ export const createPlant = mutation({
   },
 });
 
+export const getPlantForEdit = query({
+  args: {
+    plantId: v.id("plants"),
+  },
+  handler: async (ctx, args) => {
+    const currentUserContext = await requireCurrentFamilyMember(ctx);
+    const plant = await ctx.db.get(args.plantId);
+
+    if (!plant || plant.familyId !== currentUserContext.familyId) {
+      return null;
+    }
+
+    const imagePreviewUrl = plant.imageStorageId
+      ? await ctx.storage.getUrl(plant.imageStorageId)
+      : null;
+
+    return {
+      plantId: plant._id,
+      name: plant.name,
+      description: plant.description ?? null,
+      note: plant.notes ?? null,
+      location: plant.location ?? null,
+      imageStorageId: plant.imageStorageId ?? null,
+      imagePreviewUrl,
+    };
+  },
+});
+
+export const updatePlant = mutation({
+  args: {
+    plantId: v.id("plants"),
+    name: v.string(),
+    description: v.union(v.string(), v.null()),
+    note: v.union(v.string(), v.null()),
+    location: v.union(v.string(), v.null()),
+    imageStorageId: v.union(v.id("_storage"), v.null()),
+  },
+  handler: async (ctx, args) => {
+    const currentUserContext = await requireCurrentFamilyMember(ctx);
+    const plant = await ctx.db.get(args.plantId);
+
+    if (!plant || plant.familyId !== currentUserContext.familyId) {
+      throw new Error("This plant does not belong to your current household.");
+    }
+
+    await ctx.db.patch(args.plantId, {
+      name: args.name,
+      description: args.description ?? undefined,
+      notes: args.note ?? undefined,
+      location: args.location ?? undefined,
+      imageStorageId: args.imageStorageId ?? undefined,
+      updatedAt: Date.now(),
+    });
+
+    return {
+      ok: true as const,
+    };
+  },
+});
+
 export const getPlantImageUrl = query({
   args: {
     storageId: v.id("_storage"),
