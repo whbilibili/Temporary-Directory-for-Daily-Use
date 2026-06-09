@@ -390,10 +390,10 @@
       ]
     },
     {
-      "task_id": "VIS-007",
-      "description": "植物列表页 photo-led 改造：植物卡片改为图片驱动（16:10 封面 + 紧凑信息区），设计无图占位态，压缩搜索栏和标题区高度。",
-      "priority": "2-Medium",
-      "status": "pending",
+"task_id": "VIS-007",
+"description": "植物列表页 photo-led 改造：植物卡片改为图片驱动（16:10 封面 + 紧凑信息区），设计无图占位态，压缩搜索栏和标题区高度。",
+"priority": "2-Medium",
+"status": "completed",
       "depends_on": ["VIS-001"],
       "plan_path": null,
       "contracts": {

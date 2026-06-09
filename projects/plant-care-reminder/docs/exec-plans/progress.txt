@@ -11,6 +11,8 @@
 
 **VIS-006 已完成（2026-06-10）**：待办页 task-first 布局改造。改动文件：TodoPage.tsx（移除 PageHeader，loading 态与主体均渲染 h1「家庭养护任务」24px 一行标题，pageStyle gap 改 space-md，DueTaskGroup 调用去掉 eyebrow/description，EmptyState 文案精简为「新的养护提醒到期时会优先出现在这里。」minHeight 180px）、DueTaskCard.tsx（完全重写为三栏紧凑卡：左 40px 圆形缩略图按钮→onOpenPlant 兜底🌿、中 植物名 1rem/700 + 动作 + 到期信息（逾期用 overduePillStyle warning 色胶囊 rgba(221,107,32,0.08) 底 + var(--color-warning)，否则 dueCopyStyle leaf-light）、右 CompleteTaskButton appearance="circle"；isOverdue = nextDueAt < now）、DueTaskGroup.tsx（去 eyebrow/description，改 h2 分组标签 12px uppercase letter-spacing 0.08em color leaf-light + count span，保留 已逾期/今天到期/即将到期 smoke 文案）、TaskListItem.tsx（详情页任务项重写为 token 化紧凑卡，严格保留 编辑 按钮/CompleteTaskButton 默认态「完成」/「已启用提醒」eyebrow 以满足详情页 smoke）、CompleteTaskButton.tsx（新增 appearance?: "default" | "circle"，circle 态渲染 36px 圆形按钮 radius-pill fontSize 20px 内含 aria-hidden ✓/…，保留 aria-label「完成」使 smoke name:/^完成$/ 仍匹配；errorStyle 改 var(--color-error)）。注：DueTaskGroup.tsx 与 CompleteTaskButton.tsx 不在 files_affected 但由 design_contract 的 section_label / completion_button 规格驱动改动。typecheck 通过、全量 8 files / 51 tests 全绿。
 
+**VIS-007 已完成（2026-06-10）**：植物列表页 photo-led 改造。改动文件：PlantCard.tsx（完全重写为图片驱动：顶部 16:10 封面 aspect-ratio object-fit cover top radius-card，无图时 coverPlaceholderStyle mist 底 + 48px 🌿 icon（color-line opacity 0.7）+「轻触上传照片」12px；信息区 padding 12px 16px：h2 植物名 16px/600 heading 字体 ink、位置 12px/400 muted；养护信息改为 carePillStyle 胶囊 12px/700 mist 底 leaf-light radius-pill + 到期 copy 12px muted；保留 查看详情/编辑 按钮——查看详情为 smoke 断言）、PlantListPage.tsx（移除 PageHeader，改紧凑 titleBar：h1「家庭植物档案」24px heading 字体 + 右侧「添加植物」按钮，minHeight 48px；搜索框由 InputField 换为原生 input height 40px radius-input mist 底 + aria-label「搜索植物」；loading 态同样用紧凑标题 + 一行说明；EmptyState minHeight 220→200；全 token 化）。严格保留 smoke 断言：heading 家庭植物档案、heading 植物名（h2）、location 文本、养护标签「浇水」、到期文案、alt「…封面图」+ src、按钮 查看详情；空状态文本「你的家庭植物看板还是空的」+ 按钮 添加植物。注：design_contract component_tree 列 PlantEmptyPlaceholder，但无图占位按 no_image_placeholder 规格内联于 PlantCard 的 StorageImage fallback 实现，规格满足；search 框未被 smoke 断言，换原生 input 安全。typecheck 通过、全量 8 files / 51 tests 全绿。
+
 **VIS-003 已完成（2026-06-10）**：登录页视觉改造。重构 AuthPage.tsx：不再复用 PageHeader（其 clamp 大标题会撑爆 Hero），改为自建压缩 Hero（logo + 标题 + 一行说明，maxHeight 160px）；页面容器应用 var(--gradient-botanical), var(--gradient-accent) 叠加背景；tab 胶囊（height 36px / radius-pill / 半透白底 + color-line 边框，选中态 leaf 底白字）；表单卡片（rgba(255,255,255,.82) / radius-card / shadow-card / color-line 边框 / space-lg 内边距）；全部引用 token，无硬编码色值。顺手修复 EmailLoginForm.tsx 的 statusStyle 硬编码 #0f766e → var(--color-success)。smoke 未断言登录页内文（仅断言 /login 路径），无需同步测试。typecheck 通过、smoke 33 绿、全量 8 files / 50 tests 全绿。注：AppShell frameStyle/backdropOrbStyle 仍为旧蓝橙硬编码渐变（全局壳层，不在 VIS-003 范围，待后续任务处理）。
 
 ### [Task Breakdown Summary]
@@ -74,8 +76,9 @@
 4. ✅ VIS-004 已完成并提交。
 5. ✅ VIS-005 已完成并提交。
 6. ✅ VIS-006 已完成并提交。
-7. 下一个任务：**VIS-007**（植物列表页 photo-led 改造 ← 原 UX-004 list 部分）。执行前读取 frontend-refresh.json 中 VIS-007 的 design_contract 与 acceptance_criteria，注意 PlantBoard/PlantCard 相关 smoke 断言（植物档案页/空状态/创建跳转）需严格保留。
-8. 按推荐顺序逐步推进，每完成一个 VIS 任务即更新本文件的 status，并 git 提交。
+7. ✅ VIS-007 已完成并提交。
+8. 下一个任务：**VIS-008**（植物详情页视觉重构：Hero 图 4:3 全宽，信息区紧贴 Hero 下方，任务区上移，底部操作栏固定）。依赖 VIS-001 + VIS-007；执行前读取 frontend-refresh.json 中 VIS-008 的 design_contract，注意详情页 smoke 断言（添加提醒×1、编辑×2、完成×2、封面图 alt/src、归档确认流程）需严格保留。
+9. 按推荐顺序逐步推进，每完成一个 VIS 任务即更新本文件的 status，并 git 提交。
 
 ### [Tech Debt / 待后续处理]
 - AppShell mainStyle 改为 flex-start 顶对齐后，登录/onboarding 页面不再垂直居中（这些页面 VIS-003/004 已自建紧凑容器，视觉可接受），VIS-013 走查时确认。

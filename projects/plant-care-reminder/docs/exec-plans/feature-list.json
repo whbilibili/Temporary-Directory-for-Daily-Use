@@ -50,7 +50,7 @@
       "file": "docs/exec-plans/modules/frontend-refresh.json",
       "description": "建立 Design Token 基础设施，逐页面落地 moodboard botanical 视觉方向：登录、onboarding、待办、植物、设置全路径改造。",
       "task_count": 13,
-      "completed": 6,
+      "completed": 7,
       "depends_on": [
         "infra",
         "family-access",
@@ -302,7 +302,7 @@
       "task_id": "VIS-007",
       "module": "frontend-refresh",
       "description": "植物列表页 photo-led 改造（16:10 封面卡片 + 无图占位态）。",
-      "status": "pending",
+      "status": "completed",
       "priority": "2-Medium"
     },
     {
