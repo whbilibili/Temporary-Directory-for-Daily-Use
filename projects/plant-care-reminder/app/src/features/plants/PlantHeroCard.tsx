@@ -12,6 +12,7 @@ interface PlantHeroCardProps {
     note: string | null;
     updatedAt: number;
   };
+  actionSlot?: React.ReactNode;
   onBack: () => void;
   onEdit: () => void;
 }
@@ -26,7 +27,7 @@ function formatTimestamp(value: number) {
   return timestampFormatter.format(new Date(value));
 }
 
-export function PlantHeroCard({ plant, onBack, onEdit }: PlantHeroCardProps) {
+export function PlantHeroCard({ actionSlot, plant, onBack, onEdit }: PlantHeroCardProps) {
   return (
     <article style={cardStyle}>
       <div style={mediaWrapStyle}>
@@ -76,6 +77,7 @@ export function PlantHeroCard({ plant, onBack, onEdit }: PlantHeroCardProps) {
             Back to plants
           </Button>
         </div>
+        {actionSlot ? <div style={slotStyle}>{actionSlot}</div> : null}
       </div>
     </article>
   );
@@ -216,4 +218,9 @@ const actionsStyle: React.CSSProperties = {
   display: "flex",
   flexWrap: "wrap",
   gap: "10px",
+};
+
+const slotStyle: React.CSSProperties = {
+  display: "grid",
+  gap: "12px",
 };

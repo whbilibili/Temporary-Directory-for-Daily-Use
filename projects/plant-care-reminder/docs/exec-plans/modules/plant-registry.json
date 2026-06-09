@@ -590,7 +590,7 @@
       "task_id": "PLANT-007",
       "description": "Implement archive and restore behavior so inactive plants disappear from active views without losing tasks or completion logs.",
       "priority": "2-Medium",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {

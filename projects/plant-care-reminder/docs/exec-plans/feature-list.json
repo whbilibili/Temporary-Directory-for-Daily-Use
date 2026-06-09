@@ -25,7 +25,7 @@
       "file": "docs/exec-plans/modules/plant-registry.json",
       "description": "Implement plant image handling, plant CRUD, list/detail views and archive lifecycle.",
       "task_count": 7,
-      "completed": 6,
+      "completed": 7,
       "depends_on": ["infra", "family-access"]
     },
     {
@@ -175,7 +175,7 @@
       "task_id": "PLANT-007",
       "module": "plant-registry",
       "description": "Implement archive and restore behavior without deleting care history.",
-      "status": "pending",
+      "status": "completed",
       "priority": "2-Medium"
     },
     {

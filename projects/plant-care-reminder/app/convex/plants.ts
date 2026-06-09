@@ -231,6 +231,33 @@ export const updatePlant = mutation({
   },
 });
 
+export const setPlantArchivedState = mutation({
+  args: {
+    plantId: v.id("plants"),
+    isArchived: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    const currentUserContext = await requireCurrentFamilyMember(ctx);
+    const plant = await ctx.db.get(args.plantId);
+
+    if (!plant || plant.familyId !== currentUserContext.familyId) {
+      throw new Error("This plant does not belong to your current household.");
+    }
+
+    const archivedAt = args.isArchived ? Date.now() : undefined;
+
+    await ctx.db.patch(args.plantId, {
+      isArchived: args.isArchived,
+      archivedAt,
+      updatedAt: Date.now(),
+    });
+
+    return {
+      ok: true as const,
+    };
+  },
+});
+
 export const getPlantImageUrl = query({
   args: {
     storageId: v.id("_storage"),

@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useQuery } from "convex/react";
 
 import { api } from "../../../convex/_generated/api";
@@ -6,6 +7,7 @@ import { Button } from "../../components/ui/Button";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { formatDueDate, formatTaskTypeLabel } from "../../lib/formatters";
+import { ArchivePlantAction } from "./ArchivePlantAction";
 import { PlantHeroCard } from "./PlantHeroCard";
 
 interface PlantDetailPageProps {
@@ -47,6 +49,14 @@ export function PlantDetailPage({ plantId }: PlantDetailPageProps) {
     | PlantDetailResponse
     | null
     | undefined;
+  const [archivedStateOverride, setArchivedStateOverride] = useState<{
+    archivedAt: number | null;
+    isArchived: boolean;
+  } | null>(null);
+
+  useEffect(() => {
+    setArchivedStateOverride(null);
+  }, [plantId]);
 
   if (!plantId) {
     return (
@@ -89,14 +99,29 @@ export function PlantDetailPage({ plantId }: PlantDetailPageProps) {
     );
   }
 
+  const plant = archivedStateOverride
+    ? {
+        ...result.plant,
+        ...archivedStateOverride,
+      }
+    : result.plant;
+
   return (
     <section style={pageStyle}>
       <PlantHeroCard
+        actionSlot={
+          <ArchivePlantAction
+            isArchived={plant.isArchived}
+            onArchivedStateChange={setArchivedStateOverride}
+            plantId={plant.id}
+            plantName={plant.name}
+          />
+        }
         onBack={() => navigate("/plants")}
-        onEdit={() => navigate(`/plants/${result.plant.id}/edit`)}
-        plant={result.plant}
+        onEdit={() => navigate(`/plants/${plant.id}/edit`)}
+        plant={plant}
       />
-      <PlantTaskSection plantName={result.plant.name} tasks={result.tasks} />
+      <PlantTaskSection plantName={plant.name} tasks={result.tasks} />
     </section>
   );
 }

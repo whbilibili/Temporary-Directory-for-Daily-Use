@@ -1,30 +1,30 @@
 ### [Current Focus]
-`PLANT-006` 已完成：`/plants/:plantId` 现在已经是可用的植物详情页。后端 [plants.ts](../app/convex/plants.ts) 新增了 `getPlantDetail`，会按当前家庭边界返回单株植物资料、封面图 URL 和按 `nextDueAt` 排序的 enabled tasks；前端新增 [PlantDetailPage.tsx](../app/src/features/plants/PlantDetailPage.tsx) 与 [PlantHeroCard.tsx](../app/src/features/plants/PlantHeroCard.tsx)，并把列表卡片接上了 `Open profile` 入口。详情页当前已经展示 profile metadata、care note、created/updated 状态，以及 reminders 模块后续可直接接管的 enabled task 区块。下一线任务切换为 `PLANT-007`。
+`PLANT-007` 已完成：植物详情页现在已经支持软归档和恢复。后端 [plants.ts](../app/convex/plants.ts) 新增了 `setPlantArchivedState`，只会 patch `plants.isArchived`、`archivedAt` 和 `updatedAt`，不会触碰任何 `plantTasks` 或 `taskCompletionLogs`；前端新增 [ArchivePlantAction.tsx](../app/src/features/plants/ArchivePlantAction.tsx)，并接到 [PlantDetailPage.tsx](../app/src/features/plants/PlantDetailPage.tsx) 与 [PlantHeroCard.tsx](../app/src/features/plants/PlantHeroCard.tsx)。现在家庭成员必须先确认，才能 archive 或 restore；archive 后植物会继续从 active plant views 中消失，而详情页会保留 restore 落点。下一线任务切换为 `CARE-001`。
 
 ### [Key Decisions]
-- “只显示 active plants” 这条约束已经放在后端 `listPlantsWithNextDue` query 层处理，而不是前端拉全量后筛。
-- 列表卡片的最近到期摘要以 `plantTasks` 中最近的 enabled task 为准；没有任务时，卡片会明确显示还未添加 care routine。
-- 当前还没有植物详情页，所以卡片这一轮只承担信息展示和 `Edit profile` 入口，不提前绑定详情跳转，保持 `PLANT-006` 的范围干净。
+- “active views 隐藏 archived plants” 继续放在后端 query contract 层处理，而不是前端拉全量后筛；现有 `/plants` 列表仍只吃 `isArchived === false` 的记录。
+- archive / restore 复用同一个 mutation，避免把“恢复”做成一套独立的写路径，减少未来 reminders 模块接入后的分叉状态。
+- 已归档植物的 restore 落点保留在 `/plants/:plantId` 详情页，而不是强制依赖未来的 archived list，这样当前 MVP 就能闭合 restore 行为。
 
 ### [Blockers & Solutions]
-- 当前仓库里还没有 care task 创建流，所以真实 next-due 数据样本不足；这轮通过后端 list-ready contract + 前端 smoke test 的方式先钉住渲染层和摘要格式。
-- 替换 `/plants` 占位壳时，最初误删了 `/todo` placeholder 仍在用的 `formatTaskTypeLabel` / `formatDueDate` import；这轮已补回，并重新通过测试。
-- 浏览器级移动端验证依旧受宿主 Playwright 限制影响，所以这轮优先用路由测试覆盖卡片层级、图片回退和空列表状态。
+- 当前仓库里还没有 reminders 模块，所以 archive 后“从 due views 消失”的完整运行态证据还要等 `CARE-005` 等任务落地；这轮先把软归档数据面和 detail action 闭合。
+- 由于当前没有 archived list，restore 如果依赖列表入口会变成死路；本轮通过 detail 页本地状态覆盖解决了这个闭环。
+- 浏览器级移动端验证依旧受宿主 Playwright 限制影响，所以这轮优先用 smoke tests 覆盖确认弹层、mutation 参数和归档后 UI 状态切换。
 
 ### [Verification]
 - `cd app && npm run typecheck`
 - `cd app && npm run test`
 - `cd app && npx convex dev --once --typecheck enable`
 - `npm run test` 新覆盖：
-  - `/plants` 会渲染 active plant card、图片和最近到期摘要
-  - 植物为空时会显示空列表状态和新增入口
-  - 原有受保护路由 smoke case 在替换 `/plants` 页面后仍保持通过
-- `listPlantsWithNextDue` 的 family scope、active-only 过滤和 query 类型边界已通过 Convex codegen/typecheck 验证
+  - archive action 必须先确认，才会调用 `setPlantArchivedState({ plantId, isArchived: true })`
+  - 已归档 detail 页面可调用同一 mutation 恢复，并切回 active 状态文案
+  - 植物详情与既有受保护路由 smoke cases 仍保持通过
+- `setPlantArchivedState` 的 family scope 和函数类型边界已通过 Convex codegen/typecheck 验证
 
 ### [Dead Ends]
-- 不要在 `PLANT-005` 里顺手把 `/plants/:plantId` 详情页做出来；那是 `PLANT-006` 的范围。
-- 不要把“只显示 active plants”留给前端过滤；这会削弱家庭隔离后的列表 contract。
+- 不要把 archive 实现成删除 plant、task 或 completion log；MVP 这里需要的是纯软状态切换。
+- 不要把 restore 依赖在未来功能上；当前 detail route 必须自己能闭合恢复动作。
 
 ### [Next Steps]
-1. 进入 `PLANT-007`，处理 archive / restore 生命周期，保证 inactive plants 从 active 视图消失但不丢历史。
-2. 完成 plant-registry 模块后，再切到 `CARE-001` 开始 reminders 的共享 task contract。
+1. 进入 `CARE-001`，补 reminders 模块的共享 task enums、labels 和 next-due scheduling helpers。
+2. 用 `CARE-001` 的共享 contract 替换 plant detail / todo 后续任务里的临时 task shaping。

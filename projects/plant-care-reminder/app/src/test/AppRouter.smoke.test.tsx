@@ -589,6 +589,119 @@ describe("AppShell smoke coverage", () => {
     expect(screen.getByRole("button", { name: /back to plants/i })).toBeInTheDocument();
   });
 
+  it("requires explicit confirmation before archiving a plant and updates the detail status", async () => {
+    const mutationHandler = vi.fn().mockResolvedValue({
+      ok: true,
+    });
+    setMockMutationHandler(mutationHandler);
+
+    renderWithProviders(
+      <AppShell
+        pathname="/plants/detail"
+        routeContext={{
+          userId: "user_1",
+          familyId: "family_1",
+          displayName: "Wang",
+        }}
+        routeParams={{
+          plantId: "plant_1",
+        }}
+      />,
+      {
+        route: "/plants/plant_1",
+        queryResult: {
+          plant: {
+            id: "plant_1",
+            familyId: "family_1",
+            name: "Monstera deliciosa",
+            description: "Bright indirect light and large split leaves.",
+            note: "Rotate the pot every Sunday.",
+            location: "Dining room shelf",
+            imageUrl: "https://cdn.test/monstera.jpg",
+            createdAt: Date.UTC(2026, 0, 5),
+            updatedAt: Date.UTC(2026, 5, 2),
+            isArchived: false,
+            archivedAt: null,
+          },
+          tasks: [],
+        },
+      },
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /archive plant/i }));
+    expect(mutationHandler).not.toHaveBeenCalled();
+    expect(screen.getByRole("heading", { name: /archive this plant\?/i })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /confirm archive/i }));
+
+    await waitFor(() =>
+      expect(mutationHandler).toHaveBeenCalledWith({
+        plantId: "plant_1",
+        isArchived: true,
+      }),
+    );
+    expect(screen.getByText(/archived profile/i)).toBeInTheDocument();
+    expect(screen.getByText(/hidden from active plant views until it is restored/i)).toBeInTheDocument();
+    expect(screen.getByText(/archived on /i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /restore plant/i })).toBeInTheDocument();
+  });
+
+  it("restores an archived plant from the detail page with the same mutation", async () => {
+    const mutationHandler = vi.fn().mockResolvedValue({
+      ok: true,
+    });
+    setMockMutationHandler(mutationHandler);
+
+    renderWithProviders(
+      <AppShell
+        pathname="/plants/detail"
+        routeContext={{
+          userId: "user_1",
+          familyId: "family_1",
+          displayName: "Wang",
+        }}
+        routeParams={{
+          plantId: "plant_1",
+        }}
+      />,
+      {
+        route: "/plants/plant_1",
+        queryResult: {
+          plant: {
+            id: "plant_1",
+            familyId: "family_1",
+            name: "Monstera deliciosa",
+            description: "Bright indirect light and large split leaves.",
+            note: "Rotate the pot every Sunday.",
+            location: "Dining room shelf",
+            imageUrl: "https://cdn.test/monstera.jpg",
+            createdAt: Date.UTC(2026, 0, 5),
+            updatedAt: Date.UTC(2026, 5, 2),
+            isArchived: true,
+            archivedAt: Date.UTC(2026, 5, 7),
+          },
+          tasks: [],
+        },
+      },
+    );
+
+    expect(screen.getByText(/archived on /i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /restore plant/i }));
+    expect(screen.getByRole("heading", { name: /restore this plant\?/i })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /confirm restore/i }));
+
+    await waitFor(() =>
+      expect(mutationHandler).toHaveBeenCalledWith({
+        plantId: "plant_1",
+        isArchived: false,
+      }),
+    );
+    expect(screen.getByText(/active profile/i)).toBeInTheDocument();
+    expect(screen.getByText(/active in household board/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /archive plant/i })).toBeInTheDocument();
+  });
+
   it("submits the edit-plant flow and keeps the existing image when unchanged", async () => {
     const mutationHandler = vi.fn().mockResolvedValue({
       ok: true,
