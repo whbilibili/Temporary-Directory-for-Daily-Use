@@ -33,7 +33,7 @@
       "file": "docs/exec-plans/modules/care-reminders.json",
       "description": "Implement care-task scheduling, due inbox, completion flow and notification delivery.",
       "task_count": 8,
-      "completed": 0,
+      "completed": 1,
       "depends_on": ["infra", "family-access", "plant-registry"]
     }
   ],
@@ -182,7 +182,7 @@
       "task_id": "CARE-001",
       "module": "care-reminders",
       "description": "Create shared task enums, labels and next-due scheduling helpers.",
-      "status": "pending",
+      "status": "completed",
       "priority": "1-High"
     },
     {
