@@ -1,5 +1,6 @@
-import { Button } from "../../components/ui/Button";
 import { formatDueDate, formatTaskTypeLabel } from "../../lib/formatters";
+import { Button } from "../../components/ui/Button";
+import { CompleteTaskButton } from "./CompleteTaskButton";
 
 export interface DueTaskCardData {
   customLabel: string | null;
@@ -14,7 +15,6 @@ export interface DueTaskCardData {
 }
 
 interface DueTaskCardProps {
-  onComplete: (task: DueTaskCardData) => void;
   onOpenPlant: (plantId: string) => void;
   task: DueTaskCardData;
 }
@@ -25,7 +25,7 @@ const detailDateFormatter = new Intl.DateTimeFormat("en-US", {
   year: "numeric",
 });
 
-export function DueTaskCard({ onComplete, onOpenPlant, task }: DueTaskCardProps) {
+export function DueTaskCard({ onOpenPlant, task }: DueTaskCardProps) {
   const taskLabel = formatTaskTypeLabel(task.taskType, task.customLabel);
   const historyCopy = task.lastCompletedAt
     ? `Last completed ${detailDateFormatter.format(new Date(task.lastCompletedAt))}`
@@ -57,10 +57,8 @@ export function DueTaskCard({ onComplete, onOpenPlant, task }: DueTaskCardProps)
           />
           <TaskMeta label="History" value={historyCopy} />
         </div>
-        <div style={actionsStyle}>
-          <Button fullWidth={false} onClick={() => onComplete(task)} type="button">
-            Complete
-          </Button>
+      <div style={actionsStyle}>
+          <CompleteTaskButton taskId={task.taskId} />
           <Button
             fullWidth={false}
             onClick={() => onOpenPlant(task.plantId)}

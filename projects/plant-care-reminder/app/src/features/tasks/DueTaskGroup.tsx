@@ -3,7 +3,6 @@ import { DueTaskCard, type DueTaskCardData } from "./DueTaskCard";
 interface DueTaskGroupProps {
   description: string;
   eyebrow: string;
-  onComplete: (task: DueTaskCardData) => void;
   onOpenPlant: (plantId: string) => void;
   tasks: DueTaskCardData[];
   title: string;
@@ -12,7 +11,6 @@ interface DueTaskGroupProps {
 export function DueTaskGroup({
   description,
   eyebrow,
-  onComplete,
   onOpenPlant,
   tasks,
   title,
@@ -32,7 +30,6 @@ export function DueTaskGroup({
         {tasks.map((task) => (
           <DueTaskCard
             key={task.taskId}
-            onComplete={onComplete}
             onOpenPlant={onOpenPlant}
             task={task}
           />

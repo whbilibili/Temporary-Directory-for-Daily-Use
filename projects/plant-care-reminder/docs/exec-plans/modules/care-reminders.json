@@ -499,7 +499,7 @@
       "task_id": "CARE-006",
       "description": "Implement task completion, completion-log writes and realtime next-due recomputation across shared family sessions.",
       "priority": "1-High",
-      "status": "in_progress",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {
@@ -603,7 +603,7 @@
       "task_id": "CARE-007",
       "description": "Implement notification permission prompts, browser capability checks and push-subscription persistence tied to the current family member.",
       "priority": "2-Medium",
-      "status": "pending",
+      "status": "in_progress",
       "plan_path": null,
       "contracts": {
         "data_layer": {

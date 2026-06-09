@@ -33,7 +33,7 @@
       "file": "docs/exec-plans/modules/care-reminders.json",
       "description": "Implement care-task scheduling, due inbox, completion flow and notification delivery.",
       "task_count": 8,
-      "completed": 5,
+      "completed": 6,
       "depends_on": ["infra", "family-access", "plant-registry"]
     }
   ],
@@ -217,14 +217,14 @@
       "task_id": "CARE-006",
       "module": "care-reminders",
       "description": "Implement task completion, completion logs and realtime next-due recomputation.",
-      "status": "in_progress",
+      "status": "completed",
       "priority": "1-High"
     },
     {
       "task_id": "CARE-007",
       "module": "care-reminders",
       "description": "Implement notification permission prompts and push subscription persistence.",
-      "status": "pending",
+      "status": "in_progress",
       "priority": "2-Medium"
     },
     {

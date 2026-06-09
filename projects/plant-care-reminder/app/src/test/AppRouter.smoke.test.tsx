@@ -159,6 +159,54 @@ describe("AppShell smoke coverage", () => {
     );
   });
 
+  it("completes a due inbox task through the shared completion mutation", async () => {
+    const mutationHandler = vi.fn().mockResolvedValue({
+      taskId: "task_overdue",
+      lastCompletedAt: Date.UTC(2026, 5, 9, 12, 0, 0),
+      nextDueAt: Date.UTC(2026, 5, 16, 12, 0, 0),
+    });
+    setMockMutationHandler(mutationHandler);
+
+    renderWithProviders(
+      <AppShell
+        pathname="/todo"
+        routeContext={{
+          userId: "user_1",
+          familyId: "family_1",
+          displayName: "Wang",
+        }}
+      />,
+      {
+        route: "/todo",
+        queryResult: {
+          overdue: [
+            {
+              taskId: "task_overdue",
+              plantId: "plant_1",
+              plantName: "Monstera deliciosa",
+              plantImageUrl: "https://cdn.test/monstera.jpg",
+              taskType: "watering",
+              customLabel: null,
+              intervalDays: 7,
+              nextDueAt: Date.now() - 24 * 60 * 60 * 1000,
+              lastCompletedAt: Date.UTC(2026, 5, 1),
+            },
+          ],
+          today: [],
+          upcoming: [],
+        },
+      },
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /^complete$/i }));
+
+    await waitFor(() =>
+      expect(mutationHandler).toHaveBeenCalledWith({
+        taskId: "task_overdue",
+      }),
+    );
+  });
+
   it("shows the due inbox empty state when no tasks are due in the next three days", async () => {
     renderWithProviders(
       <AppShell
@@ -640,7 +688,14 @@ describe("AppShell smoke coverage", () => {
     );
   });
 
-  it("routes from the plant detail task section into task edit and inbox completion entry points", async () => {
+  it("routes from the plant detail task section into task edit and direct completion entry points", async () => {
+    const mutationHandler = vi.fn().mockResolvedValue({
+      taskId: "task_1",
+      lastCompletedAt: Date.UTC(2026, 5, 9, 12, 0, 0),
+      nextDueAt: Date.UTC(2026, 5, 16, 12, 0, 0),
+    });
+    setMockMutationHandler(mutationHandler);
+
     renderWithProviders(
       <AppShell
         pathname="/plants/detail"
@@ -729,7 +784,11 @@ describe("AppShell smoke coverage", () => {
     );
 
     fireEvent.click(screen.getAllByRole("button", { name: /^complete$/i })[0]);
-    await waitFor(() => expect(window.location.pathname).toBe("/todo"));
+    await waitFor(() =>
+      expect(mutationHandler).toHaveBeenCalledWith({
+        taskId: "task_1",
+      }),
+    );
   });
 
   it("shows an unavailable state when the plant detail is outside the current family", async () => {

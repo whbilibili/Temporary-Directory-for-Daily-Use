@@ -116,7 +116,6 @@ export function PlantDetailPage({ plantId }: PlantDetailPageProps) {
       />
       <TaskSection
         onAdd={() => navigate(`/plants/${plant.id}/tasks/new`)}
-        onComplete={() => navigate("/todo")}
         onEdit={(taskId) => navigate(`/plants/${plant.id}/tasks/${taskId}/edit`)}
         plantName={plant.name}
         tasks={result.tasks}

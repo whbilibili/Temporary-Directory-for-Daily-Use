@@ -297,3 +297,54 @@ export const listDueTasks = query({
     };
   },
 });
+
+export const completePlantTask = mutation({
+  args: {
+    taskId: v.id("plantTasks"),
+  },
+  handler: async (ctx, args) => {
+    const currentUserContext = await requireCurrentFamilyMember(ctx);
+    const task = await ctx.db.get(args.taskId);
+
+    if (!task || task.familyId !== currentUserContext.familyId) {
+      throw new Error("This care task does not belong to your current household.");
+    }
+
+    const plant = await ctx.db.get(task.plantId);
+    if (!plant || plant.familyId !== currentUserContext.familyId) {
+      throw new Error("The parent plant for this task is no longer available.");
+    }
+
+    if (plant.isArchived) {
+      throw new Error("Archived plants cannot receive new task completions.");
+    }
+
+    const completedAt = Date.now();
+    const nextDueAt = computeNextDueAt({
+      intervalDays: task.intervalDays,
+      baseCompletedAt: completedAt,
+    });
+
+    await ctx.db.insert("taskCompletionLogs", {
+      taskId: task._id,
+      plantId: task.plantId,
+      familyId: task.familyId,
+      completedBy: currentUserContext.userId,
+      completedAt,
+      taskType: task.taskType,
+      intervalDays: task.intervalDays,
+    });
+
+    await ctx.db.patch(task._id, {
+      lastCompletedAt: completedAt,
+      nextDueAt,
+      updatedAt: completedAt,
+    });
+
+    return {
+      taskId: task._id,
+      lastCompletedAt: completedAt,
+      nextDueAt,
+    };
+  },
+});

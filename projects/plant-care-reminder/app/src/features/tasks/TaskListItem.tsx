@@ -1,8 +1,9 @@
-import { Button } from "../../components/ui/Button";
 import { formatDueDate, formatTaskTypeLabel } from "../../lib/formatters";
+import { Button } from "../../components/ui/Button";
+import { CompleteTaskButton } from "./CompleteTaskButton";
 
 interface TaskListItemProps {
-  onComplete: () => void;
+  onCompleted?: (result: { lastCompletedAt: number; nextDueAt: number; taskId: string }) => void;
   onEdit: () => void;
   task: {
     customLabel: string | null;
@@ -20,7 +21,7 @@ const detailDateFormatter = new Intl.DateTimeFormat("en-US", {
   year: "numeric",
 });
 
-export function TaskListItem({ onComplete, onEdit, task }: TaskListItemProps) {
+export function TaskListItem({ onCompleted, onEdit, task }: TaskListItemProps) {
   const title = formatTaskTypeLabel(task.taskType, task.customLabel);
   const completionCopy = task.lastCompletedAt
     ? `Last completed ${detailDateFormatter.format(new Date(task.lastCompletedAt))}`
@@ -44,9 +45,7 @@ export function TaskListItem({ onComplete, onEdit, task }: TaskListItemProps) {
         <Button fullWidth={false} onClick={onEdit} type="button" variant="secondary">
           Edit
         </Button>
-        <Button fullWidth={false} onClick={onComplete} type="button">
-          Complete
-        </Button>
+        <CompleteTaskButton onCompleted={onCompleted} taskId={task.id} />
       </div>
     </article>
   );

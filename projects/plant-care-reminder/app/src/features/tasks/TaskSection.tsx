@@ -5,7 +5,7 @@ import { TaskListItem } from "./TaskListItem";
 
 interface TaskSectionProps {
   onAdd: () => void;
-  onComplete: (taskId: string) => void;
+  onCompleted?: (result: { lastCompletedAt: number; nextDueAt: number; taskId: string }) => void;
   onEdit: (taskId: string) => void;
   plantName: string;
   tasks: Array<{
@@ -18,7 +18,7 @@ interface TaskSectionProps {
   }>;
 }
 
-export function TaskSection({ onAdd, onComplete, onEdit, plantName, tasks }: TaskSectionProps) {
+export function TaskSection({ onAdd, onCompleted, onEdit, plantName, tasks }: TaskSectionProps) {
   return (
     <section style={sectionCardStyle}>
       <PageHeader
@@ -54,7 +54,7 @@ export function TaskSection({ onAdd, onComplete, onEdit, plantName, tasks }: Tas
           {tasks.map((task) => (
             <TaskListItem
               key={task.id}
-              onComplete={() => onComplete(task.id)}
+              onCompleted={onCompleted}
               onEdit={() => onEdit(task.id)}
               task={task}
             />
