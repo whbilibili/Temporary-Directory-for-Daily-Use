@@ -103,15 +103,87 @@ describe("AppShell smoke coverage", () => {
       />,
       {
         route: "/todo",
+        queryResult: {
+          overdue: [
+            {
+              taskId: "task_overdue",
+              plantId: "plant_1",
+              plantName: "Monstera deliciosa",
+              plantImageUrl: "https://cdn.test/monstera.jpg",
+              taskType: "watering",
+              customLabel: null,
+              intervalDays: 7,
+              nextDueAt: Date.now() - 2 * 24 * 60 * 60 * 1000,
+              lastCompletedAt: Date.UTC(2026, 5, 1),
+            },
+          ],
+          today: [
+            {
+              taskId: "task_today",
+              plantId: "plant_2",
+              plantName: "Bird of Paradise",
+              plantImageUrl: null,
+              taskType: "misting",
+              customLabel: null,
+              intervalDays: 3,
+              nextDueAt: Date.now(),
+              lastCompletedAt: null,
+            },
+          ],
+          upcoming: [
+            {
+              taskId: "task_upcoming",
+              plantId: "plant_3",
+              plantName: "Rubber Tree",
+              plantImageUrl: null,
+              taskType: "custom",
+              customLabel: "Leaf wipe",
+              intervalDays: 14,
+              nextDueAt: Date.now() + 2 * 24 * 60 * 60 * 1000,
+              lastCompletedAt: null,
+            },
+          ],
+        },
       },
     );
 
     await waitFor(() => expect(window.location.pathname).toBe("/todo"));
     expect(screen.getByRole("heading", { name: /due tasks queue/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /overdue/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /due today/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /upcoming/i })).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /^complete$/i })).toHaveLength(3);
     expect(screen.getByRole("button", { name: /inbox/i })).toHaveAttribute(
       "aria-current",
       "page",
     );
+  });
+
+  it("shows the due inbox empty state when no tasks are due in the next three days", async () => {
+    renderWithProviders(
+      <AppShell
+        pathname="/todo"
+        routeContext={{
+          userId: "user_1",
+          familyId: "family_1",
+          displayName: "Wang",
+        }}
+      />,
+      {
+        route: "/todo",
+        queryResult: {
+          overdue: [],
+          today: [],
+          upcoming: [],
+        },
+      },
+    );
+
+    await waitFor(() => expect(window.location.pathname).toBe("/todo"));
+    expect(
+      screen.getByText(/no due tasks in the next three days/i),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /browse plants/i })).toBeInTheDocument();
   });
 
   it("renders the create-family form for authenticated users without a family", async () => {

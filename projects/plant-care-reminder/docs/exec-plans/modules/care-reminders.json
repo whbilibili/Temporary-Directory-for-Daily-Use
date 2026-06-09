@@ -395,7 +395,7 @@
       "task_id": "CARE-005",
       "description": "Build the due inbox that groups care tasks into overdue, due today and upcoming buckets with quick-complete affordances.",
       "priority": "1-High",
-      "status": "in_progress",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {
@@ -499,7 +499,7 @@
       "task_id": "CARE-006",
       "description": "Implement task completion, completion-log writes and realtime next-due recomputation across shared family sessions.",
       "priority": "1-High",
-      "status": "pending",
+      "status": "in_progress",
       "plan_path": null,
       "contracts": {
         "data_layer": {

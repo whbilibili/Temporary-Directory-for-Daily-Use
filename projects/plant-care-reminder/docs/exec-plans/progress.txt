@@ -1,30 +1,32 @@
 ### [Current Focus]
-`CARE-005` 进行中：下一步开始实现 due inbox，把 enabled task 按 overdue、today、upcoming 三组汇总出来，并让 `/todo` 真正承接提醒队列，而不是只作为 completion 入口占位页。
+`CARE-006` 进行中：下一步把 inbox 和 plant detail 里已经露出的 `Complete` affordance 接到真实 completion mutation，补 completion log 写入，并在完成后实时重算 `nextDueAt`。
 
 ### [Key Decisions]
-- `CARE-004` 没有提前落地 completion mutation；plant detail 里的 `Complete` 入口先明确导向 `/todo`，把真正的完成动作留给 `CARE-006`。
-- plant detail 的 task UI 已从页面内联实现收口为 `TaskSection` / `TaskListItem`，后续 inbox 和 completion flow 可以复用同一套任务展示语义。
-- due 文案、task type label、cadence/history 信息继续走现有 shared formatter / task contract，避免 detail 和 inbox 产生两套表述。
+- `CARE-005` 的后端查询用 `listDueTasks` 在 Convex 侧直接分好 `overdue` / `today` / `upcoming` 三组，前端不再自行判断 urgency。
+- upcoming 窗口按 MVP 合同固定为未来 `3` 天，且只返回 enabled 且父植物未 archived 的任务。
+- 本轮只落 inbox 读取面和 row-level `Complete` affordance；真正的完成写入、日志和 next-due 重算仍由 `CARE-006` 接手。
 
 ### [Blockers & Solutions]
-- AppRouter smoke 套件里同一测试二次 `renderWithProviders` 会让相同按钮名同时存在；这轮把 `Complete` 点击断言收窄到目标元素，避免误判。
-- 浏览器级验证依旧受宿主 Playwright 限制影响，所以 `CARE-004` 继续以 typecheck + smoke tests 为主，不额外引入视觉验证链路。
+- `CARE-005` 合同列出的文件不包含 `AppShell.tsx`，但 `/todo` 当前仍是 placeholder route；因此本轮额外修改路由装配文件，把真实 `TodoPage` 接到 app shell。
+- smoke harness 的 `queryResult` 只能一次性注入单个 `useQuery` 返回值；由于 `AppShell` 在测试里直接接收 `routeContext` props，本轮可以单独给 `/todo` 注入 due inbox query 结果，不需要改测试基建。
 
 ### [Verification]
 - `cd app && npm run typecheck`
 - `cd app && npm run test`
+- `cd app && npx convex dev --once --typecheck enable`
 - 本轮新增覆盖：
-  - plant detail 会渲染 `Enabled routines`、`Add routine`、`Edit`、`Complete` 入口
-  - 从 plant detail 点击 `Edit` 会进入 `/plants/:plantId/tasks/:taskId/edit`
-  - 从 plant detail 点击 `Complete` 会进入 `/todo`
+  - `/todo` 会渲染 `Overdue`、`Due today`、`Upcoming` 三组
+  - 每个 due row 都带可见的 `Complete` 按钮
+  - 没有未来三天任务时会展示 inbox empty state
 - 验证结果：
   - `tsc --noEmit` 通过
-  - `vitest run` 通过，`4` 个测试文件、`40` 个测试全部通过
+  - `vitest run` 通过，`4` 个测试文件、`41` 个测试全部通过
+  - `Convex functions ready!`，新增 `listDueTasks` query 通过服务端 typecheck
 
 ### [Dead Ends]
-- 不要在 `CARE-004` 顺手实现 `/todo` 的真实分组查询；那是 `CARE-005` 的明确范围。
-- 不要在 `CARE-004` 就补 completion log 写入；那是 `CARE-006` 的后端边界。
+- 不要在 `CARE-005` 就偷跑 completion mutation；否则会和 `CARE-006` 的 completion log / realtime recompute 合同重叠。
+- 不要让 due inbox 返回 archived 植物的任务；归档后提醒面应以植物生命周期为准。
 
 ### [Next Steps]
-1. 进入 `CARE-005`，实现 `/todo` 的 overdue / today / upcoming 分组查询和页面结构。
-2. 让 plant detail 的 `Complete` 入口落到真实 inbox，而不是只到占位页。
+1. 进入 `CARE-006`，新增真实 `completeTask` 写路径，原子写 completion log 并 patch `plantTasks`。
+2. 把 inbox row 和 plant detail 的 `Complete` 按钮都接到同一个 completion mutation，并验证完成后队列实时刷新。

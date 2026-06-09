@@ -1,7 +1,4 @@
-import { useState } from "react";
-
 import { Button } from "../components/ui/Button";
-import { EmptyState } from "../components/ui/EmptyState";
 import { InputField } from "../components/ui/InputField";
 import { PageHeader } from "../components/ui/PageHeader";
 import { AuthPage } from "../features/auth/AuthPage";
@@ -17,8 +14,8 @@ import { PlantDetailPage } from "../features/plants/PlantDetailPage";
 import { PlantListPage } from "../features/plants/PlantListPage";
 import { CreateTaskPage } from "../features/tasks/CreateTaskPage";
 import { EditTaskPage } from "../features/tasks/EditTaskPage";
+import { TodoPage } from "../features/tasks/TodoPage";
 import { BottomNav } from "../components/navigation/BottomNav";
-import { formatDueDate, formatTaskTypeLabel } from "../lib/formatters";
 import { RouteGate } from "./RouteGate";
 import { navigate } from "./router";
 import type { AppPath, AppRoute, RouteContext } from "./router";
@@ -72,13 +69,7 @@ export function AppShell({ pathname, routeContext, routeParams }: AppShellProps)
           {pathname === "/plants/edit" ? (
             <EditPlantPage plantId={routeParams?.plantId ?? null} />
           ) : null}
-          {pathname === "/todo" ? (
-            <ProtectedRoutePlaceholder
-              eyebrow="Inbox"
-              title="Due tasks queue"
-              description="This route is reserved for overdue, today, and upcoming care tasks once the reminders module lands."
-            />
-          ) : null}
+          {pathname === "/todo" ? <TodoPage /> : null}
           {pathname === "/settings" ? (
             <FamilySettingsPage />
           ) : null}
@@ -141,53 +132,6 @@ function OnboardingActionPlaceholder({
   );
 }
 
-interface ProtectedRoutePlaceholderProps {
-  eyebrow: string;
-  title: string;
-  description: string;
-}
-
-function ProtectedRoutePlaceholder({
-  eyebrow,
-  title,
-  description,
-}: ProtectedRoutePlaceholderProps) {
-  const sampleTaskLabel = formatTaskTypeLabel("watering");
-  const sampleDueDate = formatDueDate(Date.now() + 2 * 24 * 60 * 60 * 1000);
-
-  return (
-    <section style={protectedCardStyle}>
-      <PageHeader
-        eyebrow={eyebrow}
-        title={title}
-        description={<p style={bodyStyle}>{description}</p>}
-      />
-      <div style={placeholderPanelStyle}>
-        <EmptyState
-          badge="Placeholder"
-          title={`${sampleTaskLabel} example`}
-          description={
-            <>
-              Module-specific UI will replace this block.
-              <br />
-              Shared formatters are already available for labels and due-date copy:
-              {" "}
-              {sampleDueDate}.
-            </>
-          }
-          minHeight="164px"
-        />
-      </div>
-      <div style={placeholderRowStyle}>
-        <p style={hintStyle}>
-          Future feature screens can import shared buttons, empty states, headers, and form
-          wrappers instead of redefining them route by route.
-        </p>
-      </div>
-    </section>
-  );
-}
-
 const frameStyle: React.CSSProperties = {
   minHeight: "100svh",
   display: "flex",
@@ -228,13 +172,6 @@ const heroCardStyle: React.CSSProperties = {
   boxShadow: "0 20px 48px rgba(37,99,235,0.08)",
 };
 
-const protectedCardStyle: React.CSSProperties = {
-  ...heroCardStyle,
-  minHeight: "calc(100svh - 180px)",
-  display: "flex",
-  flexDirection: "column",
-};
-
 const bodyStyle: React.CSSProperties = {
   margin: 0,
   color: "#475569",
@@ -253,14 +190,4 @@ const hintStyle: React.CSSProperties = {
   color: "#64748b",
   fontSize: "0.9rem",
   lineHeight: 1.5,
-};
-
-const placeholderPanelStyle: React.CSSProperties = {
-  marginTop: "auto",
-};
-
-const placeholderRowStyle: React.CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  gap: "10px",
 };

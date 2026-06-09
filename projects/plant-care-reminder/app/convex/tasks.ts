@@ -210,3 +210,90 @@ export const deletePlantTask = mutation({
     };
   },
 });
+
+const UPCOMING_WINDOW_DAYS = 3;
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+function getUtcDayStart(timestamp: number) {
+  const date = new Date(timestamp);
+  return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+}
+
+export const listDueTasks = query({
+  args: {},
+  handler: async (ctx) => {
+    const currentUserContext = await requireCurrentFamilyMember(ctx);
+    const now = Date.now();
+    const startOfToday = getUtcDayStart(now);
+    const startOfTomorrow = startOfToday + MS_PER_DAY;
+    const startOfUpcomingLimit = startOfTomorrow + UPCOMING_WINDOW_DAYS * MS_PER_DAY;
+
+    const tasks = await ctx.db
+      .query("plantTasks")
+      .withIndex("by_familyId_and_nextDueAt", (q) => q.eq("familyId", currentUserContext.familyId))
+      .collect();
+
+    const enabledTasks = tasks.filter((task) => task.enabled);
+    const plantIds = [...new Set(enabledTasks.map((task) => task.plantId))];
+    const plantSummaries = await Promise.all(
+      plantIds.map(async (plantId) => {
+        const plant = await ctx.db.get(plantId);
+
+        if (
+          !plant ||
+          plant.familyId !== currentUserContext.familyId ||
+          plant.isArchived
+        ) {
+          return null;
+        }
+
+        const imageUrl = plant.imageStorageId ? await ctx.storage.getUrl(plant.imageStorageId) : null;
+
+        return [
+          plant._id,
+          {
+            plantId: plant._id,
+            plantName: plant.name,
+            plantImageUrl: imageUrl,
+          },
+        ] as const;
+      }),
+    );
+
+    const plantSummaryById = new Map(
+      plantSummaries.filter((entry): entry is NonNullable<typeof entry> => entry !== null),
+    );
+
+    const dueTasks = enabledTasks
+      .map((task) => {
+        const plantSummary = plantSummaryById.get(task.plantId);
+
+        if (!plantSummary) {
+          return null;
+        }
+
+        return {
+          taskId: task._id,
+          plantId: plantSummary.plantId,
+          plantName: plantSummary.plantName,
+          plantImageUrl: plantSummary.plantImageUrl,
+          taskType: task.taskType,
+          customLabel: task.customLabel ?? null,
+          intervalDays: task.intervalDays,
+          nextDueAt: task.nextDueAt,
+          lastCompletedAt: task.lastCompletedAt ?? null,
+        };
+      })
+      .filter((task): task is NonNullable<typeof task> => task !== null);
+
+    return {
+      overdue: dueTasks.filter((task) => task.nextDueAt < startOfToday),
+      today: dueTasks.filter(
+        (task) => task.nextDueAt >= startOfToday && task.nextDueAt < startOfTomorrow,
+      ),
+      upcoming: dueTasks.filter(
+        (task) => task.nextDueAt >= startOfTomorrow && task.nextDueAt < startOfUpcomingLimit,
+      ),
+    };
+  },
+});
