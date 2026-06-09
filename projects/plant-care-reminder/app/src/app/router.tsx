@@ -40,7 +40,25 @@ export function navigate(to: AppPath | string, replace = false) {
   window.dispatchEvent(new PopStateEvent("popstate"));
 }
 
-function normalizePath(pathname: string): AppRoute {
+export function normalizePath(pathname: string): AppRoute {
+  if (
+    pathname === "/login" ||
+    pathname === "/onboarding" ||
+    pathname === "/onboarding/profile" ||
+    pathname === "/onboarding/create-family" ||
+    pathname === "/onboarding/join-family" ||
+    pathname === "/plants" ||
+    pathname === "/plants/new" ||
+    pathname === "/plants/edit" ||
+    pathname === "/todo" ||
+    pathname === "/settings"
+  ) {
+    return {
+      pathname,
+      params: {},
+    };
+  }
+
   const plantTaskEditMatch = pathname.match(/^\/plants\/([^/]+)\/tasks\/([^/]+)\/edit$/);
   if (plantTaskEditMatch) {
     return {
@@ -79,26 +97,6 @@ function normalizePath(pathname: string): AppRoute {
       params: {
         plantId: decodeURIComponent(plantDetailMatch[1]),
       },
-    };
-  }
-
-  if (
-    pathname === "/login" ||
-    pathname === "/onboarding" ||
-    pathname === "/onboarding/profile" ||
-    pathname === "/onboarding/create-family" ||
-    pathname === "/onboarding/join-family" ||
-    pathname === "/plants" ||
-    pathname === "/plants/detail" ||
-    pathname === "/plants/tasks/edit" ||
-    pathname === "/plants/tasks/new" ||
-    pathname === "/plants/new" ||
-    pathname === "/todo" ||
-    pathname === "/settings"
-  ) {
-    return {
-      pathname,
-      params: {},
     };
   }
 

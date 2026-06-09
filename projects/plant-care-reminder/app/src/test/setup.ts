@@ -41,6 +41,10 @@ export function setMockMutationHandler(handler: ReturnType<typeof vi.fn>) {
   mockUseMutation.mockReturnValue(handler);
 }
 
+export function setMockSignInHandler(handler: ReturnType<typeof vi.fn>) {
+  mockSignIn.mockImplementation(handler);
+}
+
 export function setMockConvexQueryHandler(handler: ReturnType<typeof vi.fn>) {
   mockConvexClientQuery.mockImplementation(handler);
 }

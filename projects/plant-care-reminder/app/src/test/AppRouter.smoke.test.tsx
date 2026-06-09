@@ -2,10 +2,28 @@ import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { AppShell } from "../app/AppShell";
+import { normalizePath } from "../app/router";
 import { renderWithProviders } from "./renderWithProviders";
 import { setMockMutationHandler } from "./setup";
 
 describe("AppShell smoke coverage", () => {
+  it("keeps static plant routes ahead of dynamic detail matching", () => {
+    expect(normalizePath("/plants/new")).toEqual({
+      pathname: "/plants/new",
+      params: {},
+    });
+    expect(normalizePath("/plants/edit")).toEqual({
+      pathname: "/plants/edit",
+      params: {},
+    });
+    expect(normalizePath("/plants/plant_1")).toEqual({
+      pathname: "/plants/detail",
+      params: {
+        plantId: "plant_1",
+      },
+    });
+  });
+
   it("redirects anonymous visitors away from root", async () => {
     renderWithProviders(
       <AppShell
