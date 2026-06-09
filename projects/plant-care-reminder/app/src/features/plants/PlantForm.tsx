@@ -15,53 +15,52 @@ interface PlantFormProps {
 export function PlantForm({
   description = (
     <p style={bodyStyle}>
-      Capture the display-ready plant basics once here so both create and edit routes can
-      reuse the same contract.
+      在这里统一维护植物基础资料，新增和编辑页面都复用同一套表单。
     </p>
   ),
   form,
   submitLabel,
-  title = "Plant editor contract",
+  title = "植物资料编辑",
 }: PlantFormProps) {
   return (
     <section style={cardStyle}>
-      <PageHeader eyebrow="Plants" title={title} description={description} />
+      <PageHeader eyebrow="植物" title={title} description={description} />
       <form noValidate style={formStyle} onSubmit={form.handleSubmit}>
         <InputField
           autoComplete="off"
           errorMessage={form.errors.name}
-          hint="Required. Use the name your household already calls this plant."
-          label="Plant name"
+          hint="必填。建议使用家里平时对这盆植物的叫法。"
+          label="植物名称"
           onChange={(event) => form.setFieldValue("name", event.target.value)}
-          placeholder="Monstera deliciosa"
+          placeholder="蝴蝶兰"
           required
           value={form.values.name}
         />
         <TextAreaField
           errorMessage={form.errors.description}
-          hint="Optional. Add a short profile note for identification or care context."
-          label="Description"
+          hint="选填。可以写外观特征或基础养护信息。"
+          label="简介"
           onChange={(event) => form.setFieldValue("description", event.target.value)}
-          placeholder="Large split leaves, bright indirect light, living room corner."
+          placeholder="喜欢散射光，放在客厅窗边。"
           rows={4}
           value={form.values.description}
         />
         <TextAreaField
           errorMessage={form.errors.note}
-          hint="Optional. Keep private household notes, reminders or quirks here."
-          label="Care note"
+          hint="选填。可以记录家庭内部才会用到的提醒或习惯。"
+          label="养护备注"
           onChange={(event) => form.setFieldValue("note", event.target.value)}
-          placeholder="Rotate every Sunday and watch for dry edges near the window."
+          placeholder="每周日转盆一次，注意窗边叶缘发干。"
           rows={4}
           value={form.values.note}
         />
         <InputField
           autoComplete="off"
           errorMessage={form.errors.location}
-          hint="Optional. Helps family members find the plant quickly."
-          label="Location"
+          hint="选填。方便家人快速找到这盆植物。"
+          label="摆放位置"
           onChange={(event) => form.setFieldValue("location", event.target.value)}
-          placeholder="Dining room shelf"
+          placeholder="客厅置物架"
           value={form.values.location}
         />
         <PlantImageField
@@ -69,7 +68,7 @@ export function PlantForm({
           value={form.values.image}
         />
         <Button disabled={form.isSubmitting} type="submit">
-          {form.isSubmitting ? "Saving plant draft..." : submitLabel}
+          {form.isSubmitting ? "保存中..." : submitLabel}
         </Button>
       </form>
     </section>

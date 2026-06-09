@@ -10,12 +10,11 @@ export function JoinFamilyPage() {
     return (
       <section style={cardStyle}>
         <PageHeader
-          eyebrow="Joining Family"
-          title="Linking you to the household board..."
+          eyebrow="正在加入"
+          title="正在接入家庭植物看板..."
           description={
             <p style={bodyStyle}>
-              Your invite code was accepted. Hold on while we refresh your shared plants
-              and route you into the family board.
+              邀请码已验证通过，正在同步家庭植物资料并带你进入共享看板。
             </p>
           }
         />
@@ -26,12 +25,11 @@ export function JoinFamilyPage() {
   return (
     <section style={cardStyle}>
       <PageHeader
-        eyebrow="Join Family"
-        title="Join an existing household"
+        eyebrow="加入家庭"
+        title="加入已有家庭"
         description={
           <p style={bodyStyle}>
-            Enter the invite code from another household member to join their shared plant
-            board and care queue.
+            输入家人发来的邀请码，即可加入同一个植物看板和养护任务列表。
           </p>
         }
       />

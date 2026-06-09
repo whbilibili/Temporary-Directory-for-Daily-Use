@@ -41,9 +41,9 @@ export function PlantListPage() {
   if (result === undefined) {
     return (
       <section style={stateCardStyle}>
-        <p style={eyebrowStyle}>Plants</p>
-        <h1 style={titleStyle}>Loading your plant board</h1>
-        <p style={bodyStyle}>Pulling the active household plants and their nearest due tasks.</p>
+        <p style={eyebrowStyle}>植物</p>
+        <h1 style={titleStyle}>正在加载家庭植物看板</h1>
+        <p style={bodyStyle}>正在同步家庭中的植物以及最近一次养护任务。</p>
       </section>
     );
   }
@@ -51,39 +51,38 @@ export function PlantListPage() {
   return (
     <section style={pageStyle}>
       <PageHeader
-        eyebrow="Plants"
-        title="Shared plant registry"
+        eyebrow="植物"
+        title="家庭植物档案"
         description={
           <p style={bodyStyle}>
-            Active household plants appear here first, with the nearest care action surfaced on
-            each card so the next ritual is immediate.
+            家里的植物会集中显示在这里，每张卡片都会优先提示最近一次需要处理的养护任务。
           </p>
         }
         actions={
           <Button fullWidth={false} onClick={() => navigate("/plants/new")} type="button">
-            Add plant
+            添加植物
           </Button>
         }
       />
       <InputField
         autoComplete="off"
-        label="Search plants"
+        label="搜索植物"
         onChange={(event) => setSearchText(event.target.value)}
-        placeholder="Search by name or location"
+        placeholder="按名称或位置搜索"
         value={searchText}
       />
       {result.plants.length === 0 ? (
         <EmptyState
-          badge="Plants"
-          title="Your shared plant board is empty"
-          description="Add the first plant to start building a household registry before care reminders are attached."
+          badge="植物"
+          title="你的家庭植物看板还是空的"
+          description="先添加第一盆植物，后续才能继续配置养护提醒。"
           minHeight="220px"
         />
       ) : filteredPlants.length === 0 ? (
         <EmptyState
-          badge="Search"
-          title="No plants match that search"
-          description="Try a plant name or location from your household board."
+          badge="搜索"
+          title="没有找到匹配的植物"
+          description="试试输入植物名称，或者它所在的位置。"
           minHeight="220px"
         />
       ) : (
@@ -119,7 +118,7 @@ const stateCardStyle: React.CSSProperties = {
 
 const eyebrowStyle: React.CSSProperties = {
   margin: 0,
-  color: "#2563eb",
+  color: "var(--color-leaf)",
   textTransform: "uppercase",
   letterSpacing: "0.16em",
   fontSize: "0.75rem",

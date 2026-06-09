@@ -27,7 +27,7 @@ export async function uploadPlantImage({
   });
 
   if (!uploadResponse.ok) {
-    throw new Error("Plant image upload failed. Please try again.");
+    throw new Error("植物图片上传失败，请稍后再试。");
   }
 
   const payload = (await uploadResponse.json()) as { storageId?: string };

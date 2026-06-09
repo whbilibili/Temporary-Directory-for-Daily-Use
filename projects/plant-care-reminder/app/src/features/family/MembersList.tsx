@@ -15,14 +15,14 @@ interface MembersListProps {
 }
 
 function formatRole(role: FamilyRole) {
-  return role === "admin" ? "Admin" : "Member";
+  return role === "admin" ? "管理员" : "成员";
 }
 
 export function MembersList({ members }: MembersListProps) {
   return (
     <div style={listStyle}>
       {members.map((member) => {
-        const label = member.displayName?.trim() || member.email || "Household member";
+        const label = member.displayName?.trim() || member.email || "家庭成员";
 
         return (
           <article key={member.id} style={memberCardStyle}>
@@ -30,7 +30,7 @@ export function MembersList({ members }: MembersListProps) {
               <div style={memberIdentityStyle}>
                 <h3 style={memberNameStyle}>
                   {label}
-                  {member.isCurrentUser ? <span style={selfTagStyle}>You</span> : null}
+                  {member.isCurrentUser ? <span style={selfTagStyle}>我</span> : null}
                 </h3>
                 {member.email && member.email !== label ? (
                   <p style={memberMetaStyle}>{member.email}</p>

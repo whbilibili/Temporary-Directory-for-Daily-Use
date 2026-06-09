@@ -1,5 +1,6 @@
 import { useQuery } from "convex/react";
 import { useState } from "react";
+import { useAuthActions } from "@convex-dev/auth/react";
 
 import { api } from "../../../convex/_generated/api";
 import { Button } from "../../components/ui/Button";
@@ -8,8 +9,10 @@ import { NotificationPromptCard } from "../notifications/NotificationPromptCard"
 import { MembersList } from "./MembersList";
 
 export function FamilySettingsPage() {
+  const { signOut } = useAuthActions();
   const summary = useQuery(api.families.getFamilySettingsSummary, {});
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "failed">("idle");
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   async function handleCopyInviteCode() {
     if (!summary) {
@@ -24,15 +27,24 @@ export function FamilySettingsPage() {
     }
   }
 
+  async function handleSignOut() {
+    setIsSigningOut(true);
+    try {
+      await signOut();
+    } finally {
+      setIsSigningOut(false);
+    }
+  }
+
   if (summary === undefined) {
     return (
       <section style={cardStyle}>
         <PageHeader
-          eyebrow="Settings"
-          title="Loading household details..."
+          eyebrow="设置"
+          title="正在加载家庭信息..."
           description={
             <p style={bodyStyle}>
-              Pulling the latest invite code and member list for your shared family space.
+              正在同步最新的邀请码和家庭成员列表。
             </p>
           }
         />
@@ -44,45 +56,53 @@ export function FamilySettingsPage() {
     <section style={pageStyle}>
       <section style={heroCardStyle}>
         <PageHeader
-          eyebrow="Settings"
+          eyebrow="设置"
           title={summary.familyName}
           description={
             <p style={bodyStyle}>
-              {summary.memberCount} household member{summary.memberCount === 1 ? "" : "s"} are
-              currently connected to this shared board.
+              当前已有 {summary.memberCount} 位家庭成员加入这个共享植物空间。
             </p>
           }
         />
+        <div style={heroActionsStyle}>
+          <Button
+            fullWidth={false}
+            onClick={() => void handleSignOut()}
+            type="button"
+            variant="ghost"
+          >
+            {isSigningOut ? "退出中..." : "退出登录"}
+          </Button>
+        </div>
       </section>
       <section style={cardStyle}>
         <PageHeader
-          eyebrow="Invite Code"
-          title="Share this code with new members"
+          eyebrow="邀请码"
+          title="把这串邀请码分享给家人"
           description={
             <p style={bodyStyle}>
-              Anyone in your household can use this code from the join flow to connect to the
-              same plant board and care queue.
+              家庭成员可以在加入家庭时输入这串邀请码，进入同一个植物看板和提醒列表。
             </p>
           }
         />
         <div style={invitePanelStyle}>
           <p style={inviteCodeStyle}>{summary.inviteCode}</p>
           <Button fullWidth={false} onClick={handleCopyInviteCode} type="button" variant="secondary">
-            {copyStatus === "copied" ? "Copied" : "Copy code"}
+            {copyStatus === "copied" ? "已复制" : "复制邀请码"}
           </Button>
           {copyStatus === "failed" ? (
-            <p style={copyFeedbackStyle}>Copy failed on this device. You can still share the code manually.</p>
+            <p style={copyFeedbackStyle}>当前设备复制失败，你也可以手动把邀请码发给家人。</p>
           ) : null}
         </div>
       </section>
       <NotificationPromptCard />
       <section style={cardStyle}>
         <PageHeader
-          eyebrow="Members"
-          title="Household members"
+          eyebrow="成员"
+          title="家庭成员"
           description={
             <p style={bodyStyle}>
-              Everyone listed here can collaborate inside the same family space.
+              这里展示的是当前加入同一家庭空间的所有成员。
             </p>
           }
         />
@@ -95,6 +115,12 @@ export function FamilySettingsPage() {
 const pageStyle: React.CSSProperties = {
   display: "grid",
   gap: "16px",
+};
+
+const heroActionsStyle: React.CSSProperties = {
+  marginTop: "18px",
+  display: "flex",
+  justifyContent: "flex-start",
 };
 
 const heroCardStyle: React.CSSProperties = {

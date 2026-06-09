@@ -21,7 +21,7 @@ export function CreatePlantPage() {
         navigate("/plants", true);
       } catch (error) {
         setErrorMessage(
-          error instanceof Error ? error.message : "We could not save this plant right now.",
+          error instanceof Error ? error.message : "当前无法保存这盆植物，请稍后再试。",
         );
       }
     },
@@ -31,12 +31,11 @@ export function CreatePlantPage() {
     <section style={pageStyle}>
       <PlantForm
         form={form}
-        submitLabel="Save plant"
-        title="Add a plant to your shared home"
+        submitLabel="保存植物"
+        title="把植物添加到家庭空间"
         description={
           <p style={bodyStyle}>
-            Save the plant profile once and the upcoming care-task module will attach reminders
-            to this record inside the current household only.
+            先把植物资料保存下来，之后添加的养护提醒都会挂在当前家庭下的这条植物记录上。
           </p>
         }
       />

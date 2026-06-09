@@ -40,7 +40,7 @@ describe("PlantImageField", () => {
       />,
     );
 
-    const fileInput = screen.getByLabelText(/plant cover photo/i);
+    const fileInput = screen.getByLabelText(/植物封面图/i);
     const file = new File(["leaf"], "monstera.jpg", { type: "image/jpeg" });
 
     fireEvent.change(fileInput, {
@@ -89,7 +89,7 @@ describe("PlantImageField", () => {
       />,
     );
 
-    const fileInput = screen.getByLabelText(/plant cover photo/i);
+    const fileInput = screen.getByLabelText(/植物封面图/i);
     const file = new File(["leaf"], "fern.jpg", { type: "image/jpeg" });
 
     fireEvent.change(fileInput, {
@@ -100,12 +100,12 @@ describe("PlantImageField", () => {
 
     await waitFor(() =>
       expect(screen.getByRole("alert")).toHaveTextContent(
-        /plant image upload failed\. please try again\./i,
+        /植物图片上传失败，请稍后再试。/i,
       ),
     );
 
     expect(onChange).not.toHaveBeenCalled();
-    expect(screen.getByAltText(/selected plant cover preview/i)).toHaveAttribute(
+    expect(screen.getByAltText(/已选植物封面预览/i)).toHaveAttribute(
       "src",
       "https://cdn.test/current.jpg",
     );

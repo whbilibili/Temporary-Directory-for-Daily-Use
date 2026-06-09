@@ -1,9 +1,11 @@
+import { StorageImage } from "../../components/ui/StorageImage";
 import { Button } from "../../components/ui/Button";
 import { formatDueDate, formatTaskTypeLabel } from "../../lib/formatters";
 
 export interface PlantListCardData {
   description: string | null;
   id: string;
+  imageStorageId: string | null;
   imageUrl: string | null;
   location: string | null;
   name: string;
@@ -25,44 +27,44 @@ interface PlantCardProps {
 export function PlantCard({ onEdit, onOpen, plant }: PlantCardProps) {
   const nextDueTitle = plant.nextDueTask
     ? formatTaskTypeLabel(plant.nextDueTask.taskType, plant.nextDueTask.customLabel)
-    : "No care tasks yet";
+    : "还没有养护任务";
   const nextDueCopy = plant.nextDueTask
     ? formatDueDate(plant.nextDueTask.nextDueAt)
-    : "Add a care routine once the reminders module lands.";
+    : "添加一个养护提醒后，这里会显示下一次待办。";
 
   return (
     <article style={cardStyle}>
       <div style={mediaWrapStyle}>
-        {plant.imageUrl ? (
-          <img
-            alt={`${plant.name} cover`}
-            src={plant.imageUrl}
-            style={imageStyle}
-          />
-        ) : (
-          <div style={imageFallbackStyle}>
-            <p style={fallbackEyebrowStyle}>Plant photo</p>
-            <p style={fallbackCopyStyle}>Upload a cover image to make recognition immediate.</p>
-          </div>
-        )}
+        <StorageImage
+          alt={`${plant.name}封面图`}
+          initialUrl={plant.imageUrl}
+          storageId={plant.imageStorageId as never}
+          style={imageStyle}
+          fallback={
+            <div style={imageFallbackStyle}>
+              <p style={fallbackEyebrowStyle}>植物照片</p>
+              <p style={fallbackCopyStyle}>上传封面图后，家庭成员会更容易快速识别这盆植物。</p>
+            </div>
+          }
+        />
       </div>
       <div style={contentStyle}>
         <div style={copyStackStyle}>
-          <p style={eyebrowStyle}>{plant.location?.trim() || "Shared plant"}</p>
+          <p style={eyebrowStyle}>{plant.location?.trim() || "共享植物"}</p>
           <h2 style={titleStyle}>{plant.name}</h2>
           {plant.description ? <p style={descriptionStyle}>{plant.description}</p> : null}
         </div>
         <div style={duePanelStyle}>
-          <p style={dueLabelStyle}>Next due</p>
+          <p style={dueLabelStyle}>下一次任务</p>
           <p style={dueTitleStyle}>{nextDueTitle}</p>
           <p style={dueCopyStyle}>{nextDueCopy}</p>
         </div>
         <div style={actionsStyle}>
           <Button fullWidth={false} onClick={() => onOpen(plant.id)} type="button">
-            Open profile
+            查看详情
           </Button>
           <Button fullWidth={false} onClick={() => onEdit(plant.id)} type="button" variant="secondary">
-            Edit
+            编辑
           </Button>
         </div>
       </div>
@@ -105,7 +107,7 @@ const imageFallbackStyle: React.CSSProperties = {
 
 const fallbackEyebrowStyle: React.CSSProperties = {
   margin: 0,
-  color: "#2563eb",
+  color: "var(--color-leaf)",
   textTransform: "uppercase",
   letterSpacing: "0.16em",
   fontSize: "0.76rem",
@@ -131,7 +133,7 @@ const copyStackStyle: React.CSSProperties = {
 
 const eyebrowStyle: React.CSSProperties = {
   margin: 0,
-  color: "#2563eb",
+  color: "var(--color-leaf)",
   textTransform: "uppercase",
   letterSpacing: "0.16em",
   fontSize: "0.76rem",

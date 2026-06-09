@@ -19,17 +19,17 @@ interface DueTaskCardProps {
   task: DueTaskCardData;
 }
 
-const detailDateFormatter = new Intl.DateTimeFormat("en-US", {
-  month: "short",
-  day: "numeric",
+const detailDateFormatter = new Intl.DateTimeFormat("zh-CN", {
   year: "numeric",
+  month: "long",
+  day: "numeric",
 });
 
 export function DueTaskCard({ onOpenPlant, task }: DueTaskCardProps) {
   const taskLabel = formatTaskTypeLabel(task.taskType, task.customLabel);
   const historyCopy = task.lastCompletedAt
-    ? `Last completed ${detailDateFormatter.format(new Date(task.lastCompletedAt))}`
-    : "No completion logged yet";
+    ? `上次完成于 ${detailDateFormatter.format(new Date(task.lastCompletedAt))}`
+    : "还没有完成记录";
 
   return (
     <article style={cardStyle}>
@@ -38,24 +38,24 @@ export function DueTaskCard({ onOpenPlant, task }: DueTaskCardProps) {
           <img alt={`${task.plantName} cover`} src={task.plantImageUrl} style={imageStyle} />
         ) : (
           <div style={imageFallbackStyle}>
-            <p style={fallbackEyebrowStyle}>Plant photo</p>
-            <p style={fallbackCopyStyle}>Keep the plant image visible so family members spot the task fast.</p>
+            <p style={fallbackEyebrowStyle}>植物照片</p>
+            <p style={fallbackCopyStyle}>保留植物照片后，家人能更快识别当前这条任务。</p>
           </div>
         )}
       </div>
       <div style={contentStyle}>
         <div style={copyStackStyle}>
-          <p style={plantEyebrowStyle}>Due now</p>
+          <p style={plantEyebrowStyle}>当前待处理</p>
           <h2 style={titleStyle}>{taskLabel}</h2>
           <p style={plantNameStyle}>{task.plantName}</p>
           <p style={dueCopyStyle}>{formatDueDate(task.nextDueAt)}</p>
         </div>
         <div style={metaGridStyle}>
           <TaskMeta
-            label="Cadence"
-            value={`Every ${task.intervalDays} day${task.intervalDays === 1 ? "" : "s"}`}
+            label="频率"
+            value={`每 ${task.intervalDays} 天一次`}
           />
-          <TaskMeta label="History" value={historyCopy} />
+          <TaskMeta label="记录" value={historyCopy} />
         </div>
       <div style={actionsStyle}>
           <CompleteTaskButton taskId={task.taskId} />
@@ -65,7 +65,7 @@ export function DueTaskCard({ onOpenPlant, task }: DueTaskCardProps) {
             type="button"
             variant="secondary"
           >
-            Open plant
+            查看植物
           </Button>
         </div>
       </div>
@@ -160,7 +160,7 @@ const titleStyle: React.CSSProperties = {
 
 const plantNameStyle: React.CSSProperties = {
   margin: 0,
-  color: "#2563eb",
+  color: "var(--color-leaf)",
   fontSize: "1rem",
   fontWeight: 700,
 };

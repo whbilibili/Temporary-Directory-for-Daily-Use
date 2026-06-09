@@ -26,7 +26,7 @@ export function DeleteTaskAction({ onDeleted, taskId, taskLabel }: DeleteTaskAct
       onDeleted();
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : "We could not delete this care task right now.",
+        error instanceof Error ? error.message : "当前无法删除这条养护提醒，请稍后再试。",
       );
     } finally {
       setIsSubmitting(false);
@@ -36,11 +36,10 @@ export function DeleteTaskAction({ onDeleted, taskId, taskLabel }: DeleteTaskAct
   return (
     <section style={sectionStyle}>
       <div style={copyStyle}>
-        <p style={eyebrowStyle}>Delete task</p>
-        <h2 style={titleStyle}>Remove this routine</h2>
+        <p style={eyebrowStyle}>删除任务</p>
+        <h2 style={titleStyle}>移除这条提醒</h2>
         <p style={bodyStyle}>
-          Deleting {taskLabel} removes it from this plant entirely. Disable it instead if you want
-          to keep the record without letting it show up in due views.
+          删除后，这条 {taskLabel} 提醒会从当前植物上彻底移除。如果你只是想暂时隐藏它，建议改为停用。
         </p>
       </div>
       <Button
@@ -53,12 +52,12 @@ export function DeleteTaskAction({ onDeleted, taskId, taskLabel }: DeleteTaskAct
         type="button"
         variant="ghost"
       >
-        Delete task
+        删除任务
       </Button>
       {isConfirming ? (
         <div style={dialogStyle}>
-          <p style={dialogTitleStyle}>Delete {taskLabel}?</p>
-          <p style={dialogCopyStyle}>This action removes the task record from the plant.</p>
+          <p style={dialogTitleStyle}>确认删除“{taskLabel}”吗？</p>
+          <p style={dialogCopyStyle}>删除后，这条提醒会从这盆植物上彻底消失。</p>
           <div style={dialogActionsStyle}>
             <Button
               disabled={isSubmitting}
@@ -67,7 +66,7 @@ export function DeleteTaskAction({ onDeleted, taskId, taskLabel }: DeleteTaskAct
               type="button"
               variant="ghost"
             >
-              Cancel
+              取消
             </Button>
             <Button
               disabled={isSubmitting}
@@ -77,7 +76,7 @@ export function DeleteTaskAction({ onDeleted, taskId, taskLabel }: DeleteTaskAct
               type="button"
               variant="ghost"
             >
-              {isSubmitting ? "Deleting..." : "Confirm delete"}
+              {isSubmitting ? "删除中..." : "确认删除"}
             </Button>
           </div>
         </div>

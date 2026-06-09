@@ -107,7 +107,7 @@ const eyebrowStyle: React.CSSProperties = {
   fontSize: "0.75rem",
   letterSpacing: "0.16em",
   textTransform: "uppercase",
-  color: "#2563eb",
+  color: "var(--color-leaf)",
 };
 
 const titleStyle: React.CSSProperties = {

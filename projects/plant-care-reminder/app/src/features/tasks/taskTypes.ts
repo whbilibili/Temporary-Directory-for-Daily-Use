@@ -16,43 +16,43 @@ export interface CareTaskTypeOption {
 }
 
 const taskTypeLabels: Record<Exclude<CareTaskType, "custom">, string> = {
-  watering: "Watering",
-  fertilizing: "Fertilizing",
-  misting: "Misting",
-  repotting: "Repotting",
-  pruning: "Pruning",
+  watering: "浇水",
+  fertilizing: "施肥",
+  misting: "喷雾",
+  repotting: "换盆",
+  pruning: "修剪",
 };
 
 export const careTaskTypeOptions: CareTaskTypeOption[] = [
   {
     value: "watering",
     label: taskTypeLabels.watering,
-    description: "Recurring watering cadence for soil-based plants.",
+    description: "适用于土培植物的周期性浇水提醒。",
   },
   {
     value: "fertilizing",
     label: taskTypeLabels.fertilizing,
-    description: "Nutrient-feeding schedule for growth seasons.",
+    description: "适用于生长期的施肥提醒。",
   },
   {
     value: "misting",
     label: taskTypeLabels.misting,
-    description: "Humidity support for leaves and air roots.",
+    description: "适用于叶片或气生根的补湿提醒。",
   },
   {
     value: "repotting",
     label: taskTypeLabels.repotting,
-    description: "Larger interval maintenance for root-bound plants.",
+    description: "适用于根系长满后的换盆提醒。",
   },
   {
     value: "pruning",
     label: taskTypeLabels.pruning,
-    description: "Shape, cleanup, or dead-growth maintenance.",
+    description: "适用于整形、清理和修剪枯枝。",
   },
   {
     value: "custom",
-    label: "Custom task",
-    description: "Use a custom task name for household-specific rituals.",
+    label: "自定义任务",
+    description: "可用于家庭自己的个性化养护动作。",
   },
 ];
 
@@ -75,12 +75,12 @@ export function validateCustomTaskName(
 
   return normalizeCustomTaskName(customTaskName)
     ? null
-    : "Enter a custom task name for this reminder.";
+    : "请输入这个提醒的自定义任务名称。";
 }
 
 export function formatTaskTypeLabel(taskType: CareTaskType, customTaskName?: string | null) {
   if (requiresCustomTaskName(taskType)) {
-    return normalizeCustomTaskName(customTaskName) ?? "Custom task";
+    return normalizeCustomTaskName(customTaskName) ?? "自定义任务";
   }
 
   return taskTypeLabels[taskType];

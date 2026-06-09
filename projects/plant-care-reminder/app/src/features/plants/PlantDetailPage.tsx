@@ -20,6 +20,7 @@ interface PlantDetailResponse {
     description: string | null;
     familyId: string;
     id: string;
+    imageStorageId: string | null;
     imageUrl: string | null;
     isArchived: boolean;
     location: string | null;
@@ -54,12 +55,12 @@ export function PlantDetailPage({ plantId }: PlantDetailPageProps) {
   if (!plantId) {
     return (
       <EmptyState
-        badge="Plant detail"
-        title="This plant profile is missing its route id"
-        description="Return to the shared board and reopen the plant from a valid card."
+        badge="植物详情"
+        title="当前植物详情缺少路由参数"
+        description="请返回植物列表，从有效的植物卡片重新进入。"
         actions={
           <Button type="button" variant="secondary" onClick={() => navigate("/plants")}>
-            Back to plants
+            返回植物列表
           </Button>
         }
       />
@@ -69,9 +70,9 @@ export function PlantDetailPage({ plantId }: PlantDetailPageProps) {
   if (result === undefined) {
     return (
       <section style={loadingCardStyle}>
-        <p style={eyebrowStyle}>Plant detail</p>
-        <h1 style={loadingTitleStyle}>Loading plant profile</h1>
-        <p style={bodyStyle}>Pulling the cover photo, saved profile fields, and enabled routines.</p>
+        <p style={eyebrowStyle}>植物详情</p>
+        <h1 style={loadingTitleStyle}>正在加载植物资料</h1>
+        <p style={bodyStyle}>正在同步封面图、资料字段以及已启用的提醒。</p>
       </section>
     );
   }
@@ -79,12 +80,12 @@ export function PlantDetailPage({ plantId }: PlantDetailPageProps) {
   if (result === null) {
     return (
       <EmptyState
-        badge="Unavailable"
-        title="This plant is not available in your household"
-        description="The profile may belong to another family or no longer exist."
+        badge="不可用"
+        title="当前家庭中找不到这盆植物"
+        description="这条植物资料可能已删除，或者属于其他家庭。"
         actions={
           <Button type="button" variant="secondary" onClick={() => navigate("/plants")}>
-            Back to plants
+            返回植物列表
           </Button>
         }
         minHeight="240px"
@@ -141,7 +142,7 @@ const loadingCardStyle: React.CSSProperties = {
 
 const eyebrowStyle: React.CSSProperties = {
   margin: 0,
-  color: "#2563eb",
+  color: "var(--color-leaf)",
   textTransform: "uppercase",
   letterSpacing: "0.16em",
   fontSize: "0.75rem",

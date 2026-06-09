@@ -32,17 +32,17 @@ export function CompleteTaskButton({ onCompleted, taskId }: CompleteTaskButtonPr
   return (
     <div style={wrapStyle}>
       <Button
-        aria-label="Complete"
+        aria-label="完成"
         disabled={status === "pending"}
         fullWidth={false}
         onClick={handleComplete}
         type="button"
       >
-        {status === "pending" ? "Completing..." : "Complete"}
+        {status === "pending" ? "完成中..." : "完成"}
       </Button>
       {status === "error" ? (
         <p role="alert" style={errorStyle}>
-          Completion failed. Try again.
+          完成失败，请重试。
         </p>
       ) : null}
     </div>

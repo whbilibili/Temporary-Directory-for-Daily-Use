@@ -32,18 +32,18 @@ function deriveDeviceLabel() {
   const userAgent = window.navigator.userAgent.toLowerCase();
 
   if (/iphone/.test(userAgent)) {
-    return isStandaloneDisplayMode() ? "iPhone Home Screen" : "iPhone Browser";
+    return isStandaloneDisplayMode() ? "iPhone 主屏幕应用" : "iPhone 浏览器";
   }
 
   if (/ipad/.test(userAgent)) {
-    return isStandaloneDisplayMode() ? "iPad Home Screen" : "iPad Browser";
+    return isStandaloneDisplayMode() ? "iPad 主屏幕应用" : "iPad 浏览器";
   }
 
   if (/macintosh/.test(userAgent)) {
-    return "Mac Browser";
+    return "Mac 浏览器";
   }
 
-  return "Household device";
+  return "家庭设备";
 }
 
 function toApplicationServerKey(value: string) {
@@ -88,8 +88,8 @@ export function NotificationPromptCard() {
         setStatus("error");
         setErrorMessage(
           permission === "denied"
-            ? "Notifications are blocked in browser settings for this device."
-            : "Notification permission was dismissed before subscription completed.",
+            ? "当前设备的浏览器设置已阻止通知权限。"
+            : "通知授权尚未完成，请重新允许通知权限。",
         );
         return;
       }
@@ -122,34 +122,31 @@ export function NotificationPromptCard() {
       setStatus("enabled");
     } catch {
       setStatus("error");
-      setErrorMessage("Notification setup failed on this device. Try again after reinstalling the PWA.");
+      setErrorMessage("当前设备通知开启失败，请稍后重试。");
     }
   }
 
   return (
     <section style={cardStyle}>
       <PageHeader
-        eyebrow="Notifications"
-        title="Enable device reminders"
+        eyebrow="通知"
+        title="开启设备提醒"
         description={
           <p style={bodyStyle}>
-            Keep due tasks visible in the inbox, then add device notifications so your household
-            can receive reminder prompts away from the screen.
+            除了在待办页查看任务外，你也可以开启设备通知，让家庭成员在离开页面后依然能收到提醒。
           </p>
         }
       />
 
       {capability === "unsupported" ? (
         <p style={hintStyle}>
-          This browser cannot complete web-push setup yet. The due inbox remains your fallback
-          reminder surface.
+          当前浏览器暂不支持 Web Push，仍可通过待办页查看所有提醒任务。
         </p>
       ) : null}
 
       {capability === "needs_install" ? (
         <p style={hintStyle}>
-          On iPhone Safari, first add the app to your home screen. Notification permission becomes
-          available after the standalone PWA is installed.
+          如果你使用的是 iPhone Safari，请先把应用添加到主屏幕，安装后才能开启通知权限。
         </p>
       ) : null}
 
@@ -162,21 +159,20 @@ export function NotificationPromptCard() {
             type="button"
           >
             {status === "pending"
-              ? "Enabling..."
+              ? "开启中..."
               : status === "enabled"
-                ? "Notifications enabled"
-                : "Enable notifications"}
+                ? "通知已开启"
+                : "开启通知"}
           </Button>
           <p style={supportCopyStyle}>
-            Permission prompts run only on supported browsers and save one subscription record for
-            the current household member.
+            仅在支持的浏览器中才会弹出授权窗口，并为当前家庭成员保存一条设备订阅记录。
           </p>
         </div>
       ) : null}
 
       {status === "enabled" ? (
         <p role="status" style={successStyle}>
-          This device is ready to receive reminder pushes for your household.
+          当前设备已经可以接收家庭植物提醒通知。
         </p>
       ) : null}
 

@@ -92,7 +92,7 @@ export function validatePlantEditorValues(values: PlantEditorValues): PlantFormE
   const errors: PlantFormErrors = {};
 
   if (!normalizePlantEditorText(values.name)) {
-    errors.name = "Plant name is required.";
+    errors.name = "请填写植物名称。";
   }
 
   return errors;
@@ -105,7 +105,7 @@ export function hasPlantFormErrors(errors: PlantFormErrors): boolean {
 export function toPlantMutationPayload(values: PlantEditorValues): PlantMutationPayload {
   const name = normalizePlantEditorText(values.name);
   if (!name) {
-    throw new Error("Plant name is required.");
+    throw new Error("请填写植物名称。");
   }
 
   return {

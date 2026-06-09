@@ -14,8 +14,8 @@ interface EmailLoginFormProps {
 function getAuthErrorMessage(mode: AuthMode, error: unknown) {
   const fallbackMessage =
     mode === "signIn"
-      ? "We could not sign you in with that email and password."
-      : "We could not create your account right now.";
+      ? "邮箱或密码不正确，暂时无法登录。"
+      : "当前无法创建账号，请稍后再试。";
 
   if (!(error instanceof Error)) {
     return fallbackMessage;
@@ -34,10 +34,10 @@ function getAuthErrorMessage(mode: AuthMode, error: unknown) {
 
 function getSubmitLabel(mode: AuthMode, isSubmitting: boolean) {
   if (isSubmitting) {
-    return mode === "signIn" ? "Signing in..." : "Creating account...";
+    return mode === "signIn" ? "登录中..." : "创建中...";
   }
 
-  return mode === "signIn" ? "Sign in" : "Create account";
+  return mode === "signIn" ? "登录" : "创建账号";
 }
 
 export function EmailLoginForm({ mode }: EmailLoginFormProps) {
@@ -62,7 +62,7 @@ export function EmailLoginForm({ mode }: EmailLoginFormProps) {
       });
 
       if (result.signingIn) {
-        setStatusMessage("Session confirmed. Preparing your household board...");
+        setStatusMessage("登录成功，正在进入你的家庭植物看板...");
       }
     } catch (error) {
       setErrorMessage(getAuthErrorMessage(mode, error));
@@ -76,19 +76,19 @@ export function EmailLoginForm({ mode }: EmailLoginFormProps) {
       <InputField
         autoComplete="email"
         inputMode="email"
-        label="Email"
+        label="邮箱"
         onChange={(event) => setEmail(event.target.value)}
-        placeholder="you@example.com"
+        placeholder="name@example.com"
         required
         type="email"
         value={email}
       />
       <InputField
         autoComplete={mode === "signIn" ? "current-password" : "new-password"}
-        hint={mode === "signUp" ? "Use at least 8 characters." : undefined}
-        label="Password"
+        hint={mode === "signUp" ? "至少使用 8 位字符。" : undefined}
+        label="密码"
         onChange={(event) => setPassword(event.target.value)}
-        placeholder="Enter your password"
+        placeholder="请输入密码"
         required
         type="password"
         value={password}

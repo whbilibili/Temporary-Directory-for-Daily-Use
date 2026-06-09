@@ -26,7 +26,7 @@ export function EditPlantPage({ plantId }: EditPlantPageProps) {
     initialValue: plant ?? null,
     onSubmit: async (payload) => {
       if (!plantId) {
-        setErrorMessage("A plant id is required to edit this record.");
+        setErrorMessage("编辑这条植物记录时缺少植物 ID。");
         return;
       }
 
@@ -40,14 +40,14 @@ export function EditPlantPage({ plantId }: EditPlantPageProps) {
         navigate("/plants", true);
       } catch (error) {
         setErrorMessage(
-          error instanceof Error ? error.message : "We could not update this plant right now.",
+          error instanceof Error ? error.message : "当前无法更新这盆植物，请稍后再试。",
         );
       }
     },
   });
 
   if (!plantId) {
-    return <PlantEditError message="A plant id is required to open the editor." />;
+    return <PlantEditError message="打开编辑器时缺少植物 ID。" />;
   }
 
   if (plant === undefined) {
@@ -55,19 +55,18 @@ export function EditPlantPage({ plantId }: EditPlantPageProps) {
   }
 
   if (plant === null) {
-    return <PlantEditError message="We could not find that plant in your household." />;
+    return <PlantEditError message="在当前家庭中没有找到这盆植物。" />;
   }
 
   return (
     <section style={pageStyle}>
       <PlantForm
         form={form}
-        submitLabel="Update plant"
-        title="Edit your shared plant profile"
+        submitLabel="更新植物"
+        title="编辑家庭植物资料"
         description={
           <p style={bodyStyle}>
-            Update the plant profile without leaving the shared family space. Existing image,
-            notes and location values stay in place unless you replace them.
+            直接在家庭空间内更新植物资料；除非你主动修改，否则原有图片、备注和位置都会保留。
           </p>
         }
       />
@@ -79,9 +78,9 @@ export function EditPlantPage({ plantId }: EditPlantPageProps) {
 function PlantEditLoading() {
   return (
     <section style={statusCardStyle}>
-      <p style={eyebrowStyle}>Plants</p>
-      <h1 style={titleStyle}>Loading plant profile</h1>
-      <p style={bodyStyle}>Pulling the current household version of this plant into the editor.</p>
+      <p style={eyebrowStyle}>植物</p>
+      <h1 style={titleStyle}>正在加载植物资料</h1>
+      <p style={bodyStyle}>正在把这盆植物当前的家庭记录载入编辑器。</p>
     </section>
   );
 }
@@ -89,8 +88,8 @@ function PlantEditLoading() {
 function PlantEditError({ message }: { message: string }) {
   return (
     <section style={statusCardStyle}>
-      <p style={eyebrowStyle}>Plants</p>
-      <h1 style={titleStyle}>Plant editor unavailable</h1>
+      <p style={eyebrowStyle}>植物</p>
+      <h1 style={titleStyle}>植物编辑不可用</h1>
       <p style={bodyStyle}>{message}</p>
     </section>
   );
@@ -113,7 +112,7 @@ const statusCardStyle: React.CSSProperties = {
 
 const eyebrowStyle: React.CSSProperties = {
   margin: 0,
-  color: "#2563eb",
+  color: "var(--color-leaf)",
   textTransform: "uppercase",
   letterSpacing: "0.16em",
   fontSize: "0.75rem",

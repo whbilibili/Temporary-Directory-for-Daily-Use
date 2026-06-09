@@ -18,7 +18,7 @@ function PlantFormHarness({
     onSubmit,
   });
 
-  return <PlantForm form={form} submitLabel="Save plant" />;
+  return <PlantForm form={form} submitLabel="保存植物" />;
 }
 
 describe("Plant form contract", () => {
@@ -27,10 +27,10 @@ describe("Plant form contract", () => {
 
     render(<PlantFormHarness onSubmit={onSubmit} />);
 
-    fireEvent.click(screen.getByRole("button", { name: /save plant/i }));
+    fireEvent.click(screen.getByRole("button", { name: /保存植物/i }));
 
     await waitFor(() =>
-      expect(screen.getByText(/plant name is required\./i)).toBeInTheDocument(),
+      expect(screen.getByText(/请填写植物名称。/i)).toBeInTheDocument(),
     );
     expect(onSubmit).not.toHaveBeenCalled();
   });
@@ -40,20 +40,20 @@ describe("Plant form contract", () => {
 
     render(<PlantFormHarness onSubmit={onSubmit} />);
 
-    fireEvent.change(screen.getByLabelText(/plant name/i), {
+    fireEvent.change(screen.getByLabelText(/植物名称/i), {
       target: { value: "  Monstera deliciosa  " },
     });
-    fireEvent.change(screen.getByLabelText(/description/i), {
+    fireEvent.change(screen.getByLabelText(/简介/i), {
       target: { value: "  Bright indirect light.  " },
     });
-    fireEvent.change(screen.getByLabelText(/care note/i), {
+    fireEvent.change(screen.getByLabelText(/养护备注/i), {
       target: { value: "   " },
     });
-    fireEvent.change(screen.getByLabelText(/location/i), {
+    fireEvent.change(screen.getByLabelText(/摆放位置/i), {
       target: { value: "  Dining room shelf " },
     });
 
-    fireEvent.click(screen.getByRole("button", { name: /save plant/i }));
+    fireEvent.click(screen.getByRole("button", { name: /保存植物/i }));
 
     await waitFor(() =>
       expect(onSubmit).toHaveBeenCalledWith(
@@ -114,11 +114,11 @@ describe("Plant form contract", () => {
       />,
     );
 
-    expect(screen.getByLabelText(/plant name/i)).toHaveValue("Bird of Paradise");
-    expect(screen.getByLabelText(/description/i)).toHaveValue("Tall leaves by the balcony.");
-    expect(screen.getByLabelText(/care note/i)).toHaveValue("Water every Saturday.");
-    expect(screen.getByLabelText(/location/i)).toHaveValue("Sunroom corner");
-    expect(screen.getByAltText(/selected plant cover preview/i)).toHaveAttribute(
+    expect(screen.getByLabelText(/植物名称/i)).toHaveValue("Bird of Paradise");
+    expect(screen.getByLabelText(/简介/i)).toHaveValue("Tall leaves by the balcony.");
+    expect(screen.getByLabelText(/养护备注/i)).toHaveValue("Water every Saturday.");
+    expect(screen.getByLabelText(/摆放位置/i)).toHaveValue("Sunroom corner");
+    expect(screen.getByAltText(/已选植物封面预览/i)).toHaveAttribute(
       "src",
       "https://cdn.test/bird-of-paradise.jpg",
     );

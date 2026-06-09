@@ -35,6 +35,14 @@
       "task_count": 8,
       "completed": 8,
       "depends_on": ["infra", "family-access", "plant-registry"]
+    },
+    {
+      "module": "frontend-refresh",
+      "file": "docs/exec-plans/modules/frontend-refresh.json",
+      "description": "建立 Design Token 基础设施，逐页面落地 moodboard botanical 视觉方向：登录、onboarding、待办、植物、设置全路径改造。",
+      "task_count": 13,
+      "completed": 1,
+      "depends_on": ["infra", "family-access", "plant-registry", "care-reminders"]
     }
   ],
   "tasks_summary": [
@@ -233,6 +241,97 @@
       "description": "Implement scheduled due scanning and deduplicated reminder delivery.",
       "status": "completed",
       "priority": "2-Medium"
+    },
+    {
+      "task_id": "VIS-001",
+      "module": "frontend-refresh",
+      "description": "建立 Design Token 基础设施（色彩/字体/间距/阴影/圆角 CSS Custom Properties）。",
+      "status": "completed",
+      "priority": "0-Critical"
+    },
+    {
+      "task_id": "VIS-002",
+      "module": "frontend-refresh",
+      "description": "中文文案统一与 accessible name 清理。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "VIS-003",
+      "module": "frontend-refresh",
+      "description": "登录页视觉改造（botanical gradient + 压缩 Hero + 表单卡片重构）。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "VIS-004",
+      "module": "frontend-refresh",
+      "description": "Onboarding 流程视觉统一（quiet-form 设计语言）。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "VIS-005",
+      "module": "frontend-refresh",
+      "description": "App Shell 与底部导航 task-first 改造。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "VIS-006",
+      "module": "frontend-refresh",
+      "description": "待办页 task-first 布局改造（三栏任务卡片）。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "VIS-007",
+      "module": "frontend-refresh",
+      "description": "植物列表页 photo-led 改造（16:10 封面卡片 + 无图占位态）。",
+      "status": "pending",
+      "priority": "2-Medium"
+    },
+    {
+      "task_id": "VIS-008",
+      "module": "frontend-refresh",
+      "description": "植物详情页视觉重构（4:3 Hero + 任务区上移 + 固定操作栏）。",
+      "status": "pending",
+      "priority": "2-Medium"
+    },
+    {
+      "task_id": "VIS-009",
+      "module": "frontend-refresh",
+      "description": "设置页视觉重构（卡片重排 + 退出按钮独立化）。",
+      "status": "pending",
+      "priority": "2-Medium"
+    },
+    {
+      "task_id": "VIS-010",
+      "module": "frontend-refresh",
+      "description": "邀请码复制修复与 Fallback 交互。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "VIS-011",
+      "module": "frontend-refresh",
+      "description": "任务完成即时反馈与状态动效。",
+      "status": "pending",
+      "priority": "2-Medium"
+    },
+    {
+      "task_id": "VIS-012",
+      "module": "frontend-refresh",
+      "description": "通知权限卡片与权限状态可视化。",
+      "status": "pending",
+      "priority": "3-Low"
+    },
+    {
+      "task_id": "VIS-013",
+      "module": "frontend-refresh",
+      "description": "视觉回归验证与整体走查。",
+      "status": "pending",
+      "priority": "2-Medium"
     }
   ],
   "cross_module_dependencies": [
@@ -280,6 +379,36 @@
       "from": "CARE-008",
       "to": "CARE-007",
       "reason": "Reminder delivery depends on persisted push subscriptions."
+    },
+    {
+      "from": "VIS-010",
+      "to": "ACCESS-006",
+      "reason": "邀请码 fallback 依赖现有家庭设置摘要和邀请码 surface。"
+    },
+    {
+      "from": "VIS-005",
+      "to": "CARE-005",
+      "reason": "Task-first shell 默认落点依赖现有 due inbox route。"
+    },
+    {
+      "from": "VIS-007",
+      "to": "PLANT-001",
+      "reason": "Photo-led 改造依赖图片上传和 storage URL 机制。"
+    },
+    {
+      "from": "VIS-007",
+      "to": "PLANT-005",
+      "reason": "植物卡片改造复用 plant list 查询和 next-due 数据。"
+    },
+    {
+      "from": "VIS-004",
+      "to": "ACCESS-003",
+      "reason": "Onboarding 视觉改造基于现有 create/join family 流程。"
+    },
+    {
+      "from": "VIS-006",
+      "to": "CARE-005",
+      "reason": "待办页改造复用现有 due inbox 分组和 completion workflow。"
     }
   ]
 }

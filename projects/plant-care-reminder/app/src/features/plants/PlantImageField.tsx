@@ -22,8 +22,8 @@ interface PlantImageFieldProps {
 
 export function PlantImageField({
   disabled = false,
-  hint = "Upload a square or portrait plant photo. The stored value stays as a Convex storage id.",
-  label = "Plant cover photo",
+  hint = "建议上传方图或竖图。系统保存的是 Convex 存储 ID。",
+  label = "植物封面图",
   onChange,
   value,
 }: PlantImageFieldProps) {
@@ -102,7 +102,7 @@ export function PlantImageField({
       setUploadError(
         error instanceof Error
           ? error.message
-          : "Plant image upload failed. Please try again.",
+          : "植物图片上传失败，请稍后再试。",
       );
     }
   };
@@ -119,15 +119,15 @@ export function PlantImageField({
       <div style={previewCardStyle}>
         {previewUrl ? (
           <img
-            alt="Selected plant cover preview"
+            alt="已选植物封面预览"
             src={previewUrl}
             style={previewImageStyle}
           />
         ) : (
           <div aria-live="polite" style={previewPlaceholderStyle}>
-            <p style={previewPlaceholderEyebrowStyle}>No image yet</p>
+            <p style={previewPlaceholderEyebrowStyle}>还没有图片</p>
             <p style={previewPlaceholderCopyStyle}>
-              Add a bright plant photo so future plant cards can lead with imagery.
+              上传一张清晰的植物照片，后续在卡片和详情页里都会优先展示。
             </p>
           </div>
         )}
@@ -136,12 +136,12 @@ export function PlantImageField({
       <div style={statusRowStyle}>
         <span style={metaPillStyle}>
           {uploadState === "uploading"
-            ? `Uploading ${pendingFileName ?? "image"}`
+            ? `正在上传 ${pendingFileName ?? "图片"}`
             : value.storageId
-              ? "Stored in Convex"
-              : "Ready to upload"}
+              ? "已保存到 Convex"
+              : "等待上传"}
         </span>
-        {value.storageId ? <span style={storageIdStyle}>Storage id: {value.storageId}</span> : null}
+        {value.storageId ? <span style={storageIdStyle}>存储 ID：{value.storageId}</span> : null}
       </div>
 
       <input
@@ -162,10 +162,10 @@ export function PlantImageField({
           variant={previewUrl ? "secondary" : "primary"}
         >
           {uploadState === "uploading"
-            ? "Uploading image..."
+            ? "图片上传中..."
             : previewUrl
-              ? "Replace photo"
-              : "Upload photo"}
+              ? "替换图片"
+              : "上传图片"}
         </Button>
       </div>
 
@@ -224,7 +224,7 @@ const previewPlaceholderStyle: React.CSSProperties = {
 
 const previewPlaceholderEyebrowStyle: React.CSSProperties = {
   margin: 0,
-  color: "#2563eb",
+  color: "var(--color-leaf)",
   fontSize: "0.78rem",
   textTransform: "uppercase",
   letterSpacing: "0.16em",

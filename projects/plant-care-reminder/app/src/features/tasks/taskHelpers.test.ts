@@ -23,14 +23,14 @@ describe("taskTypes shared contract", () => {
     expect(careTaskTypeOptions).toHaveLength(careTaskTypeValues.length);
     expect(careTaskTypeOptions.at(-1)).toMatchObject({
       value: "custom",
-      label: "Custom task",
+      label: "自定义任务",
     });
   });
 
   it("formats preset and custom task labels from one helper", () => {
-    expect(formatTaskTypeLabel("watering")).toBe("Watering");
+    expect(formatTaskTypeLabel("watering")).toBe("浇水");
     expect(formatTaskTypeLabel("custom", " Leaf wipe ")).toBe("Leaf wipe");
-    expect(formatTaskTypeLabel("custom", "   ")).toBe("Custom task");
+    expect(formatTaskTypeLabel("custom", "   ")).toBe("自定义任务");
   });
 
   it("keeps custom-task validation in one place", () => {
@@ -39,7 +39,7 @@ describe("taskTypes shared contract", () => {
     expect(normalizeCustomTaskName("  Check moss pole  ")).toBe("Check moss pole");
     expect(validateCustomTaskName("watering", null)).toBeNull();
     expect(validateCustomTaskName("custom", "   ")).toBe(
-      "Enter a custom task name for this reminder.",
+      "请输入这个提醒的自定义任务名称。",
     );
     expect(validateCustomTaskName("custom", "Leaf wipe")).toBeNull();
   });

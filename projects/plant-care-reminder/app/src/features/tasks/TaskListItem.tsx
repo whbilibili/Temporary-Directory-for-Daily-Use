@@ -15,35 +15,35 @@ interface TaskListItemProps {
   };
 }
 
-const detailDateFormatter = new Intl.DateTimeFormat("en-US", {
-  month: "short",
-  day: "numeric",
+const detailDateFormatter = new Intl.DateTimeFormat("zh-CN", {
   year: "numeric",
+  month: "long",
+  day: "numeric",
 });
 
 export function TaskListItem({ onCompleted, onEdit, task }: TaskListItemProps) {
   const title = formatTaskTypeLabel(task.taskType, task.customLabel);
   const completionCopy = task.lastCompletedAt
-    ? `Last completed ${detailDateFormatter.format(new Date(task.lastCompletedAt))}`
-    : "No completion logged yet";
+    ? `上次完成于 ${detailDateFormatter.format(new Date(task.lastCompletedAt))}`
+    : "还没有完成记录";
 
   return (
     <article style={taskCardStyle}>
       <div style={taskHeaderStyle}>
-        <p style={taskEyebrowStyle}>Enabled routine</p>
+        <p style={taskEyebrowStyle}>已启用提醒</p>
         <h2 style={taskTitleStyle}>{title}</h2>
       </div>
       <div style={taskMetaGridStyle}>
-        <TaskMeta label="Next due" value={formatDueDate(task.nextDueAt)} />
+        <TaskMeta label="下次任务" value={formatDueDate(task.nextDueAt)} />
         <TaskMeta
-          label="Cadence"
-          value={`Every ${task.intervalDays} day${task.intervalDays === 1 ? "" : "s"}`}
+          label="频率"
+          value={`每 ${task.intervalDays} 天一次`}
         />
-        <TaskMeta label="History" value={completionCopy} />
+        <TaskMeta label="记录" value={completionCopy} />
       </div>
       <div style={actionsStyle}>
         <Button fullWidth={false} onClick={onEdit} type="button" variant="secondary">
-          Edit
+          编辑
         </Button>
         <CompleteTaskButton onCompleted={onCompleted} taskId={task.id} />
       </div>
@@ -76,7 +76,7 @@ const taskHeaderStyle: React.CSSProperties = {
 
 const taskEyebrowStyle: React.CSSProperties = {
   margin: 0,
-  color: "#2563eb",
+  color: "var(--color-leaf)",
   textTransform: "uppercase",
   letterSpacing: "0.14em",
   fontSize: "0.72rem",

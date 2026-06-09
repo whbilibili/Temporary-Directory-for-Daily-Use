@@ -1,10 +1,12 @@
 import { Button } from "../../components/ui/Button";
+import { StorageImage } from "../../components/ui/StorageImage";
 
 interface PlantHeroCardProps {
   plant: {
     archivedAt: number | null;
     createdAt: number;
     description: string | null;
+    imageStorageId?: string | null;
     imageUrl: string | null;
     isArchived: boolean;
     location: string | null;
@@ -17,10 +19,10 @@ interface PlantHeroCardProps {
   onEdit: () => void;
 }
 
-const timestampFormatter = new Intl.DateTimeFormat("en-US", {
-  month: "short",
-  day: "numeric",
+const timestampFormatter = new Intl.DateTimeFormat("zh-CN", {
   year: "numeric",
+  month: "long",
+  day: "numeric",
 });
 
 function formatTimestamp(value: number) {
@@ -31,50 +33,50 @@ export function PlantHeroCard({ actionSlot, plant, onBack, onEdit }: PlantHeroCa
   return (
     <article style={cardStyle}>
       <div style={mediaWrapStyle}>
-        {plant.imageUrl ? (
-          <img
-            alt={`${plant.name} cover`}
-            src={plant.imageUrl}
-            style={imageStyle}
-          />
-        ) : (
-          <div style={imageFallbackStyle}>
-            <p style={fallbackEyebrowStyle}>Plant profile</p>
-            <h2 style={fallbackTitleStyle}>{plant.name}</h2>
-            <p style={fallbackCopyStyle}>
-              Add a cover photo to make this plant easier to spot in the household board.
-            </p>
-          </div>
-        )}
+        <StorageImage
+          alt={`${plant.name}封面图`}
+          initialUrl={plant.imageUrl}
+          storageId={plant.imageStorageId as never}
+          style={imageStyle}
+          fallback={
+            <div style={imageFallbackStyle}>
+              <p style={fallbackEyebrowStyle}>植物档案</p>
+              <h2 style={fallbackTitleStyle}>{plant.name}</h2>
+              <p style={fallbackCopyStyle}>
+                补充封面图后，这盆植物在家庭看板里会更容易被识别。
+              </p>
+            </div>
+          }
+        />
       </div>
 
       <div style={bodyStyle}>
         <div style={headlineStyle}>
-          <p style={eyebrowStyle}>{plant.location?.trim() || "Shared plant"}</p>
+          <p style={eyebrowStyle}>{plant.location?.trim() || "共享植物"}</p>
           <h1 style={titleStyle}>{plant.name}</h1>
           {plant.description ? <p style={descriptionStyle}>{plant.description}</p> : null}
         </div>
 
         <div style={metaGridStyle}>
-          <MetaTile label="Care note" value={plant.note?.trim() || "No note saved yet"} />
-          <MetaTile label="Created" value={formatTimestamp(plant.createdAt)} />
-          <MetaTile label="Updated" value={formatTimestamp(plant.updatedAt)} />
+          <MetaTile label="养护备注" value={plant.note?.trim() || "暂未填写"} />
+          <MetaTile label="创建时间" value={formatTimestamp(plant.createdAt)} />
+          <MetaTile label="更新时间" value={formatTimestamp(plant.updatedAt)} />
           <MetaTile
-            label="Status"
+            label="状态"
             value={
               plant.isArchived
-                ? `Archived${plant.archivedAt ? ` on ${formatTimestamp(plant.archivedAt)}` : ""}`
-                : "Active in household board"
+                ? `已归档${plant.archivedAt ? `，归档于 ${formatTimestamp(plant.archivedAt)}` : ""}`
+                : "正在家庭看板中使用"
             }
           />
         </div>
 
         <div style={actionsStyle}>
           <Button fullWidth={false} onClick={onEdit} type="button">
-            Edit plant
+            编辑植物
           </Button>
           <Button fullWidth={false} onClick={onBack} type="button" variant="ghost">
-            Back to plants
+            返回植物列表
           </Button>
         </div>
         {actionSlot ? <div style={slotStyle}>{actionSlot}</div> : null}
@@ -161,7 +163,7 @@ const headlineStyle: React.CSSProperties = {
 
 const eyebrowStyle: React.CSSProperties = {
   margin: 0,
-  color: "#2563eb",
+  color: "var(--color-leaf)",
   textTransform: "uppercase",
   letterSpacing: "0.16em",
   fontSize: "0.76rem",

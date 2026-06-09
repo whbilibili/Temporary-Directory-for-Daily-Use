@@ -1,31 +1,63 @@
 ### [Current Focus]
-全部 MVP 执行任务已完成：care reminder 模块现在具备 due inbox、完成流、通知订阅，以及基于 cron 的到期扫描与提醒去重骨架。inbox 继续作为提醒失败时的兜底可见面。
+`frontend-refresh` 模块已完成任务细拆（2026-06-10），从原来的 5 个粗粒度 UX 任务拆解为 13 个原子任务（VIS-001 ~ VIS-013），每个任务对应可独立交付的垂直切片。
+
+**VIS-001 已完成（2026-06-10）**：tokens.css 已建立（botanical palette 全套色彩/字体/间距/圆角/阴影），index.css/App.css/Button/BottomNav 及全部含硬编码色值的 tsx 已替换为 token 变量。typecheck 通过、test 全绿（8 files / 50 tests）、grep 验收无残留。下一步从 VIS-002 开始（注意：VIS-002 的部分中文文案统一已在 VIS-001 期间提前完成，见 Blockers）。
+
+### [Task Breakdown Summary]
+- **VIS-001**（Critical）：Design Token 基础设施 — 所有后续视觉任务的前置依赖
+- **VIS-002**（High）：中文文案统一 ← 原 UX-001
+- **VIS-003**（High）：登录页视觉改造 ← 原 UX-005 login 部分
+- **VIS-004**（High）：Onboarding 流程视觉统一 ← 原 UX-005 onboarding 部分
+- **VIS-005**（High）：App Shell 与底部导航 task-first 改造 ← 原 UX-003 shell 部分
+- **VIS-006**（High）：待办页 task-first 布局 ← 原 UX-003 todo 部分
+- **VIS-007**（Medium）：植物列表页 photo-led 改造 ← 原 UX-004 list 部分
+- **VIS-008**（Medium）：植物详情页视觉重构 ← 原 UX-004 detail 部分
+- **VIS-009**（Medium）：设置页视觉重构 ← 原 UX-005 settings 部分
+- **VIS-010**（High）：邀请码复制修复与 Fallback ← 原 UX-002
+- **VIS-011**（Medium）：任务完成动效与状态反馈 ← 原 UX-005 state-feedback 部分
+- **VIS-012**（Low）：通知权限卡片状态可视化
+- **VIS-013**（Medium）：视觉回归验证与整体走查
+
+### [Recommended Execution Order]
+1. VIS-001（Token 基础设施 — 所有视觉任务的根依赖）
+2. VIS-002（文案清理 — 不依赖布局变更，可与 VIS-005 并行）
+3. VIS-005（Shell + 导航改造 — 影响默认路由和页面骨架）
+4. VIS-003（登录页 — 独立页面，不影响认证后路由）
+5. VIS-004（Onboarding — 独立流程页面组）
+6. VIS-006（待办页 — 依赖 VIS-005 的新落点）
+7. VIS-007 → VIS-008（植物列表 → 详情，上下游关系）
+8. VIS-009 → VIS-010（设置页 → 邀请码 fallback，上下游关系）
+9. VIS-011（状态反馈动效 — 依赖 VIS-006 和 VIS-008 的卡片结构）
+10. VIS-012（通知卡片 — 低优先级，依赖 VIS-009）
+11. VIS-013（全路径走查 — 收尾验证）
 
 ### [Key Decisions]
-- `CARE-008` 采用任务级 `lastNotifiedAt` 做去重，而不是额外新表；MVP 先保证“同窗口不重复提醒”，后续若要追踪详细投递结果再拆通知日志。
-- 到期扫描窗口固定为未来 `1` 小时，并允许未被提醒过的 overdue task 补发一次提醒；这样 cron 扫描能同时覆盖“刚到期”和“即将到期”。
-- cron 只在存在订阅用户时标记 `lastNotifiedAt`；没有可发设备或发送链路失败时，不会把任务从 inbox 隐去。
+- 原 5 个 UX 任务全部覆盖替换为 13 个 VIS 任务，任务 ID 体系从 UX-* 变更为 VIS-*。
+- 新增 VIS-001（Design Token 基础设施）作为 0-Critical 前置，确保后续任务不再硬编码色值。
+- 新增 VIS-013（视觉回归验证）作为收尾 gate，确保改造完成后整体一致性。
+- 每个任务的 design_contract 中已内嵌完整的视觉规格，Coding Agent 无需额外查阅设计文档即可执行。
 
 ### [Blockers & Solutions]
-- `CARE-008` 的合同只列了 `cron.ts`、`notifications.ts` 和 `shouldNotify.test.ts`，但实现去重必须在 `plantTasks` 上落状态，因此本轮额外扩展了 schema validator，并依赖 Convex codegen 更新 generated API。
-- 当前仓库还没有真正的 web-push 发送私钥和外部 sender，因此 cron action 先闭合“扫描 + fanout + 去重标记”后端主链路，把真实发送保留给后续基础设施接入；这不影响 inbox 兜底面继续工作。
+- 现有 CSS 中存在硬编码的蓝色(#2563EB)/橙色(#F97316) Token → VIS-001 已全量替换为 botanical palette（已解决）。
+- 【VIS-001 期间发现并处理】仓库存在 pre-existing 红测：单元测试（PlantForm/PlantImageField）断言英文 label，而 AppRouter.smoke 测试断言中文 label，二者对同一组件矛盾，源码无论中英文必有一组红。经用户确认采用「源码统一中文 + 同步改单元测试断言为中文」方案修绿。副作用：PlantForm.tsx/PlantImageField.tsx/plantSchema.ts/uploadPlantImage.ts 的文案已中文化，**这部分实际提前完成了 VIS-002（中文文案统一）的一部分工作**，VIS-002 执行时应核对剩余范围避免重复。
+- iPhone PWA clipboard API 不稳定 → VIS-010 实现完整的 fallback 面板，不依赖 clipboard。
+- 页面间视觉碎片化风险 → VIS-001 的全局 Token + VIS-013 的收尾走查形成闭环。
 
 ### [Verification]
-- `cd app && npm run typecheck`
-- `cd app && npm run test`
-- `cd app && npx convex dev --once --typecheck enable`
-- 本轮新增覆盖：
-  - `app/tests/unit/notifications/shouldNotify.test.ts` 覆盖 upcoming、dedupe、overdue 补发三种窗口场景
-  - cron 注册和 internal notification functions 通过 Convex typecheck/codegen
-- 验证结果：
-  - `tsc --noEmit` 通过
-  - `vitest run` 通过，`7` 个测试文件、`48` 个测试全部通过
-  - `Convex functions ready!`，新增 `cron.ts`、internal notification functions 和 `lastNotifiedAt` schema 变更通过服务端 typecheck
+- 规划文档变更后：
+  - `jq empty docs/exec-plans/feature-list.json`
+  - `jq empty docs/exec-plans/modules/frontend-refresh.json`
+- 编码阶段统一验证：
+  - `cd app && npm run typecheck`
+  - `cd app && npm run test`
+  - VIS-013 执行时追加全路径截图对比
 
 ### [Dead Ends]
-- 不要在无订阅用户时也写 `lastNotifiedAt`；否则后续设备补订阅后会错过首次提醒。
-- 不要把提醒成功与 UI 隐藏耦合在一起；到期任务始终留在 inbox，直到真实 completion flow 更新 `nextDueAt`。
+- 不要跳过 VIS-001 直接改页面 — 没有统一 Token 会导致后续任务重复定义色值和返工。
+- 不要将多个 VIS 任务合并执行 — 每个任务有独立的 verification 和 acceptance_criteria，合并会模糊验收边界。
+- 不要只给邀请码复制失败显示错误文案；必须同时给出用户仍能完成分享任务的替代路径。
 
 ### [Next Steps]
-1. 若继续扩展产品，下一步优先补真实 web-push sender 和投递失败日志，而不是继续增加前端提醒 UI。
-2. 若进入非 MVP 阶段，可把 `lastNotifiedAt` 升级为独立通知日志，支持更细粒度的送达审计。
+1. ✅ VIS-001 已完成并提交。
+2. 下一个任务：**VIS-002**（中文文案统一与 accessible name 清理）。执行前先核对 VIS-001 期间已中文化的文件（PlantForm/PlantImageField/plantSchema/uploadPlantImage），只处理剩余未中文化的页面文案。
+3. 按推荐顺序逐步推进，每完成一个 VIS 任务即更新本文件的 status，并 git 提交。

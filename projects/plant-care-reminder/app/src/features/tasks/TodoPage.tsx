@@ -20,9 +20,9 @@ export function TodoPage() {
   if (result === undefined) {
     return (
       <section style={stateCardStyle}>
-        <p style={eyebrowStyle}>Inbox</p>
-        <h1 style={titleStyle}>Loading due tasks queue</h1>
-        <p style={bodyStyle}>Pulling overdue, due-today, and upcoming reminders for this family.</p>
+        <p style={eyebrowStyle}>待办</p>
+        <h1 style={titleStyle}>正在加载养护提醒</h1>
+        <p style={bodyStyle}>正在同步本家庭已逾期、今天到期和即将到期的任务。</p>
       </section>
     );
   }
@@ -32,12 +32,11 @@ export function TodoPage() {
   return (
     <section style={pageStyle}>
       <PageHeader
-        eyebrow="Inbox"
-        title="Due tasks queue"
+        eyebrow="待办"
+        title="家庭养护任务"
         description={
           <p style={bodyStyle}>
-            Start with the most urgent care work first. Overdue tasks lead, today stays visible,
-            and the next three days remain ready before anyone forgets.
+            优先处理最紧急的任务。已逾期的排在最前面，今天到期和近期任务也会持续显示。
           </p>
         }
       />
@@ -46,36 +45,36 @@ export function TodoPage() {
         <EmptyState
           actions={
             <Button fullWidth={false} onClick={() => navigate("/plants")} type="button">
-              Browse plants
+              查看植物列表
             </Button>
           }
-          badge="Inbox"
-          title="No due tasks in the next three days"
-          description="Once a household reminder becomes overdue, due today, or due soon, it will surface here first."
+          badge="待办"
+          title="未来三天没有待处理的养护任务"
+          description="当家庭提醒进入已逾期、今天到期或即将到期状态时，会优先出现在这里。"
           minHeight="220px"
         />
       ) : (
         <>
           <DueTaskGroup
-            description="These reminders have already slipped past their planned day and should be handled first."
-            eyebrow={`${result.overdue.length} due`}
+            description="这些任务已经超过原计划日期，建议优先处理。"
+            eyebrow={`${result.overdue.length} 条`}
             onOpenPlant={(plantId) => navigate(`/plants/${plantId}`)}
             tasks={result.overdue}
-            title="Overdue"
+            title="已逾期"
           />
           <DueTaskGroup
-            description="These routines land today, so the household can close them before the day ends."
-            eyebrow={`${result.today.length} due`}
+            description="这些任务需要在今天完成，方便家人在当天内处理。"
+            eyebrow={`${result.today.length} 条`}
             onOpenPlant={(plantId) => navigate(`/plants/${plantId}`)}
             tasks={result.today}
-            title="Due today"
+            title="今天到期"
           />
           <DueTaskGroup
-            description="The next three days stay visible so everyone can batch care work before it becomes urgent."
-            eyebrow={`${result.upcoming.length} queued`}
+            description="接下来三天的任务会提前显示，方便你提前安排集中养护。"
+            eyebrow={`${result.upcoming.length} 条`}
             onOpenPlant={(plantId) => navigate(`/plants/${plantId}`)}
             tasks={result.upcoming}
-            title="Upcoming"
+            title="即将到期"
           />
         </>
       )}
@@ -100,7 +99,7 @@ const stateCardStyle: React.CSSProperties = {
 
 const eyebrowStyle: React.CSSProperties = {
   margin: 0,
-  color: "#2563eb",
+  color: "var(--color-leaf)",
   textTransform: "uppercase",
   letterSpacing: "0.16em",
   fontSize: "0.75rem",

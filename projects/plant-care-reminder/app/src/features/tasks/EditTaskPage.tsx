@@ -106,7 +106,7 @@ export function EditTaskPage({ plantId, taskId }: EditTaskPageProps) {
       navigate(`/plants/${task.plantId}`, true);
     } catch (error) {
       setFormError(
-        error instanceof Error ? error.message : "We could not update this care task right now.",
+        error instanceof Error ? error.message : "当前无法更新这条养护提醒，请稍后再试。",
       );
     } finally {
       setIsSubmitting(false);
@@ -116,12 +116,12 @@ export function EditTaskPage({ plantId, taskId }: EditTaskPageProps) {
   if (!plantId || !taskId) {
     return (
       <EmptyState
-        badge="Care task"
-        title="This task edit route is missing its ids"
-        description="Return to the plant detail page and reopen the task from a valid household plant."
+        badge="养护任务"
+        title="当前提醒编辑页缺少必要 ID"
+        description="请返回植物详情页，从有效的家庭植物任务重新进入。"
         actions={
           <Button type="button" variant="secondary" onClick={() => navigate("/plants")}>
-            Back to plants
+            返回植物列表
           </Button>
         }
       />
@@ -131,9 +131,9 @@ export function EditTaskPage({ plantId, taskId }: EditTaskPageProps) {
   if (task === undefined || values === null) {
     return (
       <section style={loadingCardStyle}>
-        <p style={eyebrowStyle}>Care task</p>
-        <h1 style={loadingTitleStyle}>Loading care task editor</h1>
-        <p style={bodyStyle}>Pulling the current task settings before edits are saved.</p>
+        <p style={eyebrowStyle}>养护任务</p>
+        <h1 style={loadingTitleStyle}>正在加载提醒编辑器</h1>
+        <p style={bodyStyle}>正在读取当前任务配置，以便保存修改。</p>
       </section>
     );
   }
@@ -141,12 +141,12 @@ export function EditTaskPage({ plantId, taskId }: EditTaskPageProps) {
   if (task === null) {
     return (
       <EmptyState
-        badge="Unavailable"
-        title="This care task is not available in your household"
-        description="The task may belong to another family or no longer exist."
+        badge="不可用"
+        title="当前家庭中找不到这条养护提醒"
+        description="它可能属于其他家庭，或者已经被删除。"
         actions={
           <Button type="button" variant="secondary" onClick={() => navigate(`/plants/${plantId}`)}>
-            Back to plant
+            返回植物详情
           </Button>
         }
         minHeight="220px"
@@ -162,12 +162,12 @@ export function EditTaskPage({ plantId, taskId }: EditTaskPageProps) {
         actionsSlot={
           <section style={statusSectionStyle}>
             <div style={statusCopyStyle}>
-              <p style={statusEyebrowStyle}>Reminder status</p>
-              <h2 style={statusTitleStyle}>{enabled ? "Enabled in due views" : "Disabled for now"}</h2>
+              <p style={statusEyebrowStyle}>提醒状态</p>
+              <h2 style={statusTitleStyle}>{enabled ? "当前已启用" : "当前已停用"}</h2>
               <p style={statusBodyStyle}>
                 {enabled
-                  ? "Enabled tasks continue to participate in due lists and reminder delivery."
-                  : "Disabled tasks stay saved on the plant, but they stop showing up in due views until re-enabled."}
+                  ? "启用后，这条任务会继续参与待办列表和提醒推送。"
+                  : "停用后，任务仍会保留在植物名下，但不会出现在待办列表里，直到重新启用。"}
               </p>
             </div>
             <Button
@@ -176,14 +176,13 @@ export function EditTaskPage({ plantId, taskId }: EditTaskPageProps) {
               type="button"
               variant={enabled ? "ghost" : "secondary"}
             >
-              {enabled ? "Disable task" : "Enable task"}
+              {enabled ? "停用提醒" : "启用提醒"}
             </Button>
           </section>
         }
         description={
           <p style={bodyStyle}>
-            Update cadence, type, or custom label for this reminder. Saving recomputes the next due
-            time from the existing completion baseline.
+            你可以修改提醒频率、类型或自定义名称。保存后会基于当前完成基线重新计算下次提醒时间。
           </p>
         }
         errors={errors}
@@ -192,8 +191,8 @@ export function EditTaskPage({ plantId, taskId }: EditTaskPageProps) {
         onSubmit={handleSubmit}
         onValueChange={setValue}
         plantName={task.plantName}
-        submitLabel="Update care task"
-        title={`Edit ${taskLabel} for ${task.plantName}`}
+        submitLabel="更新养护提醒"
+        title={`编辑 ${task.plantName} 的${taskLabel}提醒`}
         values={values}
       />
       <DeleteTaskAction
@@ -222,7 +221,7 @@ const loadingCardStyle: React.CSSProperties = {
 
 const eyebrowStyle: React.CSSProperties = {
   margin: 0,
-  color: "#2563eb",
+  color: "var(--color-leaf)",
   textTransform: "uppercase",
   letterSpacing: "0.16em",
   fontSize: "0.75rem",
@@ -261,7 +260,7 @@ const statusCopyStyle: React.CSSProperties = {
 
 const statusEyebrowStyle: React.CSSProperties = {
   margin: 0,
-  color: "#2563eb",
+  color: "var(--color-leaf)",
   textTransform: "uppercase",
   letterSpacing: "0.14em",
   fontSize: "0.72rem",

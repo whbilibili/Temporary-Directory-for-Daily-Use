@@ -26,7 +26,7 @@ export function JoinFamilyForm({ onSuccess }: JoinFamilyFormProps) {
       onSuccess();
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : "We could not join that household.",
+        error instanceof Error ? error.message : "加入家庭失败，请检查邀请码后重试。",
       );
       setIsSubmitting(false);
     }
@@ -37,8 +37,8 @@ export function JoinFamilyForm({ onSuccess }: JoinFamilyFormProps) {
       <InputField
         autoCapitalize="characters"
         autoComplete="off"
-        hint="Ask a household member for the 6-character invite code."
-        label="Invite code"
+        hint="向家人索取 6 位邀请码后填入这里。"
+        label="邀请码"
         maxLength={12}
         onChange={(event) => setInviteCode(event.target.value.toUpperCase())}
         placeholder="ABCD12"
@@ -47,7 +47,7 @@ export function JoinFamilyForm({ onSuccess }: JoinFamilyFormProps) {
       />
       <FormError message={errorMessage} />
       <Button disabled={isSubmitting} type="submit">
-        {isSubmitting ? "Joining household..." : "Join family"}
+        {isSubmitting ? "加入中..." : "加入家庭"}
       </Button>
     </form>
   );

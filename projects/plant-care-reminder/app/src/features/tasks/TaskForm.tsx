@@ -43,8 +43,7 @@ export function TaskForm({
   actionsSlot,
   description = (
     <p style={bodyStyle}>
-      Add an interval-based routine to this plant. The backend stores the next due time from the
-      interval and optional last-completed date.
+      为这盆植物添加一个按间隔执行的提醒。系统会根据间隔和可选的上次完成日期自动计算下次到期时间。
     </p>
   ),
   errors,
@@ -54,7 +53,7 @@ export function TaskForm({
   onValueChange,
   plantName,
   submitLabel,
-  title = `Create a reminder for ${plantName}`,
+  title = `为 ${plantName} 创建提醒`,
   values,
 }: TaskFormProps) {
   const selectedTaskType = careTaskTypeOptions.find((option) => option.value === values.taskType);
@@ -63,14 +62,14 @@ export function TaskForm({
   return (
     <section style={cardStyle}>
       <PageHeader
-        eyebrow="Care task"
+        eyebrow="养护任务"
         title={title}
         description={description}
       />
       <form noValidate onSubmit={onSubmit} style={formStyle}>
         <SelectField
           hint={selectedTaskType?.description}
-          label="Task type"
+          label="任务类型"
           onChange={(event) => onValueChange("taskType", event.target.value as CareTaskType)}
           value={values.taskType}
         >
@@ -84,8 +83,8 @@ export function TaskForm({
           <InputField
             autoComplete="off"
             errorMessage={errors.customTaskName}
-            hint="Required for custom reminders only."
-            label="Custom task name"
+            hint="仅在选择自定义任务时必填。"
+            label="自定义任务名称"
             onChange={(event) => onValueChange("customTaskName", event.target.value)}
             placeholder="Leaf wipe"
             value={values.customTaskName}
@@ -93,9 +92,9 @@ export function TaskForm({
         ) : null}
         <InputField
           errorMessage={errors.intervalDays}
-          hint="Required. Whole days between each reminder."
+          hint="必填。表示两次提醒之间相隔的完整天数。"
           inputMode="numeric"
-          label="Interval days"
+          label="提醒间隔天数"
           min={1}
           onChange={(event) => onValueChange("intervalDays", event.target.value)}
           placeholder="7"
@@ -103,20 +102,20 @@ export function TaskForm({
           value={values.intervalDays}
         />
         <InputField
-          hint="Optional. If filled, the next due time is computed from this completion date."
-          label="Last completed on"
+          hint="选填。填写后会基于这次完成日期计算下一次提醒时间。"
+          label="上次完成日期"
           onChange={(event) => onValueChange("baseCompletedOn", event.target.value)}
           type="date"
           value={values.baseCompletedOn}
         />
         <div style={previewPanelStyle}>
-          <p style={previewEyebrowStyle}>Next due preview</p>
+          <p style={previewEyebrowStyle}>下次任务预览</p>
           <p style={previewTitleStyle}>{formatTaskTypeLabel(values.taskType, values.customTaskName)}</p>
           <p style={previewCopyStyle}>{duePreview}</p>
         </div>
         <FormError message={formError} />
         <Button disabled={isSubmitting} type="submit">
-          {isSubmitting ? "Saving care task..." : submitLabel}
+          {isSubmitting ? "保存中..." : submitLabel}
         </Button>
         {actionsSlot ? <div style={actionsSlotStyle}>{actionsSlot}</div> : null}
       </form>
@@ -136,7 +135,7 @@ export function parseDateInputToTimestamp(value: string) {
 function getDuePreview(values: TaskFormValues) {
   const interval = Number(values.intervalDays);
   if (!Number.isInteger(interval) || interval < 1) {
-    return "Enter a whole-day interval to preview the next reminder.";
+    return "请输入有效的整数天数，才能预览下一次提醒时间。";
   }
 
   const baseTimestamp = values.baseCompletedOn
@@ -144,7 +143,7 @@ function getDuePreview(values: TaskFormValues) {
     : Date.now();
 
   if (!baseTimestamp) {
-    return "Enter a valid completion date to preview the next reminder.";
+    return "请输入有效的完成日期，才能预览下一次提醒时间。";
   }
 
   return formatDueDate(baseTimestamp + interval * 24 * 60 * 60 * 1000);
@@ -237,7 +236,7 @@ const previewPanelStyle: React.CSSProperties = {
 
 const previewEyebrowStyle: React.CSSProperties = {
   margin: 0,
-  color: "#2563eb",
+  color: "var(--color-leaf)",
   textTransform: "uppercase",
   letterSpacing: "0.14em",
   fontSize: "0.72rem",

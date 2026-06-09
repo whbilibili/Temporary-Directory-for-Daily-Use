@@ -12,17 +12,17 @@ describe("EmailLoginForm", () => {
 
     render(<EmailLoginForm mode="signIn" />);
 
-    fireEvent.change(screen.getByLabelText(/email/i), {
+    fireEvent.change(screen.getByLabelText(/邮箱/i), {
       target: { value: "user@example.com" },
     });
-    fireEvent.change(screen.getByLabelText(/password/i), {
+    fireEvent.change(screen.getByLabelText(/密码/i), {
       target: { value: "password123" },
     });
-    fireEvent.click(screen.getByRole("button", { name: /sign in/i }));
+    fireEvent.click(screen.getByRole("button", { name: /登录/i }));
 
     await waitFor(() =>
       expect(
-        screen.getByText(/we could not sign you in with that email and password/i),
+        screen.getByText(/邮箱或密码不正确，暂时无法登录/i),
       ).toBeInTheDocument(),
     );
     expect(screen.queryByText(/invalidaccountid/i)).not.toBeInTheDocument();

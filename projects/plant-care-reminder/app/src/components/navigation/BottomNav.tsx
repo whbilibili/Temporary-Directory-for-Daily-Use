@@ -6,14 +6,14 @@ interface BottomNavProps {
 }
 
 const navItems: Array<{ href: AppPath; label: string; icon: string }> = [
-  { href: "/plants", label: "Plants", icon: "Leaf" },
-  { href: "/todo", label: "Inbox", icon: "Due" },
-  { href: "/settings", label: "Home", icon: "Nest" },
+  { href: "/plants", label: "植物", icon: "植物" },
+  { href: "/todo", label: "待办", icon: "提醒" },
+  { href: "/settings", label: "设置", icon: "家庭" },
 ];
 
 export function BottomNav({ pathname }: BottomNavProps) {
   return (
-    <nav aria-label="Primary" style={navStyle}>
+    <nav aria-label="主导航" style={navStyle}>
       {navItems.map((item) => {
         const isActive =
           item.href === "/plants" ? pathname.startsWith("/plants") : pathname === item.href;
@@ -29,7 +29,7 @@ export function BottomNav({ pathname }: BottomNavProps) {
               ...(isActive ? activeItemStyle : null),
             }}
           >
-            <span style={iconStyle}>{item.icon}</span>
+            <span aria-hidden="true" style={iconStyle}>{item.icon}</span>
             <span>{item.label}</span>
           </button>
         );
@@ -45,8 +45,8 @@ const navStyle: React.CSSProperties = {
   gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
   gap: "12px",
   padding: "14px 16px calc(14px + env(safe-area-inset-bottom, 0px))",
-  borderTop: "1px solid #d9e2ec",
-  background: "rgba(248,250,252,0.92)",
+  borderTop: "1px solid var(--color-line)",
+  background: "rgba(251,252,247,0.92)",
   backdropFilter: "blur(12px)",
 };
 
@@ -54,8 +54,8 @@ const itemStyle: React.CSSProperties = {
   appearance: "none",
   border: "1px solid transparent",
   borderRadius: "18px",
-  background: "#ffffff",
-  color: "#475569",
+  background: "var(--color-surface)",
+  color: "var(--color-muted)",
   minHeight: "60px",
   display: "flex",
   flexDirection: "column",
@@ -69,8 +69,8 @@ const itemStyle: React.CSSProperties = {
 };
 
 const activeItemStyle: React.CSSProperties = {
-  borderColor: "#93c5fd",
-  color: "#2563eb",
+  borderColor: "var(--color-line)",
+  color: "var(--color-leaf)",
   transform: "translateY(-1px)",
 };
 

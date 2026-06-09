@@ -1,7 +1,7 @@
 export { formatTaskTypeLabel } from "../features/tasks/taskTypes";
 
-const longDateFormatter = new Intl.DateTimeFormat("en-US", {
-  month: "short",
+const longDateFormatter = new Intl.DateTimeFormat("zh-CN", {
+  month: "long",
   day: "numeric",
 });
 
@@ -10,7 +10,7 @@ export function formatDueDate(
   nowInput: number | Date = Date.now(),
 ) {
   if (dueAt === null || dueAt === undefined) {
-    return "No due date";
+    return "暂无计划日期";
   }
 
   const dueDate = dueAt instanceof Date ? dueAt : new Date(dueAt);
@@ -23,20 +23,20 @@ export function formatDueDate(
   );
 
   if (dayDelta < 0) {
-    return `Overdue by ${Math.abs(dayDelta)} day${Math.abs(dayDelta) === 1 ? "" : "s"}`;
+    return `已逾期 ${Math.abs(dayDelta)} 天`;
   }
 
   if (dayDelta === 0) {
-    return "Due today";
+    return "今天到期";
   }
 
   if (dayDelta === 1) {
-    return "Due tomorrow";
+    return "明天到期";
   }
 
   if (dayDelta <= 6) {
-    return `Due in ${dayDelta} days`;
+    return `${dayDelta} 天后到期`;
   }
 
-  return `Due ${longDateFormatter.format(dueDate)}`;
+  return `${longDateFormatter.format(dueDate)} 到期`;
 }

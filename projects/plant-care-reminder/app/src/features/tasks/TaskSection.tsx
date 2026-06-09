@@ -24,15 +24,14 @@ export function TaskSection({ onAdd, onCompleted, onEdit, plantName, tasks }: Ta
       <PageHeader
         actions={
           <Button fullWidth={false} onClick={onAdd} type="button">
-            Add routine
+            添加提醒
           </Button>
         }
-        eyebrow="Care tasks"
-        title="Enabled routines"
+        eyebrow="养护任务"
+        title="已启用的提醒"
         description={
           <p style={bodyStyle}>
-            Each routine on {plantName} stays visible here with direct edit and completion entry
-            points, so the plant detail page remains the coordination surface for the household.
+            {plantName} 的所有提醒都会显示在这里，方便直接编辑和完成，植物详情页也就成了家庭协作的统一入口。
           </p>
         }
       />
@@ -41,12 +40,12 @@ export function TaskSection({ onAdd, onCompleted, onEdit, plantName, tasks }: Ta
         <EmptyState
           actions={
             <Button fullWidth={false} onClick={onAdd} type="button">
-              Add routine
+              添加提醒
             </Button>
           }
-          badge="Care tasks"
-          title="No enabled care routines yet"
-          description="Add watering, fertilizing, misting, pruning, or custom routines for this plant."
+          badge="养护任务"
+          title="还没有启用任何养护提醒"
+          description="可以为这盆植物添加浇水、施肥、喷雾、修剪或自定义提醒。"
           minHeight="200px"
         />
       ) : (

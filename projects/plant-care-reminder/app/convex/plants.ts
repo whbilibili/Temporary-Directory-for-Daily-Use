@@ -138,6 +138,7 @@ export const getPlantDetail = query({
         description: plant.description ?? null,
         note: plant.notes ?? null,
         location: plant.location ?? null,
+        imageStorageId: plant.imageStorageId ?? null,
         imageUrl,
         createdAt: plant.createdAt,
         updatedAt: plant.updatedAt,
@@ -179,6 +180,7 @@ export const listPlantsWithNextDue = query({
           name: plant.name,
           description: plant.description ?? null,
           location: plant.location ?? null,
+          imageStorageId: plant.imageStorageId ?? null,
           imageUrl,
           nextDueTask: nextDueTask
             ? {

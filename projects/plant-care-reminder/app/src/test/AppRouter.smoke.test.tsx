@@ -61,12 +61,10 @@ describe("AppShell smoke coverage", () => {
     );
 
     await waitFor(() => expect(window.location.pathname).toBe("/onboarding"));
-    expect(screen.getByRole("heading", { name: /welcome, wang\./i })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /create a family/i })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /join a family/i })).toBeInTheDocument();
-    expect(
-      screen.getByText(/set up a new shared household, generate an invite code/i),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /欢迎你，wang。/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /创建一个家庭/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /加入已有家庭/i })).toBeInTheDocument();
+    expect(screen.getByText(/创建新的共享家庭，系统会自动生成邀请码/i)).toBeInTheDocument();
   });
 
   it("redirects authenticated users without a display name into the profile bootstrap route", async () => {
@@ -166,12 +164,12 @@ describe("AppShell smoke coverage", () => {
     );
 
     await waitFor(() => expect(window.location.pathname).toBe("/todo"));
-    expect(screen.getByRole("heading", { name: /due tasks queue/i })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /overdue/i })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /due today/i })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /upcoming/i })).toBeInTheDocument();
-    expect(screen.getAllByRole("button", { name: /^complete$/i })).toHaveLength(3);
-    expect(screen.getByRole("button", { name: /inbox/i })).toHaveAttribute(
+    expect(screen.getByRole("heading", { name: /家庭养护任务/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /已逾期/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /今天到期/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /即将到期/i })).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /^完成$/i })).toHaveLength(3);
+    expect(screen.getByRole("button", { name: /待办/i })).toHaveAttribute(
       "aria-current",
       "page",
     );
@@ -216,7 +214,7 @@ describe("AppShell smoke coverage", () => {
       },
     );
 
-    fireEvent.click(screen.getByRole("button", { name: /^complete$/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^完成$/i }));
 
     await waitFor(() =>
       expect(mutationHandler).toHaveBeenCalledWith({
@@ -247,9 +245,9 @@ describe("AppShell smoke coverage", () => {
 
     await waitFor(() => expect(window.location.pathname).toBe("/todo"));
     expect(
-      screen.getByText(/no due tasks in the next three days/i),
+      screen.getByText(/未来三天没有待处理的养护任务/i),
     ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /browse plants/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /查看植物列表/i })).toBeInTheDocument();
   });
 
   it("renders the create-family form for authenticated users without a family", async () => {
@@ -268,8 +266,8 @@ describe("AppShell smoke coverage", () => {
     );
 
     await waitFor(() => expect(window.location.pathname).toBe("/onboarding/create-family"));
-    expect(screen.getByRole("heading", { name: /create a shared greenhouse/i })).toBeInTheDocument();
-    expect(screen.getByLabelText(/family name/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /创建共享家庭植物空间/i })).toBeInTheDocument();
+    expect(screen.getByLabelText(/家庭名称/i)).toBeInTheDocument();
   });
 
   it("keeps the invite card visible on create-family after success even when family context exists", async () => {
@@ -295,8 +293,8 @@ describe("AppShell smoke coverage", () => {
     );
 
     await waitFor(() => expect(window.location.pathname).toBe("/onboarding/create-family"));
-    expect(screen.getByRole("heading", { name: /create a shared greenhouse/i })).toBeInTheDocument();
-    expect(screen.getByLabelText(/family name/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /创建共享家庭植物空间/i })).toBeInTheDocument();
+    expect(screen.getByLabelText(/家庭名称/i)).toBeInTheDocument();
   });
 
   it("renders the invite card immediately after family creation succeeds", async () => {
@@ -320,14 +318,13 @@ describe("AppShell smoke coverage", () => {
       },
     );
 
-    fireEvent.change(screen.getByLabelText(/family name/i), {
+    fireEvent.change(screen.getByLabelText(/家庭名称/i), {
       target: { value: "Wang Family Greenhouse" },
     });
-    fireEvent.click(screen.getByRole("button", { name: /create family/i }));
+    fireEvent.click(screen.getByRole("button", { name: /创建家庭/i }));
 
     await waitFor(() =>
-      expect(screen.getByRole("heading", { name: /your shared household is live\./i }))
-        .toBeInTheDocument(),
+      expect(screen.getByRole("heading", { name: /共享家庭已创建完成/i })).toBeInTheDocument(),
     );
     expect(screen.getByText("ABCD12")).toBeInTheDocument();
     expect(window.sessionStorage.getItem("plant-care-reminder:create-family-success")).toBe("1");
@@ -349,8 +346,8 @@ describe("AppShell smoke coverage", () => {
     );
 
     await waitFor(() => expect(window.location.pathname).toBe("/onboarding/join-family"));
-    expect(screen.getByRole("heading", { name: /join an existing household/i })).toBeInTheDocument();
-    expect(screen.getByLabelText(/invite code/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /加入已有家庭/i })).toBeInTheDocument();
+    expect(screen.getByLabelText(/邀请码/i)).toBeInTheDocument();
   });
 
   it("shows the join waiting state after a valid invite code succeeds", async () => {
@@ -373,13 +370,13 @@ describe("AppShell smoke coverage", () => {
       },
     );
 
-    fireEvent.change(screen.getByLabelText(/invite code/i), {
+    fireEvent.change(screen.getByLabelText(/邀请码/i), {
       target: { value: "ABCD12" },
     });
-    fireEvent.click(screen.getByRole("button", { name: /join family/i }));
+    fireEvent.click(screen.getByRole("button", { name: /加入家庭/i }));
 
     await waitFor(() =>
-      expect(screen.getByRole("heading", { name: /linking you to the household board/i }))
+      expect(screen.getByRole("heading", { name: /正在接入家庭植物看板/i }))
         .toBeInTheDocument(),
     );
   });
@@ -404,10 +401,10 @@ describe("AppShell smoke coverage", () => {
       },
     );
 
-    fireEvent.change(screen.getByLabelText(/invite code/i), {
+    fireEvent.change(screen.getByLabelText(/邀请码/i), {
       target: { value: "ZZZZ99" },
     });
-    fireEvent.click(screen.getByRole("button", { name: /join family/i }));
+    fireEvent.click(screen.getByRole("button", { name: /加入家庭/i }));
 
     await waitFor(() =>
       expect(screen.getByRole("alert")).toHaveTextContent(
@@ -459,15 +456,15 @@ describe("AppShell smoke coverage", () => {
     await waitFor(() => expect(window.location.pathname).toBe("/settings"));
     expect(screen.getByRole("heading", { name: /wang family greenhouse/i })).toBeInTheDocument();
     expect(screen.getByText("ABCD12")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /copy code/i })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /household members/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /复制邀请码/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /家庭成员/i })).toBeInTheDocument();
     expect(screen.getByText("Wang")).toBeInTheDocument();
     expect(screen.getByText("Li")).toBeInTheDocument();
-    expect(screen.getByText("Admin")).toBeInTheDocument();
-    expect(screen.getByText("Member")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /enable device reminders/i })).toBeInTheDocument();
+    expect(screen.getByText("管理员")).toBeInTheDocument();
+    expect(screen.getAllByText("成员").length).toBeGreaterThan(0);
+    expect(screen.getByRole("heading", { name: /开启设备提醒/i })).toBeInTheDocument();
     expect(
-      screen.getByText(/this browser cannot complete web-push setup yet/i),
+      screen.getByText(/当前浏览器暂不支持 web push/i),
     ).toBeInTheDocument();
   });
 
@@ -521,18 +518,18 @@ describe("AppShell smoke coverage", () => {
       },
     );
 
-    fireEvent.click(screen.getByRole("button", { name: /enable notifications/i }));
+    fireEvent.click(screen.getByRole("button", { name: /开启通知/i }));
 
     await waitFor(() =>
       expect(mutationHandler).toHaveBeenCalledWith({
         endpoint: "https://push.example.test/subscriptions/1",
         p256dh: "p256dh-key",
         auth: "auth-key",
-        deviceLabel: "Household device",
+        deviceLabel: "家庭设备",
       }),
     );
     expect(
-      screen.getByText(/this device is ready to receive reminder pushes/i),
+      screen.getByText(/当前设备已经可以接收家庭植物提醒通知/i),
     ).toBeInTheDocument();
   });
 
@@ -552,9 +549,9 @@ describe("AppShell smoke coverage", () => {
     );
 
     await waitFor(() => expect(window.location.pathname).toBe("/plants/new"));
-    expect(screen.getByRole("heading", { name: /add a plant to your shared home/i })).toBeInTheDocument();
-    expect(screen.getByLabelText(/plant name/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /plants/i })).toHaveAttribute(
+    expect(screen.getByRole("heading", { name: /把植物添加到家庭空间/i })).toBeInTheDocument();
+    expect(screen.getByLabelText(/植物名称/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^植物$/i })).toHaveAttribute(
       "aria-current",
       "page",
     );
@@ -580,13 +577,13 @@ describe("AppShell smoke coverage", () => {
       },
     );
 
-    fireEvent.change(screen.getByLabelText(/plant name/i), {
+    fireEvent.change(screen.getByLabelText(/植物名称/i), {
       target: { value: "Monstera deliciosa" },
     });
-    fireEvent.change(screen.getByLabelText(/location/i), {
+    fireEvent.change(screen.getByLabelText(/摆放位置/i), {
       target: { value: "Dining room shelf" },
     });
-    fireEvent.click(screen.getByRole("button", { name: /save plant/i }));
+    fireEvent.click(screen.getByRole("button", { name: /保存植物/i }));
 
     await waitFor(() =>
       expect(mutationHandler).toHaveBeenCalledWith({
@@ -620,6 +617,7 @@ describe("AppShell smoke coverage", () => {
               name: "Monstera deliciosa",
               description: "Bright indirect light and large split leaves.",
               location: "Dining room shelf",
+              imageStorageId: "storage_1",
               imageUrl: "https://cdn.test/monstera.jpg",
               nextDueTask: {
                 taskType: "watering",
@@ -633,16 +631,16 @@ describe("AppShell smoke coverage", () => {
     );
 
     await waitFor(() => expect(window.location.pathname).toBe("/plants"));
-    expect(screen.getByRole("heading", { name: /shared plant registry/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /家庭植物档案/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /monstera deliciosa/i })).toBeInTheDocument();
     expect(screen.getByText(/dining room shelf/i)).toBeInTheDocument();
-    expect(screen.getByText(/watering/i)).toBeInTheDocument();
-    expect(screen.getByText(/due in 2 days|due tomorrow|due today|due /i)).toBeInTheDocument();
-    expect(screen.getByAltText(/monstera deliciosa cover/i)).toHaveAttribute(
+    expect(screen.getByText(/浇水/i)).toBeInTheDocument();
+    expect(screen.getByText(/2 天后到期|明天到期|今天到期|到期/i)).toBeInTheDocument();
+    expect(screen.getByAltText(/monstera deliciosa封面图/i)).toHaveAttribute(
       "src",
       "https://cdn.test/monstera.jpg",
     );
-    expect(screen.getByRole("button", { name: /open profile/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /查看详情/i })).toBeInTheDocument();
   });
 
   it("renders the empty plant-board state when the household has no active plants", async () => {
@@ -664,8 +662,8 @@ describe("AppShell smoke coverage", () => {
     );
 
     await waitFor(() => expect(window.location.pathname).toBe("/plants"));
-    expect(screen.getByText(/your shared plant board is empty/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /add plant/i })).toBeInTheDocument();
+    expect(screen.getByText(/你的家庭植物看板还是空的/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /添加植物/i })).toBeInTheDocument();
   });
 
   it("loads the edit-plant route with prefilled data for the current family", async () => {
@@ -696,12 +694,12 @@ describe("AppShell smoke coverage", () => {
     );
 
     await waitFor(() => expect(window.location.pathname).toBe("/plants/plant_1/edit"));
-    expect(screen.getByRole("heading", { name: /edit your shared plant profile/i })).toBeInTheDocument();
-    expect(screen.getByLabelText(/plant name/i)).toHaveValue("Bird of Paradise");
-    expect(screen.getByLabelText(/description/i)).toHaveValue("Tall leaves by the balcony.");
-    expect(screen.getByLabelText(/care note/i)).toHaveValue("Water every Saturday.");
-    expect(screen.getByLabelText(/location/i)).toHaveValue("Sunroom corner");
-    expect(screen.getByAltText(/selected plant cover preview/i)).toHaveAttribute(
+    expect(screen.getByRole("heading", { name: /编辑家庭植物资料/i })).toBeInTheDocument();
+    expect(screen.getByLabelText(/植物名称/i)).toHaveValue("Bird of Paradise");
+    expect(screen.getByLabelText(/简介/i)).toHaveValue("Tall leaves by the balcony.");
+    expect(screen.getByLabelText(/养护备注/i)).toHaveValue("Water every Saturday.");
+    expect(screen.getByLabelText(/摆放位置/i)).toHaveValue("Sunroom corner");
+    expect(screen.getByAltText(/已选植物封面预览/i)).toHaveAttribute(
       "src",
       "https://cdn.test/bird-of-paradise.jpg",
     );
@@ -730,6 +728,7 @@ describe("AppShell smoke coverage", () => {
             description: "Bright indirect light and large split leaves.",
             note: "Rotate the pot every Sunday.",
             location: "Dining room shelf",
+            imageStorageId: "storage_1",
             imageUrl: "https://cdn.test/monstera.jpg",
             createdAt: Date.UTC(2026, 0, 5),
             updatedAt: Date.UTC(2026, 5, 2),
@@ -761,15 +760,15 @@ describe("AppShell smoke coverage", () => {
     await waitFor(() => expect(window.location.pathname).toBe("/plants/plant_1"));
     expect(screen.getByRole("heading", { name: /monstera deliciosa/i })).toBeInTheDocument();
     expect(screen.getByText(/rotate the pot every sunday\./i)).toBeInTheDocument();
-    expect(screen.getByText(/active in household board/i)).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /enabled routines/i })).toBeInTheDocument();
-    expect(screen.getByText(/^Watering$/i)).toBeInTheDocument();
+    expect(screen.getByText(/正在家庭看板中使用/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /已启用的提醒/i })).toBeInTheDocument();
+    expect(screen.getByText(/^浇水$/i)).toBeInTheDocument();
     expect(screen.getByText(/^Leaf wipe$/i)).toBeInTheDocument();
-    expect(screen.getByText(/every 7 days/i)).toBeInTheDocument();
-    expect(screen.getAllByRole("button", { name: /add routine/i })).toHaveLength(1);
-    expect(screen.getAllByRole("button", { name: /^edit$/i })).toHaveLength(2);
-    expect(screen.getAllByRole("button", { name: /^complete$/i })).toHaveLength(2);
-    expect(screen.getByAltText(/monstera deliciosa cover/i)).toHaveAttribute(
+    expect(screen.getByText(/每 7 天一次/i)).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /添加提醒/i })).toHaveLength(1);
+    expect(screen.getAllByRole("button", { name: /^编辑$/i })).toHaveLength(2);
+    expect(screen.getAllByRole("button", { name: /^完成$/i })).toHaveLength(2);
+    expect(screen.getByAltText(/monstera deliciosa封面图/i)).toHaveAttribute(
       "src",
       "https://cdn.test/monstera.jpg",
     );
@@ -805,6 +804,7 @@ describe("AppShell smoke coverage", () => {
             description: "Bright indirect light and large split leaves.",
             note: "Rotate the pot every Sunday.",
             location: "Dining room shelf",
+            imageStorageId: "storage_1",
             imageUrl: "https://cdn.test/monstera.jpg",
             createdAt: Date.UTC(2026, 0, 5),
             updatedAt: Date.UTC(2026, 5, 2),
@@ -825,7 +825,7 @@ describe("AppShell smoke coverage", () => {
       },
     );
 
-    fireEvent.click(screen.getByRole("button", { name: /^edit$/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^编辑$/i }));
     await waitFor(() => expect(window.location.pathname).toBe("/plants/plant_1/tasks/task_1/edit"));
 
     renderWithProviders(
@@ -850,6 +850,7 @@ describe("AppShell smoke coverage", () => {
             description: "Bright indirect light and large split leaves.",
             note: "Rotate the pot every Sunday.",
             location: "Dining room shelf",
+            imageStorageId: "storage_1",
             imageUrl: "https://cdn.test/monstera.jpg",
             createdAt: Date.UTC(2026, 0, 5),
             updatedAt: Date.UTC(2026, 5, 2),
@@ -870,7 +871,7 @@ describe("AppShell smoke coverage", () => {
       },
     );
 
-    fireEvent.click(screen.getAllByRole("button", { name: /^complete$/i })[0]);
+    fireEvent.click(screen.getAllByRole("button", { name: /^完成$/i })[0]);
     await waitFor(() =>
       expect(mutationHandler).toHaveBeenCalledWith({
         taskId: "task_1",
@@ -898,8 +899,8 @@ describe("AppShell smoke coverage", () => {
     );
 
     await waitFor(() => expect(window.location.pathname).toBe("/plants/plant_missing"));
-    expect(screen.getByText(/this plant is not available in your household/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /back to plants/i })).toBeInTheDocument();
+    expect(screen.getByText(/当前家庭中找不到这盆植物/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /返回植物列表/i })).toBeInTheDocument();
   });
 
   it("renders the create-task route for an active family plant", async () => {
@@ -927,11 +928,11 @@ describe("AppShell smoke coverage", () => {
 
     await waitFor(() => expect(window.location.pathname).toBe("/plants/plant_1/tasks/new"));
     expect(
-      screen.getByRole("heading", { name: /create a reminder for monstera deliciosa/i }),
+      screen.getByRole("heading", { name: /为 monstera deliciosa 创建提醒/i }),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText(/task type/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/interval days/i)).toHaveValue(7);
-    expect(screen.getByRole("button", { name: /plants/i })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByLabelText(/任务类型/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/提醒间隔天数/i)).toHaveValue(7);
+    expect(screen.getByRole("button", { name: /^植物$/i })).toHaveAttribute("aria-current", "page");
   });
 
   it("submits a preset care-task create flow and routes back to the parent plant detail", async () => {
@@ -962,13 +963,13 @@ describe("AppShell smoke coverage", () => {
       },
     );
 
-    fireEvent.change(screen.getByLabelText(/interval days/i), {
+    fireEvent.change(screen.getByLabelText(/提醒间隔天数/i), {
       target: { value: "5" },
     });
-    fireEvent.change(screen.getByLabelText(/last completed on/i), {
+    fireEvent.change(screen.getByLabelText(/上次完成日期/i), {
       target: { value: "2026-06-10" },
     });
-    fireEvent.click(screen.getByRole("button", { name: /save care task/i }));
+    fireEvent.click(screen.getByRole("button", { name: /保存养护提醒/i }));
 
     await waitFor(() =>
       expect(mutationHandler).toHaveBeenCalledWith({
@@ -1010,21 +1011,21 @@ describe("AppShell smoke coverage", () => {
       },
     );
 
-    fireEvent.change(screen.getByLabelText(/task type/i), {
+    fireEvent.change(screen.getByLabelText(/任务类型/i), {
       target: { value: "custom" },
     });
     expect(screen.getByPlaceholderText("Leaf wipe")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /save care task/i }));
-    expect(screen.getByRole("alert")).toHaveTextContent(/enter a custom task name/i);
+    fireEvent.click(screen.getByRole("button", { name: /保存养护提醒/i }));
+    expect(screen.getByRole("alert")).toHaveTextContent(/请输入这个提醒的自定义任务名称/i);
     expect(mutationHandler).not.toHaveBeenCalled();
 
     fireEvent.change(screen.getByPlaceholderText("Leaf wipe"), {
       target: { value: "Leaf wipe" },
     });
-    fireEvent.change(screen.getByLabelText(/interval days/i), {
+    fireEvent.change(screen.getByLabelText(/提醒间隔天数/i), {
       target: { value: "14" },
     });
-    fireEvent.click(screen.getByRole("button", { name: /save care task/i }));
+    fireEvent.click(screen.getByRole("button", { name: /保存养护提醒/i }));
 
     await waitFor(() =>
       expect(mutationHandler).toHaveBeenCalledWith({
@@ -1069,11 +1070,11 @@ describe("AppShell smoke coverage", () => {
     );
 
     await waitFor(() => expect(window.location.pathname).toBe("/plants/plant_1/tasks/task_1/edit"));
-    expect(screen.getByRole("heading", { name: /edit leaf wipe for monstera deliciosa/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /编辑 monstera deliciosa 的leaf wipe提醒/i })).toBeInTheDocument();
     expect(screen.getByDisplayValue("Leaf wipe")).toBeInTheDocument();
-    expect(screen.getByLabelText(/interval days/i)).toHaveValue(10);
-    expect(screen.getByLabelText(/last completed on/i)).toHaveValue("2026-06-10");
-    expect(screen.getByRole("button", { name: /disable task/i })).toBeInTheDocument();
+    expect(screen.getByLabelText(/提醒间隔天数/i)).toHaveValue(10);
+    expect(screen.getByLabelText(/上次完成日期/i)).toHaveValue("2026-06-10");
+    expect(screen.getByRole("button", { name: /停用提醒/i })).toBeInTheDocument();
   });
 
   it("updates an existing care task and supports disabling it", async () => {
@@ -1112,11 +1113,11 @@ describe("AppShell smoke coverage", () => {
       },
     );
 
-    fireEvent.click(screen.getByRole("button", { name: /disable task/i }));
-    fireEvent.change(screen.getByLabelText(/interval days/i), {
+    fireEvent.click(screen.getByRole("button", { name: /停用提醒/i }));
+    fireEvent.change(screen.getByLabelText(/提醒间隔天数/i), {
       target: { value: "9" },
     });
-    fireEvent.click(screen.getByRole("button", { name: /update care task/i }));
+    fireEvent.click(screen.getByRole("button", { name: /更新养护提醒/i }));
 
     await waitFor(() =>
       expect(mutationHandler).toHaveBeenCalledWith({
@@ -1166,11 +1167,11 @@ describe("AppShell smoke coverage", () => {
       },
     );
 
-    fireEvent.click(screen.getByRole("button", { name: /delete task/i }));
-    expect(screen.getByText(/delete watering\?/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /删除任务/i }));
+    expect(screen.getByText(/确认删除“浇水”吗/i)).toBeInTheDocument();
     expect(mutationHandler).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole("button", { name: /confirm delete/i }));
+    fireEvent.click(screen.getByRole("button", { name: /确认删除/i }));
 
     await waitFor(() =>
       expect(mutationHandler).toHaveBeenCalledWith({
@@ -1208,6 +1209,7 @@ describe("AppShell smoke coverage", () => {
             description: "Bright indirect light and large split leaves.",
             note: "Rotate the pot every Sunday.",
             location: "Dining room shelf",
+            imageStorageId: "storage_1",
             imageUrl: "https://cdn.test/monstera.jpg",
             createdAt: Date.UTC(2026, 0, 5),
             updatedAt: Date.UTC(2026, 5, 2),
@@ -1233,7 +1235,7 @@ describe("AppShell smoke coverage", () => {
     );
     expect(screen.getByText(/archived profile/i)).toBeInTheDocument();
     expect(screen.getByText(/hidden from active plant views until it is restored/i)).toBeInTheDocument();
-    expect(screen.getByText(/archived on /i)).toBeInTheDocument();
+    expect(screen.getByText(/已归档，归档于/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /restore plant/i })).toBeInTheDocument();
   });
 
@@ -1265,6 +1267,7 @@ describe("AppShell smoke coverage", () => {
             description: "Bright indirect light and large split leaves.",
             note: "Rotate the pot every Sunday.",
             location: "Dining room shelf",
+            imageStorageId: "storage_1",
             imageUrl: "https://cdn.test/monstera.jpg",
             createdAt: Date.UTC(2026, 0, 5),
             updatedAt: Date.UTC(2026, 5, 2),
@@ -1276,7 +1279,7 @@ describe("AppShell smoke coverage", () => {
       },
     );
 
-    expect(screen.getByText(/archived on /i)).toBeInTheDocument();
+    expect(screen.getByText(/已归档，归档于/i)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /restore plant/i }));
     expect(screen.getByRole("heading", { name: /restore this plant\?/i })).toBeInTheDocument();
 
@@ -1289,7 +1292,7 @@ describe("AppShell smoke coverage", () => {
       }),
     );
     expect(screen.getByText(/active profile/i)).toBeInTheDocument();
-    expect(screen.getByText(/active in household board/i)).toBeInTheDocument();
+    expect(screen.getByText(/正在家庭看板中使用/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /archive plant/i })).toBeInTheDocument();
   });
 
@@ -1325,10 +1328,10 @@ describe("AppShell smoke coverage", () => {
       },
     );
 
-    fireEvent.change(screen.getByLabelText(/location/i), {
+    fireEvent.change(screen.getByLabelText(/摆放位置/i), {
       target: { value: "South window ledge" },
     });
-    fireEvent.click(screen.getByRole("button", { name: /update plant/i }));
+    fireEvent.click(screen.getByRole("button", { name: /更新植物/i }));
 
     await waitFor(() =>
       expect(mutationHandler).toHaveBeenCalledWith({

@@ -78,7 +78,7 @@ export function CreateTaskPage({ plantId }: CreateTaskPageProps) {
       navigate(`/plants/${plantId}`, true);
     } catch (error) {
       setFormError(
-        error instanceof Error ? error.message : "We could not save this care task right now.",
+        error instanceof Error ? error.message : "当前无法保存这条养护提醒，请稍后再试。",
       );
     } finally {
       setIsSubmitting(false);
@@ -88,12 +88,12 @@ export function CreateTaskPage({ plantId }: CreateTaskPageProps) {
   if (!plantId) {
     return (
       <EmptyState
-        badge="Care task"
-        title="This care-task route is missing its plant id"
-        description="Return to the plant detail page and retry from a valid household plant."
+        badge="养护任务"
+        title="当前提醒页面缺少植物 ID"
+        description="请返回植物详情页，从有效的家庭植物重新进入。"
         actions={
           <Button type="button" variant="secondary" onClick={() => navigate("/plants")}>
-            Back to plants
+            返回植物列表
           </Button>
         }
       />
@@ -103,9 +103,9 @@ export function CreateTaskPage({ plantId }: CreateTaskPageProps) {
   if (plant === undefined) {
     return (
       <section style={loadingCardStyle}>
-        <p style={eyebrowStyle}>Care task</p>
-        <h1 style={loadingTitleStyle}>Loading plant reminder form</h1>
-        <p style={bodyStyle}>Checking the plant context before the reminder is attached.</p>
+        <p style={eyebrowStyle}>养护任务</p>
+        <h1 style={loadingTitleStyle}>正在加载提醒表单</h1>
+        <p style={bodyStyle}>正在确认这条提醒要绑定到哪一盆植物。</p>
       </section>
     );
   }
@@ -113,12 +113,12 @@ export function CreateTaskPage({ plantId }: CreateTaskPageProps) {
   if (plant === null) {
     return (
       <EmptyState
-        badge="Unavailable"
-        title="This plant cannot receive new reminders"
-        description="The plant may be archived, missing, or outside your current household."
+        badge="不可用"
+        title="这盆植物当前无法添加新提醒"
+        description="它可能已经归档、被删除，或者不属于你当前的家庭。"
         actions={
           <Button type="button" variant="secondary" onClick={() => navigate("/plants")}>
-            Back to plants
+            返回植物列表
           </Button>
         }
         minHeight="220px"
@@ -135,7 +135,7 @@ export function CreateTaskPage({ plantId }: CreateTaskPageProps) {
         onSubmit={handleSubmit}
         onValueChange={setValue}
         plantName={plant.plantName}
-        submitLabel="Save care task"
+        submitLabel="保存养护提醒"
         values={values}
       />
     </section>
@@ -159,7 +159,7 @@ const loadingCardStyle: React.CSSProperties = {
 
 const eyebrowStyle: React.CSSProperties = {
   margin: 0,
-  color: "#2563eb",
+  color: "var(--color-leaf)",
   textTransform: "uppercase",
   letterSpacing: "0.16em",
   fontSize: "0.75rem",
