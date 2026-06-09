@@ -45,6 +45,24 @@ describe("AppShell smoke coverage", () => {
     ).toBeInTheDocument();
   });
 
+  it("lands family members on the todo route by default from root", async () => {
+    renderWithProviders(
+      <AppShell
+        pathname="/"
+        routeContext={{
+          userId: "user_1",
+          familyId: "family_1",
+          displayName: "Wang",
+        }}
+      />,
+      {
+        route: "/",
+      },
+    );
+
+    await waitFor(() => expect(window.location.pathname).toBe("/todo"));
+  });
+
   it("renders the onboarding shell for authenticated users without a family", async () => {
     renderWithProviders(
       <AppShell

@@ -269,7 +269,7 @@
       "task_id": "VIS-005",
       "description": "App Shell 与底部导航 task-first 改造：调整默认落点为 /todo，重构 BottomNav 信息架构为 待办/植物/设置，压缩 Header 密度。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "depends_on": ["VIS-001"],
       "plan_path": null,
       "contracts": {

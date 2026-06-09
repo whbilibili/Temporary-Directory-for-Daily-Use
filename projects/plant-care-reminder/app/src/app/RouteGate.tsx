@@ -55,7 +55,7 @@ function getTargetPath(
     return null;
   }
 
-  return "/plants";
+  return "/todo";
 }
 
 export function RouteGate({ pathname, routeContext, children }: RouteGateProps) {

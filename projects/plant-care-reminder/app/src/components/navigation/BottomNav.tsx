@@ -6,9 +6,9 @@ interface BottomNavProps {
 }
 
 const navItems: Array<{ href: AppPath; label: string; icon: string }> = [
+  { href: "/todo", label: "待办", icon: "待办" },
   { href: "/plants", label: "植物", icon: "植物" },
-  { href: "/todo", label: "待办", icon: "提醒" },
-  { href: "/settings", label: "设置", icon: "家庭" },
+  { href: "/settings", label: "设置", icon: "设置" },
 ];
 
 export function BottomNav({ pathname }: BottomNavProps) {
@@ -43,8 +43,8 @@ const navStyle: React.CSSProperties = {
   bottom: 0,
   display: "grid",
   gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-  gap: "12px",
-  padding: "14px 16px calc(14px + env(safe-area-inset-bottom, 0px))",
+  gap: "var(--space-sm)",
+  padding: "var(--space-sm) var(--space-md) calc(var(--space-sm) + env(safe-area-inset-bottom, 0px))",
   borderTop: "1px solid var(--color-line)",
   background: "rgba(251,252,247,0.92)",
   backdropFilter: "blur(12px)",
@@ -53,16 +53,16 @@ const navStyle: React.CSSProperties = {
 const itemStyle: React.CSSProperties = {
   appearance: "none",
   border: "1px solid transparent",
-  borderRadius: "18px",
+  borderRadius: "var(--radius-button)",
   background: "var(--color-surface)",
   color: "var(--color-muted)",
-  minHeight: "60px",
+  height: "56px",
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
   justifyContent: "center",
-  gap: "4px",
-  fontSize: "0.85rem",
+  gap: "var(--space-xs)",
+  fontSize: "10px",
   fontWeight: 700,
   cursor: "pointer",
   transition: "transform 160ms ease, border-color 160ms ease, color 160ms ease",
@@ -75,7 +75,7 @@ const activeItemStyle: React.CSSProperties = {
 };
 
 const iconStyle: React.CSSProperties = {
-  fontSize: "0.7rem",
-  letterSpacing: "0.08em",
-  textTransform: "uppercase",
+  fontSize: "12px",
+  lineHeight: 1,
+  letterSpacing: "0.04em",
 };

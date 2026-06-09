@@ -80,9 +80,8 @@ const frameStyle: React.CSSProperties = {
   minHeight: "100svh",
   display: "flex",
   flexDirection: "column",
-  background:
-    "linear-gradient(180deg, rgba(37,99,235,0.08) 0%, rgba(248,250,252,0.96) 28%, #f8fafc 100%)",
-  color: "#1e293b",
+  background: "var(--gradient-botanical)",
+  color: "var(--color-ink)",
   position: "relative",
   overflow: "hidden",
 };
@@ -92,8 +91,8 @@ const backdropOrbStyle: React.CSSProperties = {
   inset: "-20% auto auto 55%",
   width: "320px",
   height: "320px",
-  borderRadius: "999px",
-  background: "radial-gradient(circle, rgba(249,115,22,0.22), transparent 68%)",
+  borderRadius: "var(--radius-pill)",
+  background: "var(--gradient-accent)",
   pointerEvents: "none",
 };
 
@@ -101,9 +100,9 @@ const mainStyle: React.CSSProperties = {
   flex: 1,
   width: "min(100%, 520px)",
   margin: "0 auto",
-  padding: "24px 18px 104px",
+  padding: "var(--space-lg) var(--space-md) calc(56px + var(--space-xl))",
   boxSizing: "border-box",
   display: "flex",
   flexDirection: "column",
-  justifyContent: "center",
+  justifyContent: "flex-start",
 };

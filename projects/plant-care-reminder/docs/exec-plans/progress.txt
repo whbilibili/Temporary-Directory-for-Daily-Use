@@ -7,6 +7,8 @@
 
 **VIS-004 已完成（2026-06-10）**：Onboarding 四页视觉统一为 quiet-form 风格。改动文件：ProfileBootstrapForm.tsx（实际位于 features/auth/，任务清单路径 features/family/ 有误）、FamilyOnboardingChoicePage.tsx、CreateFamilyPage.tsx、JoinFamilyPage.tsx。统一做法：去除 PageHeader（clamp 大标题会撑爆 Header）改为自建紧凑 Header（maxHeight 120px，eyebrow + 标题 + 一行说明）；全部色值/间距/圆角/阴影引用 token，清除旧蓝橙硬编码（选择页原 accent band 渐变改为 botanical 素面卡片）；邀请码改为 var(--font-mono) 28px/700 letter-spacing 0.12em color leaf 成为最强视觉元素。严格保留 smoke 断言的 heading 文案（欢迎你～/创建一个家庭 h2/加入已有家庭 h2/创建共享家庭植物空间/共享家庭已创建完成/正在接入家庭植物看板）及 ChoiceCard 描述文本。typecheck 通过、全量 8 files / 50 tests 全绿、grep 复核四文件无硬编码色值。
 
+**VIS-005 已完成（2026-06-10）**：App Shell 与底部导航 task-first 改造。改动文件：RouteGate.tsx（默认 fallback `return "/plants"` → `/todo`，第 58 行，唯一改动；注意默认落点逻辑在 RouteGate 而非任务清单列出的 AppShell——RouteGate 不在 files_affected 但必须改）、BottomNav.tsx（navItems 重排为 待办/植物/设置，icon 文字同步为对应中文；item 高度 minHeight:60px → height:56px，fontSize 0.85rem → 10px label，icon 0.7rem → 12px，圆角/间距改 token；active=leaf/inactive=muted 本已满足）、AppShell.tsx（frameStyle/backdropOrbStyle 旧蓝橙硬编码渐变 → var(--gradient-botanical)/var(--gradient-accent)/token 色值；mainStyle justifyContent center → flex-start 使认证后页面 task-first 顶对齐，底部 padding 改为 56px nav 高度匹配）。smoke 新增「lands family members on the todo route by default from root」断言根路径默认落 /todo；既有 /plants 断言均为具体页面场景（创建成功跳转/植物档案页/空状态），非默认落点，无需改动。注：design_contract 写 icon_size 24px，但 icon 实为中文文字非矢量图标，24px 与 56px 紧凑高度冲突，按设计判断设为 12px；56px 高度/10px label/active-inactive 色严格符合验收。typecheck 通过、smoke 34 绿（+1）、全量 8 files / 51 tests 全绿。
+
 **VIS-003 已完成（2026-06-10）**：登录页视觉改造。重构 AuthPage.tsx：不再复用 PageHeader（其 clamp 大标题会撑爆 Hero），改为自建压缩 Hero（logo + 标题 + 一行说明，maxHeight 160px）；页面容器应用 var(--gradient-botanical), var(--gradient-accent) 叠加背景；tab 胶囊（height 36px / radius-pill / 半透白底 + color-line 边框，选中态 leaf 底白字）；表单卡片（rgba(255,255,255,.82) / radius-card / shadow-card / color-line 边框 / space-lg 内边距）；全部引用 token，无硬编码色值。顺手修复 EmailLoginForm.tsx 的 statusStyle 硬编码 #0f766e → var(--color-success)。smoke 未断言登录页内文（仅断言 /login 路径），无需同步测试。typecheck 通过、smoke 33 绿、全量 8 files / 50 tests 全绿。注：AppShell frameStyle/backdropOrbStyle 仍为旧蓝橙硬编码渐变（全局壳层，不在 VIS-003 范围，待后续任务处理）。
 
 ### [Task Breakdown Summary]
@@ -68,5 +70,10 @@
 2. ✅ VIS-002 已完成并提交。
 3. ✅ VIS-003 已完成并提交。
 4. ✅ VIS-004 已完成并提交。
-5. 下一个任务：**VIS-005**（App Shell 与底部导航 task-first 改造：默认落点 /todo、BottomNav 重构为 待办/植物/设置、压缩 Header 密度。注意：需同步更新 router smoke 默认 redirect 断言）。
-6. 按推荐顺序逐步推进，每完成一个 VIS 任务即更新本文件的 status，并 git 提交。
+5. ✅ VIS-005 已完成并提交。
+6. 下一个任务：**VIS-006**（待办页 task-first 布局：TodoPage 去掉过高 Hero，标题区一行 24px，分组标签 12px uppercase，任务卡三栏「40px 缩略图 | 植物名+动作 | 36px gold 完成按钮」，逾期 pill 用 warning 色系，空状态居中一句话+一个动作。改动文件 TodoPage.tsx/DueTaskCard.tsx/TaskListItem.tsx；verification 用全量 npm run test）。
+7. 按推荐顺序逐步推进，每完成一个 VIS 任务即更新本文件的 status，并 git 提交。
+
+### [Tech Debt / 待后续处理]
+- AppShell mainStyle 改为 flex-start 顶对齐后，登录/onboarding 页面不再垂直居中（这些页面 VIS-003/004 已自建紧凑容器，视觉可接受），VIS-013 走查时确认。
+- RouteGate.tsx 的 loadingWrapStyle/loadingCardStyle/titleStyle/copyStyle 仍有旧蓝橙硬编码（radial blue / #d9e2ec / #1e293b / #475569），不在 VIS-005 范围，建议 VIS-013 收尾或单独清理。
