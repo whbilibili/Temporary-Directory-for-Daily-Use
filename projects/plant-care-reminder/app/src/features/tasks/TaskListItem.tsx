@@ -29,17 +29,13 @@ export function TaskListItem({ onCompleted, onEdit, task }: TaskListItemProps) {
 
   return (
     <article style={taskCardStyle}>
-      <div style={taskHeaderStyle}>
+      <div style={copyStackStyle}>
         <p style={taskEyebrowStyle}>已启用提醒</p>
         <h2 style={taskTitleStyle}>{title}</h2>
-      </div>
-      <div style={taskMetaGridStyle}>
-        <TaskMeta label="下次任务" value={formatDueDate(task.nextDueAt)} />
-        <TaskMeta
-          label="频率"
-          value={`每 ${task.intervalDays} 天一次`}
-        />
-        <TaskMeta label="记录" value={completionCopy} />
+        <p style={taskMetaStyle}>
+          {formatDueDate(task.nextDueAt)} · 每 {task.intervalDays} 天一次
+        </p>
+        <p style={taskHistoryStyle}>{completionCopy}</p>
       </div>
       <div style={actionsStyle}>
         <Button fullWidth={false} onClick={onEdit} type="button" variant="secondary">
@@ -51,77 +47,53 @@ export function TaskListItem({ onCompleted, onEdit, task }: TaskListItemProps) {
   );
 }
 
-function TaskMeta({ label, value }: { label: string; value: string }) {
-  return (
-    <div style={taskMetaTileStyle}>
-      <p style={taskMetaLabelStyle}>{label}</p>
-      <p style={taskMetaValueStyle}>{value}</p>
-    </div>
-  );
-}
-
 const taskCardStyle: React.CSSProperties = {
-  borderRadius: "20px",
-  padding: "16px",
-  background: "linear-gradient(180deg, rgba(248,250,252,0.98), rgba(219,234,254,0.5))",
-  border: "1px solid rgba(147,197,253,0.45)",
+  borderRadius: "var(--radius-card)",
+  padding: "var(--space-md)",
+  background: "var(--color-surface)",
+  border: "1px solid var(--color-line)",
+  boxShadow: "var(--shadow-card)",
   display: "grid",
-  gap: "12px",
+  gap: "var(--space-md)",
 };
 
-const taskHeaderStyle: React.CSSProperties = {
+const copyStackStyle: React.CSSProperties = {
   display: "grid",
-  gap: "4px",
+  gap: "var(--space-xs)",
 };
 
 const taskEyebrowStyle: React.CSSProperties = {
   margin: 0,
-  color: "var(--color-leaf)",
+  color: "var(--color-leaf-light)",
   textTransform: "uppercase",
-  letterSpacing: "0.14em",
-  fontSize: "0.72rem",
+  letterSpacing: "0.08em",
+  fontSize: "12px",
   fontWeight: 700,
 };
 
 const taskTitleStyle: React.CSSProperties = {
   margin: 0,
-  color: "#0f172a",
+  color: "var(--color-ink)",
   fontSize: "1.1rem",
   lineHeight: 1.2,
 };
 
-const taskMetaGridStyle: React.CSSProperties = {
-  display: "grid",
-  gap: "10px",
-};
-
-const taskMetaTileStyle: React.CSSProperties = {
-  borderRadius: "16px",
-  padding: "12px 14px",
-  background: "rgba(255,255,255,0.82)",
-  border: "1px solid rgba(191,219,254,0.86)",
-  display: "grid",
-  gap: "4px",
-};
-
-const taskMetaLabelStyle: React.CSSProperties = {
+const taskMetaStyle: React.CSSProperties = {
   margin: 0,
-  color: "#64748b",
-  fontSize: "0.72rem",
-  fontWeight: 700,
-  letterSpacing: "0.12em",
-  textTransform: "uppercase",
+  color: "var(--color-leaf-light)",
+  fontSize: "0.88rem",
+  lineHeight: 1.5,
 };
 
-const taskMetaValueStyle: React.CSSProperties = {
+const taskHistoryStyle: React.CSSProperties = {
   margin: 0,
-  color: "#0f172a",
-  fontSize: "0.94rem",
+  color: "var(--color-muted)",
+  fontSize: "0.85rem",
   lineHeight: 1.5,
 };
 
 const actionsStyle: React.CSSProperties = {
   display: "flex",
   flexWrap: "wrap",
-  gap: "10px",
+  gap: "var(--space-sm)",
 };

@@ -1,38 +1,25 @@
 import { DueTaskCard, type DueTaskCardData } from "./DueTaskCard";
 
 interface DueTaskGroupProps {
-  description: string;
-  eyebrow: string;
   onOpenPlant: (plantId: string) => void;
   tasks: DueTaskCardData[];
   title: string;
 }
 
-export function DueTaskGroup({
-  description,
-  eyebrow,
-  onOpenPlant,
-  tasks,
-  title,
-}: DueTaskGroupProps) {
+export function DueTaskGroup({ onOpenPlant, tasks, title }: DueTaskGroupProps) {
   if (tasks.length === 0) {
     return null;
   }
 
   return (
     <section style={sectionStyle}>
-      <div style={headerStyle}>
-        <p style={eyebrowStyle}>{eyebrow}</p>
-        <h2 style={titleStyle}>{title}</h2>
-        <p style={descriptionStyle}>{description}</p>
-      </div>
+      <h2 style={labelStyle}>
+        {title}
+        <span style={countStyle}>{tasks.length}</span>
+      </h2>
       <div style={listStyle}>
         {tasks.map((task) => (
-          <DueTaskCard
-            key={task.taskId}
-            onOpenPlant={onOpenPlant}
-            task={task}
-          />
+          <DueTaskCard key={task.taskId} onOpenPlant={onOpenPlant} task={task} />
         ))}
       </div>
     </section>
@@ -41,39 +28,36 @@ export function DueTaskGroup({
 
 const sectionStyle: React.CSSProperties = {
   display: "grid",
-  gap: "12px",
+  gap: "var(--space-sm)",
 };
 
-const headerStyle: React.CSSProperties = {
-  display: "grid",
-  gap: "4px",
-};
-
-const eyebrowStyle: React.CSSProperties = {
+const labelStyle: React.CSSProperties = {
   margin: 0,
-  color: "var(--color-leaf)",
-  textTransform: "uppercase",
-  letterSpacing: "0.16em",
-  fontSize: "0.72rem",
+  display: "flex",
+  alignItems: "center",
+  gap: "var(--space-sm)",
+  color: "var(--color-leaf-light)",
+  fontSize: "12px",
   fontWeight: 700,
+  letterSpacing: "0.08em",
+  textTransform: "uppercase",
 };
 
-const titleStyle: React.CSSProperties = {
-  margin: 0,
-  color: "#0f172a",
-  fontSize: "1.35rem",
-  lineHeight: 1.12,
-  letterSpacing: "-0.03em",
-};
-
-const descriptionStyle: React.CSSProperties = {
-  margin: 0,
-  color: "#475569",
-  fontSize: "0.95rem",
-  lineHeight: 1.6,
+const countStyle: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  minWidth: "18px",
+  height: "18px",
+  padding: "0 5px",
+  borderRadius: "var(--radius-pill)",
+  background: "var(--color-mist)",
+  color: "var(--color-leaf)",
+  fontSize: "11px",
+  letterSpacing: 0,
 };
 
 const listStyle: React.CSSProperties = {
   display: "grid",
-  gap: "14px",
+  gap: "var(--space-sm)",
 };

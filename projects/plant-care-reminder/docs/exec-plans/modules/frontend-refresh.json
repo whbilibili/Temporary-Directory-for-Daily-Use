@@ -331,10 +331,10 @@
       ]
     },
     {
-      "task_id": "VIS-006",
-      "description": "待办页 task-first 布局改造：首屏优先展示今日任务分组，压缩标题区，任务卡片布局改为 缩略图+任务描述+完成按钮 三栏结构。",
-      "priority": "1-High",
-      "status": "pending",
+"task_id": "VIS-006",
+"description": "待办页 task-first 布局改造：首屏优先展示今日任务分组，压缩标题区，任务卡片布局改为 缩略图+任务描述+完成按钮 三栏结构。",
+"priority": "1-High",
+"status": "completed",
       "depends_on": ["VIS-001", "VIS-005"],
       "plan_path": null,
       "contracts": {
