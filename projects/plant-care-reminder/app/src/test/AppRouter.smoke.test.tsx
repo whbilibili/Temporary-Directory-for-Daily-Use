@@ -486,6 +486,44 @@ describe("AppShell smoke coverage", () => {
     ).toBeInTheDocument();
   });
 
+  it("shows a manual copy fallback panel when clipboard write fails", async () => {
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: {
+        writeText: vi.fn().mockRejectedValue(new Error("denied")),
+      },
+    });
+
+    renderWithProviders(
+      <AppShell
+        pathname="/settings"
+        routeContext={{
+          userId: "user_1",
+          familyId: "family_1",
+          displayName: "Wang",
+        }}
+      />,
+      {
+        route: "/settings",
+        queryResult: {
+          familyName: "Wang Family Greenhouse",
+          inviteCode: "ABCD12",
+          memberCount: 1,
+          members: [],
+        },
+      },
+    );
+
+    await waitFor(() => expect(window.location.pathname).toBe("/settings"));
+    fireEvent.click(screen.getByRole("button", { name: /复制邀请码/i }));
+
+    await waitFor(() =>
+      expect(screen.getByRole("region", { name: /手动复制邀请码/i })).toBeInTheDocument(),
+    );
+    expect(screen.getByText("长按可复制")).toBeInTheDocument();
+    expect(screen.getByText("你也可以直接把这串码发给家人")).toBeInTheDocument();
+  });
+
   it("persists a notification subscription after permission is granted", async () => {
     const mutationHandler = vi.fn().mockResolvedValue({
       ok: true,

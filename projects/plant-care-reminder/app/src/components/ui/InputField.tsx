@@ -38,32 +38,32 @@ export function InputField({
 
 const wrapStyle: CSSProperties = {
   display: "grid",
-  gap: "8px",
+  gap: "var(--space-sm)",
 };
 
 const labelStyle: CSSProperties = {
-  color: "#1e293b",
-  fontSize: "0.95rem",
+  color: "var(--color-ink)",
+  fontSize: "14px",
   fontWeight: 700,
 };
 
 const inputStyle: CSSProperties = {
-  minHeight: "50px",
-  borderRadius: "16px",
-  border: "1px solid #d9e2ec",
-  background: "#ffffff",
-  color: "#1e293b",
+  minHeight: "48px",
+  borderRadius: "var(--radius-input)",
+  border: "1px solid var(--color-line)",
+  background: "var(--color-surface)",
+  color: "var(--color-ink)",
   padding: "0 14px",
-  fontSize: "0.98rem",
+  fontSize: "14px",
 };
 
 const inputErrorStyle: CSSProperties = {
-  borderColor: "#fca5a5",
+  borderColor: "var(--color-error)",
   boxShadow: "0 0 0 3px rgba(197,48,48,0.12)",
 };
 
 const hintStyle: CSSProperties = {
-  color: "#64748b",
-  fontSize: "0.86rem",
+  color: "var(--color-muted)",
+  fontSize: "12px",
   lineHeight: 1.5,
 };

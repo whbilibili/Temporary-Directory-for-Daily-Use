@@ -1,5 +1,5 @@
 import { useQuery } from "convex/react";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuthActions } from "@convex-dev/auth/react";
 
 import { api } from "../../../convex/_generated/api";
@@ -7,13 +7,24 @@ import { Button } from "../../components/ui/Button";
 import { NotificationPromptCard } from "../notifications/NotificationPromptCard";
 import { MembersList } from "./MembersList";
 
+type CopyStatus = "idle" | "copied" | "failed" | "fallback_open";
+
 export function FamilySettingsPage() {
   const { signOut } = useAuthActions();
   const summary = useQuery(api.families.getFamilySettingsSummary, {});
-  const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "failed">("idle");
+  const [copyStatus, setCopyStatus] = useState<CopyStatus>("idle");
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  async function handleCopyInviteCode() {
+  useEffect(() => {
+    return () => {
+      if (resetTimerRef.current !== null) {
+        clearTimeout(resetTimerRef.current);
+      }
+    };
+  }, []);
+
+  const handleCopyInviteCode = useCallback(async () => {
     if (!summary) {
       return;
     }
@@ -21,10 +32,14 @@ export function FamilySettingsPage() {
     try {
       await navigator.clipboard.writeText(summary.inviteCode);
       setCopyStatus("copied");
+      resetTimerRef.current = setTimeout(() => {
+        setCopyStatus("idle");
+        resetTimerRef.current = null;
+      }, 1500);
     } catch {
-      setCopyStatus("failed");
+      setCopyStatus("fallback_open");
     }
-  }
+  }, [summary]);
 
   async function handleSignOut() {
     setIsSigningOut(true);
@@ -47,6 +62,13 @@ export function FamilySettingsPage() {
     );
   }
 
+  const copyButtonLabel =
+    copyStatus === "copied" ? "已复制" : "复制邀请码";
+  const copyButtonDynamicStyle: React.CSSProperties =
+    copyStatus === "copied"
+      ? { ...copyButtonStyle, background: "var(--color-success)", color: "#fff" }
+      : copyButtonStyle;
+
   return (
     <section style={pageStyle}>
       <section style={cardStyle}>
@@ -65,15 +87,20 @@ export function FamilySettingsPage() {
         </p>
         <p style={inviteCodeStyle}>{summary.inviteCode}</p>
         <Button
-          onClick={handleCopyInviteCode}
-          style={copyButtonStyle}
+          onClick={() => void handleCopyInviteCode()}
+          style={copyButtonDynamicStyle}
           type="button"
           variant="primary"
         >
-          {copyStatus === "copied" ? "已复制" : "复制邀请码"}
+          {copyButtonLabel}
         </Button>
-        {copyStatus === "failed" ? (
-          <p style={copyFeedbackStyle}>当前设备复制失败，你也可以手动把邀请码发给家人。</p>
+
+        {copyStatus === "fallback_open" ? (
+          <div style={fallbackPanelStyle} role="region" aria-label="手动复制邀请码">
+            <p style={fallbackCodeStyle}>{summary.inviteCode}</p>
+            <p style={fallbackHintStyle}>长按可复制</p>
+            <p style={fallbackDescStyle}>你也可以直接把这串码发给家人</p>
+          </div>
         ) : null}
       </section>
 
@@ -158,6 +185,7 @@ const inviteCodeStyle: React.CSSProperties = {
   lineHeight: 1,
   letterSpacing: "0.12em",
   textAlign: "center",
+  userSelect: "all",
 };
 
 const copyButtonStyle: React.CSSProperties = {
@@ -168,10 +196,38 @@ const copyButtonStyle: React.CSSProperties = {
   fontWeight: 600,
 };
 
-const copyFeedbackStyle: React.CSSProperties = {
+const fallbackPanelStyle: React.CSSProperties = {
+  background: "var(--color-mist)",
+  borderRadius: "var(--radius-input)",
+  padding: "var(--space-md)",
+  border: "1px dashed var(--color-line)",
+  display: "grid",
+  gap: "var(--space-xs)",
+  textAlign: "center",
+};
+
+const fallbackCodeStyle: React.CSSProperties = {
   margin: 0,
-  color: "var(--color-warning)",
+  color: "var(--color-leaf)",
+  fontFamily: "var(--font-mono)",
+  fontSize: "28px",
+  fontWeight: 700,
+  letterSpacing: "0.12em",
+  lineHeight: 1,
+  userSelect: "all",
+};
+
+const fallbackHintStyle: React.CSSProperties = {
+  margin: 0,
+  color: "var(--color-muted)",
   fontSize: "12px",
+  lineHeight: 1.5,
+};
+
+const fallbackDescStyle: React.CSSProperties = {
+  margin: 0,
+  color: "var(--color-muted)",
+  fontSize: "14px",
   lineHeight: 1.5,
 };
 

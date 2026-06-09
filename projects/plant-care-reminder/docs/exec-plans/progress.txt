@@ -81,8 +81,9 @@
 7. ✅ VIS-007 已完成并提交。
 8. ✅ VIS-008 已完成并提交。
 9. ✅ VIS-009 已完成并提交。设置页（FamilySettingsPage.tsx）已重构：卡片重排为 家庭摘要→邀请码与分享→通知→家庭成员→退出登录；邀请码用 --font-mono 28px/700 居中展示；复制按钮金色主色 width 100% minHeight 44px；退出按钮独立到 logoutWrap（marginTop var(--space-xl)），ghost 风格 + error 边框；全部 token 化，移除 PageHeader 依赖。typecheck 0 错误，51 测试全过（34 smoke 断言保持）。
-10. 下一个任务：**VIS-010**（邀请码复制失败的替代分享路径，High，depends_on VIS-009）。执行前读取 frontend-refresh.json 中 VIS-010 的 design_contract；注意 VIS-009 的复制逻辑刻意未改（fallback 留给 VIS-010 处理）。
-11. 按推荐顺序逐步推进，每完成一个 VIS 任务即更新本文件的 status，并 git 提交（git add 仅限 projects/plant-care-reminder/，commit message 单行）。
+10. ✅ VIS-010 已完成并提交。邀请码复制 clipboard API 降级：成功→按钮变绿 1.5s 恢复；失败→立即展示 ManualCopyPanel（可选中邀请码 + 长按可复制提示 + 引导文案）；邀请码文本增加 userSelect:all 便于长按选中。InputField.tsx 顺带 token 化（去除硬编码色值）。新增 smoke 测试覆盖 clipboard-failure fallback 场景。typecheck 0 错误、52 测试全绿（35 smoke +1）。
+11. 下一个任务：**VIS-011**（任务完成即时反馈与状态动效，Medium，depends_on VIS-006 + VIS-008）。需实现卡片淡出动画 + 勾选动效 + 统一 loading/error/empty 反馈模式，respect prefers-reduced-motion。
+12. 按推荐顺序逐步推进，每完成一个 VIS 任务即更新本文件的 status，并 git 提交（git add 仅限 projects/plant-care-reminder/，commit message 单行）。
 
 ### [Tech Debt / 待后续处理]
 - AppShell mainStyle 改为 flex-start 顶对齐后，登录/onboarding 页面不再垂直居中（这些页面 VIS-003/004 已自建紧凑容器，视觉可接受），VIS-013 走查时确认。
