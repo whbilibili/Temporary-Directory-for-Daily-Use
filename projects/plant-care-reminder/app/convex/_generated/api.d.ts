@@ -14,6 +14,7 @@ import type * as http from "../http.js";
 import type * as lib_auth from "../lib/auth.js";
 import type * as lib_validators from "../lib/validators.js";
 import type * as plants from "../plants.js";
+import type * as tasks from "../tasks.js";
 import type * as users from "../users.js";
 
 import type {
@@ -29,6 +30,7 @@ declare const fullApi: ApiFromModules<{
   "lib/auth": typeof lib_auth;
   "lib/validators": typeof lib_validators;
   plants: typeof plants;
+  tasks: typeof tasks;
   users: typeof users;
 }>;
 

@@ -23,6 +23,8 @@ export interface TaskFormErrors {
 }
 
 interface TaskFormProps {
+  actionsSlot?: React.ReactNode;
+  description?: React.ReactNode;
   errors: TaskFormErrors;
   formError?: string | null;
   isSubmitting: boolean;
@@ -33,10 +35,18 @@ interface TaskFormProps {
   ) => void;
   plantName: string;
   submitLabel: string;
+  title?: React.ReactNode;
   values: TaskFormValues;
 }
 
 export function TaskForm({
+  actionsSlot,
+  description = (
+    <p style={bodyStyle}>
+      Add an interval-based routine to this plant. The backend stores the next due time from the
+      interval and optional last-completed date.
+    </p>
+  ),
   errors,
   formError,
   isSubmitting,
@@ -44,6 +54,7 @@ export function TaskForm({
   onValueChange,
   plantName,
   submitLabel,
+  title = `Create a reminder for ${plantName}`,
   values,
 }: TaskFormProps) {
   const selectedTaskType = careTaskTypeOptions.find((option) => option.value === values.taskType);
@@ -53,13 +64,8 @@ export function TaskForm({
     <section style={cardStyle}>
       <PageHeader
         eyebrow="Care task"
-        title={`Create a reminder for ${plantName}`}
-        description={
-          <p style={bodyStyle}>
-            Add an interval-based routine to this plant. The backend stores the next due time from
-            the interval and optional last-completed date.
-          </p>
-        }
+        title={title}
+        description={description}
       />
       <form noValidate onSubmit={onSubmit} style={formStyle}>
         <SelectField
@@ -112,6 +118,7 @@ export function TaskForm({
         <Button disabled={isSubmitting} type="submit">
           {isSubmitting ? "Saving care task..." : submitLabel}
         </Button>
+        {actionsSlot ? <div style={actionsSlotStyle}>{actionsSlot}</div> : null}
       </form>
     </section>
   );
@@ -249,4 +256,9 @@ const previewCopyStyle: React.CSSProperties = {
   color: "#475569",
   fontSize: "0.92rem",
   lineHeight: 1.5,
+};
+
+const actionsSlotStyle: React.CSSProperties = {
+  display: "grid",
+  gap: "12px",
 };

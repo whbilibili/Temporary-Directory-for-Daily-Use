@@ -724,6 +724,149 @@ describe("AppShell smoke coverage", () => {
     );
   });
 
+  it("loads the task edit route with the current reminder settings", async () => {
+    renderWithProviders(
+      <AppShell
+        pathname="/plants/tasks/edit"
+        routeContext={{
+          userId: "user_1",
+          familyId: "family_1",
+          displayName: "Wang",
+        }}
+        routeParams={{
+          plantId: "plant_1",
+          taskId: "task_1",
+        }}
+      />,
+      {
+        route: "/plants/plant_1/tasks/task_1/edit",
+        queryResult: {
+          plantId: "plant_1",
+          plantName: "Monstera deliciosa",
+          task: {
+            taskId: "task_1",
+            taskType: "custom",
+            customTaskName: "Leaf wipe",
+            intervalDays: 10,
+            enabled: true,
+            lastCompletedAt: Date.UTC(2026, 5, 10, 12, 0, 0),
+          },
+        },
+      },
+    );
+
+    await waitFor(() => expect(window.location.pathname).toBe("/plants/plant_1/tasks/task_1/edit"));
+    expect(screen.getByRole("heading", { name: /edit leaf wipe for monstera deliciosa/i })).toBeInTheDocument();
+    expect(screen.getByDisplayValue("Leaf wipe")).toBeInTheDocument();
+    expect(screen.getByLabelText(/interval days/i)).toHaveValue(10);
+    expect(screen.getByLabelText(/last completed on/i)).toHaveValue("2026-06-10");
+    expect(screen.getByRole("button", { name: /disable task/i })).toBeInTheDocument();
+  });
+
+  it("updates an existing care task and supports disabling it", async () => {
+    const mutationHandler = vi.fn().mockResolvedValue({
+      ok: true,
+    });
+    setMockMutationHandler(mutationHandler);
+
+    renderWithProviders(
+      <AppShell
+        pathname="/plants/tasks/edit"
+        routeContext={{
+          userId: "user_1",
+          familyId: "family_1",
+          displayName: "Wang",
+        }}
+        routeParams={{
+          plantId: "plant_1",
+          taskId: "task_1",
+        }}
+      />,
+      {
+        route: "/plants/plant_1/tasks/task_1/edit",
+        queryResult: {
+          plantId: "plant_1",
+          plantName: "Monstera deliciosa",
+          task: {
+            taskId: "task_1",
+            taskType: "watering",
+            customTaskName: null,
+            intervalDays: 7,
+            enabled: true,
+            lastCompletedAt: Date.UTC(2026, 5, 10, 12, 0, 0),
+          },
+        },
+      },
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /disable task/i }));
+    fireEvent.change(screen.getByLabelText(/interval days/i), {
+      target: { value: "9" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /update care task/i }));
+
+    await waitFor(() =>
+      expect(mutationHandler).toHaveBeenCalledWith({
+        taskId: "task_1",
+        taskType: "watering",
+        customTaskName: null,
+        intervalDays: 9,
+        enabled: false,
+      }),
+    );
+    await waitFor(() => expect(window.location.pathname).toBe("/plants/plant_1"));
+  });
+
+  it("requires explicit confirmation before deleting a care task", async () => {
+    const mutationHandler = vi.fn().mockResolvedValue({
+      ok: true,
+    });
+    setMockMutationHandler(mutationHandler);
+
+    renderWithProviders(
+      <AppShell
+        pathname="/plants/tasks/edit"
+        routeContext={{
+          userId: "user_1",
+          familyId: "family_1",
+          displayName: "Wang",
+        }}
+        routeParams={{
+          plantId: "plant_1",
+          taskId: "task_1",
+        }}
+      />,
+      {
+        route: "/plants/plant_1/tasks/task_1/edit",
+        queryResult: {
+          plantId: "plant_1",
+          plantName: "Monstera deliciosa",
+          task: {
+            taskId: "task_1",
+            taskType: "watering",
+            customTaskName: null,
+            intervalDays: 7,
+            enabled: true,
+            lastCompletedAt: null,
+          },
+        },
+      },
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /delete task/i }));
+    expect(screen.getByText(/delete watering\?/i)).toBeInTheDocument();
+    expect(mutationHandler).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: /confirm delete/i }));
+
+    await waitFor(() =>
+      expect(mutationHandler).toHaveBeenCalledWith({
+        taskId: "task_1",
+      }),
+    );
+    await waitFor(() => expect(window.location.pathname).toBe("/plants/plant_1"));
+  });
+
   it("requires explicit confirmation before archiving a plant and updates the detail status", async () => {
     const mutationHandler = vi.fn().mockResolvedValue({
       ok: true,

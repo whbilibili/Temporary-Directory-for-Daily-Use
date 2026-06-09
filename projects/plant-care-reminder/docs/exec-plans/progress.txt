@@ -1,30 +1,30 @@
 ### [Current Focus]
-`CARE-002` 已完成：`/plants/:plantId/tasks/new` 现在已经是可用的新建 care task 流。后端新增 [tasks.ts](../app/convex/tasks.ts)，提供 `getTaskCreationPlant` 和 `createPlantTask`，会校验 plant/family ownership、拒绝 archived plant、复用共享 helper 计算 `nextDueAt`，并把新任务写进 `plantTasks`；前端新增 [CreateTaskPage.tsx](../app/src/features/tasks/CreateTaskPage.tsx) 与 [TaskForm.tsx](../app/src/features/tasks/TaskForm.tsx)，同时把 [router.tsx](../app/src/app/router.tsx)、[AppShell.tsx](../app/src/app/AppShell.tsx) 和 [PlantDetailPage.tsx](../app/src/features/plants/PlantDetailPage.tsx) 接上了 `/plants/:plantId/tasks/new` 路由和 `Add routine` 入口。下一线任务切换为 `CARE-003`。
+`CARE-003` 已完成：现有 care task 的 edit、enable-disable 和 delete 流已经闭合。后端 [tasks.ts](../app/convex/tasks.ts) 新增了 `getTaskForEdit`、`updatePlantTask` 和 `deletePlantTask`，会按当前家庭校验 task/plant ownership、复用共享 helper 重新计算 `nextDueAt`，并支持显式删除；前端新增 [EditTaskPage.tsx](../app/src/features/tasks/EditTaskPage.tsx) 与 [DeleteTaskAction.tsx](../app/src/features/tasks/DeleteTaskAction.tsx)，同时扩展了 [TaskForm.tsx](../app/src/features/tasks/TaskForm.tsx)、[router.tsx](../app/src/app/router.tsx) 和 [AppShell.tsx](../app/src/app/AppShell.tsx)，把 `/plants/:plantId/tasks/:taskId/edit` 真正接起来。下一线任务切换为 `CARE-004`。
 
 ### [Key Decisions]
-- create-task 后端写路径独立放在 `convex/tasks.ts`，不继续往 `plants.ts` 里堆 reminders 逻辑。
-- create route 直接消费 `CARE-001` 的 task type / custom validation / scheduling helper，不复制任何规则。
-- archived plants 在 create-task query 和 mutation 两侧都被拦掉，避免前端只靠 UI 入口做保护。
+- task 的 create / edit / delete 都收口在同一个 `convex/tasks.ts` 边界里，避免 reminders 写路径继续分散。
+- edit page 继续复用 `TaskForm`，通过 `title` / `description` / `actionsSlot` 扩展状态和危险操作，而不是起第二套 editor contract。
+- disabled task 不删除记录，只 patch `enabled: false` 并重算 `nextDueAt`，保持后续 completion/history 扩展的连续性。
 
 ### [Blockers & Solutions]
-- 当前测试 harness 只有单 queryResult / 单 mutation handler，所以 create route 查询被刻意压成一个 `getTaskCreationPlant`，避免为了 `CARE-002` 提前扩展复杂 mock 多路由。
-- `customTaskName` 的产品语义需要映射到 schema 字段 `customLabel`；这轮在 mutation 层做了 DTO translation，没有把这个差异泄漏到前端 form。
-- 浏览器级验证依旧受宿主 Playwright 限制影响，所以这轮优先用 smoke tests 覆盖 route、validation、mutation payload 和跳转结果。
+- 当前测试 harness 的所有 mutation 仍共享一个 mock handler，所以 edit / delete 覆盖是按单页面单动作分开的，避免多 mutation 混用时断言互相污染。
+- `updatePlantTask` 需要基于历史 completion baseline 重算 `nextDueAt`，这轮把这条规则放在 mutation 层，前端不自行推导。
+- 浏览器级验证依旧受宿主 Playwright 限制影响，所以这轮优先用 smoke tests 覆盖预填充、disable payload 和 delete confirmation。
 
 ### [Verification]
 - `cd app && npm run typecheck`
 - `cd app && npm run test`
 - `cd app && npx convex dev --once --typecheck enable`
 - `npm run test` 新覆盖：
-  - `/plants/:plantId/tasks/new` 会渲染真实 create-task form
-  - preset task create 会提交正确 payload，并回到父植物详情页
-  - custom task create 会先强制名称校验，再提交自定义名称 payload
-- `createPlantTask` 的 family scope、archived-plant 拦截和 generated api/type 边界已通过 Convex codegen/typecheck 验证
+  - `/plants/:plantId/tasks/:taskId/edit` 会预填充现有 task 设置
+  - disable 后提交 update 会带上 `enabled: false`
+  - delete action 必须先确认，才会调用 `deletePlantTask`
+- `getTaskForEdit` / `updatePlantTask` / `deletePlantTask` 的 family scope 和 generated api/type 边界已通过 Convex codegen/typecheck 验证
 
 ### [Dead Ends]
-- 不要把 create-task 逻辑塞回 `plants.ts`；后续 edit/disable/delete 也需要落在同一 reminders 侧边界。
-- 不要让 archived plants 只在前端按钮层面“看起来不能新增任务”；后端也必须拒绝。
+- 不要在 `CARE-003` 就顺手重构最终版 detail task list；那是 `CARE-004` 的范围。
+- 不要把 disable 做成 delete 的别名；后续 due views 需要的是软开关，不是抹掉记录。
 
 ### [Next Steps]
-1. 进入 `CARE-003`，实现 task edit、enable-disable 和 delete 流。
-2. 让 `CARE-003` 复用这轮的 `tasks.ts` 边界和 `TaskForm`，不要再起第二套 task editor contract。
+1. 进入 `CARE-004`，把 plant detail 里的 task list section 改成真正的 add/edit/complete 入口层。
+2. 让 `CARE-004` 直接消费这两轮落下的 create/edit routes，而不是继续保留纯占位 task block。

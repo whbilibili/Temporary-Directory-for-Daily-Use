@@ -196,7 +196,7 @@
       "task_id": "CARE-003",
       "description": "Implement the edit, enable-disable and delete flows for existing care tasks.",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {
