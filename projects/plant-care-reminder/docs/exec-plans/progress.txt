@@ -1,30 +1,30 @@
 ### [Current Focus]
-`CARE-001` 已完成：reminders 模块现在已经有一套可复用的共享 task contract。新增 [taskTypes.ts](../app/src/features/tasks/taskTypes.ts) 统一维护 task type 值、展示文案、custom task 校验和 UI options；新增 [scheduling.ts](../app/src/features/tasks/scheduling.ts) 统一维护 interval 校验与 `computeNextDueAt`。我还把 [formatters.ts](../app/src/lib/formatters.ts)、[domain.ts](../app/src/types/domain.ts) 和 [validators.ts](../app/convex/lib/validators.ts) 接到这套共享来源，避免后续 create/edit/complete 再各自维护一份 task type 列表。下一线任务切换为 `CARE-002`。
+`CARE-002` 已完成：`/plants/:plantId/tasks/new` 现在已经是可用的新建 care task 流。后端新增 [tasks.ts](../app/convex/tasks.ts)，提供 `getTaskCreationPlant` 和 `createPlantTask`，会校验 plant/family ownership、拒绝 archived plant、复用共享 helper 计算 `nextDueAt`，并把新任务写进 `plantTasks`；前端新增 [CreateTaskPage.tsx](../app/src/features/tasks/CreateTaskPage.tsx) 与 [TaskForm.tsx](../app/src/features/tasks/TaskForm.tsx)，同时把 [router.tsx](../app/src/app/router.tsx)、[AppShell.tsx](../app/src/app/AppShell.tsx) 和 [PlantDetailPage.tsx](../app/src/features/plants/PlantDetailPage.tsx) 接上了 `/plants/:plantId/tasks/new` 路由和 `Add routine` 入口。下一线任务切换为 `CARE-003`。
 
 ### [Key Decisions]
-- task type 值现在只有一份共享来源，`src` 侧 UI 和 `convex` 侧 validators 都消费同一份 `careTaskTypeValues`。
-- custom task 的“仅 custom 类型必填名称”规则已经收口到 `validateCustomTaskName`，后续表单不需要各自重写。
-- next-due 计算统一走 `computeNextDueAt`，并在 helper 层直接拒绝非法 `intervalDays`，避免后续 create/edit/complete 流程各写一版时间运算。
+- create-task 后端写路径独立放在 `convex/tasks.ts`，不继续往 `plants.ts` 里堆 reminders 逻辑。
+- create route 直接消费 `CARE-001` 的 task type / custom validation / scheduling helper，不复制任何规则。
+- archived plants 在 create-task query 和 mutation 两侧都被拦掉，避免前端只靠 UI 入口做保护。
 
 ### [Blockers & Solutions]
-- 现有代码里 task label helper 原本散在 `lib/formatters.ts`，而 task type 值又分别存在 `domain.ts` 和 `validators.ts`；这轮通过共享 helper 源头收束，避免后续 reminders 流程一开始就带着重复定义。
-- `plantTasks` schema 当前字段名还是 `customLabel`，而执行清单文案写的是 `customTaskName`；这轮先在共享 helper 层统一业务语义，后续 create/edit 表单可以只做 DTO 映射，不再重复业务规则。
-- 浏览器级验证对这轮没有增量价值，因为 `CARE-001` 是纯共享 contract；优先用单测和 typecheck 钉住 helper 行为。
+- 当前测试 harness 只有单 queryResult / 单 mutation handler，所以 create route 查询被刻意压成一个 `getTaskCreationPlant`，避免为了 `CARE-002` 提前扩展复杂 mock 多路由。
+- `customTaskName` 的产品语义需要映射到 schema 字段 `customLabel`；这轮在 mutation 层做了 DTO translation，没有把这个差异泄漏到前端 form。
+- 浏览器级验证依旧受宿主 Playwright 限制影响，所以这轮优先用 smoke tests 覆盖 route、validation、mutation payload 和跳转结果。
 
 ### [Verification]
 - `cd app && npm run typecheck`
 - `cd app && npm run test`
 - `cd app && npx convex dev --once --typecheck enable`
 - `npm run test` 新覆盖：
-  - preset task type 和 custom task type 都能从同一 helper 正确出 label
-  - custom task 名称的 normalize / validate 规则固定在一处
-  - `computeNextDueAt` 能从 completion timestamp 或 fallback `now` 计算结果，并拒绝非法 interval
-- `careTaskTypeValues` 跨 `src` 与 `convex` 的共享引用已通过 Convex codegen/typecheck 验证
+  - `/plants/:plantId/tasks/new` 会渲染真实 create-task form
+  - preset task create 会提交正确 payload，并回到父植物详情页
+  - custom task create 会先强制名称校验，再提交自定义名称 payload
+- `createPlantTask` 的 family scope、archived-plant 拦截和 generated api/type 边界已通过 Convex codegen/typecheck 验证
 
 ### [Dead Ends]
-- 不要在 `CARE-001` 就顺手开始写 task mutation；这轮只做共享 contract。
-- 不要让 task type 文案、枚举和值列表继续散落在多个文件里；后续 reminders 流会放大这种重复。
+- 不要把 create-task 逻辑塞回 `plants.ts`；后续 edit/disable/delete 也需要落在同一 reminders 侧边界。
+- 不要让 archived plants 只在前端按钮层面“看起来不能新增任务”；后端也必须拒绝。
 
 ### [Next Steps]
-1. 进入 `CARE-002`，实现 `/plants/:plantId/tasks/new` 的 interval-based create-task flow。
-2. 让 `CARE-002` 直接消费这轮落下的 task type / scheduling shared contract，而不是重复定义表单和时间规则。
+1. 进入 `CARE-003`，实现 task edit、enable-disable 和 delete 流。
+2. 让 `CARE-003` 复用这轮的 `tasks.ts` 边界和 `TaskForm`，不要再起第二套 task editor contract。

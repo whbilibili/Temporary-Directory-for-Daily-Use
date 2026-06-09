@@ -13,6 +13,7 @@ export type AppPath =
   | "/onboarding/join-family"
   | "/plants"
   | "/plants/detail"
+  | "/plants/tasks/new"
   | "/plants/new"
   | "/plants/edit"
   | "/todo"
@@ -38,6 +39,16 @@ export function navigate(to: AppPath | string, replace = false) {
 }
 
 function normalizePath(pathname: string): AppRoute {
+  const plantTaskNewMatch = pathname.match(/^\/plants\/([^/]+)\/tasks\/new$/);
+  if (plantTaskNewMatch) {
+    return {
+      pathname: "/plants/tasks/new",
+      params: {
+        plantId: decodeURIComponent(plantTaskNewMatch[1]),
+      },
+    };
+  }
+
   const plantEditMatch = pathname.match(/^\/plants\/([^/]+)\/edit$/);
   if (plantEditMatch) {
     return {
@@ -66,6 +77,7 @@ function normalizePath(pathname: string): AppRoute {
     pathname === "/onboarding/join-family" ||
     pathname === "/plants" ||
     pathname === "/plants/detail" ||
+    pathname === "/plants/tasks/new" ||
     pathname === "/plants/new" ||
     pathname === "/todo" ||
     pathname === "/settings"

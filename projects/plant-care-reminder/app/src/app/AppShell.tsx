@@ -15,6 +15,7 @@ import { clearCreatePlantSuccess, hasCreatePlantSuccessFlag } from "../features/
 import { EditPlantPage } from "../features/plants/EditPlantPage";
 import { PlantDetailPage } from "../features/plants/PlantDetailPage";
 import { PlantListPage } from "../features/plants/PlantListPage";
+import { CreateTaskPage } from "../features/tasks/CreateTaskPage";
 import { BottomNav } from "../components/navigation/BottomNav";
 import { formatDueDate, formatTaskTypeLabel } from "../lib/formatters";
 import { RouteGate } from "./RouteGate";
@@ -54,6 +55,9 @@ export function AppShell({ pathname, routeContext, routeParams }: AppShellProps)
           ) : null}
           {pathname === "/plants/detail" ? (
             <PlantDetailPage plantId={routeParams?.plantId ?? null} />
+          ) : null}
+          {pathname === "/plants/tasks/new" ? (
+            <CreateTaskPage plantId={routeParams?.plantId ?? null} />
           ) : null}
           {pathname === "/plants/new" ? (
             <CreatePlantPage />

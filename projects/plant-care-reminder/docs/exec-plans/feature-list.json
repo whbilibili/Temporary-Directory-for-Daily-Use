@@ -33,7 +33,7 @@
       "file": "docs/exec-plans/modules/care-reminders.json",
       "description": "Implement care-task scheduling, due inbox, completion flow and notification delivery.",
       "task_count": 8,
-      "completed": 1,
+      "completed": 2,
       "depends_on": ["infra", "family-access", "plant-registry"]
     }
   ],
@@ -189,7 +189,7 @@
       "task_id": "CARE-002",
       "module": "care-reminders",
       "description": "Implement the create-task flow for interval-based plant care tasks.",
-      "status": "pending",
+      "status": "completed",
       "priority": "1-High"
     },
     {

@@ -90,7 +90,7 @@
       "task_id": "CARE-002",
       "description": "Implement the create-task flow for interval-based care tasks under a plant.",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {

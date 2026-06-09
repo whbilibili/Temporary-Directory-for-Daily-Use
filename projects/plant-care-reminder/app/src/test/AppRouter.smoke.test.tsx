@@ -589,6 +589,141 @@ describe("AppShell smoke coverage", () => {
     expect(screen.getByRole("button", { name: /back to plants/i })).toBeInTheDocument();
   });
 
+  it("renders the create-task route for an active family plant", async () => {
+    renderWithProviders(
+      <AppShell
+        pathname="/plants/tasks/new"
+        routeContext={{
+          userId: "user_1",
+          familyId: "family_1",
+          displayName: "Wang",
+        }}
+        routeParams={{
+          plantId: "plant_1",
+        }}
+      />,
+      {
+        route: "/plants/plant_1/tasks/new",
+        queryResult: {
+          plantId: "plant_1",
+          plantName: "Monstera deliciosa",
+          location: "Dining room shelf",
+        },
+      },
+    );
+
+    await waitFor(() => expect(window.location.pathname).toBe("/plants/plant_1/tasks/new"));
+    expect(
+      screen.getByRole("heading", { name: /create a reminder for monstera deliciosa/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText(/task type/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/interval days/i)).toHaveValue(7);
+    expect(screen.getByRole("button", { name: /plants/i })).toHaveAttribute("aria-current", "page");
+  });
+
+  it("submits a preset care-task create flow and routes back to the parent plant detail", async () => {
+    const mutationHandler = vi.fn().mockResolvedValue({
+      taskId: "task_1",
+    });
+    setMockMutationHandler(mutationHandler);
+
+    renderWithProviders(
+      <AppShell
+        pathname="/plants/tasks/new"
+        routeContext={{
+          userId: "user_1",
+          familyId: "family_1",
+          displayName: "Wang",
+        }}
+        routeParams={{
+          plantId: "plant_1",
+        }}
+      />,
+      {
+        route: "/plants/plant_1/tasks/new",
+        queryResult: {
+          plantId: "plant_1",
+          plantName: "Monstera deliciosa",
+          location: "Dining room shelf",
+        },
+      },
+    );
+
+    fireEvent.change(screen.getByLabelText(/interval days/i), {
+      target: { value: "5" },
+    });
+    fireEvent.change(screen.getByLabelText(/last completed on/i), {
+      target: { value: "2026-06-10" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /save care task/i }));
+
+    await waitFor(() =>
+      expect(mutationHandler).toHaveBeenCalledWith({
+        plantId: "plant_1",
+        taskType: "watering",
+        customTaskName: null,
+        intervalDays: 5,
+        baseCompletedAt: Date.UTC(2026, 5, 10, 12, 0, 0),
+      }),
+    );
+    await waitFor(() => expect(window.location.pathname).toBe("/plants/plant_1"));
+  });
+
+  it("supports custom care-task creation and enforces a custom task name", async () => {
+    const mutationHandler = vi.fn().mockResolvedValue({
+      taskId: "task_2",
+    });
+    setMockMutationHandler(mutationHandler);
+
+    renderWithProviders(
+      <AppShell
+        pathname="/plants/tasks/new"
+        routeContext={{
+          userId: "user_1",
+          familyId: "family_1",
+          displayName: "Wang",
+        }}
+        routeParams={{
+          plantId: "plant_1",
+        }}
+      />,
+      {
+        route: "/plants/plant_1/tasks/new",
+        queryResult: {
+          plantId: "plant_1",
+          plantName: "Monstera deliciosa",
+          location: "Dining room shelf",
+        },
+      },
+    );
+
+    fireEvent.change(screen.getByLabelText(/task type/i), {
+      target: { value: "custom" },
+    });
+    expect(screen.getByPlaceholderText("Leaf wipe")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /save care task/i }));
+    expect(screen.getByRole("alert")).toHaveTextContent(/enter a custom task name/i);
+    expect(mutationHandler).not.toHaveBeenCalled();
+
+    fireEvent.change(screen.getByPlaceholderText("Leaf wipe"), {
+      target: { value: "Leaf wipe" },
+    });
+    fireEvent.change(screen.getByLabelText(/interval days/i), {
+      target: { value: "14" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /save care task/i }));
+
+    await waitFor(() =>
+      expect(mutationHandler).toHaveBeenCalledWith({
+        plantId: "plant_1",
+        taskType: "custom",
+        customTaskName: "Leaf wipe",
+        intervalDays: 14,
+        baseCompletedAt: null,
+      }),
+    );
+  });
+
   it("requires explicit confirmation before archiving a plant and updates the detail status", async () => {
     const mutationHandler = vi.fn().mockResolvedValue({
       ok: true,

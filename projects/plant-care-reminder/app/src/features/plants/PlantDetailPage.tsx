@@ -121,21 +121,32 @@ export function PlantDetailPage({ plantId }: PlantDetailPageProps) {
         onEdit={() => navigate(`/plants/${plant.id}/edit`)}
         plant={plant}
       />
-      <PlantTaskSection plantName={plant.name} tasks={result.tasks} />
+      <PlantTaskSection plantId={plant.id} plantName={plant.name} tasks={result.tasks} />
     </section>
   );
 }
 
 function PlantTaskSection({
+  plantId,
   plantName,
   tasks,
 }: {
+  plantId: string;
   plantName: string;
   tasks: PlantDetailResponse["tasks"];
 }) {
   return (
     <section style={sectionCardStyle}>
       <PageHeader
+        actions={
+          <Button
+            fullWidth={false}
+            onClick={() => navigate(`/plants/${plantId}/tasks/new`)}
+            type="button"
+          >
+            Add routine
+          </Button>
+        }
         eyebrow="Care tasks"
         title="Enabled routines"
         description={
@@ -149,6 +160,15 @@ function PlantTaskSection({
 
       {tasks.length === 0 ? (
         <EmptyState
+          actions={
+            <Button
+              fullWidth={false}
+              onClick={() => navigate(`/plants/${plantId}/tasks/new`)}
+              type="button"
+            >
+              Add routine
+            </Button>
+          }
           badge="Care tasks"
           title="No enabled care routines yet"
           description="Add watering, fertilizing, misting, pruning, or custom routines in the upcoming reminders module."
