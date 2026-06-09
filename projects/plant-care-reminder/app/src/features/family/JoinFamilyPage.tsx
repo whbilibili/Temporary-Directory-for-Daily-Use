@@ -1,6 +1,5 @@
 import { useState } from "react";
 
-import { PageHeader } from "../../components/ui/PageHeader";
 import { JoinFamilyForm } from "./JoinFamilyForm";
 
 export function JoinFamilyPage() {
@@ -9,48 +8,68 @@ export function JoinFamilyPage() {
   if (isWaitingForRedirect) {
     return (
       <section style={cardStyle}>
-        <PageHeader
-          eyebrow="正在加入"
-          title="正在接入家庭植物看板..."
-          description={
-            <p style={bodyStyle}>
-              邀请码已验证通过，正在同步家庭植物资料并带你进入共享看板。
-            </p>
-          }
-        />
+        <header style={headerStyle}>
+          <p style={eyebrowStyle}>正在加入</p>
+          <h1 style={titleStyle}>正在接入家庭植物看板...</h1>
+          <p style={bodyStyle}>
+            邀请码已验证通过，正在同步家庭植物资料并带你进入共享看板。
+          </p>
+        </header>
       </section>
     );
   }
 
   return (
     <section style={cardStyle}>
-      <PageHeader
-        eyebrow="加入家庭"
-        title="加入已有家庭"
-        description={
-          <p style={bodyStyle}>
-            输入家人发来的邀请码，即可加入同一个植物看板和养护任务列表。
-          </p>
-        }
-      />
+      <header style={headerStyle}>
+        <p style={eyebrowStyle}>加入家庭</p>
+        <h1 style={titleStyle}>加入已有家庭</h1>
+        <p style={bodyStyle}>
+          输入家人发来的邀请码，即可加入同一个植物看板和养护任务列表。
+        </p>
+      </header>
       <JoinFamilyForm onSuccess={() => setIsWaitingForRedirect(true)} />
     </section>
   );
 }
 
 const cardStyle: React.CSSProperties = {
-  borderRadius: "24px",
-  padding: "28px 22px",
-  background: "rgba(255,255,255,0.94)",
-  border: "1px solid rgba(148,163,184,0.24)",
-  boxShadow: "0 24px 60px rgba(15,23,42,0.08)",
+  borderRadius: "var(--radius-card)",
+  padding: "var(--space-lg)",
+  background: "var(--color-surface)",
+  border: "1px solid var(--color-line)",
+  boxShadow: "var(--shadow-card)",
   display: "grid",
-  gap: "20px",
+  gap: "var(--space-lg)",
+};
+
+const headerStyle: React.CSSProperties = {
+  maxHeight: "120px",
+  display: "grid",
+  gap: "var(--space-sm)",
+};
+
+const eyebrowStyle: React.CSSProperties = {
+  margin: 0,
+  color: "var(--color-leaf)",
+  textTransform: "uppercase",
+  letterSpacing: "0.12em",
+  fontSize: "0.75rem",
+  fontWeight: 700,
+};
+
+const titleStyle: React.CSSProperties = {
+  margin: 0,
+  fontFamily: "var(--font-heading)",
+  fontSize: "1.5rem",
+  lineHeight: 1.25,
+  fontWeight: 700,
+  color: "var(--color-ink)",
 };
 
 const bodyStyle: React.CSSProperties = {
   margin: 0,
-  color: "#475569",
-  fontSize: "1rem",
-  lineHeight: 1.7,
+  color: "var(--color-muted)",
+  fontSize: "0.95rem",
+  lineHeight: 1.6,
 };

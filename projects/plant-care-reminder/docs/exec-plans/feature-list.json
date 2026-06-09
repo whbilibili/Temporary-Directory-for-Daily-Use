@@ -50,7 +50,7 @@
       "file": "docs/exec-plans/modules/frontend-refresh.json",
       "description": "建立 Design Token 基础设施，逐页面落地 moodboard botanical 视觉方向：登录、onboarding、待办、植物、设置全路径改造。",
       "task_count": 13,
-      "completed": 3,
+      "completed": 4,
       "depends_on": [
         "infra",
         "family-access",
@@ -281,7 +281,7 @@
       "task_id": "VIS-004",
       "module": "frontend-refresh",
       "description": "Onboarding 流程视觉统一（quiet-form 设计语言）。",
-      "status": "pending",
+      "status": "completed",
       "priority": "1-High"
     },
     {

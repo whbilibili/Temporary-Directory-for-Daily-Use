@@ -5,7 +5,6 @@ import { api } from "../../../convex/_generated/api";
 import { Button } from "../../components/ui/Button";
 import { FormError } from "../../components/ui/FormError";
 import { InputField } from "../../components/ui/InputField";
-import { PageHeader } from "../../components/ui/PageHeader";
 
 interface ProfileBootstrapFormProps {
   suggestedName?: string | null;
@@ -37,15 +36,13 @@ export function ProfileBootstrapForm({ suggestedName }: ProfileBootstrapFormProp
 
   return (
     <section style={cardStyle}>
-      <PageHeader
-        eyebrow="个人资料"
-        title="家人该怎么称呼你？"
-        description={
-          <p style={bodyStyle}>
-            继续之前，先保存一个简短称呼。这个名字会出现在任务记录、家庭成员列表和养护历史中。
-          </p>
-        }
-      />
+      <header style={headerStyle}>
+        <p style={eyebrowStyle}>个人资料</p>
+        <h1 style={titleStyle}>家人该怎么称呼你？</h1>
+        <p style={bodyStyle}>
+          先保存一个简短称呼，它会出现在任务记录、家庭成员列表和养护历史中。
+        </p>
+      </header>
       <form style={formStyle} onSubmit={handleSubmit}>
         <InputField
           autoComplete="nickname"
@@ -67,23 +64,47 @@ export function ProfileBootstrapForm({ suggestedName }: ProfileBootstrapFormProp
 }
 
 const cardStyle: React.CSSProperties = {
-  borderRadius: "24px",
-  padding: "28px 22px",
-  background: "rgba(255,255,255,0.94)",
-  border: "1px solid rgba(148,163,184,0.24)",
-  boxShadow: "0 24px 60px rgba(15,23,42,0.08)",
+  borderRadius: "var(--radius-card)",
+  padding: "var(--space-lg)",
+  background: "var(--color-surface)",
+  border: "1px solid var(--color-line)",
+  boxShadow: "var(--shadow-card)",
   display: "grid",
-  gap: "20px",
+  gap: "var(--space-lg)",
+};
+
+const headerStyle: React.CSSProperties = {
+  maxHeight: "120px",
+  display: "grid",
+  gap: "var(--space-sm)",
+};
+
+const eyebrowStyle: React.CSSProperties = {
+  margin: 0,
+  color: "var(--color-leaf)",
+  textTransform: "uppercase",
+  letterSpacing: "0.12em",
+  fontSize: "0.75rem",
+  fontWeight: 700,
+};
+
+const titleStyle: React.CSSProperties = {
+  margin: 0,
+  fontFamily: "var(--font-heading)",
+  fontSize: "1.5rem",
+  lineHeight: 1.25,
+  fontWeight: 700,
+  color: "var(--color-ink)",
 };
 
 const bodyStyle: React.CSSProperties = {
   margin: 0,
-  color: "#475569",
-  fontSize: "1rem",
-  lineHeight: 1.7,
+  color: "var(--color-muted)",
+  fontSize: "0.95rem",
+  lineHeight: 1.6,
 };
 
 const formStyle: React.CSSProperties = {
   display: "grid",
-  gap: "16px",
+  gap: "var(--space-md)",
 };

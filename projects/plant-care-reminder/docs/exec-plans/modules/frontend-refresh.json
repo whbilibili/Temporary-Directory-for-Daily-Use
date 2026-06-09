@@ -215,7 +215,7 @@
       "task_id": "VIS-004",
       "description": "Onboarding 流程视觉统一：压缩 profile 页、选择页、创建家庭页、加入家庭页的 Hero 区高度，应用 quiet-form 设计语言（紧凑表单 + 单主按钮 + 简短中文文案）。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "depends_on": ["VIS-001", "VIS-002"],
       "plan_path": null,
       "contracts": {

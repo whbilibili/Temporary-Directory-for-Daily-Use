@@ -5,6 +5,8 @@
 
 **VIS-002 已完成（2026-06-10）**：清理认证后主路径残留英文文案并同步 smoke 测试。改动文件：ArchivePlantAction.tsx（归档/恢复全套文案）、RouteGate.tsx（加载态）、AppShell.tsx（displayName 兜底「植物管家」+ 删除零引用死代码 OnboardingActionPlaceholder 及其专用 import/样式）、uploadPlantImage.ts（2 处 throw）、scheduling.ts（间隔校验错误）、TaskForm.tsx（占位「擦拭叶片」）、DueTaskCard.tsx（img alt）、EmptyState.tsx（默认 badge 兜底）。同步断言：AppRouter.smoke.test.tsx（归档/恢复/preparing/占位符）、taskHelpers.test.ts（间隔错误）。typecheck 通过、smoke 33 绿、全量 8 files / 50 tests 全绿、主路径英文文案 grep 复核干净。
 
+**VIS-004 已完成（2026-06-10）**：Onboarding 四页视觉统一为 quiet-form 风格。改动文件：ProfileBootstrapForm.tsx（实际位于 features/auth/，任务清单路径 features/family/ 有误）、FamilyOnboardingChoicePage.tsx、CreateFamilyPage.tsx、JoinFamilyPage.tsx。统一做法：去除 PageHeader（clamp 大标题会撑爆 Header）改为自建紧凑 Header（maxHeight 120px，eyebrow + 标题 + 一行说明）；全部色值/间距/圆角/阴影引用 token，清除旧蓝橙硬编码（选择页原 accent band 渐变改为 botanical 素面卡片）；邀请码改为 var(--font-mono) 28px/700 letter-spacing 0.12em color leaf 成为最强视觉元素。严格保留 smoke 断言的 heading 文案（欢迎你～/创建一个家庭 h2/加入已有家庭 h2/创建共享家庭植物空间/共享家庭已创建完成/正在接入家庭植物看板）及 ChoiceCard 描述文本。typecheck 通过、全量 8 files / 50 tests 全绿、grep 复核四文件无硬编码色值。
+
 **VIS-003 已完成（2026-06-10）**：登录页视觉改造。重构 AuthPage.tsx：不再复用 PageHeader（其 clamp 大标题会撑爆 Hero），改为自建压缩 Hero（logo + 标题 + 一行说明，maxHeight 160px）；页面容器应用 var(--gradient-botanical), var(--gradient-accent) 叠加背景；tab 胶囊（height 36px / radius-pill / 半透白底 + color-line 边框，选中态 leaf 底白字）；表单卡片（rgba(255,255,255,.82) / radius-card / shadow-card / color-line 边框 / space-lg 内边距）；全部引用 token，无硬编码色值。顺手修复 EmailLoginForm.tsx 的 statusStyle 硬编码 #0f766e → var(--color-success)。smoke 未断言登录页内文（仅断言 /login 路径），无需同步测试。typecheck 通过、smoke 33 绿、全量 8 files / 50 tests 全绿。注：AppShell frameStyle/backdropOrbStyle 仍为旧蓝橙硬编码渐变（全局壳层，不在 VIS-003 范围，待后续任务处理）。
 
 ### [Task Breakdown Summary]
@@ -65,5 +67,6 @@
 1. ✅ VIS-001 已完成并提交。
 2. ✅ VIS-002 已完成并提交。
 3. ✅ VIS-003 已完成并提交。
-4. 下一个任务：**VIS-004**（见 frontend-refresh.json 推荐顺序）。
-5. 按推荐顺序逐步推进，每完成一个 VIS 任务即更新本文件的 status，并 git 提交。
+4. ✅ VIS-004 已完成并提交。
+5. 下一个任务：**VIS-005**（App Shell 与底部导航 task-first 改造：默认落点 /todo、BottomNav 重构为 待办/植物/设置、压缩 Header 密度。注意：需同步更新 router smoke 默认 redirect 断言）。
+6. 按推荐顺序逐步推进，每完成一个 VIS 任务即更新本文件的 status，并 git 提交。

@@ -2,7 +2,6 @@ import { useState } from "react";
 
 import { navigate } from "../../app/router";
 import { Button } from "../../components/ui/Button";
-import { PageHeader } from "../../components/ui/PageHeader";
 import {
   clearCreateFamilySuccess,
   markCreateFamilySuccess,
@@ -30,20 +29,18 @@ export function CreateFamilyPage() {
   if (createdFamily) {
     return (
       <section style={cardStyle}>
-        <PageHeader
-          eyebrow="创建完成"
-          title="共享家庭已创建完成"
-          description={
-            <p style={bodyStyle}>
-              把这串邀请码发给家人，他们就能加入同一个植物看板和养护任务列表。
-            </p>
-          }
-        />
+        <header style={headerStyle}>
+          <p style={eyebrowStyle}>创建完成</p>
+          <h1 style={titleStyle}>共享家庭已创建完成</h1>
+          <p style={bodyStyle}>
+            把这串邀请码发给家人，他们就能加入同一个植物看板。
+          </p>
+        </header>
         <div style={inviteCardStyle}>
           <p style={inviteLabelStyle}>邀请码</p>
           <p style={inviteCodeStyle}>{createdFamily.inviteCode}</p>
           <p style={inviteHintStyle}>
-            先把这串邀请码保存好，后续家人加入时会用到。你已经是当前家庭的第一位管理员。
+            先把邀请码保存好，家人加入时会用到。你已经是这个家庭的第一位管理员。
           </p>
         </div>
         <Button type="button" onClick={goToPlantBoard}>
@@ -55,51 +52,72 @@ export function CreateFamilyPage() {
 
   return (
     <section style={cardStyle}>
-      <PageHeader
-        eyebrow="创建家庭"
-        title="创建共享家庭植物空间"
-        description={
-          <p style={bodyStyle}>
-            为家里创建一个共享植物空间。系统会自动生成邀请码，并默认将你设为第一位管理员。
-          </p>
-        }
-      />
+      <header style={headerStyle}>
+        <p style={eyebrowStyle}>创建家庭</p>
+        <h1 style={titleStyle}>创建共享家庭植物空间</h1>
+        <p style={bodyStyle}>
+          系统会自动生成邀请码，并默认将你设为第一位管理员。
+        </p>
+      </header>
       <CreateFamilyForm onSuccess={handleSuccess} />
     </section>
   );
 }
 
 const cardStyle: React.CSSProperties = {
-  borderRadius: "24px",
-  padding: "28px 22px",
-  background: "rgba(255,255,255,0.94)",
-  border: "1px solid rgba(148,163,184,0.24)",
-  boxShadow: "0 24px 60px rgba(15,23,42,0.08)",
+  borderRadius: "var(--radius-card)",
+  padding: "var(--space-lg)",
+  background: "var(--color-surface)",
+  border: "1px solid var(--color-line)",
+  boxShadow: "var(--shadow-card)",
   display: "grid",
-  gap: "20px",
+  gap: "var(--space-lg)",
+};
+
+const headerStyle: React.CSSProperties = {
+  maxHeight: "120px",
+  display: "grid",
+  gap: "var(--space-sm)",
+};
+
+const eyebrowStyle: React.CSSProperties = {
+  margin: 0,
+  color: "var(--color-leaf)",
+  textTransform: "uppercase",
+  letterSpacing: "0.12em",
+  fontSize: "0.75rem",
+  fontWeight: 700,
+};
+
+const titleStyle: React.CSSProperties = {
+  margin: 0,
+  fontFamily: "var(--font-heading)",
+  fontSize: "1.5rem",
+  lineHeight: 1.25,
+  fontWeight: 700,
+  color: "var(--color-ink)",
 };
 
 const bodyStyle: React.CSSProperties = {
   margin: 0,
-  color: "#475569",
-  fontSize: "1rem",
-  lineHeight: 1.7,
+  color: "var(--color-muted)",
+  fontSize: "0.95rem",
+  lineHeight: 1.6,
 };
 
 const inviteCardStyle: React.CSSProperties = {
-  borderRadius: "22px",
-  padding: "20px 18px",
-  background:
-    "linear-gradient(180deg, rgba(14,116,144,0.08), rgba(255,255,255,0.96) 44%, rgba(249,115,22,0.1))",
-  border: "1px solid #bfdbfe",
+  borderRadius: "var(--radius-card)",
+  padding: "var(--space-lg) var(--space-md)",
+  background: "var(--color-mist)",
+  border: "1px solid var(--color-line)",
   display: "grid",
-  gap: "10px",
+  gap: "var(--space-sm)",
   textAlign: "center",
 };
 
 const inviteLabelStyle: React.CSSProperties = {
   margin: 0,
-  color: "#0f766e",
+  color: "var(--color-leaf)",
   textTransform: "uppercase",
   letterSpacing: "0.12em",
   fontWeight: 700,
@@ -108,16 +126,17 @@ const inviteLabelStyle: React.CSSProperties = {
 
 const inviteCodeStyle: React.CSSProperties = {
   margin: 0,
-  color: "#0f172a",
-  fontSize: "2rem",
-  lineHeight: 1,
-  fontWeight: 800,
-  letterSpacing: "0.18em",
+  fontFamily: "var(--font-mono)",
+  color: "var(--color-leaf)",
+  fontSize: "28px",
+  lineHeight: 1.1,
+  fontWeight: 700,
+  letterSpacing: "0.12em",
 };
 
 const inviteHintStyle: React.CSSProperties = {
   margin: 0,
-  color: "#475569",
-  fontSize: "0.92rem",
+  color: "var(--color-muted)",
+  fontSize: "0.9rem",
   lineHeight: 1.6,
 };
