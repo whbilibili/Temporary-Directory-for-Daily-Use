@@ -65,6 +65,7 @@ export const plantTaskFields = {
   intervalDays: v.number(),
   enabled: v.boolean(),
   lastCompletedAt: optionalUtcTimestampValidator,
+  lastNotifiedAt: optionalUtcTimestampValidator,
   nextDueAt: utcTimestampValidator,
   createdBy: v.id("users"),
   createdAt: utcTimestampValidator,

@@ -1,10 +1,39 @@
-import { mutation } from "./_generated/server";
+import { internal } from "./_generated/api";
+import { internalAction, internalMutation, internalQuery, mutation } from "./_generated/server";
 import { getCurrentUserContext as loadCurrentUserContext } from "./lib/auth";
 import { v } from "convex/values";
 
 interface CurrentFamilyMemberContext {
   familyId: NonNullable<Awaited<ReturnType<typeof loadCurrentUserContext>>["familyId"]>;
   userId: NonNullable<Awaited<ReturnType<typeof loadCurrentUserContext>>["userId"]>;
+}
+
+const NOTIFICATION_WINDOW_MS = 60 * 60 * 1000;
+
+export function shouldNotifyTask({
+  enabled,
+  lastNotifiedAt,
+  nextDueAt,
+  now,
+}: {
+  enabled: boolean;
+  lastNotifiedAt: number | null | undefined;
+  nextDueAt: number;
+  now: number;
+}) {
+  if (!enabled) {
+    return false;
+  }
+
+  if (nextDueAt > now + NOTIFICATION_WINDOW_MS) {
+    return false;
+  }
+
+  if (lastNotifiedAt === null || lastNotifiedAt === undefined) {
+    return true;
+  }
+
+  return now - lastNotifiedAt >= NOTIFICATION_WINDOW_MS;
 }
 
 async function requireCurrentFamilyMember(
@@ -74,6 +103,119 @@ export const savePushSubscription = mutation({
 
     return {
       ok: true as const,
+    };
+  },
+});
+
+export const listNotifiableDueTasks = internalQuery({
+  args: {
+    now: v.number(),
+  },
+  handler: async (ctx, args) => {
+    const tasks = await ctx.db
+      .query("plantTasks")
+      .withIndex("by_nextDueAt")
+      .filter((q) => q.lte(q.field("nextDueAt"), args.now + NOTIFICATION_WINDOW_MS))
+      .collect();
+
+    const eligibleTasks = tasks.filter((task) =>
+      shouldNotifyTask({
+        enabled: task.enabled,
+        lastNotifiedAt: task.lastNotifiedAt ?? null,
+        nextDueAt: task.nextDueAt,
+        now: args.now,
+      }),
+    );
+
+    const tasksWithFanout = await Promise.all(
+      eligibleTasks.map(async (task) => {
+        const [plant, subscriptions] = await Promise.all([
+          ctx.db.get(task.plantId),
+          ctx.db
+            .query("pushSubscriptions")
+            .withIndex("by_familyId", (q) => q.eq("familyId", task.familyId))
+            .collect(),
+        ]);
+
+        if (!plant || plant.isArchived || subscriptions.length === 0) {
+          return null;
+        }
+
+        return {
+          taskId: task._id,
+          familyId: task.familyId,
+          plantId: plant._id,
+          plantName: plant.name,
+          taskType: task.taskType,
+          nextDueAt: task.nextDueAt,
+          subscriptions: subscriptions.map((subscription) => ({
+            subscriptionId: subscription._id,
+            userId: subscription.userId,
+            endpoint: subscription.endpoint,
+            p256dh: subscription.p256dh,
+            auth: subscription.auth,
+            deviceLabel: subscription.deviceLabel,
+          })),
+        };
+      }),
+    );
+
+    return {
+      tasks: tasksWithFanout.filter((task): task is NonNullable<typeof task> => task !== null),
+    };
+  },
+});
+
+export const markTaskNotified = internalMutation({
+  args: {
+    taskId: v.id("plantTasks"),
+    notifiedAt: v.number(),
+  },
+  handler: async (ctx, args) => {
+    const task = await ctx.db.get(args.taskId);
+
+    if (!task) {
+      throw new Error("This care task no longer exists.");
+    }
+
+    await ctx.db.patch(args.taskId, {
+      lastNotifiedAt: args.notifiedAt,
+      updatedAt: args.notifiedAt,
+    });
+
+    return {
+      ok: true as const,
+    };
+  },
+});
+
+export const processDueTaskNotifications = internalAction({
+  args: {},
+  handler: async (ctx) => {
+    const now = Date.now();
+    const result = await ctx.runQuery(internal.notifications.listNotifiableDueTasks, {
+      now,
+    });
+
+    let notifiedTaskCount = 0;
+    let recipientCount = 0;
+
+    for (const task of result.tasks) {
+      if (task.subscriptions.length === 0) {
+        continue;
+      }
+
+      recipientCount += task.subscriptions.length;
+      await ctx.runMutation(internal.notifications.markTaskNotified, {
+        taskId: task.taskId,
+        notifiedAt: now,
+      });
+      notifiedTaskCount += 1;
+    }
+
+    return {
+      notifiedTaskCount,
+      recipientCount,
     };
   },
 });

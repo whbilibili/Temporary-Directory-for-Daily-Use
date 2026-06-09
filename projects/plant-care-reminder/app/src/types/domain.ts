@@ -64,6 +64,7 @@ export interface PlantTask {
   intervalDays: number;
   enabled: boolean;
   lastCompletedAt: TimestampMs | null;
+  lastNotifiedAt: TimestampMs | null;
   nextDueAt: TimestampMs;
   createdBy: UserId;
   createdAt: TimestampMs;

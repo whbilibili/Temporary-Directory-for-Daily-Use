@@ -9,6 +9,7 @@
  */
 
 import type * as auth from "../auth.js";
+import type * as cron from "../cron.js";
 import type * as families from "../families.js";
 import type * as http from "../http.js";
 import type * as lib_auth from "../lib/auth.js";
@@ -26,6 +27,7 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
+  cron: typeof cron;
   families: typeof families;
   http: typeof http;
   "lib/auth": typeof lib_auth;

@@ -706,7 +706,7 @@
       "task_id": "CARE-008",
       "description": "Implement scheduled due scanning and deduplicated reminder delivery, with the in-app due inbox remaining the fallback reminder surface.",
       "priority": "2-Medium",
-      "status": "in_progress",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {

@@ -1,32 +1,31 @@
 ### [Current Focus]
-`CARE-008` 进行中：最后一步开始实现到期任务扫描与提醒去重，把已保存的 push subscriptions 接上真正的提醒发送窗口，同时保留 inbox 作为失败兜底。
+全部 MVP 执行任务已完成：care reminder 模块现在具备 due inbox、完成流、通知订阅，以及基于 cron 的到期扫描与提醒去重骨架。inbox 继续作为提醒失败时的兜底可见面。
 
 ### [Key Decisions]
-- `CARE-007` 把通知入口放进 settings 页面，而不是额外新路由；这样授权、安装和设备状态都归档在家庭设置上下文里。
-- subscription 持久化统一走 `savePushSubscription` mutation，并以 `(current user, current family, endpoint)` 做 upsert 语义，避免同设备重复插入。
-- iPhone Safari 未安装到主屏幕时不直接报错，而是给出非阻断 guidance；支持环境才显示真正的 `Enable notifications` 动作。
+- `CARE-008` 采用任务级 `lastNotifiedAt` 做去重，而不是额外新表；MVP 先保证“同窗口不重复提醒”，后续若要追踪详细投递结果再拆通知日志。
+- 到期扫描窗口固定为未来 `1` 小时，并允许未被提醒过的 overdue task 补发一次提醒；这样 cron 扫描能同时覆盖“刚到期”和“即将到期”。
+- cron 只在存在订阅用户时标记 `lastNotifiedAt`；没有可发设备或发送链路失败时，不会把任务从 inbox 隐去。
 
 ### [Blockers & Solutions]
-- `CARE-007` 合同没把 schema/domain contract 文件列进 `files_affected`，但规格明确要求 `pushSubscriptions` 带 `deviceLabel`；因此本轮同步补了 validator 和 domain type，否则无法按合同保存完整记录。
-- 测试环境里默认没有 `Notification`、`PushManager` 和 `navigator.serviceWorker`，所以 smoke 覆盖分别走 unsupported fallback 与手工 stub 的 granted flow，避免把浏览器 API 差异误判成业务失败。
+- `CARE-008` 的合同只列了 `cron.ts`、`notifications.ts` 和 `shouldNotify.test.ts`，但实现去重必须在 `plantTasks` 上落状态，因此本轮额外扩展了 schema validator，并依赖 Convex codegen 更新 generated API。
+- 当前仓库还没有真正的 web-push 发送私钥和外部 sender，因此 cron action 先闭合“扫描 + fanout + 去重标记”后端主链路，把真实发送保留给后续基础设施接入；这不影响 inbox 兜底面继续工作。
 
 ### [Verification]
 - `cd app && npm run typecheck`
 - `cd app && npm run test`
 - `cd app && npx convex dev --once --typecheck enable`
 - 本轮新增覆盖：
-  - settings 页面会渲染通知入口和 unsupported fallback guidance
-  - granted permission + existing subscription 会调用 `savePushSubscription`
-  - 新增 `app/tests/unit/notifications/subscriptionPayload.test.ts`，固定验证 subscription normalization
+  - `app/tests/unit/notifications/shouldNotify.test.ts` 覆盖 upcoming、dedupe、overdue 补发三种窗口场景
+  - cron 注册和 internal notification functions 通过 Convex typecheck/codegen
 - 验证结果：
   - `tsc --noEmit` 通过
-  - `vitest run` 通过，`6` 个测试文件、`45` 个测试全部通过
-  - `Convex functions ready!`，新增 `notifications` functions 和 `deviceLabel` schema 变更通过服务端 typecheck
+  - `vitest run` 通过，`7` 个测试文件、`48` 个测试全部通过
+  - `Convex functions ready!`，新增 `cron.ts`、internal notification functions 和 `lastNotifiedAt` schema 变更通过服务端 typecheck
 
 ### [Dead Ends]
-- 不要在 unsupported 浏览器上强行展示授权按钮；给清晰 guidance 比制造不可执行 CTA 更好。
-- 不要把完整 push endpoint 暴露在 UI 上；订阅成功与否只反馈状态，不泄露设备订阅明文。
+- 不要在无订阅用户时也写 `lastNotifiedAt`；否则后续设备补订阅后会错过首次提醒。
+- 不要把提醒成功与 UI 隐藏耦合在一起；到期任务始终留在 inbox，直到真实 completion flow 更新 `nextDueAt`。
 
 ### [Next Steps]
-1. 进入 `CARE-008`，为 due tasks 和已保存 subscriptions 建立扫描窗口与发送去重规则。
-2. 把提醒发送失败与 inbox fallback 的边界写清楚，确保通知异常不会隐藏到期任务。
+1. 若继续扩展产品，下一步优先补真实 web-push sender 和投递失败日志，而不是继续增加前端提醒 UI。
+2. 若进入非 MVP 阶段，可把 `lastNotifiedAt` 升级为独立通知日志，支持更细粒度的送达审计。
