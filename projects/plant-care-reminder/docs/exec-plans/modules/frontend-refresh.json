@@ -565,7 +565,7 @@
       "task_id": "VIS-010",
       "description": "邀请码复制修复与 Fallback 交互：实现 clipboard API 降级策略，失败后自动展示手动复制面板（可选中文本 + 使用说明）。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "in_progress",
       "depends_on": ["VIS-009"],
       "plan_path": null,
       "contracts": {

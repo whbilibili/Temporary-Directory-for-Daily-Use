@@ -323,7 +323,7 @@
       "task_id": "VIS-010",
       "module": "frontend-refresh",
       "description": "邀请码复制修复与 Fallback 交互。",
-      "status": "pending",
+      "status": "in_progress",
       "priority": "1-High"
     },
     {
