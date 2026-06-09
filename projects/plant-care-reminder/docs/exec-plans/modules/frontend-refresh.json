@@ -447,10 +447,10 @@
       ]
     },
     {
-      "task_id": "VIS-008",
-      "description": "植物详情页视觉重构：Hero 图改为 4:3 全宽，信息区紧贴 Hero 下方，任务区上移，底部操作栏固定。",
-      "priority": "2-Medium",
-      "status": "pending",
+"task_id": "VIS-008",
+"description": "植物详情页视觉重构：Hero 图改为 4:3 全宽，信息区紧贴 Hero 下方，任务区上移，底部操作栏固定。",
+"priority": "2-Medium",
+"status": "completed",
       "depends_on": ["VIS-001", "VIS-007"],
       "plan_path": null,
       "contracts": {

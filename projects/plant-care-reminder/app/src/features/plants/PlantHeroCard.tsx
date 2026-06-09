@@ -1,4 +1,3 @@
-import { Button } from "../../components/ui/Button";
 import { StorageImage } from "../../components/ui/StorageImage";
 
 interface PlantHeroCardProps {
@@ -15,8 +14,6 @@ interface PlantHeroCardProps {
     updatedAt: number;
   };
   actionSlot?: React.ReactNode;
-  onBack: () => void;
-  onEdit: () => void;
 }
 
 const timestampFormatter = new Intl.DateTimeFormat("zh-CN", {
@@ -29,200 +26,158 @@ function formatTimestamp(value: number) {
   return timestampFormatter.format(new Date(value));
 }
 
-export function PlantHeroCard({ actionSlot, plant, onBack, onEdit }: PlantHeroCardProps) {
+export function PlantHeroCard({ actionSlot, plant }: PlantHeroCardProps) {
+  const statusSummary = plant.isArchived
+    ? `已归档${plant.archivedAt ? `，归档于 ${formatTimestamp(plant.archivedAt)}` : ""}`
+    : "正在家庭看板中使用";
+  const note = plant.note?.trim();
+
   return (
     <article style={cardStyle}>
-      <div style={mediaWrapStyle}>
+      <div style={heroWrapStyle}>
         <StorageImage
           alt={`${plant.name}封面图`}
           initialUrl={plant.imageUrl}
           storageId={plant.imageStorageId as never}
-          style={imageStyle}
+          style={heroImageStyle}
           fallback={
-            <div style={imageFallbackStyle}>
-              <p style={fallbackEyebrowStyle}>植物档案</p>
-              <h2 style={fallbackTitleStyle}>{plant.name}</h2>
-              <p style={fallbackCopyStyle}>
-                补充封面图后，这盆植物在家庭看板里会更容易被识别。
-              </p>
+            <div style={heroPlaceholderStyle}>
+              <span aria-hidden="true" style={placeholderIconStyle}>
+                🪴
+              </span>
+              <span style={placeholderTextStyle}>轻触上传植物照片</span>
             </div>
           }
         />
       </div>
 
-      <div style={bodyStyle}>
-        <div style={headlineStyle}>
-          <p style={eyebrowStyle}>{plant.location?.trim() || "共享植物"}</p>
-          <h1 style={titleStyle}>{plant.name}</h1>
-          {plant.description ? <p style={descriptionStyle}>{plant.description}</p> : null}
-        </div>
-
-        <div style={metaGridStyle}>
-          <MetaTile label="养护备注" value={plant.note?.trim() || "暂未填写"} />
-          <MetaTile label="创建时间" value={formatTimestamp(plant.createdAt)} />
-          <MetaTile label="更新时间" value={formatTimestamp(plant.updatedAt)} />
-          <MetaTile
-            label="状态"
-            value={
-              plant.isArchived
-                ? `已归档${plant.archivedAt ? `，归档于 ${formatTimestamp(plant.archivedAt)}` : ""}`
-                : "正在家庭看板中使用"
-            }
-          />
-        </div>
-
-        <div style={actionsStyle}>
-          <Button fullWidth={false} onClick={onEdit} type="button">
-            编辑植物
-          </Button>
-          <Button fullWidth={false} onClick={onBack} type="button" variant="ghost">
-            返回植物列表
-          </Button>
-        </div>
-        {actionSlot ? <div style={slotStyle}>{actionSlot}</div> : null}
+      <div style={infoStyle}>
+        <h1 style={nameStyle}>{plant.name}</h1>
+        {plant.location?.trim() ? (
+          <p style={locationStyle}>{plant.location.trim()}</p>
+        ) : null}
+        <p style={statusStyle}>{statusSummary}</p>
+        {plant.description ? <p style={descriptionStyle}>{plant.description}</p> : null}
+        {note ? (
+          <div style={noteRowStyle}>
+            <span style={noteLabelStyle}>养护备注</span>
+            <p style={noteStyle}>{note}</p>
+          </div>
+        ) : null}
       </div>
+
+      {actionSlot ? <div style={slotStyle}>{actionSlot}</div> : null}
     </article>
   );
 }
 
-function MetaTile({ label, value }: { label: string; value: string }) {
-  return (
-    <div style={metaTileStyle}>
-      <p style={metaLabelStyle}>{label}</p>
-      <p style={metaValueStyle}>{value}</p>
-    </div>
-  );
-}
-
 const cardStyle: React.CSSProperties = {
-  display: "grid",
-  gap: "18px",
-  borderRadius: "26px",
-  padding: "16px",
-  background: "rgba(255,255,255,0.96)",
-  border: "1px solid #d9e2ec",
-  boxShadow: "0 24px 56px rgba(15,23,42,0.08)",
+  display: "flex",
+  flexDirection: "column",
+  gap: "var(--space-md)",
 };
 
-const mediaWrapStyle: React.CSSProperties = {
-  borderRadius: "22px",
+const heroWrapStyle: React.CSSProperties = {
+  position: "relative",
+  width: "100%",
+  aspectRatio: "4 / 3",
   overflow: "hidden",
-  minHeight: "240px",
-  background: "linear-gradient(135deg, rgba(37,99,235,0.14), rgba(249,115,22,0.18))",
+  borderBottomLeftRadius: "24px",
+  borderBottomRightRadius: "24px",
+  background: "var(--color-mist)",
 };
 
-const imageStyle: React.CSSProperties = {
+const heroImageStyle: React.CSSProperties = {
   display: "block",
   width: "100%",
-  minHeight: "240px",
-  maxHeight: "320px",
+  height: "100%",
   objectFit: "cover",
 };
 
-const imageFallbackStyle: React.CSSProperties = {
-  minHeight: "240px",
-  padding: "24px 20px",
-  display: "grid",
-  alignContent: "end",
-  gap: "8px",
+const heroPlaceholderStyle: React.CSSProperties = {
+  width: "100%",
+  height: "100%",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "var(--space-sm)",
+  background: "var(--color-mist)",
 };
 
-const fallbackEyebrowStyle: React.CSSProperties = {
-  margin: 0,
-  color: "#1d4ed8",
-  textTransform: "uppercase",
-  letterSpacing: "0.16em",
-  fontSize: "0.76rem",
-  fontWeight: 700,
-};
-
-const fallbackTitleStyle: React.CSSProperties = {
-  margin: 0,
-  fontSize: "1.8rem",
-  lineHeight: 1.05,
-  letterSpacing: "-0.05em",
-  color: "#0f172a",
-};
-
-const fallbackCopyStyle: React.CSSProperties = {
-  margin: 0,
-  color: "#334155",
-  fontSize: "0.98rem",
-  lineHeight: 1.6,
-};
-
-const bodyStyle: React.CSSProperties = {
-  display: "grid",
-  gap: "18px",
-};
-
-const headlineStyle: React.CSSProperties = {
-  display: "grid",
-  gap: "8px",
-};
-
-const eyebrowStyle: React.CSSProperties = {
-  margin: 0,
-  color: "var(--color-leaf)",
-  textTransform: "uppercase",
-  letterSpacing: "0.16em",
-  fontSize: "0.76rem",
-  fontWeight: 700,
-};
-
-const titleStyle: React.CSSProperties = {
-  margin: 0,
-  color: "#0f172a",
-  fontSize: "clamp(2rem, 5vw, 3rem)",
+const placeholderIconStyle: React.CSSProperties = {
+  fontSize: "64px",
   lineHeight: 1,
-  letterSpacing: "-0.05em",
+  color: "var(--color-line)",
+  opacity: 0.7,
+};
+
+const placeholderTextStyle: React.CSSProperties = {
+  fontSize: "12px",
+  color: "var(--color-muted)",
+};
+
+const infoStyle: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "var(--space-xs)",
+  padding: "0 var(--space-md)",
+};
+
+const nameStyle: React.CSSProperties = {
+  margin: 0,
+  fontFamily: "var(--font-heading)",
+  fontSize: "20px",
+  fontWeight: 700,
+  lineHeight: 1.2,
+  color: "var(--color-ink)",
+};
+
+const locationStyle: React.CSSProperties = {
+  margin: 0,
+  fontSize: "12px",
+  fontWeight: 400,
+  color: "var(--color-muted)",
+};
+
+const statusStyle: React.CSSProperties = {
+  margin: 0,
+  marginTop: "var(--space-xs)",
+  fontSize: "14px",
+  fontWeight: 500,
+  color: "var(--color-leaf-light)",
 };
 
 const descriptionStyle: React.CSSProperties = {
   margin: 0,
-  color: "#475569",
-  fontSize: "1rem",
-  lineHeight: 1.7,
+  marginTop: "var(--space-xs)",
+  fontSize: "14px",
+  lineHeight: 1.6,
+  color: "var(--color-muted)",
 };
 
-const metaGridStyle: React.CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
-  gap: "12px",
-};
-
-const metaTileStyle: React.CSSProperties = {
-  borderRadius: "18px",
-  padding: "14px 16px",
-  background: "linear-gradient(180deg, rgba(248,250,252,0.96), rgba(219,234,254,0.58))",
-  border: "1px solid rgba(147,197,253,0.45)",
-  display: "grid",
-  gap: "4px",
-};
-
-const metaLabelStyle: React.CSSProperties = {
-  margin: 0,
-  color: "#64748b",
-  fontSize: "0.76rem",
-  letterSpacing: "0.14em",
-  textTransform: "uppercase",
-  fontWeight: 700,
-};
-
-const metaValueStyle: React.CSSProperties = {
-  margin: 0,
-  color: "#0f172a",
-  fontSize: "0.95rem",
-  lineHeight: 1.5,
-};
-
-const actionsStyle: React.CSSProperties = {
+const noteRowStyle: React.CSSProperties = {
   display: "flex",
-  flexWrap: "wrap",
-  gap: "10px",
+  flexDirection: "column",
+  gap: "2px",
+  marginTop: "var(--space-xs)",
+};
+
+const noteLabelStyle: React.CSSProperties = {
+  fontSize: "12px",
+  fontWeight: 600,
+  color: "var(--color-leaf-light)",
+};
+
+const noteStyle: React.CSSProperties = {
+  margin: 0,
+  fontSize: "14px",
+  lineHeight: 1.6,
+  color: "var(--color-muted)",
 };
 
 const slotStyle: React.CSSProperties = {
   display: "grid",
-  gap: "12px",
+  gap: "var(--space-md)",
+  padding: "0 var(--space-md)",
 };

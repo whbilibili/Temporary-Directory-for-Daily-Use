@@ -69,10 +69,9 @@ export function PlantDetailPage({ plantId }: PlantDetailPageProps) {
 
   if (result === undefined) {
     return (
-      <section style={loadingCardStyle}>
-        <p style={eyebrowStyle}>植物详情</p>
+      <section style={loadingStyle}>
         <h1 style={loadingTitleStyle}>正在加载植物资料</h1>
-        <p style={bodyStyle}>正在同步封面图、资料字段以及已启用的提醒。</p>
+        <p style={loadingBodyStyle}>正在同步封面图、资料字段以及已启用的提醒。</p>
       </section>
     );
   }
@@ -111,8 +110,6 @@ export function PlantDetailPage({ plantId }: PlantDetailPageProps) {
             plantName={plant.name}
           />
         }
-        onBack={() => navigate("/plants")}
-        onEdit={() => navigate(`/plants/${plant.id}/edit`)}
         plant={plant}
       />
       <TaskSection
@@ -121,46 +118,85 @@ export function PlantDetailPage({ plantId }: PlantDetailPageProps) {
         plantName={plant.name}
         tasks={result.tasks}
       />
+      <div style={actionBarStyle}>
+        <Button fullWidth={false} onClick={() => navigate("/plants")} type="button" variant="ghost">
+          返回列表
+        </Button>
+        <div style={actionBarPrimaryGroupStyle}>
+          <Button
+            fullWidth={false}
+            onClick={() => navigate(`/plants/${plant.id}/edit`)}
+            type="button"
+            variant="ghost"
+          >
+            编辑植物
+          </Button>
+          <Button
+            fullWidth={false}
+            onClick={() => navigate(`/plants/${plant.id}/tasks/new`)}
+            style={addTaskButtonStyle}
+            type="button"
+          >
+            添加任务
+          </Button>
+        </div>
+      </div>
     </section>
   );
 }
 
 const pageStyle: React.CSSProperties = {
   display: "grid",
-  gap: "18px",
+  gap: "var(--space-lg)",
 };
 
-const loadingCardStyle: React.CSSProperties = {
-  borderRadius: "24px",
-  padding: "28px 22px",
-  background: "rgba(255,255,255,0.94)",
-  border: "1px solid rgba(148,163,184,0.24)",
-  boxShadow: "0 24px 60px rgba(15,23,42,0.08)",
+const loadingStyle: React.CSSProperties = {
   display: "grid",
-  gap: "12px",
-};
-
-const eyebrowStyle: React.CSSProperties = {
-  margin: 0,
-  color: "var(--color-leaf)",
-  textTransform: "uppercase",
-  letterSpacing: "0.16em",
-  fontSize: "0.75rem",
-  fontWeight: 700,
+  gap: "var(--space-sm)",
+  padding: "var(--space-md)",
 };
 
 const loadingTitleStyle: React.CSSProperties = {
   margin: 0,
-  fontSize: "clamp(2rem, 5vw, 3rem)",
-  lineHeight: 1.02,
+  fontFamily: "var(--font-heading)",
+  fontSize: "24px",
   fontWeight: 700,
-  color: "#1e293b",
-  letterSpacing: "-0.05em",
+  lineHeight: 1.2,
+  color: "var(--color-ink)",
 };
 
-const bodyStyle: React.CSSProperties = {
+const loadingBodyStyle: React.CSSProperties = {
   margin: 0,
-  color: "#475569",
-  fontSize: "1rem",
-  lineHeight: 1.7,
+  color: "var(--color-muted)",
+  fontSize: "14px",
+  lineHeight: 1.6,
+};
+
+const actionBarStyle: React.CSSProperties = {
+  position: "sticky",
+  bottom: "calc(56px + env(safe-area-inset-bottom, 0px) + var(--space-sm))",
+  zIndex: 20,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: "var(--space-sm)",
+  minHeight: "56px",
+  padding: "var(--space-sm) var(--space-md)",
+  boxSizing: "border-box",
+  background: "var(--color-surface)",
+  border: "1px solid var(--color-line)",
+  borderRadius: "var(--radius-sheet)",
+  boxShadow: "var(--shadow-sheet)",
+};
+
+const actionBarPrimaryGroupStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: "var(--space-sm)",
+};
+
+const addTaskButtonStyle: React.CSSProperties = {
+  background: "var(--color-gold)",
+  color: "var(--color-ink)",
+  border: "1px solid var(--color-gold)",
 };
