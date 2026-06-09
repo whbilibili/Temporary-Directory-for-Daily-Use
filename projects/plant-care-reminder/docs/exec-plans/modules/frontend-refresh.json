@@ -12,11 +12,11 @@
   ],
   "tasks": [
     {
-      "task_id": "VIS-001",
-      "description": "建立 Design Token 基础设施：将 moodboard 中的色彩、字体、间距、阴影、圆角规范提取为 CSS Custom Properties，创建全局 Token 文件并替换现有硬编码色值。",
-      "priority": "0-Critical",
-      "status": "pending",
-      "depends_on": [],
+"task_id": "VIS-001",
+"description": "建立 Design Token 基础设施：将 moodboard 中的色彩、字体、间距、阴影、圆角规范提取为 CSS Custom Properties，创建全局 Token 文件并替换现有硬编码色值。",
+"priority": "0-Critical",
+"status": "completed",
+"depends_on": [],
       "plan_path": null,
       "contracts": {
         "data_layer": {
