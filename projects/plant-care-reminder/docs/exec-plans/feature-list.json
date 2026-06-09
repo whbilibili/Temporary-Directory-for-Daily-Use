@@ -330,7 +330,7 @@
       "task_id": "VIS-011",
       "module": "frontend-refresh",
       "description": "任务完成即时反馈与状态动效。",
-      "status": "pending",
+      "status": "in_progress",
       "priority": "2-Medium"
     },
     {

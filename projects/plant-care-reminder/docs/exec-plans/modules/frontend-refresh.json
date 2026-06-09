@@ -615,7 +615,7 @@
       "task_id": "VIS-011",
       "description": "任务完成即时反馈与状态动效：实现任务卡片完成时的淡出+勾选动画，统一 loading/error/empty 状态的视觉反馈模式。",
       "priority": "2-Medium",
-      "status": "pending",
+      "status": "in_progress",
       "depends_on": ["VIS-006", "VIS-008"],
       "plan_path": null,
       "contracts": {
