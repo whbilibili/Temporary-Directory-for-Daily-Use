@@ -10,7 +10,7 @@ interface EmptyStateProps {
 
 export function EmptyState({
   actions,
-  badge = "Placeholder",
+  badge = "提示",
   description,
   minHeight = "200px",
   title,

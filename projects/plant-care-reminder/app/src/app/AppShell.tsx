@@ -1,6 +1,3 @@
-import { Button } from "../components/ui/Button";
-import { InputField } from "../components/ui/InputField";
-import { PageHeader } from "../components/ui/PageHeader";
 import { AuthPage } from "../features/auth/AuthPage";
 import { ProfileBootstrapForm } from "../features/auth/ProfileBootstrapForm";
 import { CreateFamilyPage } from "../features/family/CreateFamilyPage";
@@ -17,7 +14,6 @@ import { EditTaskPage } from "../features/tasks/EditTaskPage";
 import { TodoPage } from "../features/tasks/TodoPage";
 import { BottomNav } from "../components/navigation/BottomNav";
 import { RouteGate } from "./RouteGate";
-import { navigate } from "./router";
 import type { AppPath, AppRoute, RouteContext } from "./router";
 
 interface AppShellProps {
@@ -28,7 +24,7 @@ interface AppShellProps {
 
 export function AppShell({ pathname, routeContext, routeParams }: AppShellProps) {
   const hasFamily = routeContext?.familyId !== null && routeContext !== undefined;
-  const displayName = routeContext?.displayName?.trim() || "Plant keeper";
+  const displayName = routeContext?.displayName?.trim() || "植物管家";
 
   return (
     <RouteGate pathname={pathname} routeContext={routeContext}>
@@ -80,58 +76,6 @@ export function AppShell({ pathname, routeContext, routeParams }: AppShellProps)
   );
 }
 
-interface OnboardingActionPlaceholderProps {
-  title: string;
-  description: string;
-  ctaLabel: string;
-  ctaPath: AppPath;
-}
-
-function OnboardingActionPlaceholder({
-  title,
-  description,
-  ctaLabel,
-  ctaPath,
-}: OnboardingActionPlaceholderProps) {
-  const isCreateFlow = title.startsWith("Create");
-  const inputLabel = title.startsWith("Create") ? "Family name" : "Invite code";
-  const inputPlaceholder = title.startsWith("Create")
-    ? "Zhang family greenhouse"
-    : "ABCD12";
-
-  return (
-    <section style={heroCardStyle}>
-      <PageHeader
-        eyebrow="Onboarding Step"
-        title={title}
-        description={<p style={bodyStyle}>{description}</p>}
-      />
-      <div style={stackStyle}>
-        <InputField
-          disabled
-          label={inputLabel}
-          placeholder={inputPlaceholder}
-          hint="Shared form fields now live in the ui primitives layer and are ready for real mutations."
-          errorMessage={
-            title.startsWith("Join")
-              ? "Invite-code validation will arrive with ACCESS-005."
-              : undefined
-          }
-        />
-      </div>
-      <Button type="button" variant="secondary" onClick={() => navigate(ctaPath)}>
-        {ctaLabel}
-      </Button>
-      {isCreateFlow ? (
-        <p style={{ ...hintStyle, marginTop: "12px" }}>
-          The next family module can swap this disabled field into a working create/join form
-          without redefining wrappers or error states.
-        </p>
-      ) : null}
-    </section>
-  );
-}
-
 const frameStyle: React.CSSProperties = {
   minHeight: "100svh",
   display: "flex",
@@ -162,32 +106,4 @@ const mainStyle: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
   justifyContent: "center",
-};
-
-const heroCardStyle: React.CSSProperties = {
-  borderRadius: "24px",
-  padding: "28px 22px",
-  background: "rgba(255,255,255,0.94)",
-  border: "1px solid #d9e2ec",
-  boxShadow: "0 20px 48px rgba(37,99,235,0.08)",
-};
-
-const bodyStyle: React.CSSProperties = {
-  margin: 0,
-  color: "#475569",
-  fontSize: "1rem",
-  lineHeight: 1.7,
-};
-
-const stackStyle: React.CSSProperties = {
-  marginTop: "22px",
-  display: "grid",
-  gap: "12px",
-};
-
-const hintStyle: React.CSSProperties = {
-  margin: 0,
-  color: "#64748b",
-  fontSize: "0.9rem",
-  lineHeight: 1.5,
 };

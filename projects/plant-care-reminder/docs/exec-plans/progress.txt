@@ -1,7 +1,9 @@
 ### [Current Focus]
 `frontend-refresh` 模块已完成任务细拆（2026-06-10），从原来的 5 个粗粒度 UX 任务拆解为 13 个原子任务（VIS-001 ~ VIS-013），每个任务对应可独立交付的垂直切片。
 
-**VIS-001 已完成（2026-06-10）**：tokens.css 已建立（botanical palette 全套色彩/字体/间距/圆角/阴影），index.css/App.css/Button/BottomNav 及全部含硬编码色值的 tsx 已替换为 token 变量。typecheck 通过、test 全绿（8 files / 50 tests）、grep 验收无残留。下一步从 VIS-002 开始（注意：VIS-002 的部分中文文案统一已在 VIS-001 期间提前完成，见 Blockers）。
+**VIS-001 已完成（2026-06-10）**：tokens.css 已建立（botanical palette 全套色彩/字体/间距/圆角/阴影），index.css/App.css/Button/BottomNav 及全部含硬编码色值的 tsx 已替换为 token 变量。typecheck 通过、test 全绿（8 files / 50 tests）、grep 验收无残留。
+
+**VIS-002 已完成（2026-06-10）**：清理认证后主路径残留英文文案并同步 smoke 测试。改动文件：ArchivePlantAction.tsx（归档/恢复全套文案）、RouteGate.tsx（加载态）、AppShell.tsx（displayName 兜底「植物管家」+ 删除零引用死代码 OnboardingActionPlaceholder 及其专用 import/样式）、uploadPlantImage.ts（2 处 throw）、scheduling.ts（间隔校验错误）、TaskForm.tsx（占位「擦拭叶片」）、DueTaskCard.tsx（img alt）、EmptyState.tsx（默认 badge 兜底）。同步断言：AppRouter.smoke.test.tsx（归档/恢复/preparing/占位符）、taskHelpers.test.ts（间隔错误）。typecheck 通过、smoke 33 绿、全量 8 files / 50 tests 全绿、主路径英文文案 grep 复核干净。
 
 ### [Task Breakdown Summary]
 - **VIS-001**（Critical）：Design Token 基础设施 — 所有后续视觉任务的前置依赖
@@ -59,5 +61,6 @@
 
 ### [Next Steps]
 1. ✅ VIS-001 已完成并提交。
-2. 下一个任务：**VIS-002**（中文文案统一与 accessible name 清理）。执行前先核对 VIS-001 期间已中文化的文件（PlantForm/PlantImageField/plantSchema/uploadPlantImage），只处理剩余未中文化的页面文案。
-3. 按推荐顺序逐步推进，每完成一个 VIS 任务即更新本文件的 status，并 git 提交。
+2. ✅ VIS-002 已完成并提交。
+3. 下一个任务：**VIS-003**（登录页视觉改造 — botanical gradient + 压缩 Hero + 表单卡片重构）。依赖 VIS-001 已满足。
+4. 按推荐顺序逐步推进，每完成一个 VIS 任务即更新本文件的 status，并 git 提交。

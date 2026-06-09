@@ -35,7 +35,7 @@ export function DueTaskCard({ onOpenPlant, task }: DueTaskCardProps) {
     <article style={cardStyle}>
       <div style={mediaWrapStyle}>
         {task.plantImageUrl ? (
-          <img alt={`${task.plantName} cover`} src={task.plantImageUrl} style={imageStyle} />
+          <img alt={`${task.plantName}封面图`} src={task.plantImageUrl} style={imageStyle} />
         ) : (
           <div style={imageFallbackStyle}>
             <p style={fallbackEyebrowStyle}>植物照片</p>

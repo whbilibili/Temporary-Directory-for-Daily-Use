@@ -23,12 +23,12 @@ export function ArchivePlantAction({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const intentLabel = isArchived ? "Restore plant" : "Archive plant";
-  const confirmTitle = isArchived ? "Restore this plant?" : "Archive this plant?";
+  const intentLabel = isArchived ? "恢复植物" : "归档植物";
+  const confirmTitle = isArchived ? "确认恢复这盆植物吗？" : "确认归档这盆植物吗？";
   const confirmCopy = isArchived
-    ? `${plantName} will return to active household views. Existing care tasks and history remain untouched.`
-    : `${plantName} will disappear from active plant views, but its care tasks and completion history will stay in data.`;
-  const confirmButtonLabel = isArchived ? "Confirm restore" : "Confirm archive";
+    ? `${plantName} 会重新回到家庭看板，养护任务和历史记录都会保留。`
+    : `${plantName} 会从家庭看板隐藏，但养护任务和完成记录仍会保留在数据里。`;
+  const confirmButtonLabel = isArchived ? "确认恢复" : "确认归档";
 
   async function handleConfirm() {
     setIsSubmitting(true);
@@ -49,7 +49,7 @@ export function ArchivePlantAction({
       setErrorMessage(
         error instanceof Error
           ? error.message
-          : `Unable to ${isArchived ? "restore" : "archive"} this plant right now.`,
+          : `暂时无法${isArchived ? "恢复" : "归档"}这盆植物，请稍后再试。`,
       );
     } finally {
       setIsSubmitting(false);
@@ -60,12 +60,12 @@ export function ArchivePlantAction({
     <section style={sectionStyle}>
       <div style={headerStyle}>
         <div style={copyStyle}>
-          <p style={eyebrowStyle}>Plant status</p>
-          <h2 style={titleStyle}>{isArchived ? "Archived profile" : "Active profile"}</h2>
+          <p style={eyebrowStyle}>植物状态</p>
+          <h2 style={titleStyle}>{isArchived ? "已归档档案" : "使用中档案"}</h2>
           <p style={bodyStyle}>
             {isArchived
-              ? "This plant is hidden from active plant views until it is restored."
-              : "Archive keeps history intact while removing the plant from active household views."}
+              ? "这盆植物已从家庭看板隐藏，恢复后才会重新出现。"
+              : "归档会把植物从家庭看板移除，但养护历史会完整保留。"}
           </p>
         </div>
         <Button
@@ -85,7 +85,7 @@ export function ArchivePlantAction({
       {isConfirming ? (
         <div style={dialogStyle}>
           <div style={dialogCopyStyle}>
-            <p style={dialogEyebrowStyle}>Confirmation</p>
+            <p style={dialogEyebrowStyle}>确认操作</p>
             <h3 style={dialogTitleStyle}>{confirmTitle}</h3>
             <p style={dialogBodyStyle}>{confirmCopy}</p>
           </div>
@@ -97,7 +97,7 @@ export function ArchivePlantAction({
               type="button"
               variant="ghost"
             >
-              Cancel
+              取消
             </Button>
             <Button
               disabled={isSubmitting}
@@ -107,7 +107,7 @@ export function ArchivePlantAction({
               type="button"
               variant={isArchived ? "secondary" : "ghost"}
             >
-              {isSubmitting ? "Saving..." : confirmButtonLabel}
+              {isSubmitting ? "保存中…" : confirmButtonLabel}
             </Button>
           </div>
           <FormError message={errorMessage} />

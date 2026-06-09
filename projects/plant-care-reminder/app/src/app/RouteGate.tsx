@@ -71,9 +71,9 @@ export function RouteGate({ pathname, routeContext, children }: RouteGateProps) 
     return (
       <div style={loadingWrapStyle}>
         <div style={loadingCardStyle}>
-          <p style={eyebrowStyle}>Syncing Household</p>
-          <h1 style={titleStyle}>Preparing your plant board</h1>
-          <p style={copyStyle}>Checking your session and family context.</p>
+          <p style={eyebrowStyle}>正在同步家庭</p>
+          <h1 style={titleStyle}>正在准备你的植物看板</h1>
+          <p style={copyStyle}>正在确认你的登录状态和家庭信息。</p>
         </div>
       </div>
     );

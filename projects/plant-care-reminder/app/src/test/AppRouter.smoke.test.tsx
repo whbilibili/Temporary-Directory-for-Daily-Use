@@ -41,7 +41,7 @@ describe("AppShell smoke coverage", () => {
 
     await waitFor(() => expect(window.location.pathname).toBe("/login"));
     expect(
-      screen.getByRole("heading", { name: /preparing your plant board/i }),
+      screen.getByRole("heading", { name: /正在准备你的植物看板/i }),
     ).toBeInTheDocument();
   });
 
@@ -84,7 +84,7 @@ describe("AppShell smoke coverage", () => {
 
     await waitFor(() => expect(window.location.pathname).toBe("/onboarding/profile"));
     expect(
-      screen.getByRole("heading", { name: /preparing your plant board/i }),
+      screen.getByRole("heading", { name: /正在准备你的植物看板/i }),
     ).toBeInTheDocument();
   });
 
@@ -104,7 +104,7 @@ describe("AppShell smoke coverage", () => {
     );
 
     await waitFor(() => expect(window.location.pathname).toBe("/onboarding"));
-    expect(screen.getByRole("heading", { name: /preparing your plant board/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /正在准备你的植物看板/i })).toBeInTheDocument();
   });
 
   it("keeps family members inside protected routes and renders bottom navigation", async () => {
@@ -1014,12 +1014,12 @@ describe("AppShell smoke coverage", () => {
     fireEvent.change(screen.getByLabelText(/任务类型/i), {
       target: { value: "custom" },
     });
-    expect(screen.getByPlaceholderText("Leaf wipe")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("擦拭叶片")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /保存养护提醒/i }));
     expect(screen.getByRole("alert")).toHaveTextContent(/请输入这个提醒的自定义任务名称/i);
     expect(mutationHandler).not.toHaveBeenCalled();
 
-    fireEvent.change(screen.getByPlaceholderText("Leaf wipe"), {
+    fireEvent.change(screen.getByPlaceholderText("擦拭叶片"), {
       target: { value: "Leaf wipe" },
     });
     fireEvent.change(screen.getByLabelText(/提醒间隔天数/i), {
@@ -1221,11 +1221,11 @@ describe("AppShell smoke coverage", () => {
       },
     );
 
-    fireEvent.click(screen.getByRole("button", { name: /archive plant/i }));
+    fireEvent.click(screen.getByRole("button", { name: /归档植物/i }));
     expect(mutationHandler).not.toHaveBeenCalled();
-    expect(screen.getByRole("heading", { name: /archive this plant\?/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /确认归档这盆植物吗？/i })).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /confirm archive/i }));
+    fireEvent.click(screen.getByRole("button", { name: /确认归档/i }));
 
     await waitFor(() =>
       expect(mutationHandler).toHaveBeenCalledWith({
@@ -1233,10 +1233,10 @@ describe("AppShell smoke coverage", () => {
         isArchived: true,
       }),
     );
-    expect(screen.getByText(/archived profile/i)).toBeInTheDocument();
-    expect(screen.getByText(/hidden from active plant views until it is restored/i)).toBeInTheDocument();
+    expect(screen.getByText(/已归档档案/i)).toBeInTheDocument();
+    expect(screen.getByText(/已从家庭看板隐藏，恢复后才会重新出现/i)).toBeInTheDocument();
     expect(screen.getByText(/已归档，归档于/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /restore plant/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /恢复植物/i })).toBeInTheDocument();
   });
 
   it("restores an archived plant from the detail page with the same mutation", async () => {
@@ -1280,10 +1280,10 @@ describe("AppShell smoke coverage", () => {
     );
 
     expect(screen.getByText(/已归档，归档于/i)).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /restore plant/i }));
-    expect(screen.getByRole("heading", { name: /restore this plant\?/i })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /恢复植物/i }));
+    expect(screen.getByRole("heading", { name: /确认恢复这盆植物吗？/i })).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /confirm restore/i }));
+    fireEvent.click(screen.getByRole("button", { name: /确认恢复/i }));
 
     await waitFor(() =>
       expect(mutationHandler).toHaveBeenCalledWith({
@@ -1291,9 +1291,9 @@ describe("AppShell smoke coverage", () => {
         isArchived: false,
       }),
     );
-    expect(screen.getByText(/active profile/i)).toBeInTheDocument();
+    expect(screen.getByText(/使用中档案/i)).toBeInTheDocument();
     expect(screen.getByText(/正在家庭看板中使用/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /archive plant/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /归档植物/i })).toBeInTheDocument();
   });
 
   it("submits the edit-plant flow and keeps the existing image when unchanged", async () => {

@@ -61,13 +61,13 @@ describe("scheduling shared contract", () => {
   });
 
   it("rejects invalid interval values consistently", () => {
-    expect(validateIntervalDays(0)).toBe("Interval days must be a whole number greater than 0.");
-    expect(validateIntervalDays(2.5)).toBe("Interval days must be a whole number greater than 0.");
+    expect(validateIntervalDays(0)).toBe("提醒间隔天数必须是大于 0 的整数。");
+    expect(validateIntervalDays(2.5)).toBe("提醒间隔天数必须是大于 0 的整数。");
     expect(() =>
       computeNextDueAt({
         intervalDays: 0,
         baseCompletedAt: Date.UTC(2026, 5, 9),
       }),
-    ).toThrow("Interval days must be a whole number greater than 0.");
+    ).toThrow("提醒间隔天数必须是大于 0 的整数。");
   });
 });

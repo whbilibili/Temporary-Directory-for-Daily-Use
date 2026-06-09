@@ -113,7 +113,7 @@
       "task_id": "VIS-002",
       "description": "中文文案统一与 accessible name 清理：扫描全部认证后路由，将残留英文主文案替换为简体中文家庭语境表达，同步更新 aria-label 和 smoke 测试。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "depends_on": ["VIS-001"],
       "plan_path": null,
       "contracts": {

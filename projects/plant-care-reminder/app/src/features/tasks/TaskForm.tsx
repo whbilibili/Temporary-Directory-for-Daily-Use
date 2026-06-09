@@ -86,7 +86,7 @@ export function TaskForm({
             hint="仅在选择自定义任务时必填。"
             label="自定义任务名称"
             onChange={(event) => onValueChange("customTaskName", event.target.value)}
-            placeholder="Leaf wipe"
+            placeholder="擦拭叶片"
             value={values.customTaskName}
           />
         ) : null}

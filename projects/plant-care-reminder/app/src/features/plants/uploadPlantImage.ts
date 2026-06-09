@@ -32,12 +32,12 @@ export async function uploadPlantImage({
 
   const payload = (await uploadResponse.json()) as { storageId?: string };
   if (!payload.storageId) {
-    throw new Error("Plant image upload did not return a storage id.");
+    throw new Error("植物图片上传未返回存储标识，请稍后再试。");
   }
 
   const { imageUrl } = await getPlantImageUrl(payload.storageId);
   if (!imageUrl) {
-    throw new Error("Plant image preview could not be generated.");
+    throw new Error("植物图片预览生成失败，请稍后再试。");
   }
 
   return {
