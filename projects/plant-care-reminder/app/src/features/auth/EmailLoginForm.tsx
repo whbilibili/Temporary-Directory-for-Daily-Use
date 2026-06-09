@@ -109,7 +109,7 @@ const formStyle: React.CSSProperties = {
 
 const statusStyle: React.CSSProperties = {
   margin: 0,
-  color: "#0f766e",
+  color: "var(--color-success)",
   fontSize: "0.95rem",
   lineHeight: 1.5,
 };

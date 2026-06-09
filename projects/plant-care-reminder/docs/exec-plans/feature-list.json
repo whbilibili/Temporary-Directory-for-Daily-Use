@@ -18,7 +18,9 @@
       "description": "Implement login, profile bootstrap, onboarding, family creation/join and shared household settings.",
       "task_count": 6,
       "completed": 6,
-      "depends_on": ["infra"]
+      "depends_on": [
+        "infra"
+      ]
     },
     {
       "module": "plant-registry",
@@ -26,7 +28,10 @@
       "description": "Implement plant image handling, plant CRUD, list/detail views and archive lifecycle.",
       "task_count": 7,
       "completed": 7,
-      "depends_on": ["infra", "family-access"]
+      "depends_on": [
+        "infra",
+        "family-access"
+      ]
     },
     {
       "module": "care-reminders",
@@ -34,15 +39,24 @@
       "description": "Implement care-task scheduling, due inbox, completion flow and notification delivery.",
       "task_count": 8,
       "completed": 8,
-      "depends_on": ["infra", "family-access", "plant-registry"]
+      "depends_on": [
+        "infra",
+        "family-access",
+        "plant-registry"
+      ]
     },
     {
       "module": "frontend-refresh",
       "file": "docs/exec-plans/modules/frontend-refresh.json",
       "description": "建立 Design Token 基础设施，逐页面落地 moodboard botanical 视觉方向：登录、onboarding、待办、植物、设置全路径改造。",
       "task_count": 13,
-      "completed": 2,
-      "depends_on": ["infra", "family-access", "plant-registry", "care-reminders"]
+      "completed": 3,
+      "depends_on": [
+        "infra",
+        "family-access",
+        "plant-registry",
+        "care-reminders"
+      ]
     }
   ],
   "tasks_summary": [
@@ -260,7 +274,7 @@
       "task_id": "VIS-003",
       "module": "frontend-refresh",
       "description": "登录页视觉改造（botanical gradient + 压缩 Hero + 表单卡片重构）。",
-      "status": "pending",
+      "status": "completed",
       "priority": "1-High"
     },
     {

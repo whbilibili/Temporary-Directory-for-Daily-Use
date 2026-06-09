@@ -167,7 +167,7 @@
       "task_id": "VIS-003",
       "description": "登录页视觉改造：应用植物渐变背景、压缩 Hero 高度至 160px 上限、重构表单卡片和登录/注册切换胶囊样式。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "depends_on": ["VIS-001", "VIS-002"],
       "plan_path": null,
       "contracts": {
