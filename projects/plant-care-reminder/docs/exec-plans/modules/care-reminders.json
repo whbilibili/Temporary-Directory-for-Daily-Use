@@ -310,7 +310,7 @@
       "task_id": "CARE-004",
       "description": "Render the reusable task list section inside the plant detail page, including add, edit and complete entry points.",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {
@@ -395,7 +395,7 @@
       "task_id": "CARE-005",
       "description": "Build the due inbox that groups care tasks into overdue, due today and upcoming buckets with quick-complete affordances.",
       "priority": "1-High",
-      "status": "pending",
+      "status": "in_progress",
       "plan_path": null,
       "contracts": {
         "data_layer": {

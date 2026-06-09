@@ -559,10 +559,105 @@ describe("AppShell smoke coverage", () => {
     expect(screen.getByText(/^Watering$/i)).toBeInTheDocument();
     expect(screen.getByText(/^Leaf wipe$/i)).toBeInTheDocument();
     expect(screen.getByText(/every 7 days/i)).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /add routine/i })).toHaveLength(1);
+    expect(screen.getAllByRole("button", { name: /^edit$/i })).toHaveLength(2);
+    expect(screen.getAllByRole("button", { name: /^complete$/i })).toHaveLength(2);
     expect(screen.getByAltText(/monstera deliciosa cover/i)).toHaveAttribute(
       "src",
       "https://cdn.test/monstera.jpg",
     );
+  });
+
+  it("routes from the plant detail task section into task edit and inbox completion entry points", async () => {
+    renderWithProviders(
+      <AppShell
+        pathname="/plants/detail"
+        routeContext={{
+          userId: "user_1",
+          familyId: "family_1",
+          displayName: "Wang",
+        }}
+        routeParams={{
+          plantId: "plant_1",
+        }}
+      />,
+      {
+        route: "/plants/plant_1",
+        queryResult: {
+          plant: {
+            id: "plant_1",
+            familyId: "family_1",
+            name: "Monstera deliciosa",
+            description: "Bright indirect light and large split leaves.",
+            note: "Rotate the pot every Sunday.",
+            location: "Dining room shelf",
+            imageUrl: "https://cdn.test/monstera.jpg",
+            createdAt: Date.UTC(2026, 0, 5),
+            updatedAt: Date.UTC(2026, 5, 2),
+            isArchived: false,
+            archivedAt: null,
+          },
+          tasks: [
+            {
+              id: "task_1",
+              taskType: "watering",
+              customLabel: null,
+              intervalDays: 7,
+              nextDueAt: Date.now() + 2 * 24 * 60 * 60 * 1000,
+              lastCompletedAt: Date.UTC(2026, 5, 1),
+            },
+          ],
+        },
+      },
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /^edit$/i }));
+    await waitFor(() => expect(window.location.pathname).toBe("/plants/plant_1/tasks/task_1/edit"));
+
+    renderWithProviders(
+      <AppShell
+        pathname="/plants/detail"
+        routeContext={{
+          userId: "user_1",
+          familyId: "family_1",
+          displayName: "Wang",
+        }}
+        routeParams={{
+          plantId: "plant_1",
+        }}
+      />,
+      {
+        route: "/plants/plant_1",
+        queryResult: {
+          plant: {
+            id: "plant_1",
+            familyId: "family_1",
+            name: "Monstera deliciosa",
+            description: "Bright indirect light and large split leaves.",
+            note: "Rotate the pot every Sunday.",
+            location: "Dining room shelf",
+            imageUrl: "https://cdn.test/monstera.jpg",
+            createdAt: Date.UTC(2026, 0, 5),
+            updatedAt: Date.UTC(2026, 5, 2),
+            isArchived: false,
+            archivedAt: null,
+          },
+          tasks: [
+            {
+              id: "task_1",
+              taskType: "watering",
+              customLabel: null,
+              intervalDays: 7,
+              nextDueAt: Date.now() + 2 * 24 * 60 * 60 * 1000,
+              lastCompletedAt: Date.UTC(2026, 5, 1),
+            },
+          ],
+        },
+      },
+    );
+
+    fireEvent.click(screen.getAllByRole("button", { name: /^complete$/i })[0]);
+    await waitFor(() => expect(window.location.pathname).toBe("/todo"));
   });
 
   it("shows an unavailable state when the plant detail is outside the current family", async () => {

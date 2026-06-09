@@ -1,30 +1,30 @@
 ### [Current Focus]
-`CARE-003` 已完成：现有 care task 的 edit、enable-disable 和 delete 流已经闭合。后端 [tasks.ts](../app/convex/tasks.ts) 新增了 `getTaskForEdit`、`updatePlantTask` 和 `deletePlantTask`，会按当前家庭校验 task/plant ownership、复用共享 helper 重新计算 `nextDueAt`，并支持显式删除；前端新增 [EditTaskPage.tsx](../app/src/features/tasks/EditTaskPage.tsx) 与 [DeleteTaskAction.tsx](../app/src/features/tasks/DeleteTaskAction.tsx)，同时扩展了 [TaskForm.tsx](../app/src/features/tasks/TaskForm.tsx)、[router.tsx](../app/src/app/router.tsx) 和 [AppShell.tsx](../app/src/app/AppShell.tsx)，把 `/plants/:plantId/tasks/:taskId/edit` 真正接起来。下一线任务切换为 `CARE-004`。
+`CARE-005` 进行中：下一步开始实现 due inbox，把 enabled task 按 overdue、today、upcoming 三组汇总出来，并让 `/todo` 真正承接提醒队列，而不是只作为 completion 入口占位页。
 
 ### [Key Decisions]
-- task 的 create / edit / delete 都收口在同一个 `convex/tasks.ts` 边界里，避免 reminders 写路径继续分散。
-- edit page 继续复用 `TaskForm`，通过 `title` / `description` / `actionsSlot` 扩展状态和危险操作，而不是起第二套 editor contract。
-- disabled task 不删除记录，只 patch `enabled: false` 并重算 `nextDueAt`，保持后续 completion/history 扩展的连续性。
+- `CARE-004` 没有提前落地 completion mutation；plant detail 里的 `Complete` 入口先明确导向 `/todo`，把真正的完成动作留给 `CARE-006`。
+- plant detail 的 task UI 已从页面内联实现收口为 `TaskSection` / `TaskListItem`，后续 inbox 和 completion flow 可以复用同一套任务展示语义。
+- due 文案、task type label、cadence/history 信息继续走现有 shared formatter / task contract，避免 detail 和 inbox 产生两套表述。
 
 ### [Blockers & Solutions]
-- 当前测试 harness 的所有 mutation 仍共享一个 mock handler，所以 edit / delete 覆盖是按单页面单动作分开的，避免多 mutation 混用时断言互相污染。
-- `updatePlantTask` 需要基于历史 completion baseline 重算 `nextDueAt`，这轮把这条规则放在 mutation 层，前端不自行推导。
-- 浏览器级验证依旧受宿主 Playwright 限制影响，所以这轮优先用 smoke tests 覆盖预填充、disable payload 和 delete confirmation。
+- AppRouter smoke 套件里同一测试二次 `renderWithProviders` 会让相同按钮名同时存在；这轮把 `Complete` 点击断言收窄到目标元素，避免误判。
+- 浏览器级验证依旧受宿主 Playwright 限制影响，所以 `CARE-004` 继续以 typecheck + smoke tests 为主，不额外引入视觉验证链路。
 
 ### [Verification]
 - `cd app && npm run typecheck`
 - `cd app && npm run test`
-- `cd app && npx convex dev --once --typecheck enable`
-- `npm run test` 新覆盖：
-  - `/plants/:plantId/tasks/:taskId/edit` 会预填充现有 task 设置
-  - disable 后提交 update 会带上 `enabled: false`
-  - delete action 必须先确认，才会调用 `deletePlantTask`
-- `getTaskForEdit` / `updatePlantTask` / `deletePlantTask` 的 family scope 和 generated api/type 边界已通过 Convex codegen/typecheck 验证
+- 本轮新增覆盖：
+  - plant detail 会渲染 `Enabled routines`、`Add routine`、`Edit`、`Complete` 入口
+  - 从 plant detail 点击 `Edit` 会进入 `/plants/:plantId/tasks/:taskId/edit`
+  - 从 plant detail 点击 `Complete` 会进入 `/todo`
+- 验证结果：
+  - `tsc --noEmit` 通过
+  - `vitest run` 通过，`4` 个测试文件、`40` 个测试全部通过
 
 ### [Dead Ends]
-- 不要在 `CARE-003` 就顺手重构最终版 detail task list；那是 `CARE-004` 的范围。
-- 不要把 disable 做成 delete 的别名；后续 due views 需要的是软开关，不是抹掉记录。
+- 不要在 `CARE-004` 顺手实现 `/todo` 的真实分组查询；那是 `CARE-005` 的明确范围。
+- 不要在 `CARE-004` 就补 completion log 写入；那是 `CARE-006` 的后端边界。
 
 ### [Next Steps]
-1. 进入 `CARE-004`，把 plant detail 里的 task list section 改成真正的 add/edit/complete 入口层。
-2. 让 `CARE-004` 直接消费这两轮落下的 create/edit routes，而不是继续保留纯占位 task block。
+1. 进入 `CARE-005`，实现 `/todo` 的 overdue / today / upcoming 分组查询和页面结构。
+2. 让 plant detail 的 `Complete` 入口落到真实 inbox，而不是只到占位页。
