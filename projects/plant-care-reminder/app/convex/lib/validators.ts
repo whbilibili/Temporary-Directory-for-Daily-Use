@@ -87,6 +87,7 @@ export const pushSubscriptionFields = {
   endpoint: v.string(),
   p256dh: v.string(),
   auth: v.string(),
+  deviceLabel: v.string(),
   userAgent: optionalTrimmedTextValidator,
   lastSeenAt: utcTimestampValidator,
   createdAt: utcTimestampValidator,

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { api } from "../../../convex/_generated/api";
 import { Button } from "../../components/ui/Button";
 import { PageHeader } from "../../components/ui/PageHeader";
+import { NotificationPromptCard } from "../notifications/NotificationPromptCard";
 import { MembersList } from "./MembersList";
 
 export function FamilySettingsPage() {
@@ -74,6 +75,7 @@ export function FamilySettingsPage() {
           ) : null}
         </div>
       </section>
+      <NotificationPromptCard />
       <section style={cardStyle}>
         <PageHeader
           eyebrow="Members"

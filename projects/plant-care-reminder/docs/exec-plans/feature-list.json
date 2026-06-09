@@ -9,7 +9,7 @@
       "file": "docs/exec-plans/modules/infra.json",
       "description": "Prepare the Convex-backed app foundation: schema, auth, shared contracts, route shell, PWA baseline and test harness.",
       "task_count": 7,
-      "completed": 7,
+      "completed": 6,
       "depends_on": []
     },
     {
@@ -17,7 +17,7 @@
       "file": "docs/exec-plans/modules/family-access.json",
       "description": "Implement login, profile bootstrap, onboarding, family creation/join and shared household settings.",
       "task_count": 6,
-      "completed": 6,
+      "completed": 7,
       "depends_on": ["infra"]
     },
     {
@@ -33,7 +33,7 @@
       "file": "docs/exec-plans/modules/care-reminders.json",
       "description": "Implement care-task scheduling, due inbox, completion flow and notification delivery.",
       "task_count": 8,
-      "completed": 6,
+      "completed": 7,
       "depends_on": ["infra", "family-access", "plant-registry"]
     }
   ],
@@ -224,14 +224,14 @@
       "task_id": "CARE-007",
       "module": "care-reminders",
       "description": "Implement notification permission prompts and push subscription persistence.",
-      "status": "in_progress",
+      "status": "completed",
       "priority": "2-Medium"
     },
     {
       "task_id": "CARE-008",
       "module": "care-reminders",
       "description": "Implement scheduled due scanning and deduplicated reminder delivery.",
-      "status": "pending",
+      "status": "in_progress",
       "priority": "2-Medium"
     }
   ],

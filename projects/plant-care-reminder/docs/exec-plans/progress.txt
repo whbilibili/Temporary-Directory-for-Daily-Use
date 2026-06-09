@@ -1,32 +1,32 @@
 ### [Current Focus]
-`CARE-007` 进行中：下一步开始实现通知授权引导、浏览器能力检查和 push subscription 持久化，把提醒能力从“页面可见”推进到“设备可触达”。
+`CARE-008` 进行中：最后一步开始实现到期任务扫描与提醒去重，把已保存的 push subscriptions 接上真正的提醒发送窗口，同时保留 inbox 作为失败兜底。
 
 ### [Key Decisions]
-- `CARE-006` 把完成写路径收口到单一 `completePlantTask` mutation；task log 写入与 `plantTasks` patch 发生在同一个后端事务边界里。
-- inbox 与 plant detail 共用新的 `CompleteTaskButton`，只保留按钮级 pending/error 状态，不在页面层缓存完成结果，交给 Convex 响应式查询刷新 UI。
-- archived plant 的任务禁止再写 completion；详情页若在归档后仍停留本地视图，后端会返回错误而不是接受脏写。
+- `CARE-007` 把通知入口放进 settings 页面，而不是额外新路由；这样授权、安装和设备状态都归档在家庭设置上下文里。
+- subscription 持久化统一走 `savePushSubscription` mutation，并以 `(current user, current family, endpoint)` 做 upsert 语义，避免同设备重复插入。
+- iPhone Safari 未安装到主屏幕时不直接报错，而是给出非阻断 guidance；支持环境才显示真正的 `Enable notifications` 动作。
 
 ### [Blockers & Solutions]
-- `CARE-006` 合同里的 `metadata.files_affected` 没列出 `TodoPage`、`TaskSection`、`TaskListItem`、`PlantDetailPage` 和 smoke tests，但没有这些调用方改动，新的 completion mutation 无法从现有页面真正触达；因此本轮按“调用链闭合”原则扩大了必要范围。
-- 现有测试基建把所有 `useMutation` mock 成同一个 handler，所以 completion 覆盖采用“单页面、单 mutation”断言，避免多 mutation 同时存在时相互污染。
+- `CARE-007` 合同没把 schema/domain contract 文件列进 `files_affected`，但规格明确要求 `pushSubscriptions` 带 `deviceLabel`；因此本轮同步补了 validator 和 domain type，否则无法按合同保存完整记录。
+- 测试环境里默认没有 `Notification`、`PushManager` 和 `navigator.serviceWorker`，所以 smoke 覆盖分别走 unsupported fallback 与手工 stub 的 granted flow，避免把浏览器 API 差异误判成业务失败。
 
 ### [Verification]
 - `cd app && npm run typecheck`
 - `cd app && npm run test`
 - `cd app && npx convex dev --once --typecheck enable`
 - 本轮新增覆盖：
-  - `/todo` 的 `Complete` 会调用共享 `completePlantTask` mutation
-  - plant detail 里的 `Complete` 会直接调用同一个 mutation，而不是再跳转到 inbox
-  - 新增 `app/tests/unit/tasks/nextDueAt.test.ts`，固定 completion timestamp 作为 next-due 基准
+  - settings 页面会渲染通知入口和 unsupported fallback guidance
+  - granted permission + existing subscription 会调用 `savePushSubscription`
+  - 新增 `app/tests/unit/notifications/subscriptionPayload.test.ts`，固定验证 subscription normalization
 - 验证结果：
   - `tsc --noEmit` 通过
-  - `vitest run` 通过，`5` 个测试文件、`43` 个测试全部通过
-  - `Convex functions ready!`，新增 `completePlantTask` mutation 通过服务端 typecheck
+  - `vitest run` 通过，`6` 个测试文件、`45` 个测试全部通过
+  - `Convex functions ready!`，新增 `notifications` functions 和 `deviceLabel` schema 变更通过服务端 typecheck
 
 ### [Dead Ends]
-- 不要把 completion 时间基准交回前端；否则不同设备时钟会把 `nextDueAt` 推歪。
-- 不要为了“假实时”在按钮点击后手动改本地列表；该状态已经由 Convex 查询天然回流，额外本地 patch 反而容易与真实数据分叉。
+- 不要在 unsupported 浏览器上强行展示授权按钮；给清晰 guidance 比制造不可执行 CTA 更好。
+- 不要把完整 push endpoint 暴露在 UI 上；订阅成功与否只反馈状态，不泄露设备订阅明文。
 
 ### [Next Steps]
-1. 进入 `CARE-007`，为支持环境实现通知能力检测、授权请求和 subscription 保存 mutation。
-2. 把引导入口放到 settings 或上下文 banner 中，并明确 iPhone PWA 的安装/授权前置条件。
+1. 进入 `CARE-008`，为 due tasks 和已保存 subscriptions 建立扫描窗口与发送去重规则。
+2. 把提醒发送失败与 inbox fallback 的边界写清楚，确保通知异常不会隐藏到期任务。

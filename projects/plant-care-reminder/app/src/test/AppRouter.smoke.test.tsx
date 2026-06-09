@@ -447,6 +447,75 @@ describe("AppShell smoke coverage", () => {
     expect(screen.getByText("Li")).toBeInTheDocument();
     expect(screen.getByText("Admin")).toBeInTheDocument();
     expect(screen.getByText("Member")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /enable device reminders/i })).toBeInTheDocument();
+    expect(
+      screen.getByText(/this browser cannot complete web-push setup yet/i),
+    ).toBeInTheDocument();
+  });
+
+  it("persists a notification subscription after permission is granted", async () => {
+    const mutationHandler = vi.fn().mockResolvedValue({
+      ok: true,
+    });
+    setMockMutationHandler(mutationHandler);
+
+    vi.stubGlobal("Notification", {
+      permission: "default",
+      requestPermission: vi.fn().mockResolvedValue("granted"),
+    });
+    vi.stubGlobal("PushManager", class PushManagerMock {});
+    Object.defineProperty(navigator, "serviceWorker", {
+      configurable: true,
+      value: {
+        ready: Promise.resolve({
+          pushManager: {
+            getSubscription: vi.fn().mockResolvedValue({
+              toJSON: () => ({
+                endpoint: "https://push.example.test/subscriptions/1",
+                keys: {
+                  p256dh: "p256dh-key",
+                  auth: "auth-key",
+                },
+              }),
+            }),
+          },
+        }),
+      },
+    });
+
+    renderWithProviders(
+      <AppShell
+        pathname="/settings"
+        routeContext={{
+          userId: "user_1",
+          familyId: "family_1",
+          displayName: "Wang",
+        }}
+      />,
+      {
+        route: "/settings",
+        queryResult: {
+          familyName: "Wang Family Greenhouse",
+          inviteCode: "ABCD12",
+          memberCount: 2,
+          members: [],
+        },
+      },
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /enable notifications/i }));
+
+    await waitFor(() =>
+      expect(mutationHandler).toHaveBeenCalledWith({
+        endpoint: "https://push.example.test/subscriptions/1",
+        p256dh: "p256dh-key",
+        auth: "auth-key",
+        deviceLabel: "Household device",
+      }),
+    );
+    expect(
+      screen.getByText(/this device is ready to receive reminder pushes/i),
+    ).toBeInTheDocument();
   });
 
   it("renders the create-plant route for family members", async () => {

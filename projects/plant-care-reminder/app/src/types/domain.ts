@@ -88,6 +88,7 @@ export interface PushSubscriptionRecord {
   endpoint: string;
   p256dh: string;
   auth: string;
+  deviceLabel: string;
   userAgent: string | null;
   lastSeenAt: TimestampMs;
   createdAt: TimestampMs;

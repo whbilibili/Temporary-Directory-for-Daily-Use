@@ -13,6 +13,7 @@ import type * as families from "../families.js";
 import type * as http from "../http.js";
 import type * as lib_auth from "../lib/auth.js";
 import type * as lib_validators from "../lib/validators.js";
+import type * as notifications from "../notifications.js";
 import type * as plants from "../plants.js";
 import type * as tasks from "../tasks.js";
 import type * as users from "../users.js";
@@ -29,6 +30,7 @@ declare const fullApi: ApiFromModules<{
   http: typeof http;
   "lib/auth": typeof lib_auth;
   "lib/validators": typeof lib_validators;
+  notifications: typeof notifications;
   plants: typeof plants;
   tasks: typeof tasks;
   users: typeof users;
