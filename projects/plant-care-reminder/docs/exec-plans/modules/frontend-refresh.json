@@ -517,7 +517,7 @@
       "task_id": "VIS-009",
       "description": "设置页视觉重构：重新排列卡片顺序（家庭摘要→邀请码→通知→成员→退出），退出按钮独立区域化，家庭成员列表改为 56px 行高。",
       "priority": "2-Medium",
-      "status": "in_progress",
+      "status": "completed",
       "depends_on": ["VIS-001"],
       "plan_path": null,
       "contracts": {

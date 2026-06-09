@@ -316,7 +316,7 @@
       "task_id": "VIS-009",
       "module": "frontend-refresh",
       "description": "设置页视觉重构（卡片重排 + 退出按钮独立化）。",
-      "status": "in_progress",
+      "status": "completed",
       "priority": "2-Medium"
     },
     {

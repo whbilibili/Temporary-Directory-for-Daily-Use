@@ -80,11 +80,13 @@
 6. ✅ VIS-006 已完成并提交。
 7. ✅ VIS-007 已完成并提交。
 8. ✅ VIS-008 已完成并提交。
-9. 下一个任务：**VIS-009**（设置页视觉重构 ← 原 UX-005 settings 部分，Medium）。依赖关系见 Task Breakdown Summary；执行前读取 frontend-refresh.json 中 VIS-009 的 design_contract，并核对设置页（FamilySettingsPage）相关 smoke 断言后再改。
-10. 按推荐顺序逐步推进，每完成一个 VIS 任务即更新本文件的 status，并 git 提交（git add 仅限 projects/plant-care-reminder/，commit message 单行）。
+9. ✅ VIS-009 已完成并提交。设置页（FamilySettingsPage.tsx）已重构：卡片重排为 家庭摘要→邀请码与分享→通知→家庭成员→退出登录；邀请码用 --font-mono 28px/700 居中展示；复制按钮金色主色 width 100% minHeight 44px；退出按钮独立到 logoutWrap（marginTop var(--space-xl)），ghost 风格 + error 边框；全部 token 化，移除 PageHeader 依赖。typecheck 0 错误，51 测试全过（34 smoke 断言保持）。
+10. 下一个任务：**VIS-010**（邀请码复制失败的替代分享路径，High，depends_on VIS-009）。执行前读取 frontend-refresh.json 中 VIS-010 的 design_contract；注意 VIS-009 的复制逻辑刻意未改（fallback 留给 VIS-010 处理）。
+11. 按推荐顺序逐步推进，每完成一个 VIS 任务即更新本文件的 status，并 git 提交（git add 仅限 projects/plant-care-reminder/，commit message 单行）。
 
 ### [Tech Debt / 待后续处理]
 - AppShell mainStyle 改为 flex-start 顶对齐后，登录/onboarding 页面不再垂直居中（这些页面 VIS-003/004 已自建紧凑容器，视觉可接受），VIS-013 走查时确认。
 - RouteGate.tsx 的 loadingWrapStyle/loadingCardStyle/titleStyle/copyStyle 仍有旧蓝橙硬编码（radial blue / #d9e2ec / #1e293b / #475569），不在 VIS-005 范围，建议 VIS-013 收尾或单独清理。
 - smoke 测试 stderr 仍有 React shorthand 警告（mixing border / borderColor），来源为 ArchivePlantAction / CreateTaskPage 流程（非 VIS-008 改动；VIS-008 已把自身 addTaskButtonStyle 改为 border 简写）。不影响测试通过，建议 VIS-013 走查时统一清理混用 border 简写/borderColor 的组件。
 - VIS-008 判断备忘：design_contract 写 action_bar position fixed bottom，但 App 已有 sticky BottomNav（56px）固定在 frame 列底部；page 级 fixed bottom:0 会与 BottomNav 重叠并脱离 520px 居中列。已改为 position sticky + bottom 偏移至 BottomNav 之上（calc(56px + safe-area + space-sm)）。VIS-013 走查时确认该浮层在真机底部安全区的视觉表现。
+- VIS-009 边界偏差：design_contract 提到「家庭成员列表改为 56px 行高」，但该改动属于 MembersList.tsx，不在 VIS-009 的 files_affected（仅 FamilySettingsPage.tsx）内。本次保持外科手术原则未改 MembersList，member_row 56px 行高待后续在 MembersList.tsx 范围内补做（或并入 VIS-013 收尾）。FamilySettingsPage 的卡片重排/邀请码/退出按钮三项已全部完成。
