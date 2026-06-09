@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import { formatDueDate, formatTaskTypeLabel } from "../../lib/formatters";
 import { CompleteTaskButton } from "./CompleteTaskButton";
 
@@ -22,9 +24,15 @@ export function DueTaskCard({ onOpenPlant, task }: DueTaskCardProps) {
   const taskLabel = formatTaskTypeLabel(task.taskType, task.customLabel);
   const dueCopy = formatDueDate(task.nextDueAt);
   const isOverdue = task.nextDueAt < Date.now();
+  const [completed, setCompleted] = useState(false);
 
   return (
-    <article style={cardStyle}>
+    <article
+      style={{
+        ...cardStyle,
+        ...(completed ? completedCardStyle : undefined),
+      }}
+    >
       <button
         aria-label={`查看 ${task.plantName}`}
         onClick={() => onOpenPlant(task.plantId)}
@@ -50,7 +58,7 @@ export function DueTaskCard({ onOpenPlant, task }: DueTaskCardProps) {
         )}
       </div>
 
-      <CompleteTaskButton appearance="circle" taskId={task.taskId} />
+      <CompleteTaskButton appearance="circle" onCompleted={() => setCompleted(true)} taskId={task.taskId} />
     </article>
   );
 }
@@ -64,6 +72,13 @@ const cardStyle: React.CSSProperties = {
   background: "var(--color-surface)",
   border: "1px solid var(--color-line)",
   boxShadow: "var(--shadow-card)",
+  transition: "opacity 300ms ease-out",
+  opacity: 1,
+};
+
+const completedCardStyle: React.CSSProperties = {
+  opacity: 0,
+  pointerEvents: "none",
 };
 
 const thumbButtonStyle: React.CSSProperties = {

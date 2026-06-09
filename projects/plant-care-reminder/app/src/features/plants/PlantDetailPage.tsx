@@ -70,8 +70,7 @@ export function PlantDetailPage({ plantId }: PlantDetailPageProps) {
   if (result === undefined) {
     return (
       <section style={loadingStyle}>
-        <h1 style={loadingTitleStyle}>正在加载植物资料</h1>
-        <p style={loadingBodyStyle}>正在同步封面图、资料字段以及已启用的提醒。</p>
+        <p style={loadingBodyStyle}>加载中…</p>
       </section>
     );
   }
@@ -154,15 +153,6 @@ const loadingStyle: React.CSSProperties = {
   display: "grid",
   gap: "var(--space-sm)",
   padding: "var(--space-md)",
-};
-
-const loadingTitleStyle: React.CSSProperties = {
-  margin: 0,
-  fontFamily: "var(--font-heading)",
-  fontSize: "24px",
-  fontWeight: 700,
-  lineHeight: 1.2,
-  color: "var(--color-ink)",
 };
 
 const loadingBodyStyle: React.CSSProperties = {

@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import { formatDueDate, formatTaskTypeLabel } from "../../lib/formatters";
 import { Button } from "../../components/ui/Button";
 import { CompleteTaskButton } from "./CompleteTaskButton";
@@ -26,9 +28,20 @@ export function TaskListItem({ onCompleted, onEdit, task }: TaskListItemProps) {
   const completionCopy = task.lastCompletedAt
     ? `上次完成于 ${detailDateFormatter.format(new Date(task.lastCompletedAt))}`
     : "还没有完成记录";
+  const [completed, setCompleted] = useState(false);
+
+  function handleCompleted(result: { lastCompletedAt: number; nextDueAt: number; taskId: string }) {
+    setCompleted(true);
+    onCompleted?.(result);
+  }
 
   return (
-    <article style={taskCardStyle}>
+    <article
+      style={{
+        ...taskCardStyle,
+        ...(completed ? completedCardStyle : undefined),
+      }}
+    >
       <div style={copyStackStyle}>
         <p style={taskEyebrowStyle}>已启用提醒</p>
         <h2 style={taskTitleStyle}>{title}</h2>
@@ -41,7 +54,7 @@ export function TaskListItem({ onCompleted, onEdit, task }: TaskListItemProps) {
         <Button fullWidth={false} onClick={onEdit} type="button" variant="secondary">
           编辑
         </Button>
-        <CompleteTaskButton onCompleted={onCompleted} taskId={task.id} />
+        <CompleteTaskButton onCompleted={handleCompleted} taskId={task.id} />
       </div>
     </article>
   );
@@ -55,6 +68,13 @@ const taskCardStyle: React.CSSProperties = {
   boxShadow: "var(--shadow-card)",
   display: "grid",
   gap: "var(--space-md)",
+  transition: "opacity 300ms ease-out",
+  opacity: 1,
+};
+
+const completedCardStyle: React.CSSProperties = {
+  opacity: 0,
+  pointerEvents: "none",
 };
 
 const copyStackStyle: React.CSSProperties = {

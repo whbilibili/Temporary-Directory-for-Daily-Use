@@ -20,14 +20,14 @@ export function CompleteTaskButton({
   taskId,
 }: CompleteTaskButtonProps) {
   const completeTask = useMutation(api.tasks.completePlantTask);
-  const [status, setStatus] = useState<"idle" | "pending" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "pending" | "error" | "done">("idle");
 
   async function handleComplete() {
     setStatus("pending");
 
     try {
       const result = await completeTask({ taskId });
-      setStatus("idle");
+      setStatus("done");
       onCompleted?.(result);
     } catch {
       setStatus("error");
@@ -36,19 +36,24 @@ export function CompleteTaskButton({
 
   const isCircle = appearance === "circle";
 
+  const isDone = status === "done";
+  const isPending = status === "pending";
+
   return (
     <div style={isCircle ? circleWrapStyle : wrapStyle}>
       <Button
         aria-label="完成"
-        disabled={status === "pending"}
+        disabled={isPending || isDone}
         fullWidth={false}
         onClick={handleComplete}
-        style={isCircle ? circleButtonStyle : undefined}
+        style={isCircle ? (isDone ? circleButtonDoneStyle : circleButtonStyle) : (isDone ? doneButtonStyle : undefined)}
         type="button"
       >
         {isCircle ? (
-          <span aria-hidden="true">{status === "pending" ? "…" : "✓"}</span>
-        ) : status === "pending" ? (
+          <span aria-hidden="true">{isPending ? "…" : "✓"}</span>
+        ) : isDone ? (
+          "已完成 ✓"
+        ) : isPending ? (
           "完成中..."
         ) : (
           "完成"
@@ -85,6 +90,19 @@ const circleButtonStyle: React.CSSProperties = {
   display: "inline-flex",
   alignItems: "center",
   justifyContent: "center",
+};
+
+const circleButtonDoneStyle: React.CSSProperties = {
+  ...circleButtonStyle,
+  background: "var(--color-success)",
+  color: "#fff",
+  borderColor: "var(--color-success)",
+};
+
+const doneButtonStyle: React.CSSProperties = {
+  background: "var(--color-success)",
+  color: "#fff",
+  borderColor: "var(--color-success)",
 };
 
 const errorStyle: React.CSSProperties = {
