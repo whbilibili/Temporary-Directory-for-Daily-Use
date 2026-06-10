@@ -65,7 +65,7 @@
       "prd": "docs/product-specs/2026-06-10-todo-page-iteration-spec.md",
       "ui_spec": "docs/product-specs/2026-06-10-todo-page-ui-spec.md",
       "task_count": 8,
-      "completed": 2,
+      "completed": 3,
       "depends_on": [
         "care-reminders",
         "frontend-refresh"
@@ -378,7 +378,7 @@
       "task_id": "TODO2-003",
       "module": "todo-page-v2",
       "description": "状态化情感反馈区（全部完成/有今日任务/有逾期三态问候卡，替代 Banner）。",
-      "status": "pending",
+      "status": "completed",
       "priority": "1-High"
     },
     {

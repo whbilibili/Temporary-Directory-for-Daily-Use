@@ -6,11 +6,17 @@ import { Button } from "../../components/ui/Button";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { DueTaskGroup } from "./DueTaskGroup";
 import type { DueTaskCardData } from "./DueTaskCard";
+import { TodoGreetingCard } from "./TodoGreetingCard";
 
 interface TodoQueryResult {
   overdue: DueTaskCardData[];
   today: DueTaskCardData[];
   upcoming: DueTaskCardData[];
+}
+
+/** 统计一组待办涉及的去重植物株数。 */
+function countDistinctPlants(tasks: DueTaskCardData[]) {
+  return new Set(tasks.map((task) => task.plantId)).size;
 }
 
 export function TodoPage() {
@@ -26,10 +32,14 @@ export function TodoPage() {
   }
 
   const totalTaskCount = result.overdue.length + result.today.length + result.upcoming.length;
+  const overduePlantCount = countDistinctPlants(result.overdue);
+  const todayPlantCount = countDistinctPlants(result.today);
 
   return (
     <section style={pageStyle}>
       <h1 style={titleStyle}>家庭养护任务</h1>
+
+      <TodoGreetingCard overduePlantCount={overduePlantCount} todayPlantCount={todayPlantCount} />
 
       {totalTaskCount === 0 ? (
         <EmptyState

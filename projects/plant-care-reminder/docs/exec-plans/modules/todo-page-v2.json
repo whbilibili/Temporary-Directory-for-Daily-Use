@@ -237,7 +237,7 @@
       "task_id": "TODO2-003",
       "description": "状态化情感反馈区（替代 Banner）：聚合待办状态为「全部完成 / 有今日任务 / 有逾期」三态，前端渲染随状态变化的问候卡（仅完成态允许渐变+暖金+光晕的奖赏视觉）。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {
