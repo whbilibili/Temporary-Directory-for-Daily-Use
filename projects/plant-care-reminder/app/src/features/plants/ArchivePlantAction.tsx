@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMutation } from "convex/react";
 
 import { api } from "../../../convex/_generated/api";
+import type { Id } from "../../../convex/_generated/dataModel";
 import { Button } from "../../components/ui/Button";
 import { FormError } from "../../components/ui/FormError";
 
@@ -36,7 +37,7 @@ export function ArchivePlantAction({
 
     try {
       await setArchivedState({
-        plantId,
+        plantId: plantId as Id<"plants">,
         isArchived: !isArchived,
       });
 

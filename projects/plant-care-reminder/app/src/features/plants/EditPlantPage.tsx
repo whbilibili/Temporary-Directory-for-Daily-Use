@@ -2,6 +2,7 @@ import { useMutation, useQuery } from "convex/react";
 import { useState } from "react";
 
 import { api } from "../../../convex/_generated/api";
+import type { Id } from "../../../convex/_generated/dataModel";
 import { FormError } from "../../components/ui/FormError";
 import { navigate } from "../../app/router";
 import { PlantForm } from "./PlantForm";
@@ -17,7 +18,7 @@ export function EditPlantPage({ plantId }: EditPlantPageProps) {
     api.plants.getPlantForEdit,
     plantId
       ? {
-          plantId: plantId as never,
+          plantId: plantId as Id<"plants">,
         }
       : "skip",
   );
@@ -34,8 +35,9 @@ export function EditPlantPage({ plantId }: EditPlantPageProps) {
 
       try {
         await updatePlant({
-          plantId: plantId as never,
+          plantId: plantId as Id<"plants">,
           ...payload,
+          imageStorageId: payload.imageStorageId as Id<"_storage"> | null,
         });
         navigate("/plants", true);
       } catch (error) {

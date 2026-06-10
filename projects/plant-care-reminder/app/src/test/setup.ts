@@ -1,7 +1,7 @@
 import "@testing-library/jest-dom/vitest";
 
 import { cleanup } from "@testing-library/react";
-import { afterEach, beforeAll, vi } from "vitest";
+import { afterEach, beforeAll, vi, type Mock } from "vitest";
 
 import type { RouteContext } from "../app/router";
 
@@ -37,15 +37,15 @@ export function setMockQueryResult(result: unknown) {
   mockUseQuery.mockReturnValue(result);
 }
 
-export function setMockMutationHandler(handler: ReturnType<typeof vi.fn>) {
+export function setMockMutationHandler(handler: Mock) {
   mockUseMutation.mockReturnValue(handler);
 }
 
-export function setMockSignInHandler(handler: ReturnType<typeof vi.fn>) {
+export function setMockSignInHandler(handler: Mock) {
   mockSignIn.mockImplementation(handler);
 }
 
-export function setMockConvexQueryHandler(handler: ReturnType<typeof vi.fn>) {
+export function setMockConvexQueryHandler(handler: Mock) {
   mockConvexClientQuery.mockImplementation(handler);
 }
 

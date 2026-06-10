@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useQuery } from "convex/react";
 
 import { api } from "../../../convex/_generated/api";
+import type { Id } from "../../../convex/_generated/dataModel";
 import { navigate } from "../../app/router";
 import { Button } from "../../components/ui/Button";
 import { EmptyState } from "../../components/ui/EmptyState";
@@ -39,7 +40,10 @@ interface PlantDetailResponse {
 }
 
 export function PlantDetailPage({ plantId }: PlantDetailPageProps) {
-  const result = useQuery(api.plants.getPlantDetail, plantId ? { plantId } : "skip") as
+  const result = useQuery(
+    api.plants.getPlantDetail,
+    plantId ? { plantId: plantId as Id<"plants"> } : "skip",
+  ) as
     | PlantDetailResponse
     | null
     | undefined;

@@ -2,6 +2,7 @@ import { useMutation, useQuery } from "convex/react";
 import { useEffect, useState } from "react";
 
 import { api } from "../../../convex/_generated/api";
+import type { Id } from "../../../convex/_generated/dataModel";
 import { navigate } from "../../app/router";
 import { Button } from "../../components/ui/Button";
 import { EmptyState } from "../../components/ui/EmptyState";
@@ -53,7 +54,9 @@ export function EditTaskPage({ plantId, taskId }: EditTaskPageProps) {
   const updatePlantTask = useMutation(api.tasks.updatePlantTask);
   const task = useQuery(
     api.tasks.getTaskForEdit,
-    plantId && taskId ? { plantId, taskId } : "skip",
+    plantId && taskId
+      ? { plantId: plantId as Id<"plants">, taskId: taskId as Id<"plantTasks"> }
+      : "skip",
   ) as TaskEditPayload | null | undefined;
   const [values, setValues] = useState<TaskFormValues | null>(null);
   const [errors, setErrors] = useState<TaskFormErrors>({});
@@ -96,7 +99,7 @@ export function EditTaskPage({ plantId, taskId }: EditTaskPageProps) {
 
     try {
       await updatePlantTask({
-        taskId: task.task.taskId,
+        taskId: task.task.taskId as Id<"plantTasks">,
         taskType: values.taskType,
         customTaskName: normalizeCustomTaskName(values.customTaskName),
         intervalDays,

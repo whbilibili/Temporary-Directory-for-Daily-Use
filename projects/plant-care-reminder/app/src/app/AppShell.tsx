@@ -5,7 +5,6 @@ import { FamilyOnboardingChoicePage } from "../features/family/FamilyOnboardingC
 import { FamilySettingsPage } from "../features/family/FamilySettingsPage";
 import { JoinFamilyPage } from "../features/family/JoinFamilyPage";
 import { CreatePlantPage } from "../features/plants/CreatePlantPage";
-import { clearCreatePlantSuccess, hasCreatePlantSuccessFlag } from "../features/plants/createPlantSuccess";
 import { EditPlantPage } from "../features/plants/EditPlantPage";
 import { PlantDetailPage } from "../features/plants/PlantDetailPage";
 import { PlantListPage } from "../features/plants/PlantListPage";

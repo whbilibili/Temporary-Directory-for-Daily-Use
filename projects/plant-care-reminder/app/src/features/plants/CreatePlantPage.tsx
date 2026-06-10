@@ -2,6 +2,7 @@ import { useMutation } from "convex/react";
 import { useState } from "react";
 
 import { api } from "../../../convex/_generated/api";
+import type { Id } from "../../../convex/_generated/dataModel";
 import { FormError } from "../../components/ui/FormError";
 import { navigate } from "../../app/router";
 import { PlantForm } from "./PlantForm";
@@ -16,7 +17,10 @@ export function CreatePlantPage() {
       setErrorMessage(null);
 
       try {
-        await createPlant(payload);
+        await createPlant({
+          ...payload,
+          imageStorageId: payload.imageStorageId as Id<"_storage"> | null,
+        });
         markCreatePlantSuccess();
         navigate("/plants", true);
       } catch (error) {

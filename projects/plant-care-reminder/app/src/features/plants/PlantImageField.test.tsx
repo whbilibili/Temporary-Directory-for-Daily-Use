@@ -4,11 +4,11 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { PlantImageField } from "./PlantImageField";
 import { setMockConvexQueryHandler, setMockMutationHandler } from "../../test/setup";
 
-const originalFetch = global.fetch;
+const originalFetch = globalThis.fetch;
 
 describe("PlantImageField", () => {
   afterEach(() => {
-    global.fetch = originalFetch;
+    globalThis.fetch = originalFetch;
   });
 
   it("uploads a selected file and returns a storage id plus preview url", async () => {
@@ -23,7 +23,7 @@ describe("PlantImageField", () => {
         imageUrl: "https://cdn.test/plant-image.jpg",
       }),
     );
-    global.fetch = vi.fn().mockResolvedValue({
+    globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
         storageId: "storage_1",
@@ -57,7 +57,7 @@ describe("PlantImageField", () => {
     );
 
     expect(mutationHandler).toHaveBeenCalledWith({});
-    expect(global.fetch).toHaveBeenCalledWith(
+    expect(globalThis.fetch).toHaveBeenCalledWith(
       "https://upload.test/plant-image",
       expect.objectContaining({
         body: file,
@@ -74,7 +74,7 @@ describe("PlantImageField", () => {
 
     setMockMutationHandler(mutationHandler);
     setMockConvexQueryHandler(vi.fn());
-    global.fetch = vi.fn().mockResolvedValue({
+    globalThis.fetch = vi.fn().mockResolvedValue({
       ok: false,
       json: async () => ({}),
     }) as typeof fetch;

@@ -10,8 +10,8 @@ function PlantFormHarness({
   initialValue,
   onSubmit,
 }: {
-  initialValue?: Parameters<typeof usePlantForm>[0]["initialValue"];
-  onSubmit?: Parameters<typeof usePlantForm>[0]["onSubmit"];
+  initialValue?: NonNullable<Parameters<typeof usePlantForm>[0]>["initialValue"];
+  onSubmit?: NonNullable<Parameters<typeof usePlantForm>[0]>["onSubmit"];
 }) {
   const form = usePlantForm({
     initialValue,

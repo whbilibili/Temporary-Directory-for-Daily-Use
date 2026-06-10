@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMutation } from "convex/react";
 
 import { api } from "../../../convex/_generated/api";
+import type { Id } from "../../../convex/_generated/dataModel";
 import { Button } from "../../components/ui/Button";
 import { FormError } from "../../components/ui/FormError";
 
@@ -22,7 +23,7 @@ export function DeleteTaskAction({ onDeleted, taskId, taskLabel }: DeleteTaskAct
     setErrorMessage(null);
 
     try {
-      await deletePlantTask({ taskId });
+      await deletePlantTask({ taskId: taskId as Id<"plantTasks"> });
       onDeleted();
     } catch (error) {
       setErrorMessage(

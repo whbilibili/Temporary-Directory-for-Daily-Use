@@ -2,6 +2,7 @@ import { useMutation, useQuery } from "convex/react";
 import { useState } from "react";
 
 import { api } from "../../../convex/_generated/api";
+import type { Id } from "../../../convex/_generated/dataModel";
 import { navigate } from "../../app/router";
 import { Button } from "../../components/ui/Button";
 import { EmptyState } from "../../components/ui/EmptyState";
@@ -33,7 +34,10 @@ const defaultValues: TaskFormValues = {
 
 export function CreateTaskPage({ plantId }: CreateTaskPageProps) {
   const createPlantTask = useMutation(api.tasks.createPlantTask);
-  const plant = useQuery(api.tasks.getTaskCreationPlant, plantId ? { plantId } : "skip") as
+  const plant = useQuery(
+    api.tasks.getTaskCreationPlant,
+    plantId ? { plantId: plantId as Id<"plants"> } : "skip",
+  ) as
     | TaskCreationPlant
     | null
     | undefined;
@@ -66,7 +70,7 @@ export function CreateTaskPage({ plantId }: CreateTaskPageProps) {
 
     try {
       await createPlantTask({
-        plantId,
+        plantId: plantId as Id<"plants">,
         taskType: values.taskType,
         customTaskName: normalizeCustomTaskName(values.customTaskName),
         intervalDays,
