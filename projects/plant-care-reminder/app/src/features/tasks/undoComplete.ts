@@ -46,3 +46,25 @@ export function buildUndoPayload(
 export function buildBatchUndoMessage(count: number, taskTypeLabel: string) {
   return `已完成 ${count} 个${taskTypeLabel}任务`;
 }
+
+/** 一次批量完成的撤销载荷：保留每条 undo 信息，撤销时整批回滚。 */
+export interface BatchCompletionUndoPayload {
+  kind: "batch";
+  items: CompletionUndoPayload[];
+  message: string;
+}
+
+/**
+ * 把批量完成结果转成批量撤销载荷。逐条复用 buildUndoPayload，并生成聚合文案。
+ */
+export function buildBatchUndoPayload(
+  results: CompletionResult[],
+  taskTypeLabel: string,
+): BatchCompletionUndoPayload {
+  const message = buildBatchUndoMessage(results.length, taskTypeLabel);
+  return {
+    kind: "batch",
+    items: results.map((result) => buildUndoPayload(result, message)),
+    message,
+  };
+}

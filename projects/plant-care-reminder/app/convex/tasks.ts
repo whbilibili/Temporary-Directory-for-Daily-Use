@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 
-import { mutation, query } from "./_generated/server";
+import type { Doc } from "./_generated/dataModel";
+import { type MutationCtx, mutation, query } from "./_generated/server";
 import { getCurrentUserContext as loadCurrentUserContext } from "./lib/auth";
 import { plantTaskTypeValidator } from "./lib/validators";
 import {
@@ -285,6 +286,59 @@ export const listDueTasks = query({
   },
 });
 
+/**
+ * 完成单个任务的内核：写完成日志 + 顺延 nextDueAt + 清零连续推迟计数，
+ * 并返回完成前的字段快照（撤销用）。单条完成与批量完成共用，避免重复实现顺延规则。
+ * 调用方需先校验任务/植物归属本家庭且未归档。
+ */
+async function completeTaskCore(
+  ctx: MutationCtx,
+  params: {
+    task: Doc<"plantTasks">;
+    userId: CurrentFamilyMemberContext["userId"];
+    completedAt: number;
+  },
+) {
+  const { task, userId, completedAt } = params;
+  const nextDueAt = computeNextDueAt({
+    intervalDays: task.intervalDays,
+    baseCompletedAt: completedAt,
+  });
+
+  // 完成前的快照，供前端缓存以支持「会话内 3–5 秒撤销」（PRD §9.1）。
+  const previous = {
+    lastCompletedAt: task.lastCompletedAt ?? null,
+    nextDueAt: task.nextDueAt,
+    consecutivePostponeCount: task.consecutivePostponeCount ?? 0,
+  };
+
+  const logId = await ctx.db.insert("taskCompletionLogs", {
+    taskId: task._id,
+    plantId: task.plantId,
+    familyId: task.familyId,
+    completedBy: userId,
+    completedAt,
+    taskType: task.taskType,
+    intervalDays: task.intervalDays,
+  });
+
+  await ctx.db.patch(task._id, {
+    lastCompletedAt: completedAt,
+    nextDueAt,
+    // 完成即清零连续推迟计数（PRD §8.4）。
+    consecutivePostponeCount: 0,
+    updatedAt: completedAt,
+  });
+
+  return {
+    taskId: task._id,
+    logId,
+    previous,
+    lastCompletedAt: completedAt,
+    nextDueAt,
+  };
+}
+
 export const completePlantTask = mutation({
   args: {
     taskId: v.id("plantTasks"),
@@ -306,44 +360,46 @@ export const completePlantTask = mutation({
       throw new Error("Archived plants cannot receive new task completions.");
     }
 
+    return completeTaskCore(ctx, {
+      task,
+      userId: currentUserContext.userId,
+      completedAt: Date.now(),
+    });
+  },
+});
+
+export const completePlantTasksBatch = mutation({
+  args: {
+    taskIds: v.array(v.id("plantTasks")),
+  },
+  handler: async (ctx, args) => {
+    const currentUserContext = await requireCurrentFamilyMember(ctx);
+    // 同一批次共用一个完成时间，便于撤销时一致回滚。
     const completedAt = Date.now();
-    const nextDueAt = computeNextDueAt({
-      intervalDays: task.intervalDays,
-      baseCompletedAt: completedAt,
-    });
+    const results: Array<Awaited<ReturnType<typeof completeTaskCore>>> = [];
 
-    // 完成前的快照，供前端缓存以支持「会话内 3–5 秒撤销」（PRD §9.1）。
-    const previous = {
-      lastCompletedAt: task.lastCompletedAt ?? null,
-      nextDueAt: task.nextDueAt,
-      consecutivePostponeCount: task.consecutivePostponeCount ?? 0,
-    };
+    // 去重，避免同一任务被重复完成。
+    for (const taskId of [...new Set(args.taskIds)]) {
+      const task = await ctx.db.get(taskId);
+      if (!task || task.familyId !== currentUserContext.familyId) {
+        continue;
+      }
 
-    const logId = await ctx.db.insert("taskCompletionLogs", {
-      taskId: task._id,
-      plantId: task.plantId,
-      familyId: task.familyId,
-      completedBy: currentUserContext.userId,
-      completedAt,
-      taskType: task.taskType,
-      intervalDays: task.intervalDays,
-    });
+      const plant = await ctx.db.get(task.plantId);
+      if (!plant || plant.familyId !== currentUserContext.familyId || plant.isArchived) {
+        continue;
+      }
 
-    await ctx.db.patch(task._id, {
-      lastCompletedAt: completedAt,
-      nextDueAt,
-      // 完成即清零连续推迟计数（PRD §8.4）。
-      consecutivePostponeCount: 0,
-      updatedAt: completedAt,
-    });
+      results.push(
+        await completeTaskCore(ctx, {
+          task,
+          userId: currentUserContext.userId,
+          completedAt,
+        }),
+      );
+    }
 
-    return {
-      taskId: task._id,
-      logId,
-      previous,
-      lastCompletedAt: completedAt,
-      nextDueAt,
-    };
+    return { results };
   },
 });
 

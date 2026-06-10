@@ -1,12 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 
-import { UNDO_TOAST_DURATION_MS, type CompletionUndoPayload } from "./undoComplete";
+import {
+  UNDO_TOAST_DURATION_MS,
+  type BatchCompletionUndoPayload,
+  type CompletionUndoPayload,
+} from "./undoComplete";
 
 export { UNDO_TOAST_DURATION_MS, type CompletionUndoPayload } from "./undoComplete";
 
+/** 浮条可承载单条或批量两种撤销载荷，UI 只关心 message 与撤销动作。 */
+type ToastPayload = CompletionUndoPayload | BatchCompletionUndoPayload;
+
 interface UndoToastProps {
-  payload: CompletionUndoPayload;
-  onUndo: (payload: CompletionUndoPayload) => void;
+  payload: ToastPayload;
+  onUndo: (payload: ToastPayload) => void;
   onDismiss: () => void;
 }
 

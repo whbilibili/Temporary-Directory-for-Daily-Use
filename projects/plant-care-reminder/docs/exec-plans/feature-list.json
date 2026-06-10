@@ -65,7 +65,7 @@
       "prd": "docs/product-specs/2026-06-10-todo-page-iteration-spec.md",
       "ui_spec": "docs/product-specs/2026-06-10-todo-page-ui-spec.md",
       "task_count": 8,
-      "completed": 6,
+      "completed": 7,
       "depends_on": [
         "care-reminders",
         "frontend-refresh"
@@ -406,7 +406,7 @@
       "task_id": "TODO2-007",
       "module": "todo-page-v2",
       "description": "分区级一键完成：同类型 ≥2 个时「全部完成」按钮 + 批量 mutation + 复用撤销浮条。",
-      "status": "pending",
+      "status": "completed",
       "priority": "2-Medium"
     },
     {

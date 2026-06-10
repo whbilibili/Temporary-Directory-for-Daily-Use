@@ -738,7 +738,7 @@
       "task_id": "TODO2-007",
       "description": "分区级一键完成（PRD §9.3 / §2.2）：同类型任务 ≥2 个时，类型聚合分组标题栏提供「✅ 全部完成」轻按钮；新增批量完成 mutation（逐个写 log + 顺延），复用撤销浮条（批量文案）。不做多选批量。",
       "priority": "2-Medium",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {

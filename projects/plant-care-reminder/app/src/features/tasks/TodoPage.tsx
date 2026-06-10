@@ -8,7 +8,11 @@ import { EmptyState } from "../../components/ui/EmptyState";
 import { DueTaskGroup } from "./DueTaskGroup";
 import type { DueTaskCardData } from "./DueTaskCard";
 import { TodoGreetingCard } from "./TodoGreetingCard";
-import { UndoToast, type CompletionUndoPayload } from "./UndoToast";
+import { UndoToast } from "./UndoToast";
+import type { BatchCompletionUndoPayload, CompletionUndoPayload } from "./undoComplete";
+
+/** 浮条当前持有的撤销载荷：单条或批量。 */
+type ActiveUndo = CompletionUndoPayload | BatchCompletionUndoPayload;
 
 interface TodoQueryResult {
   overdue: DueTaskCardData[];
@@ -24,17 +28,26 @@ function countDistinctPlants(tasks: DueTaskCardData[]) {
 export function TodoPage() {
   const result = useQuery(api.tasks.listDueTasks, {}) as TodoQueryResult | undefined;
   const undoComplete = useMutation(api.tasks.undoCompletePlantTask);
-  // 会话内 undo 缓存：仅保留最近一次完成的撤销载荷（PRD §9.1）。
-  const [undoPayload, setUndoPayload] = useState<CompletionUndoPayload | null>(null);
+  // 会话内 undo 缓存：仅保留最近一次（单条或批量）完成的撤销载荷（PRD §9.1）。
+  const [undoPayload, setUndoPayload] = useState<ActiveUndo | null>(null);
 
-  async function handleUndo(payload: CompletionUndoPayload) {
+  async function undoOne(item: CompletionUndoPayload) {
+    await undoComplete({
+      taskId: item.taskId,
+      logId: item.logId,
+      previous: item.previous,
+    });
+  }
+
+  async function handleUndo(payload: ActiveUndo) {
     setUndoPayload(null);
     try {
-      await undoComplete({
-        taskId: payload.taskId,
-        logId: payload.logId,
-        previous: payload.previous,
-      });
+      if ("kind" in payload) {
+        // 批量撤销：逐条回滚（顺序不影响结果，各条独立）。
+        await Promise.all(payload.items.map(undoOne));
+      } else {
+        await undoOne(payload);
+      }
     } catch {
       // 撤销失败时静默：完成结果已生效，列表会自动刷新。
     }
@@ -75,18 +88,21 @@ export function TodoPage() {
         <>
           <DueTaskGroup
             onCompleted={setUndoPayload}
+            onCompletedAll={setUndoPayload}
             onOpenPlant={(plantId) => navigate(`/plants/${plantId}`)}
             tasks={result.overdue}
             title="已逾期"
           />
           <DueTaskGroup
             onCompleted={setUndoPayload}
+            onCompletedAll={setUndoPayload}
             onOpenPlant={(plantId) => navigate(`/plants/${plantId}`)}
             tasks={result.today}
             title="今天到期"
           />
           <DueTaskGroup
             onCompleted={setUndoPayload}
+            onCompletedAll={setUndoPayload}
             onOpenPlant={(plantId) => navigate(`/plants/${plantId}`)}
             tasks={result.upcoming}
             title="即将到期"
