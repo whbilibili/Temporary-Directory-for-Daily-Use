@@ -67,6 +67,8 @@ export const plantTaskFields = {
   lastCompletedAt: optionalUtcTimestampValidator,
   lastNotifiedAt: optionalUtcTimestampValidator,
   nextDueAt: utcTimestampValidator,
+  // 连续推迟次数：完成时清零；老数据无此字段时按 0 处理（PRD §8.4）。
+  consecutivePostponeCount: v.optional(v.number()),
   createdBy: v.id("users"),
   createdAt: utcTimestampValidator,
   updatedAt: utcTimestampValidator,

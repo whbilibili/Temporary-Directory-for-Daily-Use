@@ -63,9 +63,9 @@
       "file": "docs/exec-plans/modules/todo-page-v2.json",
       "description": "待办页 v0.2 迭代：方案 A（今日完成移出主区）、状态化情感反馈区、推迟（含连续推迟提示）、完成撤销、分区级一键完成，及配套 botanical UI 美化。每个 Task 同时承载功能开发契约（data/api）与 UI 美化契约（design_contract）。",
       "prd": "docs/product-specs/2026-06-10-todo-page-iteration-spec.md",
-      "ui_spec": "docs/product-specs/2026-06-10-todo-page-ui-spec.md",
-      "task_count": 8,
-      "completed": 3,
+"ui_spec": "docs/product-specs/2026-06-10-todo-page-ui-spec.md",
+"task_count": 8,
+"completed": 4,
       "depends_on": [
         "care-reminders",
         "frontend-refresh"
@@ -382,10 +382,10 @@
       "priority": "1-High"
     },
     {
-      "task_id": "TODO2-004",
-      "module": "todo-page-v2",
-      "description": "推迟功能：新增 consecutivePostponeCount 字段 + postpone mutation（今天+1）+ 告知文案确认。",
-      "status": "pending",
+"task_id": "TODO2-004",
+"module": "todo-page-v2",
+"description": "推迟功能：新增 consecutivePostponeCount 字段 + postpone mutation（今天+1）+ 告知文案确认。",
+"status": "completed",
       "priority": "1-High"
     },
     {

@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import { formatDueDate, formatTaskTypeLabel } from "../../lib/formatters";
 import { CompleteTaskButton } from "./CompleteTaskButton";
+import { PostponeButton } from "./PostponeButton";
 import { TaskTypeBadge, taskTypeColorVar } from "./TaskTypeBadge";
 
 export interface DueTaskCardData {
@@ -67,7 +68,10 @@ export function DueTaskCard({ onOpenPlant, task }: DueTaskCardProps) {
         )}
       </div>
 
-      <CompleteTaskButton appearance="circle" onCompleted={() => setCompleted(true)} taskId={task.taskId} />
+      <div style={actionsStyle}>
+        <CompleteTaskButton appearance="circle" onCompleted={() => setCompleted(true)} taskId={task.taskId} />
+        <PostponeButton currentNextDueAt={task.nextDueAt} taskId={task.taskId} />
+      </div>
     </article>
   );
 }
@@ -86,6 +90,13 @@ const cardStyle: React.CSSProperties = {
   transition: "opacity 300ms ease-out",
   opacity: 1,
   overflow: "hidden",
+};
+
+const actionsStyle: React.CSSProperties = {
+  flexShrink: 0,
+  display: "grid",
+  gap: "4px",
+  justifyItems: "center",
 };
 
 const typeStripStyle: React.CSSProperties = {

@@ -339,10 +339,10 @@
       ]
     },
     {
-      "task_id": "TODO2-004",
-      "description": "推迟功能（PRD §8）：plantTasks 新增 consecutivePostponeCount 字段；新增 postponePlantTask mutation（nextDueAt = 今天 + 1，不改 lastCompletedAt、不写 completionLog、推迟次数 +1）；前端推迟入口 + §8.2 告知文案轻确认。",
-      "priority": "1-High",
-      "status": "pending",
+"task_id": "TODO2-004",
+"description": "推迟功能（PRD §8）：plantTasks 新增 consecutivePostponeCount 字段；新增 postponePlantTask mutation（nextDueAt = 今天 + 1，不改 lastCompletedAt、不写 completionLog、推迟次数 +1）；前端推迟入口 + §8.2 告知文案轻确认。",
+"priority": "1-High",
+"status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {

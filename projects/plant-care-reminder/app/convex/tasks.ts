@@ -6,6 +6,7 @@ import { plantTaskTypeValidator } from "./lib/validators";
 import {
   bucketDueTasks,
   computeNextDueAt,
+  computePostponedNextDueAt,
   validateIntervalDays,
 } from "../src/features/tasks/scheduling";
 import {
@@ -323,6 +324,8 @@ export const completePlantTask = mutation({
     await ctx.db.patch(task._id, {
       lastCompletedAt: completedAt,
       nextDueAt,
+      // 完成即清零连续推迟计数（PRD §8.4）。
+      consecutivePostponeCount: 0,
       updatedAt: completedAt,
     });
 
@@ -330,6 +333,47 @@ export const completePlantTask = mutation({
       taskId: task._id,
       lastCompletedAt: completedAt,
       nextDueAt,
+    };
+  },
+});
+
+export const postponePlantTask = mutation({
+  args: {
+    taskId: v.id("plantTasks"),
+  },
+  handler: async (ctx, args) => {
+    const currentUserContext = await requireCurrentFamilyMember(ctx);
+    const task = await ctx.db.get(args.taskId);
+
+    if (!task || task.familyId !== currentUserContext.familyId) {
+      throw new Error("This care task does not belong to your current household.");
+    }
+
+    const plant = await ctx.db.get(task.plantId);
+    if (!plant || plant.familyId !== currentUserContext.familyId) {
+      throw new Error("The parent plant for this task is no longer available.");
+    }
+
+    if (plant.isArchived) {
+      throw new Error("Archived plants cannot be postponed.");
+    }
+
+    const now = Date.now();
+    // 推迟基准为「今天 0 点 + N 天」，不依赖原 nextDueAt（PRD §8.1）。
+    const nextDueAt = computePostponedNextDueAt(now);
+    const consecutivePostponeCount = (task.consecutivePostponeCount ?? 0) + 1;
+
+    // 推迟只移动 nextDueAt，不触碰 lastCompletedAt，也不写 taskCompletionLogs（PRD §8）。
+    await ctx.db.patch(task._id, {
+      nextDueAt,
+      consecutivePostponeCount,
+      updatedAt: now,
+    });
+
+    return {
+      taskId: task._id,
+      nextDueAt,
+      consecutivePostponeCount,
     };
   },
 });
