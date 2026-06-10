@@ -3,7 +3,6 @@ import { useMemo, useState } from "react";
 
 import { api } from "../../../convex/_generated/api";
 import { Button } from "../../components/ui/Button";
-import { PageHeader } from "../../components/ui/PageHeader";
 import { normalizeSubscription } from "./normalizeSubscription";
 
 interface PushSubscriptionLike {
@@ -15,6 +14,12 @@ interface PushSubscriptionLike {
     } | null;
   };
 }
+
+/**
+ * 通知卡片的可视化状态。enabled/disabled/unsupported 对应 VIS-012 设计契约的三态，
+ * needs_install 为 iOS Safari 安装引导的额外兜底分支（见 docs/caveats.md）。
+ */
+type VisualState = "enabled" | "disabled" | "unsupported" | "needs_install";
 
 function isStandaloneDisplayMode() {
   return window.matchMedia("(display-mode: standalone)").matches;
@@ -69,6 +74,22 @@ export function NotificationPromptCard() {
 
     return "supported" as const;
   }, []);
+
+  // 将 capability + 交互 status 归一为设计契约约定的可视化三态（+needs_install 兜底）。
+  const visualState: VisualState = useMemo(() => {
+    if (capability === "unsupported") {
+      return "unsupported";
+    }
+
+    if (capability === "needs_install") {
+      return "needs_install";
+    }
+
+    const alreadyGranted =
+      "Notification" in window && Notification.permission === "granted";
+
+    return status === "enabled" || alreadyGranted ? "enabled" : "disabled";
+  }, [capability, status]);
 
   async function handleEnableNotifications() {
     if (capability !== "supported" || status === "pending") {
@@ -126,43 +147,44 @@ export function NotificationPromptCard() {
     }
   }
 
+  const badge = STATUS_BADGES[visualState];
+
   return (
     <section style={cardStyle}>
-      <PageHeader
-        eyebrow="通知"
-        title="开启设备提醒"
-        description={
-          <p style={bodyStyle}>
-            除了在待办页查看任务外，你也可以开启设备通知，让家庭成员在离开页面后依然能收到提醒。
-          </p>
-        }
-      />
+      <header style={headerStyle}>
+        <div style={headerTextStyle}>
+          <span style={eyebrowStyle}>通知</span>
+          <h2 style={titleStyle}>开启设备提醒</h2>
+        </div>
+        <span style={{ ...badgeBaseStyle, ...badge.style }}>{badge.label}</span>
+      </header>
 
-      {capability === "unsupported" ? (
+      <p style={bodyStyle}>
+        除了在待办页查看任务外，你也可以开启设备通知，让家庭成员在离开页面后依然能收到提醒。
+      </p>
+
+      {visualState === "unsupported" ? (
         <p style={hintStyle}>
           当前浏览器暂不支持 Web Push，仍可通过待办页查看所有提醒任务。
         </p>
       ) : null}
 
-      {capability === "needs_install" ? (
+      {visualState === "needs_install" ? (
         <p style={hintStyle}>
           如果你使用的是 iPhone Safari，请先把应用添加到主屏幕，安装后才能开启通知权限。
         </p>
       ) : null}
 
-      {capability === "supported" ? (
+      {visualState === "disabled" ? (
         <div style={actionWrapStyle}>
           <Button
-            disabled={status === "pending" || status === "enabled"}
+            disabled={status === "pending"}
             fullWidth={false}
             onClick={() => void handleEnableNotifications()}
             type="button"
+            variant="secondary"
           >
-            {status === "pending"
-              ? "开启中..."
-              : status === "enabled"
-                ? "通知已开启"
-                : "开启通知"}
+            {status === "pending" ? "开启中..." : "开启通知"}
           </Button>
           <p style={supportCopyStyle}>
             仅在支持的浏览器中才会弹出授权窗口，并为当前家庭成员保存一条设备订阅记录。
@@ -170,7 +192,7 @@ export function NotificationPromptCard() {
         </div>
       ) : null}
 
-      {status === "enabled" ? (
+      {visualState === "enabled" ? (
         <p role="status" style={successStyle}>
           当前设备已经可以接收家庭植物提醒通知。
         </p>
@@ -185,52 +207,127 @@ export function NotificationPromptCard() {
   );
 }
 
+const STATUS_BADGES: Record<VisualState, { label: string; style: React.CSSProperties }> = {
+  enabled: {
+    label: "已开启推送",
+    style: {
+      color: "var(--color-surface)",
+      background: "var(--color-success)",
+      border: "1px solid var(--color-success)",
+    },
+  },
+  disabled: {
+    label: "未开启",
+    style: {
+      color: "var(--color-leaf-light)",
+      background: "var(--color-mist)",
+      border: "1px solid var(--color-line)",
+    },
+  },
+  needs_install: {
+    label: "待安装",
+    style: {
+      color: "var(--color-leaf-light)",
+      background: "var(--color-mist)",
+      border: "1px solid var(--color-line)",
+    },
+  },
+  unsupported: {
+    label: "不支持",
+    style: {
+      color: "var(--color-muted)",
+      background: "var(--color-mist)",
+      border: "1px solid var(--color-line)",
+    },
+  },
+};
+
 const cardStyle: React.CSSProperties = {
-  borderRadius: "24px",
-  padding: "24px 22px",
-  background: "rgba(255,255,255,0.94)",
-  border: "1px solid rgba(148,163,184,0.24)",
-  boxShadow: "0 24px 60px rgba(15,23,42,0.08)",
+  borderRadius: "var(--radius-card)",
+  padding: "var(--space-md)",
+  background: "var(--color-surface)",
+  border: "1px solid var(--color-line)",
+  boxShadow: "var(--shadow-card)",
   display: "grid",
-  gap: "18px",
+  gap: "var(--space-sm)",
+};
+
+const headerStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "flex-start",
+  justifyContent: "space-between",
+  gap: "var(--space-sm)",
+};
+
+const headerTextStyle: React.CSSProperties = {
+  display: "grid",
+  gap: "var(--space-xs)",
+};
+
+const eyebrowStyle: React.CSSProperties = {
+  fontSize: "12px",
+  fontWeight: 700,
+  letterSpacing: "0.08em",
+  textTransform: "uppercase",
+  color: "var(--color-leaf-light)",
+};
+
+const titleStyle: React.CSSProperties = {
+  margin: 0,
+  fontFamily: "var(--font-heading)",
+  fontSize: "16px",
+  fontWeight: 600,
+  lineHeight: 1.25,
+  color: "var(--color-ink)",
+};
+
+const badgeBaseStyle: React.CSSProperties = {
+  flexShrink: 0,
+  padding: "4px 10px",
+  borderRadius: "var(--radius-pill)",
+  fontSize: "12px",
+  fontWeight: 700,
+  lineHeight: 1.3,
+  whiteSpace: "nowrap",
 };
 
 const bodyStyle: React.CSSProperties = {
   margin: 0,
-  color: "#475569",
-  fontSize: "1rem",
-  lineHeight: 1.7,
+  color: "var(--color-muted)",
+  fontSize: "14px",
+  lineHeight: 1.5,
 };
 
 const actionWrapStyle: React.CSSProperties = {
   display: "grid",
-  gap: "12px",
+  gap: "var(--space-sm)",
 };
 
 const supportCopyStyle: React.CSSProperties = {
   margin: 0,
-  color: "#64748b",
-  fontSize: "0.88rem",
+  color: "var(--color-muted)",
+  fontSize: "12px",
   lineHeight: 1.55,
 };
 
 const hintStyle: React.CSSProperties = {
   margin: 0,
-  color: "#475569",
-  fontSize: "0.95rem",
+  color: "var(--color-muted)",
+  fontSize: "14px",
   lineHeight: 1.6,
 };
 
 const successStyle: React.CSSProperties = {
   margin: 0,
-  color: "#166534",
-  fontSize: "0.9rem",
+  color: "var(--color-success)",
+  fontSize: "14px",
+  fontWeight: 500,
   lineHeight: 1.6,
 };
 
 const errorStyle: React.CSSProperties = {
   margin: 0,
-  color: "#b91c1c",
-  fontSize: "0.9rem",
+  color: "var(--color-error)",
+  fontSize: "14px",
   lineHeight: 1.6,
 };
