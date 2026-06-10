@@ -30,6 +30,14 @@
   --color-warning: #dd6b20;
   --color-error: #c53030;
 
+  /* ---- 任务类型识别色（待办页色条/图标，双编码 emoji + 色） ---- */
+  --color-task-watering: #3b82c4; /* 水蓝，冷色区别于主绿 */
+  --color-task-fertilizing: #a06a3c; /* 暖棕/土色 */
+  --color-task-misting: #2f9c8a; /* 青绿 */
+  --color-task-repotting: #d2773b; /* 陶土橙 */
+  --color-task-pruning: #5c8a3a; /* 叶绿 */
+  --color-task-custom: #8a9690; /* 中性灰 */
+
   /* ---- 字体 ---- */
   --font-heading: Lora, serif;
   --font-body: Raleway, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",

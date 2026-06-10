@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import { formatDueDate, formatTaskTypeLabel } from "../../lib/formatters";
 import { CompleteTaskButton } from "./CompleteTaskButton";
+import { TaskTypeBadge, taskTypeColorVar } from "./TaskTypeBadge";
 
 export interface DueTaskCardData {
   customLabel: string | null;
@@ -33,20 +34,27 @@ export function DueTaskCard({ onOpenPlant, task }: DueTaskCardProps) {
         ...(completed ? completedCardStyle : undefined),
       }}
     >
-      <button
-        aria-label={`查看 ${task.plantName}`}
-        onClick={() => onOpenPlant(task.plantId)}
-        style={thumbButtonStyle}
-        type="button"
-      >
-        {task.plantImageUrl ? (
-          <img alt={`${task.plantName}封面图`} src={task.plantImageUrl} style={thumbImageStyle} />
-        ) : (
-          <span aria-hidden="true" style={thumbFallbackStyle}>
-            🌿
-          </span>
-        )}
-      </button>
+      <span
+        aria-hidden="true"
+        style={{ ...typeStripStyle, background: taskTypeColorVar(task.taskType) }}
+      />
+      <span style={thumbWrapStyle}>
+        <button
+          aria-label={`查看 ${task.plantName}`}
+          onClick={() => onOpenPlant(task.plantId)}
+          style={thumbButtonStyle}
+          type="button"
+        >
+          {task.plantImageUrl ? (
+            <img alt={`${task.plantName}封面图`} src={task.plantImageUrl} style={thumbImageStyle} />
+          ) : (
+            <span aria-hidden="true" style={thumbFallbackStyle}>
+              🌿
+            </span>
+          )}
+        </button>
+        <TaskTypeBadge taskType={task.taskType} />
+      </span>
 
       <div style={contentStyle}>
         <p style={plantNameStyle}>{task.plantName}</p>
@@ -64,16 +72,35 @@ export function DueTaskCard({ onOpenPlant, task }: DueTaskCardProps) {
 }
 
 const cardStyle: React.CSSProperties = {
+  position: "relative",
   display: "flex",
   alignItems: "center",
   gap: "var(--space-md)",
   borderRadius: "var(--radius-card)",
   padding: "var(--space-md)",
+  paddingLeft: "calc(var(--space-md) + 4px)",
   background: "var(--color-surface)",
   border: "1px solid var(--color-line)",
   boxShadow: "var(--shadow-card)",
   transition: "opacity 300ms ease-out",
   opacity: 1,
+  overflow: "hidden",
+};
+
+const typeStripStyle: React.CSSProperties = {
+  position: "absolute",
+  left: 0,
+  top: 0,
+  bottom: 0,
+  width: "4px",
+  borderTopLeftRadius: "var(--radius-card)",
+  borderBottomLeftRadius: "var(--radius-card)",
+};
+
+const thumbWrapStyle: React.CSSProperties = {
+  position: "relative",
+  flexShrink: 0,
+  display: "inline-flex",
 };
 
 const completedCardStyle: React.CSSProperties = {
