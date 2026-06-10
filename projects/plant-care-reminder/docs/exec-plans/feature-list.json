@@ -65,7 +65,7 @@
       "prd": "docs/product-specs/2026-06-10-todo-page-iteration-spec.md",
       "ui_spec": "docs/product-specs/2026-06-10-todo-page-ui-spec.md",
       "task_count": 8,
-      "completed": 1,
+      "completed": 2,
       "depends_on": [
         "care-reminders",
         "frontend-refresh"
@@ -371,7 +371,7 @@
       "task_id": "TODO2-002",
       "module": "todo-page-v2",
       "description": "方案 A 分桶强化：今日完成移出主区，下次落 1–3 天的任务在即将到期区灰态显示。",
-      "status": "pending",
+      "status": "completed",
       "priority": "1-High"
     },
     {

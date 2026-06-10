@@ -1,44 +1,28 @@
-import { useState } from "react";
+import { formatTaskTypeLabel } from "../../lib/formatters";
+import type { DueTaskCardData } from "./DueTaskCard";
+import { TaskTypeBadge } from "./TaskTypeBadge";
 
-import { formatDueDate, formatTaskTypeLabel } from "../../lib/formatters";
-import { CompleteTaskButton } from "./CompleteTaskButton";
-import { TaskTypeBadge, taskTypeColorVar } from "./TaskTypeBadge";
+const nextDueFormatter = new Intl.DateTimeFormat("zh-CN", {
+  month: "numeric",
+  day: "numeric",
+});
 
-export interface DueTaskCardData {
-  completedToday: boolean;
-  customLabel: string | null;
-  intervalDays: number;
-  lastCompletedAt: number | null;
-  nextDueAt: number;
-  plantId: string;
-  plantImageUrl: string | null;
-  plantName: string;
-  taskId: string;
-  taskType: "watering" | "fertilizing" | "misting" | "repotting" | "pruning" | "custom";
-}
-
-interface DueTaskCardProps {
+interface UpcomingDueCardProps {
   onOpenPlant: (plantId: string) => void;
   task: DueTaskCardData;
 }
 
-export function DueTaskCard({ onOpenPlant, task }: DueTaskCardProps) {
+/**
+ * 今日已完成、下次到期日落在即将到期窗口内的任务的灰态展示卡。
+ * 文案：「✅ 已完成 · 下次 X 月 X 日」，左侧浅绿对勾，整卡降饱和度。
+ */
+export function UpcomingDueCard({ onOpenPlant, task }: UpcomingDueCardProps) {
   const taskLabel = formatTaskTypeLabel(task.taskType, task.customLabel);
-  const dueCopy = formatDueDate(task.nextDueAt);
-  const isOverdue = task.nextDueAt < Date.now();
-  const [completed, setCompleted] = useState(false);
+  const nextDueCopy = `✅ 已完成 · 下次 ${nextDueFormatter.format(new Date(task.nextDueAt))}`;
 
   return (
-    <article
-      style={{
-        ...cardStyle,
-        ...(completed ? completedCardStyle : undefined),
-      }}
-    >
-      <span
-        aria-hidden="true"
-        style={{ ...typeStripStyle, background: taskTypeColorVar(task.taskType) }}
-      />
+    <article style={cardStyle}>
+      <span aria-hidden="true" style={checkStripStyle} />
       <span style={thumbWrapStyle}>
         <button
           aria-label={`查看 ${task.plantName}`}
@@ -60,14 +44,8 @@ export function DueTaskCard({ onOpenPlant, task }: DueTaskCardProps) {
       <div style={contentStyle}>
         <p style={plantNameStyle}>{task.plantName}</p>
         <p style={taskLabelStyle}>{taskLabel}</p>
-        {isOverdue ? (
-          <span style={overduePillStyle}>{dueCopy}</span>
-        ) : (
-          <p style={dueCopyStyle}>{dueCopy}</p>
-        )}
+        <p style={nextDueStyle}>{nextDueCopy}</p>
       </div>
-
-      <CompleteTaskButton appearance="circle" onCompleted={() => setCompleted(true)} taskId={task.taskId} />
     </article>
   );
 }
@@ -83,17 +61,17 @@ const cardStyle: React.CSSProperties = {
   background: "var(--color-surface)",
   border: "1px solid var(--color-line)",
   boxShadow: "var(--shadow-card)",
-  transition: "opacity 300ms ease-out",
-  opacity: 1,
+  opacity: 0.7,
   overflow: "hidden",
 };
 
-const typeStripStyle: React.CSSProperties = {
+const checkStripStyle: React.CSSProperties = {
   position: "absolute",
   left: 0,
   top: 0,
   bottom: 0,
   width: "4px",
+  background: "var(--color-success)",
   borderTopLeftRadius: "var(--radius-card)",
   borderBottomLeftRadius: "var(--radius-card)",
 };
@@ -102,11 +80,6 @@ const thumbWrapStyle: React.CSSProperties = {
   position: "relative",
   flexShrink: 0,
   display: "inline-flex",
-};
-
-const completedCardStyle: React.CSSProperties = {
-  opacity: 0,
-  pointerEvents: "none",
 };
 
 const thumbButtonStyle: React.CSSProperties = {
@@ -146,7 +119,7 @@ const contentStyle: React.CSSProperties = {
 
 const plantNameStyle: React.CSSProperties = {
   margin: 0,
-  color: "var(--color-ink)",
+  color: "var(--color-muted)",
   fontSize: "1rem",
   fontWeight: 700,
   lineHeight: 1.3,
@@ -159,21 +132,10 @@ const taskLabelStyle: React.CSSProperties = {
   lineHeight: 1.4,
 };
 
-const dueCopyStyle: React.CSSProperties = {
+const nextDueStyle: React.CSSProperties = {
   margin: "2px 0 0",
-  color: "var(--color-leaf-light)",
+  color: "var(--color-success)",
   fontSize: "0.82rem",
+  fontWeight: 600,
   lineHeight: 1.4,
-};
-
-const overduePillStyle: React.CSSProperties = {
-  marginTop: "4px",
-  width: "fit-content",
-  padding: "4px 8px",
-  borderRadius: "var(--radius-pill)",
-  background: "rgba(221,107,32,0.08)",
-  color: "var(--color-warning)",
-  fontSize: "0.76rem",
-  fontWeight: 700,
-  lineHeight: 1,
 };

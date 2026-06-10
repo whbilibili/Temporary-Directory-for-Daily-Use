@@ -1,4 +1,5 @@
 import { DueTaskCard, type DueTaskCardData } from "./DueTaskCard";
+import { UpcomingDueCard } from "./UpcomingDueCard";
 
 interface DueTaskGroupProps {
   onOpenPlant: (plantId: string) => void;
@@ -18,9 +19,13 @@ export function DueTaskGroup({ onOpenPlant, tasks, title }: DueTaskGroupProps) {
         <span style={countStyle}>{tasks.length}</span>
       </h2>
       <div style={listStyle}>
-        {tasks.map((task) => (
-          <DueTaskCard key={task.taskId} onOpenPlant={onOpenPlant} task={task} />
-        ))}
+        {tasks.map((task) =>
+          task.completedToday ? (
+            <UpcomingDueCard key={task.taskId} onOpenPlant={onOpenPlant} task={task} />
+          ) : (
+            <DueTaskCard key={task.taskId} onOpenPlant={onOpenPlant} task={task} />
+          ),
+        )}
       </div>
     </section>
   );

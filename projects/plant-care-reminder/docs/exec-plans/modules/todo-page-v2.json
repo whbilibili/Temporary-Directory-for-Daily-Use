@@ -112,7 +112,7 @@
       "task_id": "TODO2-002",
       "description": "落地 PRD §1.3 方案 A：listDueTasks 分桶强化——主区仅「逾期 + 今日未完成」，今日完成即移出主区；下次落在 1–3 天的任务在「即将到期」区以灰态返回，带「已完成·下次 X 月 X 日」标记。前端即将到期区按灰态渲染。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {

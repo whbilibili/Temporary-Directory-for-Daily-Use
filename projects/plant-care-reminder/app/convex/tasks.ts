@@ -3,7 +3,11 @@ import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { getCurrentUserContext as loadCurrentUserContext } from "./lib/auth";
 import { plantTaskTypeValidator } from "./lib/validators";
-import { computeNextDueAt, validateIntervalDays } from "../src/features/tasks/scheduling";
+import {
+  bucketDueTasks,
+  computeNextDueAt,
+  validateIntervalDays,
+} from "../src/features/tasks/scheduling";
 import {
   normalizeCustomTaskName,
   validateCustomTaskName,
@@ -211,22 +215,11 @@ export const deletePlantTask = mutation({
   },
 });
 
-const UPCOMING_WINDOW_DAYS = 3;
-const MS_PER_DAY = 24 * 60 * 60 * 1000;
-
-function getUtcDayStart(timestamp: number) {
-  const date = new Date(timestamp);
-  return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
-}
-
 export const listDueTasks = query({
   args: {},
   handler: async (ctx) => {
     const currentUserContext = await requireCurrentFamilyMember(ctx);
     const now = Date.now();
-    const startOfToday = getUtcDayStart(now);
-    const startOfTomorrow = startOfToday + MS_PER_DAY;
-    const startOfUpcomingLimit = startOfTomorrow + UPCOMING_WINDOW_DAYS * MS_PER_DAY;
 
     const tasks = await ctx.db
       .query("plantTasks")
@@ -286,15 +279,7 @@ export const listDueTasks = query({
       })
       .filter((task): task is NonNullable<typeof task> => task !== null);
 
-    return {
-      overdue: dueTasks.filter((task) => task.nextDueAt < startOfToday),
-      today: dueTasks.filter(
-        (task) => task.nextDueAt >= startOfToday && task.nextDueAt < startOfTomorrow,
-      ),
-      upcoming: dueTasks.filter(
-        (task) => task.nextDueAt >= startOfTomorrow && task.nextDueAt < startOfUpcomingLimit,
-      ),
-    };
+    return bucketDueTasks(dueTasks, now);
   },
 });
 
