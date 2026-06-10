@@ -1,4 +1,5 @@
-import { useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
+import { useState } from "react";
 
 import { api } from "../../../convex/_generated/api";
 import { navigate } from "../../app/router";
@@ -7,6 +8,7 @@ import { EmptyState } from "../../components/ui/EmptyState";
 import { DueTaskGroup } from "./DueTaskGroup";
 import type { DueTaskCardData } from "./DueTaskCard";
 import { TodoGreetingCard } from "./TodoGreetingCard";
+import { UndoToast, type CompletionUndoPayload } from "./UndoToast";
 
 interface TodoQueryResult {
   overdue: DueTaskCardData[];
@@ -21,6 +23,22 @@ function countDistinctPlants(tasks: DueTaskCardData[]) {
 
 export function TodoPage() {
   const result = useQuery(api.tasks.listDueTasks, {}) as TodoQueryResult | undefined;
+  const undoComplete = useMutation(api.tasks.undoCompletePlantTask);
+  // 会话内 undo 缓存：仅保留最近一次完成的撤销载荷（PRD §9.1）。
+  const [undoPayload, setUndoPayload] = useState<CompletionUndoPayload | null>(null);
+
+  async function handleUndo(payload: CompletionUndoPayload) {
+    setUndoPayload(null);
+    try {
+      await undoComplete({
+        taskId: payload.taskId,
+        logId: payload.logId,
+        previous: payload.previous,
+      });
+    } catch {
+      // 撤销失败时静默：完成结果已生效，列表会自动刷新。
+    }
+  }
 
   if (result === undefined) {
     return (
@@ -56,22 +74,33 @@ export function TodoPage() {
       ) : (
         <>
           <DueTaskGroup
+            onCompleted={setUndoPayload}
             onOpenPlant={(plantId) => navigate(`/plants/${plantId}`)}
             tasks={result.overdue}
             title="已逾期"
           />
           <DueTaskGroup
+            onCompleted={setUndoPayload}
             onOpenPlant={(plantId) => navigate(`/plants/${plantId}`)}
             tasks={result.today}
             title="今天到期"
           />
           <DueTaskGroup
+            onCompleted={setUndoPayload}
             onOpenPlant={(plantId) => navigate(`/plants/${plantId}`)}
             tasks={result.upcoming}
             title="即将到期"
           />
         </>
       )}
+
+      {undoPayload ? (
+        <UndoToast
+          onDismiss={() => setUndoPayload(null)}
+          onUndo={handleUndo}
+          payload={undoPayload}
+        />
+      ) : null}
     </section>
   );
 }

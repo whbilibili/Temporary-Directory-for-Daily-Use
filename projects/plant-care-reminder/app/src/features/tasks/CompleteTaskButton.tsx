@@ -4,6 +4,7 @@ import { useState } from "react";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { Button } from "../../components/ui/Button";
+import { buildUndoPayload, type CompletionUndoPayload } from "./undoComplete";
 
 interface CompleteTaskButtonProps {
   appearance?: "default" | "circle";
@@ -11,6 +12,7 @@ interface CompleteTaskButtonProps {
     lastCompletedAt: number;
     nextDueAt: number;
     taskId: string;
+    undo: CompletionUndoPayload;
   }) => void;
   taskId: string;
 }
@@ -29,7 +31,12 @@ export function CompleteTaskButton({
     try {
       const result = await completeTask({ taskId: taskId as Id<"plantTasks"> });
       setStatus("done");
-      onCompleted?.(result);
+      onCompleted?.({
+        lastCompletedAt: result.lastCompletedAt,
+        nextDueAt: result.nextDueAt,
+        taskId: result.taskId,
+        undo: buildUndoPayload(result),
+      });
     } catch {
       setStatus("error");
     }

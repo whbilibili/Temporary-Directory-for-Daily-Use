@@ -5,6 +5,7 @@ import { CompleteTaskButton } from "./CompleteTaskButton";
 import { PostponeButton } from "./PostponeButton";
 import { PostponeHintBanner, shouldShowPostponeHint } from "./PostponeHintBanner";
 import { TaskTypeBadge, taskTypeColorVar } from "./TaskTypeBadge";
+import type { CompletionUndoPayload } from "./UndoToast";
 
 export interface DueTaskCardData {
   completedToday: boolean;
@@ -21,11 +22,12 @@ export interface DueTaskCardData {
 }
 
 interface DueTaskCardProps {
+  onCompleted?: (undo: CompletionUndoPayload) => void;
   onOpenPlant: (plantId: string) => void;
   task: DueTaskCardData;
 }
 
-export function DueTaskCard({ onOpenPlant, task }: DueTaskCardProps) {
+export function DueTaskCard({ onCompleted, onOpenPlant, task }: DueTaskCardProps) {
   const taskLabel = formatTaskTypeLabel(task.taskType, task.customLabel);
   const dueCopy = formatDueDate(task.nextDueAt);
   const isOverdue = task.nextDueAt < Date.now();
@@ -72,7 +74,14 @@ export function DueTaskCard({ onOpenPlant, task }: DueTaskCardProps) {
       </div>
 
       <div style={actionsStyle}>
-        <CompleteTaskButton appearance="circle" onCompleted={() => setCompleted(true)} taskId={task.taskId} />
+        <CompleteTaskButton
+          appearance="circle"
+          onCompleted={(result) => {
+            setCompleted(true);
+            onCompleted?.(result.undo);
+          }}
+          taskId={task.taskId}
+        />
         <PostponeButton currentNextDueAt={task.nextDueAt} taskId={task.taskId} />
       </div>
 

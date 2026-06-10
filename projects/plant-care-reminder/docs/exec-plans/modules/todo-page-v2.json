@@ -587,7 +587,7 @@
       "task_id": "TODO2-006",
       "description": "完成撤销（PRD §9.1 / §4.3）：完成时把动作前的 lastCompletedAt / nextDueAt 临时缓存（会话内）；撤销 = 还原这两个字段 + 删除刚写入的 taskCompletionLog；前端 3–5 秒撤销浮条。不做长期可撤销。",
       "priority": "2-Medium",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {

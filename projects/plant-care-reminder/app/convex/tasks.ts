@@ -312,7 +312,14 @@ export const completePlantTask = mutation({
       baseCompletedAt: completedAt,
     });
 
-    await ctx.db.insert("taskCompletionLogs", {
+    // 完成前的快照，供前端缓存以支持「会话内 3–5 秒撤销」（PRD §9.1）。
+    const previous = {
+      lastCompletedAt: task.lastCompletedAt ?? null,
+      nextDueAt: task.nextDueAt,
+      consecutivePostponeCount: task.consecutivePostponeCount ?? 0,
+    };
+
+    const logId = await ctx.db.insert("taskCompletionLogs", {
       taskId: task._id,
       plantId: task.plantId,
       familyId: task.familyId,
@@ -332,8 +339,48 @@ export const completePlantTask = mutation({
 
     return {
       taskId: task._id,
+      logId,
+      previous,
       lastCompletedAt: completedAt,
       nextDueAt,
+    };
+  },
+});
+
+export const undoCompletePlantTask = mutation({
+  args: {
+    taskId: v.id("plantTasks"),
+    logId: v.id("taskCompletionLogs"),
+    previous: v.object({
+      lastCompletedAt: v.union(v.number(), v.null()),
+      nextDueAt: v.number(),
+      consecutivePostponeCount: v.number(),
+    }),
+  },
+  handler: async (ctx, args) => {
+    const currentUserContext = await requireCurrentFamilyMember(ctx);
+    const task = await ctx.db.get(args.taskId);
+
+    if (!task || task.familyId !== currentUserContext.familyId) {
+      throw new Error("This care task does not belong to your current household.");
+    }
+
+    // 精确删除「刚写入的那条」log（按 logId 定位），且必须归属本任务/本家庭，避免误删历史。
+    const log = await ctx.db.get(args.logId);
+    if (log && log.taskId === task._id && log.familyId === currentUserContext.familyId) {
+      await ctx.db.delete(log._id);
+    }
+
+    // 还原完成前的三字段快照（lastCompletedAt 为 null 时清空字段）。
+    await ctx.db.patch(task._id, {
+      lastCompletedAt: args.previous.lastCompletedAt ?? undefined,
+      nextDueAt: args.previous.nextDueAt,
+      consecutivePostponeCount: args.previous.consecutivePostponeCount,
+      updatedAt: Date.now(),
+    });
+
+    return {
+      ok: true as const,
     };
   },
 });

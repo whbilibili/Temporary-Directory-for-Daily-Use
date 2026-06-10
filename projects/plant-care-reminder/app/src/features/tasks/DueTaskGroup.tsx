@@ -1,13 +1,15 @@
 import { DueTaskCard, type DueTaskCardData } from "./DueTaskCard";
 import { UpcomingDueCard } from "./UpcomingDueCard";
+import type { CompletionUndoPayload } from "./UndoToast";
 
 interface DueTaskGroupProps {
+  onCompleted?: (undo: CompletionUndoPayload) => void;
   onOpenPlant: (plantId: string) => void;
   tasks: DueTaskCardData[];
   title: string;
 }
 
-export function DueTaskGroup({ onOpenPlant, tasks, title }: DueTaskGroupProps) {
+export function DueTaskGroup({ onCompleted, onOpenPlant, tasks, title }: DueTaskGroupProps) {
   if (tasks.length === 0) {
     return null;
   }
@@ -23,7 +25,12 @@ export function DueTaskGroup({ onOpenPlant, tasks, title }: DueTaskGroupProps) {
           task.completedToday ? (
             <UpcomingDueCard key={task.taskId} onOpenPlant={onOpenPlant} task={task} />
           ) : (
-            <DueTaskCard key={task.taskId} onOpenPlant={onOpenPlant} task={task} />
+            <DueTaskCard
+              key={task.taskId}
+              onCompleted={onCompleted}
+              onOpenPlant={onOpenPlant}
+              task={task}
+            />
           ),
         )}
       </div>
