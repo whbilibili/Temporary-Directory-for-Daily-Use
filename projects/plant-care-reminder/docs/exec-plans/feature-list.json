@@ -337,7 +337,7 @@
       "task_id": "VIS-012",
       "module": "frontend-refresh",
       "description": "通知权限卡片与权限状态可视化。",
-      "status": "pending",
+      "status": "in_progress",
       "priority": "3-Low"
     },
     {

@@ -86,6 +86,7 @@
 12. 按推荐顺序逐步推进，每完成一个 VIS 任务即更新本文件的 status，并 git 提交（git add 仅限 projects/plant-care-reminder/，commit message 单行）。
 
 ### [Tech Debt / 待后续处理]
+- 【2026-06-10 VIS-012 启动时发现，用户确认按原计划继续】init.sh 的 [7/8] build（tsc -b && vite build）失败，22 处类型错误，但属 pre-existing（VIS-011 提交点即存在，工作区对 app/ 零改动可证）。根因：所有 VIS 任务 verification 用的是 `npm run typecheck`（tsc --noEmit）+ `npm run test`，二者全绿；而 init.sh 额外跑的 `tsc -b`（走 project references）对 Convex Id<...> 品牌类型检查更严，暴露三类问题：(1) 业务代码 string 未转 Id 品牌类型（ArchivePlantAction/CreatePlantPage/EditPlantPage/PlantDetailPage/CompleteTaskButton/CreateTaskPage/DeleteTaskAction/EditTaskPage 约 9 处）；(2) 测试文件类型错误（PlantImageField.test.tsx 用 Node 的 global、setup.ts 的 vitest Mock 类型不兼容）；(3) AppShell.tsx(8,1) 全部 import 未使用。这与 VIS-012 范围无关，记为独立工作项，建议单独开 task 修复或并入 VIS-013，并对齐 init.sh build 步骤与 VIS verification 标准。
 - AppShell mainStyle 改为 flex-start 顶对齐后，登录/onboarding 页面不再垂直居中（这些页面 VIS-003/004 已自建紧凑容器，视觉可接受），VIS-013 走查时确认。
 - RouteGate.tsx 的 loadingWrapStyle/loadingCardStyle/titleStyle/copyStyle 仍有旧蓝橙硬编码（radial blue / #d9e2ec / #1e293b / #475569），不在 VIS-005 范围，建议 VIS-013 收尾或单独清理。
 - smoke 测试 stderr 仍有 React shorthand 警告（mixing border / borderColor），来源为 ArchivePlantAction / CreateTaskPage 流程（非 VIS-008 改动；VIS-008 已把自身 addTaskButtonStyle 改为 border 简写）。不影响测试通过，建议 VIS-013 走查时统一清理混用 border 简写/borderColor 的组件。

@@ -668,7 +668,7 @@
       "task_id": "VIS-012",
       "description": "通知权限卡片与权限状态可视化：优化 NotificationPromptCard 的视觉层级和状态反馈（已启用/未启用/不支持），与设置页整体风格对齐。",
       "priority": "3-Low",
-      "status": "pending",
+      "status": "in_progress",
       "depends_on": ["VIS-009"],
       "plan_path": null,
       "contracts": {
