@@ -344,7 +344,7 @@
       "task_id": "VIS-013",
       "module": "frontend-refresh",
       "description": "视觉回归验证与整体走查。",
-      "status": "pending",
+      "status": "in_progress",
       "priority": "2-Medium"
     }
   ],
