@@ -29,8 +29,8 @@ export function EmptyState({
 
 const panelStyle: CSSProperties = {
   borderRadius: "20px",
-  border: "1px dashed #bfdbfe",
-  background: "linear-gradient(180deg, rgba(219,234,254,0.52), rgba(255,255,255,0.92))",
+  border: "1px dashed var(--color-line)",
+  background: "var(--color-mist)",
   padding: "18px",
   display: "flex",
   alignItems: "center",
@@ -49,8 +49,8 @@ const badgeStyle: CSSProperties = {
   minHeight: "28px",
   padding: "0 12px",
   borderRadius: "999px",
-  background: "#dbeafe",
-  color: "#1d4ed8",
+  background: "var(--color-mist)",
+  color: "var(--color-leaf)",
   fontSize: "0.78rem",
   fontWeight: 700,
   letterSpacing: "0.08em",
@@ -59,13 +59,13 @@ const badgeStyle: CSSProperties = {
 
 const titleStyle: CSSProperties = {
   margin: 0,
-  color: "#1e293b",
+  color: "var(--color-ink)",
   fontSize: "1.2rem",
   lineHeight: 1.2,
 };
 
 const descriptionStyle: CSSProperties = {
-  color: "#64748b",
+  color: "var(--color-muted)",
   fontSize: "0.92rem",
   lineHeight: 1.6,
 };

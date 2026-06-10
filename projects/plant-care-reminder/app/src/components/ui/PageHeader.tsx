@@ -38,11 +38,11 @@ const titleStyle: CSSProperties = {
   lineHeight: 1.02,
   fontWeight: 700,
   letterSpacing: "-0.05em",
-  color: "#1e293b",
+  color: "var(--color-ink)",
 };
 
 const descriptionStyle: CSSProperties = {
-  color: "#475569",
+  color: "var(--color-muted)",
   fontSize: "1rem",
   lineHeight: 1.7,
 };

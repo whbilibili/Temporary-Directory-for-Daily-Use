@@ -187,12 +187,12 @@ const headerStyle: React.CSSProperties = {
 const labelStyle: React.CSSProperties = {
   fontSize: "0.95rem",
   fontWeight: 700,
-  color: "#1e293b",
+  color: "var(--color-ink)",
 };
 
 const hintStyle: React.CSSProperties = {
   margin: 0,
-  color: "#64748b",
+  color: "var(--color-muted)",
   fontSize: "0.9rem",
   lineHeight: 1.5,
 };
@@ -201,9 +201,9 @@ const previewCardStyle: React.CSSProperties = {
   minHeight: "216px",
   borderRadius: "22px",
   overflow: "hidden",
-  border: "1px solid #d9e2ec",
+  border: "1px solid var(--color-line)",
   background:
-    "linear-gradient(140deg, rgba(37,99,235,0.1) 0%, rgba(248,250,252,1) 62%, rgba(249,115,22,0.08) 100%)",
+    "linear-gradient(140deg, rgba(70,112,97,0.12) 0%, var(--color-mist) 62%, rgba(241,197,103,0.12) 100%)",
 };
 
 const previewImageStyle: React.CSSProperties = {
@@ -233,7 +233,7 @@ const previewPlaceholderEyebrowStyle: React.CSSProperties = {
 
 const previewPlaceholderCopyStyle: React.CSSProperties = {
   margin: 0,
-  color: "#334155",
+  color: "var(--color-ink)",
   fontSize: "1rem",
   lineHeight: 1.6,
 };
@@ -249,14 +249,14 @@ const metaPillStyle: React.CSSProperties = {
   width: "fit-content",
   padding: "6px 12px",
   borderRadius: "999px",
-  background: "rgba(37,99,235,0.1)",
-  color: "#1d4ed8",
+  background: "var(--color-mist)",
+  color: "var(--color-leaf)",
   fontSize: "0.82rem",
   fontWeight: 700,
 };
 
 const storageIdStyle: React.CSSProperties = {
-  color: "#64748b",
+  color: "var(--color-muted)",
   fontSize: "0.84rem",
   lineHeight: 1.5,
   wordBreak: "break-all",

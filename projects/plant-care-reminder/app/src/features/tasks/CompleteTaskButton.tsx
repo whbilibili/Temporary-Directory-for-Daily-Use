@@ -95,13 +95,13 @@ const circleButtonStyle: React.CSSProperties = {
 const circleButtonDoneStyle: React.CSSProperties = {
   ...circleButtonStyle,
   background: "var(--color-success)",
-  color: "#fff",
+  color: "var(--color-surface)",
   borderColor: "var(--color-success)",
 };
 
 const doneButtonStyle: React.CSSProperties = {
   background: "var(--color-success)",
-  color: "#fff",
+  color: "var(--color-surface)",
   borderColor: "var(--color-success)",
 };
 

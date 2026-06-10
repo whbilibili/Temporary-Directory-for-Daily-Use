@@ -103,9 +103,9 @@ const pageStyle: React.CSSProperties = {
 const statusCardStyle: React.CSSProperties = {
   borderRadius: "24px",
   padding: "28px 22px",
-  background: "rgba(255,255,255,0.94)",
-  border: "1px solid rgba(148,163,184,0.24)",
-  boxShadow: "0 24px 60px rgba(15,23,42,0.08)",
+  background: "var(--color-surface)",
+  border: "1px solid var(--color-line)",
+  boxShadow: "var(--shadow-card)",
   display: "grid",
   gap: "12px",
 };
@@ -124,13 +124,13 @@ const titleStyle: React.CSSProperties = {
   fontSize: "clamp(2rem, 5vw, 3rem)",
   lineHeight: 1.02,
   fontWeight: 700,
-  color: "#1e293b",
+  color: "var(--color-ink)",
   letterSpacing: "-0.05em",
 };
 
 const bodyStyle: React.CSSProperties = {
   margin: 0,
-  color: "#475569",
+  color: "var(--color-muted)",
   fontSize: "1rem",
   lineHeight: 1.7,
 };

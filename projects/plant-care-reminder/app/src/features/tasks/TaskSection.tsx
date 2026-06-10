@@ -67,16 +67,16 @@ export function TaskSection({ onAdd, onCompleted, onEdit, plantName, tasks }: Ta
 const sectionCardStyle: React.CSSProperties = {
   borderRadius: "24px",
   padding: "22px 18px",
-  background: "rgba(255,255,255,0.94)",
-  border: "1px solid #d9e2ec",
-  boxShadow: "0 20px 48px rgba(15,23,42,0.08)",
+  background: "var(--color-surface)",
+  border: "1px solid var(--color-line)",
+  boxShadow: "var(--shadow-card)",
   display: "grid",
   gap: "18px",
 };
 
 const bodyStyle: React.CSSProperties = {
   margin: 0,
-  color: "#475569",
+  color: "var(--color-muted)",
   fontSize: "1rem",
   lineHeight: 1.7,
 };

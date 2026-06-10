@@ -113,16 +113,16 @@ function TextAreaField({
 const cardStyle: React.CSSProperties = {
   borderRadius: "24px",
   padding: "28px 22px",
-  background: "rgba(255,255,255,0.94)",
-  border: "1px solid rgba(148,163,184,0.24)",
-  boxShadow: "0 24px 60px rgba(15,23,42,0.08)",
+  background: "var(--color-surface)",
+  border: "1px solid var(--color-line)",
+  boxShadow: "var(--shadow-card)",
   display: "grid",
   gap: "22px",
 };
 
 const bodyStyle: React.CSSProperties = {
   margin: 0,
-  color: "#475569",
+  color: "var(--color-muted)",
   fontSize: "1rem",
   lineHeight: 1.7,
 };
@@ -138,7 +138,7 @@ const fieldWrapStyle: React.CSSProperties = {
 };
 
 const fieldLabelStyle: React.CSSProperties = {
-  color: "#1e293b",
+  color: "var(--color-ink)",
   fontSize: "0.95rem",
   fontWeight: 700,
 };
@@ -146,9 +146,9 @@ const fieldLabelStyle: React.CSSProperties = {
 const textAreaStyle: React.CSSProperties = {
   minHeight: "112px",
   borderRadius: "16px",
-  border: "1px solid #d9e2ec",
-  background: "#ffffff",
-  color: "#1e293b",
+  border: "1px solid var(--color-line)",
+  background: "var(--color-surface)",
+  color: "var(--color-ink)",
   padding: "14px",
   fontSize: "0.98rem",
   resize: "vertical",
@@ -156,12 +156,12 @@ const textAreaStyle: React.CSSProperties = {
 };
 
 const textAreaErrorStyle: React.CSSProperties = {
-  borderColor: "#fca5a5",
+  borderColor: "var(--color-error)",
   boxShadow: "0 0 0 3px rgba(197,48,48,0.12)",
 };
 
 const hintStyle: React.CSSProperties = {
-  color: "#64748b",
+  color: "var(--color-muted)",
   fontSize: "0.86rem",
   lineHeight: 1.5,
 };

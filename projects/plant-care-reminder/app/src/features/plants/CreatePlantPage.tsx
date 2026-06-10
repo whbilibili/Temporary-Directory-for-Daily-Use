@@ -51,7 +51,7 @@ const pageStyle: React.CSSProperties = {
 
 const bodyStyle: React.CSSProperties = {
   margin: 0,
-  color: "#475569",
+  color: "var(--color-muted)",
   fontSize: "1rem",
   lineHeight: 1.7,
 };

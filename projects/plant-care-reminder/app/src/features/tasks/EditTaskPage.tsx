@@ -212,9 +212,9 @@ const pageStyle: React.CSSProperties = {
 const loadingCardStyle: React.CSSProperties = {
   borderRadius: "24px",
   padding: "28px 22px",
-  background: "rgba(255,255,255,0.94)",
-  border: "1px solid rgba(148,163,184,0.24)",
-  boxShadow: "0 24px 60px rgba(15,23,42,0.08)",
+  background: "var(--color-surface)",
+  border: "1px solid var(--color-line)",
+  boxShadow: "var(--shadow-card)",
   display: "grid",
   gap: "12px",
 };
@@ -233,13 +233,13 @@ const loadingTitleStyle: React.CSSProperties = {
   fontSize: "clamp(2rem, 5vw, 3rem)",
   lineHeight: 1.02,
   fontWeight: 700,
-  color: "#1e293b",
+  color: "var(--color-ink)",
   letterSpacing: "-0.05em",
 };
 
 const bodyStyle: React.CSSProperties = {
   margin: 0,
-  color: "#475569",
+  color: "var(--color-muted)",
   fontSize: "1rem",
   lineHeight: 1.7,
 };
@@ -247,8 +247,8 @@ const bodyStyle: React.CSSProperties = {
 const statusSectionStyle: React.CSSProperties = {
   borderRadius: "18px",
   padding: "16px",
-  background: "linear-gradient(180deg, rgba(248,250,252,0.96), rgba(219,234,254,0.55))",
-  border: "1px solid rgba(147,197,253,0.45)",
+  background: "var(--color-mist)",
+  border: "1px solid var(--color-line)",
   display: "grid",
   gap: "12px",
 };
@@ -269,14 +269,14 @@ const statusEyebrowStyle: React.CSSProperties = {
 
 const statusTitleStyle: React.CSSProperties = {
   margin: 0,
-  color: "#0f172a",
+  color: "var(--color-ink)",
   fontSize: "1.08rem",
   lineHeight: 1.2,
 };
 
 const statusBodyStyle: React.CSSProperties = {
   margin: 0,
-  color: "#475569",
+  color: "var(--color-muted)",
   fontSize: "0.92rem",
   lineHeight: 1.6,
 };

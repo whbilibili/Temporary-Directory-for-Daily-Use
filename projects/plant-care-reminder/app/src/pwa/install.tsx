@@ -111,9 +111,9 @@ const bannerStyle: CSSProperties = {
   gap: "14px",
   borderRadius: "20px",
   padding: "16px",
-  background: "rgba(255,255,255,0.96)",
-  border: "1px solid #d9e2ec",
-  boxShadow: "0 20px 40px rgba(37,99,235,0.12)",
+  background: "var(--color-surface)",
+  border: "1px solid var(--color-line)",
+  boxShadow: "var(--shadow-card)",
   backdropFilter: "blur(12px)",
 };
 
@@ -133,7 +133,7 @@ const eyebrowStyle: CSSProperties = {
 
 const titleStyle: CSSProperties = {
   margin: 0,
-  color: "#1e293b",
+  color: "var(--color-ink)",
   fontSize: "1rem",
   fontWeight: 700,
   lineHeight: 1.4,
@@ -141,7 +141,7 @@ const titleStyle: CSSProperties = {
 
 const copyStyle: CSSProperties = {
   margin: 0,
-  color: "#64748b",
+  color: "var(--color-muted)",
   fontSize: "0.88rem",
   lineHeight: 1.55,
 };

@@ -179,16 +179,16 @@ function SelectField({ children, hint, id, label, style, ...props }: SelectField
 const cardStyle: React.CSSProperties = {
   borderRadius: "24px",
   padding: "28px 22px",
-  background: "rgba(255,255,255,0.94)",
-  border: "1px solid rgba(148,163,184,0.24)",
-  boxShadow: "0 24px 60px rgba(15,23,42,0.08)",
+  background: "var(--color-surface)",
+  border: "1px solid var(--color-line)",
+  boxShadow: "var(--shadow-card)",
   display: "grid",
   gap: "22px",
 };
 
 const bodyStyle: React.CSSProperties = {
   margin: 0,
-  color: "#475569",
+  color: "var(--color-muted)",
   fontSize: "1rem",
   lineHeight: 1.7,
 };
@@ -204,7 +204,7 @@ const fieldWrapStyle: React.CSSProperties = {
 };
 
 const fieldLabelStyle: React.CSSProperties = {
-  color: "#1e293b",
+  color: "var(--color-ink)",
   fontSize: "0.95rem",
   fontWeight: 700,
 };
@@ -212,15 +212,15 @@ const fieldLabelStyle: React.CSSProperties = {
 const selectStyle: React.CSSProperties = {
   minHeight: "50px",
   borderRadius: "16px",
-  border: "1px solid #d9e2ec",
-  background: "#ffffff",
-  color: "#1e293b",
+  border: "1px solid var(--color-line)",
+  background: "var(--color-surface)",
+  color: "var(--color-ink)",
   padding: "0 14px",
   fontSize: "0.98rem",
 };
 
 const hintStyle: React.CSSProperties = {
-  color: "#64748b",
+  color: "var(--color-muted)",
   fontSize: "0.86rem",
   lineHeight: 1.5,
 };
@@ -228,8 +228,8 @@ const hintStyle: React.CSSProperties = {
 const previewPanelStyle: React.CSSProperties = {
   borderRadius: "18px",
   padding: "16px",
-  background: "linear-gradient(180deg, rgba(219,234,254,0.5), rgba(255,255,255,0.96))",
-  border: "1px solid rgba(147,197,253,0.45)",
+  background: "var(--color-mist)",
+  border: "1px solid var(--color-line)",
   display: "grid",
   gap: "6px",
 };
@@ -245,14 +245,14 @@ const previewEyebrowStyle: React.CSSProperties = {
 
 const previewTitleStyle: React.CSSProperties = {
   margin: 0,
-  color: "#0f172a",
+  color: "var(--color-ink)",
   fontSize: "1.05rem",
   fontWeight: 700,
 };
 
 const previewCopyStyle: React.CSSProperties = {
   margin: 0,
-  color: "#475569",
+  color: "var(--color-muted)",
   fontSize: "0.92rem",
   lineHeight: 1.5,
 };

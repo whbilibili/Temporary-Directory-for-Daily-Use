@@ -122,9 +122,9 @@ export function ArchivePlantAction({
 const sectionStyle: React.CSSProperties = {
   borderRadius: "24px",
   padding: "20px 18px",
-  background: "rgba(255,255,255,0.94)",
-  border: "1px solid #d9e2ec",
-  boxShadow: "0 20px 48px rgba(15,23,42,0.08)",
+  background: "var(--color-surface)",
+  border: "1px solid var(--color-line)",
+  boxShadow: "var(--shadow-card)",
   display: "grid",
   gap: "16px",
 };
@@ -150,14 +150,14 @@ const eyebrowStyle: React.CSSProperties = {
 
 const titleStyle: React.CSSProperties = {
   margin: 0,
-  color: "#0f172a",
+  color: "var(--color-ink)",
   fontSize: "1.25rem",
   lineHeight: 1.1,
 };
 
 const bodyStyle: React.CSSProperties = {
   margin: 0,
-  color: "#475569",
+  color: "var(--color-muted)",
   fontSize: "0.95rem",
   lineHeight: 1.6,
 };
@@ -165,8 +165,8 @@ const bodyStyle: React.CSSProperties = {
 const dialogStyle: React.CSSProperties = {
   borderRadius: "18px",
   padding: "16px",
-  background: "linear-gradient(180deg, rgba(254,242,242,0.92), rgba(255,255,255,0.98))",
-  border: "1px solid rgba(248,113,113,0.28)",
+  background: "var(--color-mist)",
+  border: "1px solid var(--color-error)",
   display: "grid",
   gap: "14px",
 };
@@ -178,7 +178,7 @@ const dialogCopyStyle: React.CSSProperties = {
 
 const dialogEyebrowStyle: React.CSSProperties = {
   margin: 0,
-  color: "#b91c1c",
+  color: "var(--color-error)",
   textTransform: "uppercase",
   letterSpacing: "0.14em",
   fontSize: "0.72rem",
@@ -187,14 +187,14 @@ const dialogEyebrowStyle: React.CSSProperties = {
 
 const dialogTitleStyle: React.CSSProperties = {
   margin: 0,
-  color: "#7f1d1d",
+  color: "var(--color-error)",
   fontSize: "1.08rem",
   lineHeight: 1.2,
 };
 
 const dialogBodyStyle: React.CSSProperties = {
   margin: 0,
-  color: "#7f1d1d",
+  color: "var(--color-error)",
   fontSize: "0.92rem",
   lineHeight: 1.6,
 };
@@ -206,7 +206,7 @@ const dialogActionsStyle: React.CSSProperties = {
 };
 
 const archiveButtonStyle: React.CSSProperties = {
-  color: "#b91c1c",
-  borderColor: "#fca5a5",
-  background: "rgba(254,242,242,0.92)",
+  color: "var(--color-error)",
+  border: "1px solid var(--color-error)",
+  background: "var(--color-mist)",
 };

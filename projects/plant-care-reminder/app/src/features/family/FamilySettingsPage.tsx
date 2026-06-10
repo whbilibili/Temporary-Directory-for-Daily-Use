@@ -66,7 +66,7 @@ export function FamilySettingsPage() {
     copyStatus === "copied" ? "已复制" : "复制邀请码";
   const copyButtonDynamicStyle: React.CSSProperties =
     copyStatus === "copied"
-      ? { ...copyButtonStyle, background: "var(--color-success)", color: "#fff" }
+      ? { ...copyButtonStyle, background: "var(--color-success)", color: "var(--color-surface)" }
       : copyButtonStyle;
 
   return (

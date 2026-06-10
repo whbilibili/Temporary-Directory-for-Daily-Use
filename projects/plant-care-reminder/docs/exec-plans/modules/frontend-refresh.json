@@ -712,10 +712,10 @@
       ]
     },
     {
-      "task_id": "VIS-013",
-      "description": "视觉回归验证与整体走查：对所有改造页面进行 iPhone 375px 全路径截图对比，确认色系统一、布局一致、无 regression。",
-      "priority": "2-Medium",
-      "status": "in_progress",
+"task_id": "VIS-013",
+"description": "视觉回归验证与整体走查：对所有改造页面进行 iPhone 375px 全路径截图对比，确认色系统一、布局一致、无 regression。",
+"priority": "2-Medium",
+"status": "completed",
       "depends_on": ["VIS-002", "VIS-003", "VIS-004", "VIS-005", "VIS-006", "VIS-007", "VIS-008", "VIS-009", "VIS-010", "VIS-011", "VIS-012"],
       "plan_path": null,
       "contracts": {

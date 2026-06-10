@@ -89,16 +89,16 @@ const loadingWrapStyle: React.CSSProperties = {
   justifyContent: "center",
   padding: "24px",
   background:
-    "radial-gradient(circle at top, rgba(59,130,246,0.18), transparent 36%), #f8fafc",
+    "radial-gradient(circle at top, rgba(36,73,63,0.12), transparent 36%), var(--color-paper)",
 };
 
 const loadingCardStyle: React.CSSProperties = {
   width: "min(100%, 420px)",
   borderRadius: "24px",
   padding: "32px 24px",
-  background: "rgba(255,255,255,0.92)",
-  border: "1px solid #d9e2ec",
-  boxShadow: "0 18px 40px rgba(37,99,235,0.08)",
+  background: "var(--color-surface)",
+  border: "1px solid var(--color-line)",
+  boxShadow: "var(--shadow-card)",
   textAlign: "left",
 };
 
@@ -114,12 +114,12 @@ const titleStyle: React.CSSProperties = {
   margin: "12px 0 10px",
   fontSize: "1.9rem",
   lineHeight: 1.1,
-  color: "#1e293b",
+  color: "var(--color-ink)",
 };
 
 const copyStyle: React.CSSProperties = {
   margin: 0,
-  color: "#475569",
+  color: "var(--color-muted)",
   fontSize: "0.98rem",
   lineHeight: 1.6,
 };

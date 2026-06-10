@@ -52,8 +52,8 @@ const listStyle: React.CSSProperties = {
 
 const memberCardStyle: React.CSSProperties = {
   borderRadius: "18px",
-  border: "1px solid #dbeafe",
-  background: "rgba(248,250,252,0.95)",
+  border: "1px solid var(--color-line)",
+  background: "var(--color-mist)",
   padding: "16px",
 };
 
@@ -71,7 +71,7 @@ const memberIdentityStyle: React.CSSProperties = {
 
 const memberNameStyle: React.CSSProperties = {
   margin: 0,
-  color: "#0f172a",
+  color: "var(--color-ink)",
   fontSize: "1rem",
   lineHeight: 1.25,
   display: "flex",
@@ -86,8 +86,8 @@ const selfTagStyle: React.CSSProperties = {
   minHeight: "22px",
   padding: "0 8px",
   borderRadius: "999px",
-  background: "#dbeafe",
-  color: "#1d4ed8",
+  background: "var(--color-mist)",
+  color: "var(--color-leaf)",
   fontSize: "0.72rem",
   fontWeight: 700,
   letterSpacing: "0.04em",
@@ -96,7 +96,7 @@ const selfTagStyle: React.CSSProperties = {
 
 const memberMetaStyle: React.CSSProperties = {
   margin: 0,
-  color: "#64748b",
+  color: "var(--color-muted)",
   fontSize: "0.88rem",
   lineHeight: 1.5,
 };
@@ -107,8 +107,8 @@ const roleBadgeStyle: React.CSSProperties = {
   minHeight: "26px",
   padding: "0 10px",
   borderRadius: "999px",
-  background: "#ecfeff",
-  color: "#0f766e",
+  background: "var(--color-mist)",
+  color: "var(--color-leaf)",
   fontSize: "0.74rem",
   fontWeight: 700,
   letterSpacing: "0.06em",
