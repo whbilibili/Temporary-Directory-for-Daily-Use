@@ -475,10 +475,10 @@
       ]
     },
     {
-      "task_id": "TODO2-005",
-      "description": "连续推迟达阈值温和提示（PRD §8.4 / §8.5）：consecutivePostponeCount 达阈值（默认 3，可调）时，在任务卡上出现一条温和建议条，引导用户去调整养护周期。单次推迟不标记。",
-      "priority": "2-Medium",
-      "status": "pending",
+"task_id": "TODO2-005",
+"description": "连续推迟达阈值温和提示（PRD §8.4 / §8.5）：consecutivePostponeCount 达阈值（默认 3，可调）时，在任务卡上出现一条温和建议条，引导用户去调整养护周期。单次推迟不标记。",
+"priority": "2-Medium",
+"status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {

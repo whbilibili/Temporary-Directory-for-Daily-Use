@@ -65,7 +65,7 @@
       "prd": "docs/product-specs/2026-06-10-todo-page-iteration-spec.md",
 "ui_spec": "docs/product-specs/2026-06-10-todo-page-ui-spec.md",
 "task_count": 8,
-"completed": 4,
+"completed": 5,
       "depends_on": [
         "care-reminders",
         "frontend-refresh"
@@ -389,10 +389,10 @@
       "priority": "1-High"
     },
     {
-      "task_id": "TODO2-005",
-      "module": "todo-page-v2",
-      "description": "连续推迟达阈值温和建议条（默认 3 次），引导调整养护周期；单次推迟不标记。",
-      "status": "pending",
+"task_id": "TODO2-005",
+"module": "todo-page-v2",
+"description": "连续推迟达阈值温和建议条（默认 3 次），引导调整养护周期；单次推迟不标记。",
+"status": "completed",
       "priority": "2-Medium"
     },
     {

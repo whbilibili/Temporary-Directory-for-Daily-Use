@@ -276,6 +276,7 @@ export const listDueTasks = query({
           intervalDays: task.intervalDays,
           nextDueAt: task.nextDueAt,
           lastCompletedAt: task.lastCompletedAt ?? null,
+          consecutivePostponeCount: task.consecutivePostponeCount ?? 0,
         };
       })
       .filter((task): task is NonNullable<typeof task> => task !== null);

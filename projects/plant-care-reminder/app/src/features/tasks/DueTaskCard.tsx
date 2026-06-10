@@ -3,10 +3,12 @@ import { useState } from "react";
 import { formatDueDate, formatTaskTypeLabel } from "../../lib/formatters";
 import { CompleteTaskButton } from "./CompleteTaskButton";
 import { PostponeButton } from "./PostponeButton";
+import { PostponeHintBanner, shouldShowPostponeHint } from "./PostponeHintBanner";
 import { TaskTypeBadge, taskTypeColorVar } from "./TaskTypeBadge";
 
 export interface DueTaskCardData {
   completedToday: boolean;
+  consecutivePostponeCount: number;
   customLabel: string | null;
   intervalDays: number;
   lastCompletedAt: number | null;
@@ -27,6 +29,7 @@ export function DueTaskCard({ onOpenPlant, task }: DueTaskCardProps) {
   const taskLabel = formatTaskTypeLabel(task.taskType, task.customLabel);
   const dueCopy = formatDueDate(task.nextDueAt);
   const isOverdue = task.nextDueAt < Date.now();
+  const showPostponeHint = shouldShowPostponeHint(task.consecutivePostponeCount);
   const [completed, setCompleted] = useState(false);
 
   return (
@@ -72,6 +75,12 @@ export function DueTaskCard({ onOpenPlant, task }: DueTaskCardProps) {
         <CompleteTaskButton appearance="circle" onCompleted={() => setCompleted(true)} taskId={task.taskId} />
         <PostponeButton currentNextDueAt={task.nextDueAt} taskId={task.taskId} />
       </div>
+
+      {showPostponeHint ? (
+        <div style={hintRowStyle}>
+          <PostponeHintBanner plantId={task.plantId} taskId={task.taskId} />
+        </div>
+      ) : null}
     </article>
   );
 }
@@ -79,6 +88,7 @@ export function DueTaskCard({ onOpenPlant, task }: DueTaskCardProps) {
 const cardStyle: React.CSSProperties = {
   position: "relative",
   display: "flex",
+  flexWrap: "wrap",
   alignItems: "center",
   gap: "var(--space-md)",
   borderRadius: "var(--radius-card)",
@@ -97,6 +107,12 @@ const actionsStyle: React.CSSProperties = {
   display: "grid",
   gap: "4px",
   justifyItems: "center",
+};
+
+// 建议条占满整行，挂在卡片底部不抢主操作（PRD §8.5）。
+const hintRowStyle: React.CSSProperties = {
+  flexBasis: "100%",
+  width: "100%",
 };
 
 const typeStripStyle: React.CSSProperties = {
