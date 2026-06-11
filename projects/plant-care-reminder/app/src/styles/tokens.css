@@ -76,6 +76,33 @@
   );
 }
 
+/* 完成任务时小确幸 emoji 从按钮中心上浮并淡出（TODO2-008）。 */
+@keyframes complete-fx-rise {
+  0% {
+    transform: translate(-50%, -50%) scale(0.6);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -170%) scale(1.1);
+    opacity: 0;
+  }
+}
+
+/* 情感反馈区株数变化时的轻量淡入（TODO2-008）。 */
+@keyframes greeting-count-fade {
+  0% {
+    transform: translateY(4px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
 /* 尊重用户减少动画偏好 */
 @media (prefers-reduced-motion: reduce) {
   *,

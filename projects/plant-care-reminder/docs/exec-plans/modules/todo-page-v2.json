@@ -870,7 +870,7 @@
       "task_id": "TODO2-008",
       "description": "体验收尾与加分项：完成微交互（水滴/叶子动画 + iOS Haptic）、即将到期区可折叠、空状态两语境（新家庭无植物 / 今日全完成）、反馈区数字动效，全部遵守 prefers-reduced-motion。纯前端 UI 美化收尾。",
       "priority": "3-Low",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {

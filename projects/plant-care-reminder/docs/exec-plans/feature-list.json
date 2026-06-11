@@ -65,7 +65,7 @@
       "prd": "docs/product-specs/2026-06-10-todo-page-iteration-spec.md",
       "ui_spec": "docs/product-specs/2026-06-10-todo-page-ui-spec.md",
       "task_count": 8,
-      "completed": 7,
+      "completed": 8,
       "depends_on": [
         "care-reminders",
         "frontend-refresh"
@@ -413,7 +413,7 @@
       "task_id": "TODO2-008",
       "module": "todo-page-v2",
       "description": "体验收尾：完成微交互+Haptic、即将到期区折叠、空状态两语境、反馈区数字动效（遵守 reduced-motion）。",
-      "status": "pending",
+      "status": "completed",
       "priority": "3-Low"
     }
   ],

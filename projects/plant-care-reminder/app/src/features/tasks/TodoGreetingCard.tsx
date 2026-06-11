@@ -1,3 +1,5 @@
+import { prefersReducedMotion } from "../../lib/motion";
+
 type GreetingState = "all_done" | "has_today" | "has_overdue";
 
 interface TodoGreetingCardProps {
@@ -43,7 +45,7 @@ export function TodoGreetingCard({ overduePlantCount, todayPlantCount }: TodoGre
     return (
       <section aria-label="今日养护状态" style={mistCardStyle}>
         <p style={mistTextStyle}>
-          今天要照顾 <span style={countAccentStyle}>{todayPlantCount}</span> 株植物
+          今天要照顾 <AnimatedCount value={todayPlantCount} /> 株植物
         </p>
       </section>
     );
@@ -53,9 +55,25 @@ export function TodoGreetingCard({ overduePlantCount, todayPlantCount }: TodoGre
     <section aria-label="今日养护状态" style={{ ...mistCardStyle, ...overdueCardStyle }}>
       <span aria-hidden="true" style={overdueStripStyle} />
       <p style={mistTextStyle}>
-        有 <span style={countAccentStyle}>{overduePlantCount}</span> 株植物在等你
+        有 <AnimatedCount value={overduePlantCount} /> 株植物在等你
       </p>
     </section>
+  );
+}
+
+/**
+ * 株数变化时的轻量淡入动效：以 value 为 key 重挂，触发 greeting-count-fade。
+ * reduced-motion 偏好下不挂动画（且 tokens.css 全局兜底会把时长压到约 0）。
+ */
+function AnimatedCount({ value }: { value: number }) {
+  const animate = !prefersReducedMotion();
+  return (
+    <span
+      key={animate ? value : undefined}
+      style={animate ? animatedCountStyle : countAccentStyle}
+    >
+      {value}
+    </span>
   );
 }
 
@@ -137,4 +155,10 @@ const mistTextStyle: React.CSSProperties = {
 const countAccentStyle: React.CSSProperties = {
   color: "var(--color-leaf)",
   fontWeight: 700,
+};
+
+const animatedCountStyle: React.CSSProperties = {
+  ...countAccentStyle,
+  display: "inline-block",
+  animation: "greeting-count-fade 200ms ease-out",
 };

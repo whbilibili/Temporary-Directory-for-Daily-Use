@@ -17,6 +17,11 @@ export function taskTypeColorVar(taskType: CareTaskType): string {
   return taskTypeVisuals[taskType].colorVar;
 }
 
+/** 任务类型对应的 emoji，供完成微动效等复用同一套双编码。 */
+export function taskTypeEmoji(taskType: CareTaskType): string {
+  return taskTypeVisuals[taskType].emoji;
+}
+
 interface TaskTypeBadgeProps {
   taskType: CareTaskType;
 }

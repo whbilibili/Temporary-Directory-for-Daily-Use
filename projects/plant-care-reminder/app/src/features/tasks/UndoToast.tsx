@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
+import { prefersReducedMotion } from "../../lib/motion";
 import {
   UNDO_TOAST_DURATION_MS,
   type BatchCompletionUndoPayload,
@@ -15,14 +16,6 @@ interface UndoToastProps {
   payload: ToastPayload;
   onUndo: (payload: ToastPayload) => void;
   onDismiss: () => void;
-}
-
-function prefersReducedMotion() {
-  return (
-    typeof window !== "undefined" &&
-    typeof window.matchMedia === "function" &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches
-  );
 }
 
 export function UndoToast({ payload, onUndo, onDismiss }: UndoToastProps) {

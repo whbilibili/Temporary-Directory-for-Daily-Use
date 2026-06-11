@@ -185,7 +185,10 @@ describe("AppShell smoke coverage", () => {
     expect(screen.getByRole("heading", { name: /家庭养护任务/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /已逾期/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /今天到期/i })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /即将到期/i })).toBeInTheDocument();
+    // 即将到期区为可折叠分区，渲染为带 aria-expanded 的折叠按钮而非标题。
+    expect(
+      screen.getByRole("button", { name: /即将到期/i }),
+    ).toHaveAttribute("aria-expanded", "true");
     expect(screen.getAllByRole("button", { name: /^完成$/i })).toHaveLength(3);
     expect(screen.getByRole("button", { name: /待办/i })).toHaveAttribute(
       "aria-current",
@@ -265,7 +268,10 @@ describe("AppShell smoke coverage", () => {
     expect(
       screen.getByText(/未来三天没有待处理的养护任务/i),
     ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /查看植物列表/i })).toBeInTheDocument();
+    // “今日全完成”语境下（已有植物）引导去看植物。
+    expect(
+      screen.getByRole("button", { name: /去看看你的植物/i }),
+    ).toBeInTheDocument();
   });
 
   it("renders the create-family form for authenticated users without a family", async () => {

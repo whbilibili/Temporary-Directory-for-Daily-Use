@@ -27,6 +27,8 @@ function countDistinctPlants(tasks: DueTaskCardData[]) {
 
 export function TodoPage() {
   const result = useQuery(api.tasks.listDueTasks, {}) as TodoQueryResult | undefined;
+  // 空状态需区分「新家庭尚无植物」与「有植物但今日全部完成」，故额外读取植物列表。
+  const plants = useQuery(api.plants.listPlantsWithNextDue, {}) as unknown[] | undefined;
   const undoComplete = useMutation(api.tasks.undoCompletePlantTask);
   // 会话内 undo 缓存：仅保留最近一次（单条或批量）完成的撤销载荷（PRD §9.1）。
   const [undoPayload, setUndoPayload] = useState<ActiveUndo | null>(null);
@@ -65,6 +67,8 @@ export function TodoPage() {
   const totalTaskCount = result.overdue.length + result.today.length + result.upcoming.length;
   const overduePlantCount = countDistinctPlants(result.overdue);
   const todayPlantCount = countDistinctPlants(result.today);
+  // plants 仍在加载时按「有植物」保守处理，避免新建家庭误闪 onboarding 引导。
+  const hasNoPlants = Array.isArray(plants) && plants.length === 0;
 
   return (
     <section style={pageStyle}>
@@ -73,17 +77,31 @@ export function TodoPage() {
       <TodoGreetingCard overduePlantCount={overduePlantCount} todayPlantCount={todayPlantCount} />
 
       {totalTaskCount === 0 ? (
-        <EmptyState
-          actions={
-            <Button fullWidth={false} onClick={() => navigate("/plants")} type="button">
-              查看植物列表
-            </Button>
-          }
-          badge="待办"
-          title="未来三天没有待处理的养护任务"
-          description="新的养护提醒到期时会优先出现在这里。"
-          minHeight="180px"
-        />
+        hasNoPlants ? (
+          <EmptyState
+            actions={
+              <Button fullWidth={false} onClick={() => navigate("/plants")} type="button">
+                去添加第一株植物
+              </Button>
+            }
+            badge="欢迎"
+            title="先添加一株植物吧"
+            description="添加植物并设置养护提醒后，待办任务会出现在这里。"
+            minHeight="180px"
+          />
+        ) : (
+          <EmptyState
+            actions={
+              <Button fullWidth={false} onClick={() => navigate("/plants")} type="button">
+                去看看你的植物
+              </Button>
+            }
+            badge="待办"
+            title="🌿 今天无需养护"
+            description="未来三天没有待处理的养护任务，新的提醒到期时会优先出现在这里。"
+            minHeight="180px"
+          />
+        )
       ) : (
         <>
           <DueTaskGroup
@@ -101,6 +119,8 @@ export function TodoPage() {
             title="今天到期"
           />
           <DueTaskGroup
+            collapseStorageKey="todo:upcoming-collapsed"
+            collapsible
             onCompleted={setUndoPayload}
             onCompletedAll={setUndoPayload}
             onOpenPlant={(plantId) => navigate(`/plants/${plantId}`)}
