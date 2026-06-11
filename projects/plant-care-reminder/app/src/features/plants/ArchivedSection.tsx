@@ -53,7 +53,7 @@ export function ArchivedSection() {
           opacity: isExpanded ? 1 : 0,
         }}
       >
-        {result?.plants.map((plant) => (
+        {plants.map((plant) => (
           <ArchivedPlantCard key={plant.id} plant={plant} />
         ))}
       </div>
