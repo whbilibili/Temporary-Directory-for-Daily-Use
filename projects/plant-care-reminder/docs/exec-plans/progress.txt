@@ -7,6 +7,8 @@
 
 **PLIST2-003 已完成（2026-06-11）**：PlantCard 横向紧凑布局重写。从竖向大图（16:10 封面 + 下方信息）改为横向布局（左图 80×80 圆角方图 + 右文三行：名称行含✏️编辑图标、位置、任务状态胶囊+到期文案）。整卡可点击进详情，右侧保留 › 箭头按钮（aria-label="查看详情"满足 smoke 断言）。PlantListCardData 接口新增 creationTime 字段（与 PLIST2-001 后端返回对齐）。卡片 minHeight 104px，一屏可见 ≥4 张。typecheck 0 错误、86 tests 全绿。
 
+**PLIST2-004 已完成（2026-06-11）**：任务状态行 emoji + 逾期色条。状态行增加 taskTypeEmoji 映射（💧浇水/🧪施肥/🌫️喷雾/🪴换盆/✂️修剪/📋自定义）；逾期判断 nextDueAt < Date.now()：逾期时到期文案用 --color-warning + fontWeight 600，卡片左侧 border-left 3px solid --color-warning（paddingLeft 减 3px 补偿）。非逾期无色条。typecheck 0 错误、86 tests 全绿。
+
 ---
 
 `frontend-refresh` 模块已完成任务细拆（2026-06-10），从原来的 5 个粗粒度 UX 任务拆解为 13 个原子任务（VIS-001 ~ VIS-013），每个任务对应可独立交付的垂直切片。

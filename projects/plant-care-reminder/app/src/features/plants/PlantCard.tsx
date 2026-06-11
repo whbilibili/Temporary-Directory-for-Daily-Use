@@ -18,6 +18,15 @@ export interface PlantListCardData {
     | null;
 }
 
+const taskTypeEmoji: Record<string, string> = {
+  watering: "💧",
+  fertilizing: "🧪",
+  misting: "🌫️",
+  repotting: "🪴",
+  pruning: "✂️",
+  custom: "📋",
+};
+
 interface PlantCardProps {
   onOpen: (plantId: string) => void;
   onEdit: (plantId: string) => void;
@@ -25,13 +34,19 @@ interface PlantCardProps {
 }
 
 export function PlantCard({ onEdit, onOpen, plant }: PlantCardProps) {
+  const isOverdue = plant.nextDueTask ? plant.nextDueTask.nextDueAt < Date.now() : false;
   const nextDueTitle = plant.nextDueTask
     ? formatTaskTypeLabel(plant.nextDueTask.taskType, plant.nextDueTask.customLabel)
     : null;
   const nextDueCopy = plant.nextDueTask ? formatDueDate(plant.nextDueTask.nextDueAt) : null;
+  const emoji = plant.nextDueTask ? taskTypeEmoji[plant.nextDueTask.taskType] ?? "📋" : null;
+
+  const resolvedCardStyle: React.CSSProperties = isOverdue
+    ? { ...cardStyle, borderLeft: "3px solid var(--color-warning)", paddingLeft: "9px" }
+    : cardStyle;
 
   return (
-    <article style={cardStyle}>
+    <article style={resolvedCardStyle}>
       <div style={imageWrapStyle} onClick={() => onOpen(plant.id)}>
         <StorageImage
           alt={`${plant.name}封面图`}
@@ -67,11 +82,18 @@ export function PlantCard({ onEdit, onOpen, plant }: PlantCardProps) {
         ) : null}
         <div style={statusLineStyle}>
           {nextDueTitle ? (
-            <span style={carePillStyle}>{nextDueTitle}</span>
+            <>
+              <span style={carePillStyle}>
+                {emoji ? <span aria-hidden="true">{emoji}</span> : null}
+                {" "}{nextDueTitle}
+              </span>
+              {nextDueCopy ? (
+                <span style={isOverdue ? overdueCopyStyle : dueCopyStyle}>{nextDueCopy}</span>
+              ) : null}
+            </>
           ) : (
             <span style={noCareStyle}>还没有养护任务</span>
           )}
-          {nextDueCopy ? <span style={dueCopyStyle}>{nextDueCopy}</span> : null}
         </div>
       </div>
       <button
@@ -186,6 +208,7 @@ const statusLineStyle: React.CSSProperties = {
 const carePillStyle: React.CSSProperties = {
   display: "inline-flex",
   alignItems: "center",
+  gap: "4px",
   padding: "2px 8px",
   borderRadius: "var(--radius-pill)",
   background: "var(--color-mist)",
@@ -203,6 +226,12 @@ const noCareStyle: React.CSSProperties = {
 const dueCopyStyle: React.CSSProperties = {
   fontSize: "12px",
   color: "var(--color-muted)",
+};
+
+const overdueCopyStyle: React.CSSProperties = {
+  fontSize: "12px",
+  fontWeight: 600,
+  color: "var(--color-warning)",
 };
 
 const detailButtonStyle: React.CSSProperties = {

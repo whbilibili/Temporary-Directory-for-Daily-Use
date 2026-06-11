@@ -191,7 +191,7 @@
       "task_id": "PLIST2-004",
       "description": "任务状态行与逾期色条：卡片第三行展示最紧迫任务（emoji + 类型 + 到期文案），逾期时文字用 --color-warning 并在卡片左侧显示 3px 暖橙色条。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "done",
       "plan_path": null,
       "contracts": {
         "data_layer": {
