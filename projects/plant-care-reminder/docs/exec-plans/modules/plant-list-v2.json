@@ -131,7 +131,7 @@
       "task_id": "PLIST2-003",
       "description": "PlantCard 重写：从竖向大图布局改为横向紧凑布局（左图 80×80 + 右文三行：名称+编辑图标、位置、任务状态），整卡可点击进详情。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "done",
       "plan_path": null,
       "contracts": {
         "data_layer": {

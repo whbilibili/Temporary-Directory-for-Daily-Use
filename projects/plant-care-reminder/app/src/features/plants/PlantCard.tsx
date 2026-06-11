@@ -1,8 +1,8 @@
 import { StorageImage } from "../../components/ui/StorageImage";
-import { Button } from "../../components/ui/Button";
 import { formatDueDate, formatTaskTypeLabel } from "../../lib/formatters";
 
 export interface PlantListCardData {
+  creationTime: number;
   description: string | null;
   id: string;
   imageStorageId: string | null;
@@ -27,110 +27,120 @@ interface PlantCardProps {
 export function PlantCard({ onEdit, onOpen, plant }: PlantCardProps) {
   const nextDueTitle = plant.nextDueTask
     ? formatTaskTypeLabel(plant.nextDueTask.taskType, plant.nextDueTask.customLabel)
-    : "还没有养护任务";
+    : null;
   const nextDueCopy = plant.nextDueTask ? formatDueDate(plant.nextDueTask.nextDueAt) : null;
 
   return (
     <article style={cardStyle}>
-      <div style={coverWrapStyle}>
+      <div style={imageWrapStyle} onClick={() => onOpen(plant.id)}>
         <StorageImage
           alt={`${plant.name}封面图`}
           initialUrl={plant.imageUrl}
           storageId={plant.imageStorageId as never}
-          style={coverImageStyle}
+          style={imageStyle}
           fallback={
-            <div style={coverPlaceholderStyle}>
+            <div style={imagePlaceholderStyle}>
               <span aria-hidden="true" style={placeholderIconStyle}>
                 🌿
               </span>
-              <span style={placeholderTextStyle}>轻触上传照片</span>
             </div>
           }
         />
       </div>
-      <div style={infoStyle}>
-        <div style={copyStackStyle}>
+      <div style={textAreaStyle} onClick={() => onOpen(plant.id)}>
+        <div style={nameRowStyle}>
           <h2 style={nameStyle}>{plant.name}</h2>
-          {plant.location?.trim() ? (
-            <p style={locationStyle}>{plant.location.trim()}</p>
-          ) : null}
+          <button
+            aria-label="编辑"
+            onClick={(event) => {
+              event.stopPropagation();
+              onEdit(plant.id);
+            }}
+            style={editIconStyle}
+            type="button"
+          >
+            ✏️
+          </button>
         </div>
-        <div style={pillRowStyle}>
-          <span style={carePillStyle}>{nextDueTitle}</span>
+        {plant.location?.trim() ? (
+          <p style={locationStyle}>{plant.location.trim()}</p>
+        ) : null}
+        <div style={statusLineStyle}>
+          {nextDueTitle ? (
+            <span style={carePillStyle}>{nextDueTitle}</span>
+          ) : (
+            <span style={noCareStyle}>还没有养护任务</span>
+          )}
           {nextDueCopy ? <span style={dueCopyStyle}>{nextDueCopy}</span> : null}
         </div>
-        <div style={actionsStyle}>
-          <Button fullWidth={false} onClick={() => onOpen(plant.id)} type="button">
-            查看详情
-          </Button>
-          <Button fullWidth={false} onClick={() => onEdit(plant.id)} type="button" variant="secondary">
-            编辑
-          </Button>
-        </div>
       </div>
+      <button
+        aria-label="查看详情"
+        onClick={() => onOpen(plant.id)}
+        style={detailButtonStyle}
+        type="button"
+      >
+        ›
+      </button>
     </article>
   );
 }
 
 const cardStyle: React.CSSProperties = {
   display: "flex",
-  flexDirection: "column",
+  alignItems: "center",
+  padding: "12px",
   borderRadius: "var(--radius-card)",
-  overflow: "hidden",
-  background: "var(--color-surface)",
   border: "1px solid var(--color-line)",
-  boxShadow: "var(--shadow-card)",
+  background: "var(--color-surface)",
+  minHeight: "104px",
+  cursor: "pointer",
+  gap: "16px",
 };
 
-const coverWrapStyle: React.CSSProperties = {
-  position: "relative",
-  width: "100%",
-  aspectRatio: "16 / 10",
+const imageWrapStyle: React.CSSProperties = {
+  flexShrink: 0,
+  width: "80px",
+  height: "80px",
+  borderRadius: "12px",
   overflow: "hidden",
   background: "var(--color-mist)",
 };
 
-const coverImageStyle: React.CSSProperties = {
+const imageStyle: React.CSSProperties = {
   display: "block",
   width: "100%",
   height: "100%",
   objectFit: "cover",
 };
 
-const coverPlaceholderStyle: React.CSSProperties = {
+const imagePlaceholderStyle: React.CSSProperties = {
   width: "100%",
   height: "100%",
   display: "flex",
-  flexDirection: "column",
   alignItems: "center",
   justifyContent: "center",
-  gap: "var(--space-sm)",
   background: "var(--color-mist)",
 };
 
 const placeholderIconStyle: React.CSSProperties = {
-  fontSize: "48px",
+  fontSize: "32px",
   lineHeight: 1,
-  color: "var(--color-line)",
   opacity: 0.7,
 };
 
-const placeholderTextStyle: React.CSSProperties = {
-  fontSize: "12px",
-  color: "var(--color-muted)",
-};
-
-const infoStyle: React.CSSProperties = {
+const textAreaStyle: React.CSSProperties = {
+  flex: 1,
+  minWidth: 0,
   display: "flex",
   flexDirection: "column",
+  gap: "3px",
+};
+
+const nameRowStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
   gap: "var(--space-sm)",
-  padding: "12px 16px",
-};
-
-const copyStackStyle: React.CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  gap: "var(--space-xs)",
 };
 
 const nameStyle: React.CSSProperties = {
@@ -138,28 +148,45 @@ const nameStyle: React.CSSProperties = {
   fontFamily: "var(--font-heading)",
   fontSize: "16px",
   fontWeight: 600,
-  lineHeight: 1.2,
+  lineHeight: 1.3,
   color: "var(--color-ink)",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+};
+
+const editIconStyle: React.CSSProperties = {
+  flexShrink: 0,
+  background: "none",
+  border: "none",
+  padding: 0,
+  cursor: "pointer",
+  fontSize: "14px",
+  lineHeight: 1,
 };
 
 const locationStyle: React.CSSProperties = {
   margin: 0,
-  fontSize: "12px",
+  fontSize: "13px",
   fontWeight: 400,
   color: "var(--color-muted)",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
 };
 
-const pillRowStyle: React.CSSProperties = {
+const statusLineStyle: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
   flexWrap: "wrap",
   gap: "var(--space-sm)",
+  marginTop: "2px",
 };
 
 const carePillStyle: React.CSSProperties = {
   display: "inline-flex",
   alignItems: "center",
-  padding: "4px 10px",
+  padding: "2px 8px",
   borderRadius: "var(--radius-pill)",
   background: "var(--color-mist)",
   color: "var(--color-leaf-light)",
@@ -167,15 +194,24 @@ const carePillStyle: React.CSSProperties = {
   fontWeight: 700,
 };
 
+const noCareStyle: React.CSSProperties = {
+  fontSize: "12px",
+  color: "var(--color-muted)",
+  fontStyle: "italic",
+};
+
 const dueCopyStyle: React.CSSProperties = {
   fontSize: "12px",
   color: "var(--color-muted)",
 };
 
-const actionsStyle: React.CSSProperties = {
-  display: "flex",
-  justifyContent: "flex-start",
-  flexWrap: "wrap",
-  gap: "var(--space-sm)",
-  marginTop: "var(--space-xs)",
+const detailButtonStyle: React.CSSProperties = {
+  flexShrink: 0,
+  background: "none",
+  border: "none",
+  padding: "0 4px",
+  cursor: "pointer",
+  fontSize: "24px",
+  lineHeight: 1,
+  color: "var(--color-muted)",
 };
