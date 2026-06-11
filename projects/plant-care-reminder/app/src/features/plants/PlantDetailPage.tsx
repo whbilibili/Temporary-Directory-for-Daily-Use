@@ -8,6 +8,7 @@ import { Button } from "../../components/ui/Button";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { DetailNavBar } from "./DetailNavBar";
 import { OverflowMenu } from "./OverflowMenu";
+import { PlantArchiveSection } from "./PlantArchiveSection";
 import { PlantHeroCard } from "./PlantHeroCard";
 import { ActionableTaskSection } from "../tasks/ActionableTaskSection";
 import { PlanSection } from "../tasks/PlanSection";
@@ -188,6 +189,8 @@ export function PlantDetailPage({ plantId }: PlantDetailPageProps) {
         plantName={plant.name}
         tasks={result.tasks}
       />
+
+      <PlantArchiveSection plant={plant} plantId={plant.id} />
 
       <div style={actionBarStyle}>
         <Button
