@@ -63,7 +63,8 @@ export function PostponeConfirmSheet({
 const overlayStyle: React.CSSProperties = {
   position: "fixed",
   inset: 0,
-  zIndex: 50,
+  // 高于底部导航 (50) 与撤销浮条 (60)，避免模态弹窗被遮挡。
+  zIndex: 100,
   display: "flex",
   alignItems: "flex-end",
   justifyContent: "center",
@@ -76,7 +77,9 @@ const sheetStyle: React.CSSProperties = {
   background: "var(--color-surface)",
   borderTopLeftRadius: "var(--radius-card)",
   borderTopRightRadius: "var(--radius-card)",
-  padding: "var(--space-lg)",
+  // 底部额外预留导航栏高度 + 安全区，避免按钮被底部导航压住。
+  padding:
+    "var(--space-lg) var(--space-lg) calc(var(--space-lg) + 72px + env(safe-area-inset-bottom, 0px))",
   display: "grid",
   gap: "var(--space-md)",
   boxShadow: "var(--shadow-card-emphasis)",
