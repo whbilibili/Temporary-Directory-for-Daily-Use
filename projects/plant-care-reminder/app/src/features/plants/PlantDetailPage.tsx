@@ -122,7 +122,7 @@ export function PlantDetailPage({ plantId }: PlantDetailPageProps) {
         />
       </div>
 
-      <PlantHeroCard plant={plant} />
+      <PlantHeroCard plant={plant} tasks={result.tasks} />
 
       <TaskSection
         onAdd={() => navigate(`/plants/${plant.id}/tasks/new`)}

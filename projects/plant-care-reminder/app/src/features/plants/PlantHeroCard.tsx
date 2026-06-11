@@ -1,4 +1,10 @@
 import { StorageImage } from "../../components/ui/StorageImage";
+import { getUtcDayStart } from "../tasks/scheduling";
+
+interface TaskSummaryInput {
+  lastCompletedAt: number | null;
+  nextDueAt: number;
+}
 
 interface PlantHeroCardProps {
   plant: {
@@ -13,171 +19,201 @@ interface PlantHeroCardProps {
     note: string | null;
     updatedAt: number;
   };
-  actionSlot?: React.ReactNode;
+  tasks?: TaskSummaryInput[];
+  onThumbnailClick?: () => void;
 }
 
-const timestampFormatter = new Intl.DateTimeFormat("zh-CN", {
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-});
+type StatusLevel = "overdue" | "today" | "normal" | "archived";
 
-function formatTimestamp(value: number) {
-  return timestampFormatter.format(new Date(value));
+function computeStatusLevel(
+  plant: { isArchived: boolean },
+  tasks: TaskSummaryInput[],
+): StatusLevel {
+  if (plant.isArchived) return "archived";
+
+  const now = Date.now();
+  const startOfToday = getUtcDayStart(now);
+  const MS_PER_DAY = 24 * 60 * 60 * 1000;
+  const startOfTomorrow = startOfToday + MS_PER_DAY;
+
+  let hasOverdue = false;
+  let hasToday = false;
+
+  for (const task of tasks) {
+    // 跳过今日已完成的任务
+    if (
+      task.lastCompletedAt !== null &&
+      task.lastCompletedAt >= startOfToday &&
+      task.lastCompletedAt < startOfTomorrow
+    ) {
+      continue;
+    }
+    if (task.nextDueAt < startOfToday) {
+      hasOverdue = true;
+      break;
+    }
+    if (task.nextDueAt < startOfTomorrow) {
+      hasToday = true;
+    }
+  }
+
+  if (hasOverdue) return "overdue";
+  if (hasToday) return "today";
+  return "normal";
 }
 
-export function PlantHeroCard({ actionSlot, plant }: PlantHeroCardProps) {
-  const statusSummary = plant.isArchived
-    ? `已归档${plant.archivedAt ? `，归档于 ${formatTimestamp(plant.archivedAt)}` : ""}`
-    : "正在家庭看板中使用";
-  const note = plant.note?.trim();
+function getStatusText(level: StatusLevel, tasks: TaskSummaryInput[]): string {
+  switch (level) {
+    case "overdue":
+      return "有逾期任务需处理";
+    case "today":
+      return "今天有任务待完成";
+    case "archived":
+      return "已归档";
+    case "normal":
+      return tasks.length > 0 ? "养护状态良好" : "暂无养护计划";
+  }
+}
+
+function getStatusColor(level: StatusLevel): string {
+  switch (level) {
+    case "overdue":
+      return "var(--color-warning)";
+    case "today":
+      return "var(--color-leaf-light)";
+    case "archived":
+    case "normal":
+      return "var(--color-muted)";
+  }
+}
+
+export function PlantHeroCard({ plant, tasks = [], onThumbnailClick }: PlantHeroCardProps) {
+  const statusLevel = computeStatusLevel(plant, tasks);
+  const statusText = getStatusText(statusLevel, tasks);
+  const statusColor = getStatusColor(statusLevel);
+
+  const hasImage = Boolean(plant.imageUrl || plant.imageStorageId);
 
   return (
-    <article style={cardStyle}>
-      <div style={heroWrapStyle}>
+    <article style={containerStyle}>
+      {/* 缩略图 */}
+      <div
+        aria-label={hasImage ? "查看大图" : undefined}
+        aria-hidden={!hasImage ? "true" : undefined}
+        onClick={hasImage ? onThumbnailClick : undefined}
+        role={hasImage ? "button" : undefined}
+        style={{
+          ...thumbnailWrapStyle,
+          cursor: hasImage ? "pointer" : "default",
+        }}
+        tabIndex={hasImage ? 0 : undefined}
+      >
         <StorageImage
-          alt={`${plant.name}封面图`}
+          alt={`${plant.name}缩略图`}
           initialUrl={plant.imageUrl}
           storageId={plant.imageStorageId as never}
-          style={heroImageStyle}
+          style={thumbnailImageStyle}
           fallback={
-            <div style={heroPlaceholderStyle}>
-              <span aria-hidden="true" style={placeholderIconStyle}>
+            <div style={thumbnailPlaceholderStyle}>
+              <span aria-hidden="true" style={placeholderEmojiStyle}>
                 🪴
               </span>
-              <span style={placeholderTextStyle}>轻触上传植物照片</span>
             </div>
           }
         />
       </div>
 
-      <div style={infoStyle}>
+      {/* 文字区 */}
+      <div style={textAreaStyle}>
         <h1 style={nameStyle}>{plant.name}</h1>
-        {plant.location?.trim() ? (
-          <p style={locationStyle}>{plant.location.trim()}</p>
-        ) : null}
-        <p style={statusStyle}>{statusSummary}</p>
-        {plant.description ? <p style={descriptionStyle}>{plant.description}</p> : null}
-        {note ? (
-          <div style={noteRowStyle}>
-            <span style={noteLabelStyle}>养护备注</span>
-            <p style={noteStyle}>{note}</p>
-          </div>
-        ) : null}
+        <p style={subInfoStyle}>
+          {plant.location?.trim() && (
+            <>
+              <span>{plant.location.trim()}</span>
+              <span style={dotStyle}>·</span>
+            </>
+          )}
+          <span style={{ color: statusColor }}>{statusText}</span>
+        </p>
       </div>
-
-      {actionSlot ? <div style={slotStyle}>{actionSlot}</div> : null}
     </article>
   );
 }
 
-const cardStyle: React.CSSProperties = {
+const containerStyle: React.CSSProperties = {
   display: "flex",
-  flexDirection: "column",
+  flexDirection: "row",
+  alignItems: "center",
   gap: "var(--space-md)",
+  padding: "var(--space-md)",
+  background: "var(--color-surface)",
+  borderRadius: "var(--radius-card)",
+  border: "1px solid var(--color-line)",
 };
 
-const heroWrapStyle: React.CSSProperties = {
-  position: "relative",
-  width: "100%",
-  aspectRatio: "4 / 3",
+const thumbnailWrapStyle: React.CSSProperties = {
+  flexShrink: 0,
+  width: "48px",
+  height: "48px",
+  borderRadius: "12px",
   overflow: "hidden",
-  borderBottomLeftRadius: "24px",
-  borderBottomRightRadius: "24px",
-  background: "var(--color-mist)",
+  border: "1px solid var(--color-line)",
 };
 
-const heroImageStyle: React.CSSProperties = {
+const thumbnailImageStyle: React.CSSProperties = {
   display: "block",
   width: "100%",
   height: "100%",
   objectFit: "cover",
 };
 
-const heroPlaceholderStyle: React.CSSProperties = {
+const thumbnailPlaceholderStyle: React.CSSProperties = {
   width: "100%",
   height: "100%",
   display: "flex",
-  flexDirection: "column",
   alignItems: "center",
   justifyContent: "center",
-  gap: "var(--space-sm)",
   background: "var(--color-mist)",
 };
 
-const placeholderIconStyle: React.CSSProperties = {
-  fontSize: "64px",
+const placeholderEmojiStyle: React.CSSProperties = {
+  fontSize: "24px",
   lineHeight: 1,
-  color: "var(--color-line)",
-  opacity: 0.7,
 };
 
-const placeholderTextStyle: React.CSSProperties = {
-  fontSize: "12px",
-  color: "var(--color-muted)",
-};
-
-const infoStyle: React.CSSProperties = {
+const textAreaStyle: React.CSSProperties = {
+  flex: 1,
+  minWidth: 0,
   display: "flex",
   flexDirection: "column",
-  gap: "var(--space-xs)",
-  padding: "0 var(--space-md)",
+  gap: "2px",
 };
 
 const nameStyle: React.CSSProperties = {
   margin: 0,
   fontFamily: "var(--font-heading)",
-  fontSize: "20px",
+  fontSize: "16px",
   fontWeight: 700,
   lineHeight: 1.2,
   color: "var(--color-ink)",
+  whiteSpace: "nowrap",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
 };
 
-const locationStyle: React.CSSProperties = {
+const subInfoStyle: React.CSSProperties = {
   margin: 0,
+  fontFamily: "var(--font-body)",
   fontSize: "12px",
   fontWeight: 400,
+  lineHeight: 1.4,
   color: "var(--color-muted)",
+  whiteSpace: "nowrap",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
 };
 
-const statusStyle: React.CSSProperties = {
-  margin: 0,
-  marginTop: "var(--space-xs)",
-  fontSize: "14px",
-  fontWeight: 500,
-  color: "var(--color-leaf-light)",
-};
-
-const descriptionStyle: React.CSSProperties = {
-  margin: 0,
-  marginTop: "var(--space-xs)",
-  fontSize: "14px",
-  lineHeight: 1.6,
+const dotStyle: React.CSSProperties = {
+  margin: "0 4px",
   color: "var(--color-muted)",
-};
-
-const noteRowStyle: React.CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  gap: "2px",
-  marginTop: "var(--space-xs)",
-};
-
-const noteLabelStyle: React.CSSProperties = {
-  fontSize: "12px",
-  fontWeight: 600,
-  color: "var(--color-leaf-light)",
-};
-
-const noteStyle: React.CSSProperties = {
-  margin: 0,
-  fontSize: "14px",
-  lineHeight: 1.6,
-  color: "var(--color-muted)",
-};
-
-const slotStyle: React.CSSProperties = {
-  display: "grid",
-  gap: "var(--space-md)",
-  padding: "0 var(--space-md)",
 };
