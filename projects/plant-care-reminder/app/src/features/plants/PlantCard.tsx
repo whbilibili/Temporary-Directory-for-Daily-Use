@@ -1,7 +1,7 @@
 import { useState } from "react";
 
-import { StorageImage } from "../../components/ui/StorageImage";
 import { formatDueDate, formatTaskTypeLabel } from "../../lib/formatters";
+import { PlantImage } from "./PlantImage";
 
 export interface PlantListCardData {
   creationTime: number;
@@ -51,19 +51,7 @@ export function PlantCard({ onEdit, onOpen, plant }: PlantCardProps) {
   return (
     <article style={resolvedCardStyle}>
       <div style={imageWrapStyle} onClick={() => onOpen(plant.id)}>
-        <StorageImage
-          alt={`${plant.name}封面图`}
-          initialUrl={plant.imageUrl}
-          storageId={plant.imageStorageId as never}
-          style={imageStyle}
-          fallback={
-            <div style={imagePlaceholderStyle}>
-              <span aria-hidden="true" style={placeholderIconStyle}>
-                🌿
-              </span>
-            </div>
-          }
-        />
+        <PlantImage alt={`${plant.name}封面图`} imageUrl={plant.imageUrl} />
       </div>
       <div style={textAreaStyle} onClick={() => onOpen(plant.id)}>
         <div style={nameRowStyle}>
@@ -135,27 +123,6 @@ const imageWrapStyle: React.CSSProperties = {
   background: "var(--color-mist)",
 };
 
-const imageStyle: React.CSSProperties = {
-  display: "block",
-  width: "100%",
-  height: "100%",
-  objectFit: "cover",
-};
-
-const imagePlaceholderStyle: React.CSSProperties = {
-  width: "100%",
-  height: "100%",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  background: "var(--color-mist)",
-};
-
-const placeholderIconStyle: React.CSSProperties = {
-  fontSize: "32px",
-  lineHeight: 1,
-  opacity: 0.7,
-};
 
 const textAreaStyle: React.CSSProperties = {
   flex: 1,

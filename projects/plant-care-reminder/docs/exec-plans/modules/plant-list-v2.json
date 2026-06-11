@@ -518,7 +518,7 @@
       "task_id": "PLIST2-009",
       "description": "图片渐显与占位态：无图时显示 --color-mist 底 + 🌿 居中；有图时 onLoad 后 opacity 0→1（200ms）；加载失败回退占位态。",
       "priority": "2-Medium",
-      "status": "pending",
+      "status": "done",
       "plan_path": null,
       "contracts": {
         "data_layer": {

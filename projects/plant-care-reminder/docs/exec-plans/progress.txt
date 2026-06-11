@@ -11,6 +11,8 @@
 
 **PLIST2-005 已完成（2026-06-11）**：编辑图标交互优化。editIconStyle 改为 44×44 热区（负 margin 不撑高行）、默认 opacity 0.4、按下 opacity 1.0（onPointerDown/Up/Leave + useState）、transition 100ms。stopPropagation 已在 PLIST2-003 实现。typecheck 0 错误、86 tests 全绿。
 
+**PLIST2-009 已完成（2026-06-11）**：图片渐显与占位态。新增 PlantImage 组件（features/plants/PlantImage.tsx）：内部管理 loading/loaded/error 三态；无图或 error 时显示 mist 底 + 🌿 32px 居中占位；有图时 img opacity 0→1（200ms ease-in transition on load）；占位层 position absolute 保证尺寸一致不跳动。PlantCard 改用 PlantImage 替代 StorageImage（列表场景不需要 storageId 重试逻辑，imageUrl 已由 query 返回）。typecheck 0 错误、86 tests 全绿。
+
 ---
 
 `frontend-refresh` 模块已完成任务细拆（2026-06-10），从原来的 5 个粗粒度 UX 任务拆解为 13 个原子任务（VIS-001 ~ VIS-013），每个任务对应可独立交付的垂直切片。
