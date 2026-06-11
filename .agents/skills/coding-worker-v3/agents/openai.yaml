@@ -1,0 +1,4 @@
+interface:
+  display_name: "Coding Worker v3"
+  short_description: "Execute one bounded coding task from repo state."
+  default_prompt: "Use $coding-worker-v3 to execute the next smallest coding task from the repo state."

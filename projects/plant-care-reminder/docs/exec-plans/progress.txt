@@ -13,6 +13,8 @@
 
 **PLIST2-009 已完成（2026-06-11）**：图片渐显与占位态。新增 PlantImage 组件（features/plants/PlantImage.tsx）：内部管理 loading/loaded/error 三态；无图或 error 时显示 mist 底 + 🌿 32px 居中占位；有图时 img opacity 0→1（200ms ease-in transition on load）；占位层 position absolute 保证尺寸一致不跳动。PlantCard 改用 PlantImage 替代 StorageImage（列表场景不需要 storageId 重试逻辑，imageUrl 已由 query 返回）。typecheck 0 错误、86 tests 全绿。
 
+**PLIST2-006 已完成（2026-06-11）**：归档折叠区组件。新增 ArchivedSection 组件（features/plants/ArchivedSection.tsx）：消费 useQuery(api.plants.listArchivedPlants)，内部 filter 确保仅显示 archivedAt 有效的植物；默认折叠，点击「▶ 已归档 (N)」展开/收起（箭头 rotate 90deg 动效 200ms）；展开区 max-height 动画 300ms ease-out + opacity 渐变；ArchivedPlantCard 灰态（opacity 0.55 + grayscale 0.6）+ 恢复按钮调用 restorePlant mutation。集成到 PlantListPage 底部（1px --color-line 分隔 + 24px 上间距）。测试兼容：filter 防止全局 useQuery mock 返回非归档数据导致重复渲染。typecheck 0 错误、86 tests 全绿。
+
 ---
 
 `frontend-refresh` 模块已完成任务细拆（2026-06-10），从原来的 5 个粗粒度 UX 任务拆解为 13 个原子任务（VIS-001 ~ VIS-013），每个任务对应可独立交付的垂直切片。

@@ -320,7 +320,7 @@
       "task_id": "PLIST2-006",
       "description": "归档折叠区组件：ArchivedSection（折叠触发器 + 展开/收起动效）+ ArchivedPlantCard（灰态卡片 + 恢复按钮），消费 PLIST2-002 的 query。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "done",
       "plan_path": null,
       "contracts": {
         "data_layer": {

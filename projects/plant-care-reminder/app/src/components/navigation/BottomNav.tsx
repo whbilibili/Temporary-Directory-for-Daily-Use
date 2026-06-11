@@ -6,14 +6,15 @@ interface BottomNavProps {
 }
 
 const navItems: Array<{ href: AppPath; label: string; icon: string }> = [
-  { href: "/todo", label: "待办", icon: "待办" },
-  { href: "/plants", label: "植物", icon: "植物" },
-  { href: "/settings", label: "设置", icon: "设置" },
+  { href: "/todo", label: "待办", icon: "🗓️" },
+  { href: "/plants", label: "植物", icon: "🪴" },
+  { href: "/settings", label: "设置", icon: "⚙️" },
 ];
 
 export function BottomNav({ pathname }: BottomNavProps) {
   return (
     <nav aria-label="主导航" style={navStyle}>
+      <div style={navInnerStyle}>
       {navItems.map((item) => {
         const isActive =
           item.href === "/plants" ? pathname.startsWith("/plants") : pathname === item.href;
@@ -34,27 +35,37 @@ export function BottomNav({ pathname }: BottomNavProps) {
           </button>
         );
       })}
+      </div>
     </nav>
   );
 }
 
 const navStyle: React.CSSProperties = {
-  position: "sticky",
+  position: "fixed",
+  left: 0,
+  right: 0,
   bottom: 0,
-  display: "grid",
-  gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-  gap: "var(--space-sm)",
+  zIndex: 50,
   padding: "var(--space-sm) var(--space-md) calc(var(--space-sm) + env(safe-area-inset-bottom, 0px))",
   borderTop: "1px solid var(--color-line)",
   background: "rgba(251,252,247,0.92)",
   backdropFilter: "blur(12px)",
+  WebkitBackdropFilter: "blur(12px)",
+};
+
+const navInnerStyle: React.CSSProperties = {
+  width: "min(100%, 520px)",
+  margin: "0 auto",
+  display: "grid",
+  gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+  gap: "var(--space-sm)",
 };
 
 const itemStyle: React.CSSProperties = {
   appearance: "none",
   border: "1px solid transparent",
   borderRadius: "var(--radius-button)",
-  background: "var(--color-surface)",
+  background: "transparent",
   color: "var(--color-muted)",
   height: "56px",
   display: "flex",
@@ -62,20 +73,20 @@ const itemStyle: React.CSSProperties = {
   alignItems: "center",
   justifyContent: "center",
   gap: "var(--space-xs)",
-  fontSize: "10px",
-  fontWeight: 700,
+  fontSize: "11px",
+  fontWeight: 600,
   cursor: "pointer",
-  transition: "transform 160ms ease, border-color 160ms ease, color 160ms ease",
+  transition: "background 160ms ease, color 160ms ease, box-shadow 160ms ease",
 };
 
 const activeItemStyle: React.CSSProperties = {
-  borderColor: "var(--color-line)",
-  color: "var(--color-leaf)",
-  transform: "translateY(-1px)",
+  background: "var(--color-leaf)",
+  color: "var(--color-paper)",
+  fontWeight: 700,
+  boxShadow: "0 6px 16px rgba(31, 71, 61, 0.28)",
 };
 
 const iconStyle: React.CSSProperties = {
-  fontSize: "12px",
+  fontSize: "20px",
   lineHeight: 1,
-  letterSpacing: "0.04em",
 };

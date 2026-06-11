@@ -15,6 +15,7 @@
     "@auth/core": "^0.37.0",
     "@convex-dev/auth": "^0.0.93",
     "convex": "^1.40.0",
+    "heic2any": "^0.0.4",
     "react": "^19.2.6",
     "react-dom": "^19.2.6"
   },

@@ -5,7 +5,7 @@ description: Generate an engineering-grade Codex-friendly project scaffold. Use 
 
 # Codex Project Skeleton
 
-Use this skill to create a complete, editable project scaffold optimized for Codex sessions and agentic development workflows.
+Use this skill to create a complete, editable project scaffold optimized for Codex sessions and agentic development workflows. Supports cross-tool compatibility (Claude Code, Cursor, Copilot), multiple tech stacks, and monorepo layouts.
 
 ## Workflow
 
@@ -38,10 +38,16 @@ Useful flags:
 - `--profile code`: emphasize implementation, tests, review, and release notes.
 - `--profile knowledge`: emphasize docs, memory, prompts, and research.
 - `--profile agent`: emphasize Codex config, hooks examples, repo skills, and custom agents.
+- `--compat claude`: also generate `CLAUDE.md` (references AGENTS.md).
+- `--compat cursor`: also generate `.cursorrules`.
+- `--compat copilot`: also generate `.github/copilot-instructions.md`.
+- `--compat all`: generate all compatibility files.
+- `--tech-stack node|python|go|java`: fill `scripts/check.sh` with real commands for the stack.
+- `--monorepo`: generate sub-directory AGENTS.md templates under `apps/`.
 
 ## Generation Rules
 
-- Keep root `AGENTS.md` concise. Put long-lived details in `.codex/memory`, `docs`, `prompts`, and `templates`.
+- Keep root `AGENTS.md` concise (< 2KB). Put long-lived details in `.codex/memory`, `docs`, `prompts`, and `templates`.
 - Prefer example hook and rule files over active automation unless the user explicitly asks for enforcement.
 - Never overwrite existing files unless the user asked for replacement or `--force` is used.
 - Initialize Git only when the user asks for it or `--init-git` is explicitly appropriate.
@@ -56,3 +62,11 @@ Recommend that the user customize these first:
 - `.codex/agents/*.toml`: custom subagent roles.
 - `.agents/skills/project-context/SKILL.md`: repo-specific skill trigger language.
 - `scripts/check.sh`: actual test, lint, typecheck, and documentation checks.
+
+## Design Principles
+
+- **Five-Layer Architecture**: Constitution (AGENTS.md) → Skills → MCP Tools → Subagents → Plugins.
+- **Context Engineering**: Always-loaded (AGENTS.md < 2KB) → On-demand (docs/) → Offloaded (tasks/, daily/).
+- **Hard/Soft Separation**: AGENTS.md = soft guidance (should do); .codex/rules/ = hard constraints (can/cannot do).
+- **Knowledge Flywheel**: Mistake → Pattern → Rule → lessons.md/rules → Never repeat.
+- **Cross-Tool Compatibility**: AGENTS.md as the single source of truth; other tool configs reference it.

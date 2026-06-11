@@ -1,0 +1,95 @@
+<h2>植物提醒应用：Convex 架构选型</h2>
+<p class="subtitle">重点约束：iPhone 为主、家庭共享、完成后自动顺延、植物图片与资料卡</p>
+
+<div class="cards">
+  <div class="card" data-choice="pwa" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">方案 A: PWA + Convex</div>
+        <div class="mockup-body">
+          <div class="mock-nav">Safari 添加到主屏幕</div>
+          <div style="display:flex; gap:12px; margin-top:12px;">
+            <div class="mock-sidebar">植物列表<br>到期待办<br>家庭成员</div>
+            <div class="mock-content">
+              植物详情卡<br><br>
+              图片 / 名称 / 描述<br>
+              浇水：每 5 天<br>
+              施肥：每 20 天<br><br>
+              [完成]
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A. 轻量 Web App / PWA</h3>
+      <p>开发最快，前后端都能用 Convex。提醒依赖 iPhone Home Screen Web Push。</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="hybrid" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">方案 B: Web + 日历/提醒事项</div>
+        <div class="mockup-body">
+          <div class="mock-nav">Web 管理数据</div>
+          <div style="display:flex; gap:12px; margin-top:12px;">
+            <div class="mock-sidebar">植物档案</div>
+            <div class="mock-content">
+              Convex 保存规则<br><br>
+              系统提醒事项/日历<br>
+              负责通知<br><br>
+              状态同步较复杂
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B. Web + 系统提醒</h3>
+      <p>通知稳定，但“任意成员完成后自动改所有人的提醒”会明显变复杂。</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="expo" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">方案 C: Expo App + Convex</div>
+        <div class="mockup-body">
+          <div class="mock-nav">原生通知 + 实时同步</div>
+          <div style="display:flex; gap:12px; margin-top:12px;">
+            <div class="mock-sidebar">我的植物</div>
+            <div class="mock-content">
+              图片、记录、成员同步<br><br>
+              APNs/Expo Push 更稳<br>
+              安装和分发更重
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C. Expo / React Native App</h3>
+      <p>iPhone 通知最稳，但开发、测试、分发都更重，不适合一开始就上。</p>
+    </div>
+  </div>
+</div>
+
+<div class="pros-cons" style="margin-top:24px;">
+  <div class="pros">
+    <h4>我的推荐</h4>
+    <ul>
+      <li>先用 A 做 MVP，尽快跑通家庭共享与滚动提醒</li>
+      <li>Convex 很适合处理共享状态、图片和到期计算</li>
+      <li>如果后续觉得 iPhone Web Push 不够稳，再升级到 C</li>
+    </ul>
+  </div>
+  <div class="cons">
+    <h4>需要接受的现实</h4>
+    <ul>
+      <li>PWA 推送要求用户把网页加到 iPhone 主屏幕</li>
+      <li>通知可靠性通常仍不如真正原生 App</li>
+      <li>数据默认会存放在 Convex Cloud，不是纯本地</li>
+    </ul>
+  </div>
+</div>

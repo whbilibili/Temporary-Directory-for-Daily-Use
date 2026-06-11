@@ -99,7 +99,8 @@ const mainStyle: React.CSSProperties = {
   flex: 1,
   width: "min(100%, 520px)",
   margin: "0 auto",
-  padding: "var(--space-lg) var(--space-md) calc(56px + var(--space-xl))",
+  padding:
+    "var(--space-lg) var(--space-md) calc(96px + env(safe-area-inset-bottom, 0px))",
   boxSizing: "border-box",
   display: "flex",
   flexDirection: "column",

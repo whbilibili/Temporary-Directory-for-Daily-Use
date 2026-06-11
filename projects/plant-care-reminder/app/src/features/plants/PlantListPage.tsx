@@ -5,6 +5,7 @@ import { api } from "../../../convex/_generated/api";
 import { Button } from "../../components/ui/Button";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { navigate } from "../../app/router";
+import { ArchivedSection } from "./ArchivedSection";
 import { PlantCard, type PlantListCardData } from "./PlantCard";
 
 interface PlantListResponse {
@@ -90,6 +91,7 @@ export function PlantListPage() {
           ))}
         </div>
       )}
+      <ArchivedSection />
     </section>
   );
 }

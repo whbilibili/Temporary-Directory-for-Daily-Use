@@ -5,6 +5,7 @@ import { api } from "../../../convex/_generated/api";
 import { Button } from "../../components/ui/Button";
 import { FormError } from "../../components/ui/FormError";
 import type { StorageId } from "../../types/domain";
+import { normalizeImageFile } from "./normalizeImageFile";
 import { uploadPlantImage } from "./uploadPlantImage";
 
 export interface PlantImageValue {
@@ -54,10 +55,25 @@ export function PlantImageField({
   };
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+    const originalFile = event.target.files?.[0];
     event.target.value = "";
 
-    if (!file) {
+    if (!originalFile) {
+      return;
+    }
+
+    setPendingFileName(originalFile.name);
+    setUploadError(null);
+    setUploadState("uploading");
+
+    let file: File;
+    try {
+      // HEIC/HEIF（iPhone 默认格式）浏览器无法渲染，上传前先转码为 JPEG。
+      file = await normalizeImageFile(originalFile);
+    } catch {
+      setUploadState("idle");
+      setPendingFileName(null);
+      setUploadError("无法读取该图片格式，请改用 JPG 或 PNG 后重试。");
       return;
     }
 
@@ -68,9 +84,6 @@ export function PlantImageField({
     localPreviewUrlRef.current = nextLocalPreviewUrl;
 
     setLocalPreviewUrl(nextLocalPreviewUrl);
-    setPendingFileName(file.name);
-    setUploadError(null);
-    setUploadState("uploading");
 
     try {
       const uploadedImage = await uploadPlantImage({

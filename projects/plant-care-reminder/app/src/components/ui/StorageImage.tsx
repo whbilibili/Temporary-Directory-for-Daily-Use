@@ -87,5 +87,27 @@ export function StorageImage({
     return <>{fallback}</>;
   }
 
-  return <img alt={alt} onError={() => void handleImageError()} src={imageUrl} style={style} />;
+  // HEIC 等浏览器无法解码的格式：图片会“加载完成”（complete 为 true）但
+  // naturalWidth 为 0，且不会触发 error 事件。若图片来自缓存，挂载时往往
+  // 已经 complete，onLoad 不再触发，因此用 ref 在挂载/更新时主动检测。
+  const markFailedIfUndecodable = (img: HTMLImageElement | null) => {
+    if (img && img.complete && img.naturalWidth === 0) {
+      setHasFailed(true);
+    }
+  };
+
+  return (
+    <img
+      ref={markFailedIfUndecodable}
+      alt={alt}
+      onError={() => void handleImageError()}
+      onLoad={(event) => {
+        if (event.currentTarget.naturalWidth === 0) {
+          setHasFailed(true);
+        }
+      }}
+      src={imageUrl}
+      style={style}
+    />
+  );
 }
