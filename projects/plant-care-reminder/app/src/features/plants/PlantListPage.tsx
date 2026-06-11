@@ -2,7 +2,6 @@ import { useQuery } from "convex/react";
 import { useMemo, useRef, useState } from "react";
 
 import { api } from "../../../convex/_generated/api";
-import { Button } from "../../components/ui/Button";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { navigate } from "../../app/router";
 import { ArchivedSection } from "./ArchivedSection";
@@ -60,13 +59,14 @@ export function PlantListPage() {
     <section style={pageStyle}>
       <header style={titleBarStyle}>
         <h1 style={titleStyle}>家庭植物档案</h1>
-        <Button fullWidth={false} onClick={() => navigate("/plants/new")} type="button">
-          添加植物
-        </Button>
+        <button onClick={() => navigate("/plants/new")} style={addButtonStyle} type="button">
+          + 添加植物
+        </button>
       </header>
       <input
         aria-label="搜索植物"
         autoComplete="off"
+        className="plant-list-search"
         onChange={(event) => setSearchText(event.target.value)}
         placeholder="按名称或位置搜索"
         style={searchBarStyle}
@@ -130,13 +130,27 @@ const titleStyle: React.CSSProperties = {
   color: "var(--color-ink)",
 };
 
+const addButtonStyle: React.CSSProperties = {
+  background: "none",
+  border: "none",
+  padding: 0,
+  margin: 0,
+  cursor: "pointer",
+  fontFamily: "var(--font-body)",
+  fontSize: "14px",
+  fontWeight: 600,
+  color: "var(--color-leaf)",
+  whiteSpace: "nowrap",
+};
+
 const searchBarStyle: React.CSSProperties = {
   height: "40px",
   width: "100%",
   boxSizing: "border-box",
   padding: "0 var(--space-md)",
   borderRadius: "var(--radius-input)",
-  border: "1px solid var(--color-line)",
+  border: "none",
+  outline: "none",
   background: "var(--color-mist)",
   color: "var(--color-ink)",
   fontFamily: "var(--font-body)",
@@ -152,7 +166,7 @@ const loadingCopyStyle: React.CSSProperties = {
 
 const listStyle: React.CSSProperties = {
   display: "grid",
-  gap: "var(--space-md)",
+  gap: "var(--space-sm)",
 };
 
 // --- Stagger animation helpers ---
@@ -170,7 +184,7 @@ function getStaggerStyle(index: number): React.CSSProperties {
   };
 }
 
-// Inject keyframe once (idempotent)
+// Inject keyframe + search focus styles once (idempotent)
 if (typeof document !== "undefined" && !document.getElementById("plant-stagger-keyframes")) {
   const style = document.createElement("style");
   style.id = "plant-stagger-keyframes";
@@ -182,6 +196,9 @@ if (typeof document !== "undefined" && !document.getElementById("plant-stagger-k
   @keyframes plantCardFadeIn {
     from, to { opacity: 1; transform: none; }
   }
+}
+.plant-list-search:focus {
+  box-shadow: inset 0 0 0 2px var(--color-leaf);
 }`;
   document.head.appendChild(style);
 }

@@ -583,7 +583,7 @@
       "task_id": "PLIST2-010",
       "description": "PlantListPage 整合与搜索栏视觉优化：集成新 PlantCard + ArchivedSection，调整列表间距为 8px，搜索栏改为无边框 mist 底色 + 聚焦内描边，标题栏改为 Lora 24px + 文字型添加按钮。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "done",
       "plan_path": null,
       "contracts": {
         "data_layer": {
