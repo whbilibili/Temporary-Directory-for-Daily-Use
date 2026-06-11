@@ -73,7 +73,7 @@
       "task_id": "PLIST2-002",
       "description": "归档植物查询：新增 listArchivedPlants query（isArchived===true，按归档时间降序），供归档折叠区使用。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "done",
       "plan_path": null,
       "contracts": {
         "data_layer": {

@@ -295,3 +295,38 @@ export const getPlantImageUrl = query({
     };
   },
 });
+
+export const listArchivedPlants = query({
+  args: {},
+  handler: async (ctx) => {
+    const currentUserContext = await requireCurrentFamilyMember(ctx);
+    const plants = await ctx.db
+      .query("plants")
+      .withIndex("by_familyId_and_isArchived", (q) =>
+        q.eq("familyId", currentUserContext.familyId).eq("isArchived", true),
+      )
+      .collect();
+
+    const archivedPlants = await Promise.all(
+      plants.map(async (plant) => {
+        const imageUrl = plant.imageStorageId
+          ? await ctx.storage.getUrl(plant.imageStorageId)
+          : null;
+
+        return {
+          id: plant._id,
+          name: plant.name,
+          imageUrl,
+          archivedAt: plant.archivedAt ?? plant._creationTime,
+        };
+      }),
+    );
+
+    // Sort by archivedAt descending (most recently archived first)
+    archivedPlants.sort((left, right) => right.archivedAt - left.archivedAt);
+
+    return {
+      plants: archivedPlants,
+    };
+  },
+});
