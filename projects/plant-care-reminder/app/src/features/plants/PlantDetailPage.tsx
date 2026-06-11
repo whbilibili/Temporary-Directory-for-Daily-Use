@@ -10,6 +10,7 @@ import { DetailNavBar } from "./DetailNavBar";
 import { OverflowMenu } from "./OverflowMenu";
 import { PlantHeroCard } from "./PlantHeroCard";
 import { ActionableTaskSection } from "../tasks/ActionableTaskSection";
+import { PlanSection } from "../tasks/PlanSection";
 import { UndoToast } from "../tasks/UndoToast";
 import { TaskSection } from "../tasks/TaskSection";
 import type { CompletionUndoPayload } from "../tasks/undoComplete";
@@ -173,6 +174,13 @@ export function PlantDetailPage({ plantId }: PlantDetailPageProps) {
           tasks={result.tasks}
         />
       )}
+
+      <PlanSection
+        onAdd={() => navigate(`/plants/${plant.id}/tasks/new`)}
+        onEdit={(taskId) => navigate(`/plants/${plant.id}/tasks/${taskId}/edit`)}
+        plantId={plant.id}
+        tasks={result.tasks}
+      />
 
       <TaskSection
         onAdd={() => navigate(`/plants/${plant.id}/tasks/new`)}
