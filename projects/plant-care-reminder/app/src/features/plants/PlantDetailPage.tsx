@@ -7,6 +7,8 @@ import { navigate } from "../../app/router";
 import { Button } from "../../components/ui/Button";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { DetailNavBar } from "./DetailNavBar";
+import { FloatingAddButton } from "./FloatingAddButton";
+import { ImagePreviewOverlay } from "./ImagePreviewOverlay";
 import { OverflowMenu } from "./OverflowMenu";
 import { PlantArchiveSection } from "./PlantArchiveSection";
 import { PlantHeroCard } from "./PlantHeroCard";
@@ -67,6 +69,7 @@ export function PlantDetailPage({ plantId }: PlantDetailPageProps) {
   } | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [undoPayload, setUndoPayload] = useState<CompletionUndoPayload | null>(null);
+  const [showImagePreview, setShowImagePreview] = useState(false);
 
   useEffect(() => {
     setArchivedStateOverride(null);
@@ -167,7 +170,11 @@ export function PlantDetailPage({ plantId }: PlantDetailPageProps) {
         />
       </div>
 
-      <PlantHeroCard plant={plant} tasks={result.tasks} />
+      <PlantHeroCard
+        plant={plant}
+        tasks={result.tasks}
+        onThumbnailClick={() => setShowImagePreview(true)}
+      />
 
       {!plant.isArchived && (
         <ActionableTaskSection
@@ -203,11 +210,25 @@ export function PlantDetailPage({ plantId }: PlantDetailPageProps) {
         </Button>
       </div>
 
+      {!plant.isArchived && (
+        <FloatingAddButton
+          onClick={() => navigate(`/plants/${plant.id}/tasks/new`)}
+        />
+      )}
+
       {undoPayload && (
         <UndoToast
           payload={undoPayload}
           onUndo={(p) => void handleUndo(p as CompletionUndoPayload)}
           onDismiss={() => setUndoPayload(null)}
+        />
+      )}
+
+      {showImagePreview && plant.imageUrl && (
+        <ImagePreviewOverlay
+          imageUrl={plant.imageUrl}
+          onClose={() => setShowImagePreview(false)}
+          plantName={plant.name}
         />
       )}
     </section>

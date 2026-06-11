@@ -152,6 +152,28 @@
   }
 }
 
+/* 全屏图片预览遮罩淡入（PDETAIL2-007）。 */
+@keyframes preview-overlay-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* 全屏图片预览图片缩放入场（PDETAIL2-007）。 */
+@keyframes preview-image-in {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
 /* 溢出菜单展开动效（PDETAIL2-001）。 */
 @keyframes menu-appear {
   0% {
