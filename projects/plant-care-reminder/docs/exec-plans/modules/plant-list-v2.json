@@ -391,7 +391,7 @@
       "task_id": "PLIST2-007",
       "description": "列表 Stagger 渐入动效：首次加载完成后卡片依次 fade-in + translateY(8px→0)，stagger 50ms，单卡 250ms，前 6 张有延迟第 7 张起同时出现，尊重 reduced-motion。",
       "priority": "2-Medium",
-      "status": "pending",
+      "status": "done",
       "plan_path": null,
       "contracts": {
         "data_layer": {

@@ -1,5 +1,5 @@
 import { useQuery } from "convex/react";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 import { api } from "../../../convex/_generated/api";
 import { Button } from "../../components/ui/Button";
@@ -15,6 +15,14 @@ interface PlantListResponse {
 export function PlantListPage() {
   const [searchText, setSearchText] = useState("");
   const result = useQuery(api.plants.listPlantsWithNextDue, {}) as PlantListResponse | undefined;
+  const hasAnimatedRef = useRef(false);
+
+  // Mark as animated once data arrives for the first time
+  const shouldAnimate = result !== undefined && !hasAnimatedRef.current;
+  if (result !== undefined && !hasAnimatedRef.current) {
+    // Set after first render cycle via a microtask so the initial render sees shouldAnimate=true
+    Promise.resolve().then(() => { hasAnimatedRef.current = true; });
+  }
 
   const filteredPlants = useMemo(() => {
     const plants = result?.plants ?? [];
@@ -81,13 +89,17 @@ export function PlantListPage() {
         />
       ) : (
         <div style={listStyle}>
-          {filteredPlants.map((plant) => (
-            <PlantCard
+          {filteredPlants.map((plant, index) => (
+            <div
               key={plant.id}
-              onEdit={(plantId) => navigate(`/plants/${plantId}/edit`)}
-              onOpen={(plantId) => navigate(`/plants/${plantId}`)}
-              plant={plant}
-            />
+              style={shouldAnimate ? getStaggerStyle(index) : undefined}
+            >
+              <PlantCard
+                onEdit={(plantId) => navigate(`/plants/${plantId}/edit`)}
+                onOpen={(plantId) => navigate(`/plants/${plantId}`)}
+                plant={plant}
+              />
+            </div>
           ))}
         </div>
       )}
@@ -142,3 +154,34 @@ const listStyle: React.CSSProperties = {
   display: "grid",
   gap: "var(--space-md)",
 };
+
+// --- Stagger animation helpers ---
+
+const STAGGER_DELAY_MS = 50;
+const STAGGER_CAP = 6;
+const CARD_DURATION_MS = 250;
+
+function getStaggerStyle(index: number): React.CSSProperties {
+  const delay = Math.min(index, STAGGER_CAP) * STAGGER_DELAY_MS;
+  return {
+    opacity: 0,
+    transform: "translateY(8px)",
+    animation: `plantCardFadeIn ${CARD_DURATION_MS}ms cubic-bezier(0.25, 0.46, 0.45, 0.94) ${delay}ms forwards`,
+  };
+}
+
+// Inject keyframe once (idempotent)
+if (typeof document !== "undefined" && !document.getElementById("plant-stagger-keyframes")) {
+  const style = document.createElement("style");
+  style.id = "plant-stagger-keyframes";
+  style.textContent = `
+@keyframes plantCardFadeIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  @keyframes plantCardFadeIn {
+    from, to { opacity: 1; transform: none; }
+  }
+}`;
+  document.head.appendChild(style);
+}

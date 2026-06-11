@@ -15,6 +15,8 @@
 
 **PLIST2-006 已完成（2026-06-11）**：归档折叠区组件。新增 ArchivedSection 组件（features/plants/ArchivedSection.tsx）：消费 useQuery(api.plants.listArchivedPlants)，内部 filter 确保仅显示 archivedAt 有效的植物；默认折叠，点击「▶ 已归档 (N)」展开/收起（箭头 rotate 90deg 动效 200ms）；展开区 max-height 动画 300ms ease-out + opacity 渐变；ArchivedPlantCard 灰态（opacity 0.55 + grayscale 0.6）+ 恢复按钮调用 restorePlant mutation。集成到 PlantListPage 底部（1px --color-line 分隔 + 24px 上间距）。测试兼容：filter 防止全局 useQuery mock 返回非归档数据导致重复渲染。typecheck 0 错误、86 tests 全绿。
 
+**PLIST2-007 已完成（2026-06-11）**：列表 Stagger 渐入动效。PlantListPage 中为每张卡片包裹 stagger 动画容器：首次数据加载后卡片依次 fade-in + translateY(8px→0)，stagger 50ms/卡，单卡 250ms cubic-bezier(0.25,0.46,0.45,0.94)，前 6 张有递增 delay 第 7 张起 delay 固定 300ms。通过 hasAnimatedRef 防止路由返回时重复动画。CSS keyframe 通过 idempotent style 注入（id="plant-stagger-keyframes"），内含 @media(prefers-reduced-motion:reduce) 退化为即时显示。typecheck 0 错误、86 tests 全绿。
+
 ---
 
 `frontend-refresh` 模块已完成任务细拆（2026-06-10），从原来的 5 个粗粒度 UX 任务拆解为 13 个原子任务（VIS-001 ~ VIS-013），每个任务对应可独立交付的垂直切片。
