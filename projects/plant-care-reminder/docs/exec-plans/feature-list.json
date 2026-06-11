@@ -70,6 +70,20 @@
         "care-reminders",
         "frontend-refresh"
       ]
+    },
+    {
+      "module": "plant-list-v2",
+      "file": "docs/exec-plans/modules/plant-list-v2.json",
+      "description": "植物列表页 v0.2 迭代：横向紧凑卡片布局（左图 80×80 + 右文三行）、按最近到期时间排序、归档折叠区、整卡可点击、编辑降级图标、stagger 渐入动效与按压反馈。每个 Task 同时承载功能开发契约与 UI 美化契约。",
+      "prd": "docs/product-specs/2026-06-11-plant-list-iteration-spec.md",
+      "ui_spec": "docs/product-specs/2026-06-11-plant-list-ui-spec.md",
+      "task_count": 10,
+      "completed": 0,
+      "depends_on": [
+        "plant-registry",
+        "care-reminders",
+        "frontend-refresh"
+      ]
     }
   ],
   "tasks_summary": [
@@ -415,6 +429,76 @@
       "description": "体验收尾：完成微交互+Haptic、即将到期区折叠、空状态两语境、反馈区数字动效（遵守 reduced-motion）。",
       "status": "completed",
       "priority": "3-Low"
+    },
+    {
+      "task_id": "PLIST2-001",
+      "module": "plant-list-v2",
+      "description": "后端排序改造：listPlantsWithNextDue 改为按 nextDueAt 升序（无任务沉底），替代按名称排序。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "PLIST2-002",
+      "module": "plant-list-v2",
+      "description": "归档植物查询：新增 listArchivedPlants query（isArchived===true，按归档时间降序）。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "PLIST2-003",
+      "module": "plant-list-v2",
+      "description": "PlantCard 重写：竖向大图改为横向紧凑布局（左图 80×80 + 右文三行），整卡可点击进详情。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "PLIST2-004",
+      "module": "plant-list-v2",
+      "description": "任务状态行与逾期色条：第三行展示最紧迫任务 emoji+到期文案，逾期时左侧 3px 暖橙色条。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "PLIST2-005",
+      "module": "plant-list-v2",
+      "description": "编辑图标交互：右上角铅笔图标（16×16 视觉/44×44 热区），点击进编辑页并阻止冒泡。",
+      "status": "pending",
+      "priority": "2-Medium"
+    },
+    {
+      "task_id": "PLIST2-006",
+      "module": "plant-list-v2",
+      "description": "归档折叠区组件：ArchivedSection + ArchivedPlantCard（灰态+恢复按钮+展开收起动效）。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "PLIST2-007",
+      "module": "plant-list-v2",
+      "description": "列表 Stagger 渐入动效：卡片依次 fade-in+translateY，stagger 50ms，尊重 reduced-motion。",
+      "status": "pending",
+      "priority": "2-Medium"
+    },
+    {
+      "task_id": "PLIST2-008",
+      "module": "plant-list-v2",
+      "description": "卡片按压反馈：:active 态 scale(0.98)+底色微变，按下 120ms，松开 200ms 回弹缓动。",
+      "status": "pending",
+      "priority": "2-Medium"
+    },
+    {
+      "task_id": "PLIST2-009",
+      "module": "plant-list-v2",
+      "description": "图片渐显与占位态：无图 mist 底+🌿；有图 onLoad 渐显 200ms；失败回退占位态。",
+      "status": "pending",
+      "priority": "2-Medium"
+    },
+    {
+      "task_id": "PLIST2-010",
+      "module": "plant-list-v2",
+      "description": "PlantListPage 整合：集成新卡片+归档区，搜索栏视觉优化，标题栏改造，空状态落地。",
+      "status": "pending",
+      "priority": "1-High"
     }
   ],
   "cross_module_dependencies": [
@@ -537,6 +621,71 @@
       "from": "TODO2-008",
       "to": "VIS-011",
       "reason": "完成微交互在 VIS-011 已有的完成即时反馈/状态动效上增强。"
+    },
+    {
+      "from": "PLIST2-001",
+      "to": "CARE-001",
+      "reason": "排序依据 nextDueAt 由 care-reminders 模块的 scheduling helper 计算写入。"
+    },
+    {
+      "from": "PLIST2-001",
+      "to": "PLANT-005",
+      "reason": "改造现有 listPlantsWithNextDue query，该 query 在 plant-registry 模块建立。"
+    },
+    {
+      "from": "PLIST2-002",
+      "to": "PLANT-007",
+      "reason": "归档查询依赖 PLANT-007 实现的 archive/restore 生命周期和 archivedAt 字段。"
+    },
+    {
+      "from": "PLIST2-003",
+      "to": "PLIST2-001",
+      "reason": "新卡片消费 PLIST2-001 改造后的排序数据，直接使用后端返回顺序。"
+    },
+    {
+      "from": "PLIST2-004",
+      "to": "PLIST2-003",
+      "reason": "任务状态行是 PlantCard 重写的子组件，依赖卡片结构先就位。"
+    },
+    {
+      "from": "PLIST2-005",
+      "to": "PLIST2-003",
+      "reason": "编辑图标嵌入重写后的 PlantCard 第一行右侧。"
+    },
+    {
+      "from": "PLIST2-006",
+      "to": "PLIST2-002",
+      "reason": "归档折叠区组件消费 PLIST2-002 新增的 listArchivedPlants query。"
+    },
+    {
+      "from": "PLIST2-007",
+      "to": "PLIST2-003",
+      "reason": "Stagger 动效作用于重写后的 PlantCard 列表。"
+    },
+    {
+      "from": "PLIST2-008",
+      "to": "PLIST2-003",
+      "reason": "按压反馈 CSS 加在重写后的 PlantCard 容器上。"
+    },
+    {
+      "from": "PLIST2-009",
+      "to": "PLIST2-003",
+      "reason": "PlantImage 组件是 PlantCard 重写的子组件。"
+    },
+    {
+      "from": "PLIST2-010",
+      "to": "PLIST2-003",
+      "reason": "页面整合依赖新 PlantCard 组件已完成。"
+    },
+    {
+      "from": "PLIST2-010",
+      "to": "PLIST2-006",
+      "reason": "页面整合需要集成归档折叠区组件。"
+    },
+    {
+      "from": "PLIST2-010",
+      "to": "VIS-001",
+      "reason": "页面布局全面引用 VIS-001 建立的 design token 基础设施。"
     }
   ]
 }

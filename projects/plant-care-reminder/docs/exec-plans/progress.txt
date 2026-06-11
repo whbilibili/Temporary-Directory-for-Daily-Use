@@ -1,4 +1,10 @@
 ### [Current Focus]
+`plant-list-v2` 模块开发中（2026-06-11 启动）。
+
+**PLIST2-001 已完成（2026-06-11）**：后端排序改造。`app/convex/plants.ts` listPlantsWithNextDue query 排序逻辑从 `name.localeCompare` 改为 nextDueAt 升序（有任务植物按最近到期排前）+ null 沉底（无任务植物按 _creationTime 降序）。map 中新增 `creationTime: plant._creationTime` 字段用于排序。前端 PlantListPage.tsx 无本地排序代码，无需改动。typecheck 0 错误、52 测试全绿（14 files / 86 tests）。
+
+---
+
 `frontend-refresh` 模块已完成任务细拆（2026-06-10），从原来的 5 个粗粒度 UX 任务拆解为 13 个原子任务（VIS-001 ~ VIS-013），每个任务对应可独立交付的垂直切片。
 
 **VIS-001 已完成（2026-06-10）**：tokens.css 已建立（botanical palette 全套色彩/字体/间距/圆角/阴影），index.css/App.css/Button/BottomNav 及全部含硬编码色值的 tsx 已替换为 token 变量。typecheck 通过、test 全绿（8 files / 50 tests）、grep 验收无残留。

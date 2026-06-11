@@ -182,6 +182,7 @@ export const listPlantsWithNextDue = query({
           location: plant.location ?? null,
           imageStorageId: plant.imageStorageId ?? null,
           imageUrl,
+          creationTime: plant._creationTime,
           nextDueTask: nextDueTask
             ? {
                 taskType: nextDueTask.taskType,
@@ -193,7 +194,24 @@ export const listPlantsWithNextDue = query({
       }),
     );
 
-    plantsWithNextDue.sort((left, right) => left.name.localeCompare(right.name));
+    // Sort by nextDueAt ascending; plants without tasks sink to bottom
+    // (among sunk plants, sort by creation time descending — newest first)
+    plantsWithNextDue.sort((left, right) => {
+      const leftDue = left.nextDueTask?.nextDueAt ?? null;
+      const rightDue = right.nextDueTask?.nextDueAt ?? null;
+
+      if (leftDue !== null && rightDue !== null) {
+        return leftDue - rightDue;
+      }
+      if (leftDue !== null && rightDue === null) {
+        return -1;
+      }
+      if (leftDue === null && rightDue !== null) {
+        return 1;
+      }
+      // Both null: sort by creation time descending (newest first)
+      return right.creationTime - left.creationTime;
+    });
 
     return {
       plants: plantsWithNextDue,
