@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
@@ -10,7 +10,11 @@ import { DetailNavBar } from "./DetailNavBar";
 import { OverflowMenu } from "./OverflowMenu";
 import { PlantHeroCard } from "./PlantHeroCard";
 import { ActionableTaskSection } from "../tasks/ActionableTaskSection";
+import { UndoToast } from "../tasks/UndoToast";
 import { TaskSection } from "../tasks/TaskSection";
+import type { CompletionUndoPayload } from "../tasks/undoComplete";
+import { formatTaskTypeLabel } from "../tasks/taskTypes";
+import { taskTypeEmoji } from "../tasks/TaskTypeBadge";
 
 interface PlantDetailPageProps {
   plantId: string | null;
@@ -41,6 +45,11 @@ interface PlantDetailResponse {
   }>;
 }
 
+const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
+  month: "numeric",
+  day: "numeric",
+});
+
 export function PlantDetailPage({ plantId }: PlantDetailPageProps) {
   const result = useQuery(
     api.plants.getPlantDetail,
@@ -49,11 +58,13 @@ export function PlantDetailPage({ plantId }: PlantDetailPageProps) {
     | PlantDetailResponse
     | null
     | undefined;
+  const undoComplete = useMutation(api.tasks.undoCompletePlantTask);
   const [archivedStateOverride, setArchivedStateOverride] = useState<{
     archivedAt: number | null;
     isArchived: boolean;
   } | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [undoPayload, setUndoPayload] = useState<CompletionUndoPayload | null>(null);
 
   useEffect(() => {
     setArchivedStateOverride(null);
@@ -106,6 +117,37 @@ export function PlantDetailPage({ plantId }: PlantDetailPageProps) {
       }
     : result.plant;
 
+  function handleTaskCompleted(completionResult: {
+    nextDueAt: number;
+    taskId: string;
+    undo: CompletionUndoPayload;
+  }) {
+    // 找到对应任务，构建带下次时间的文案
+    const task = result!.tasks.find((t) => t.id === completionResult.taskId);
+    const emoji = task ? taskTypeEmoji(task.taskType) : "🍃";
+    const label = task ? formatTaskTypeLabel(task.taskType, task.customLabel) : "任务";
+    const nextDateStr = dateFormatter.format(new Date(completionResult.nextDueAt));
+    const message = `${emoji} ${label}已完成，下次 ${nextDateStr}`;
+
+    setUndoPayload({
+      ...completionResult.undo,
+      message,
+    });
+  }
+
+  async function handleUndo(payload: CompletionUndoPayload) {
+    setUndoPayload(null);
+    try {
+      await undoComplete({
+        taskId: payload.taskId,
+        logId: payload.logId,
+        previous: payload.previous,
+      });
+    } catch {
+      // 静默处理
+    }
+  }
+
   return (
     <section style={pageStyle}>
       <div style={navWrapStyle}>
@@ -127,9 +169,7 @@ export function PlantDetailPage({ plantId }: PlantDetailPageProps) {
 
       {!plant.isArchived && (
         <ActionableTaskSection
-          onCompleted={() => {
-            // Convex 实时同步会自动更新 tasks 数据
-          }}
+          onCompleted={handleTaskCompleted}
           tasks={result.tasks}
         />
       )}
@@ -151,6 +191,14 @@ export function PlantDetailPage({ plantId }: PlantDetailPageProps) {
           添加任务
         </Button>
       </div>
+
+      {undoPayload && (
+        <UndoToast
+          payload={undoPayload}
+          onUndo={(p) => void handleUndo(p as CompletionUndoPayload)}
+          onDismiss={() => setUndoPayload(null)}
+        />
+      )}
     </section>
   );
 }
