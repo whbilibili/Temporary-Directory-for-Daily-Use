@@ -93,16 +93,16 @@ export function PlantDetailPage({ plantId }: PlantDetailPageProps) {
 
   if (result === undefined) {
     return (
-      <section style={loadingPageStyle}>
+      <main style={loadingPageStyle}>
         <DetailNavBar plantName="…" onMenuToggle={() => {}} />
-        <p style={loadingBodyStyle}>正在加载植物信息…</p>
-      </section>
+        <p role="status" style={loadingBodyStyle}>正在加载植物信息…</p>
+      </main>
     );
   }
 
   if (result === null) {
     return (
-      <section style={loadingPageStyle}>
+      <main style={loadingPageStyle}>
         <DetailNavBar plantName="" onMenuToggle={() => {}} />
         <EmptyState
           badge="不可用"
@@ -115,7 +115,7 @@ export function PlantDetailPage({ plantId }: PlantDetailPageProps) {
           }
           minHeight="240px"
         />
-      </section>
+      </main>
     );
   }
 
@@ -166,10 +166,11 @@ export function PlantDetailPage({ plantId }: PlantDetailPageProps) {
   // L4: Plant Archive (可折叠档案)
 
   return (
-    <section style={pageStyle}>
+    <main style={pageStyle}>
       {/* L0: 导航栏 */}
       <div style={navWrapStyle}>
         <DetailNavBar
+          menuOpen={menuOpen}
           plantName={plant.name}
           onMenuToggle={() => setMenuOpen((prev) => !prev)}
         />
@@ -245,7 +246,7 @@ export function PlantDetailPage({ plantId }: PlantDetailPageProps) {
           plantName={plant.name}
         />
       )}
-    </section>
+    </main>
   );
 }
 

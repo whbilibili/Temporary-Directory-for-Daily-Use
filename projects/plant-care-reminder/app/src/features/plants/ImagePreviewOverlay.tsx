@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 interface ImagePreviewOverlayProps {
   imageUrl: string;
@@ -7,11 +7,22 @@ interface ImagePreviewOverlayProps {
 }
 
 export function ImagePreviewOverlay({ imageUrl, onClose, plantName }: ImagePreviewOverlayProps) {
-  // ESC 键关闭
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
+    // 打开时聚焦关闭按钮
+    closeButtonRef.current?.focus();
+
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape") {
         onClose();
+        return;
+      }
+      // 焦点陷阱：Tab/Shift+Tab 始终停留在关闭按钮（对话框内唯一可聚焦元素）
+      if (e.key === "Tab") {
+        e.preventDefault();
+        closeButtonRef.current?.focus();
       }
     }
     document.addEventListener("keydown", handleKeyDown);
@@ -27,7 +38,9 @@ export function ImagePreviewOverlay({ imageUrl, onClose, plantName }: ImagePrevi
   return (
     <div
       aria-label={`${plantName}大图预览`}
+      aria-modal="true"
       onClick={onClose}
+      ref={dialogRef}
       role="dialog"
       style={overlayStyle}
     >
@@ -35,10 +48,11 @@ export function ImagePreviewOverlay({ imageUrl, onClose, plantName }: ImagePrevi
       <button
         aria-label="关闭预览"
         onClick={onClose}
+        ref={closeButtonRef}
         style={closeButtonStyle}
         type="button"
       >
-        ×
+        <span aria-hidden="true">×</span>
       </button>
 
       {/* 图片 */}
@@ -59,7 +73,7 @@ const overlayStyle: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  background: "rgba(22, 52, 47, 0.85)",
+  background: "var(--color-overlay-scrim)",
   backdropFilter: "blur(4px)",
   animation: "preview-overlay-in 200ms ease-out",
 };

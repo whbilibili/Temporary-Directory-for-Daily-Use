@@ -1,13 +1,14 @@
 import { navigate } from "../../app/router";
 
 interface DetailNavBarProps {
+  menuOpen?: boolean;
   plantName: string;
   onMenuToggle: () => void;
 }
 
-export function DetailNavBar({ plantName, onMenuToggle }: DetailNavBarProps) {
+export function DetailNavBar({ menuOpen, plantName, onMenuToggle }: DetailNavBarProps) {
   return (
-    <nav style={navStyle}>
+    <nav aria-label="植物详情导航" style={navStyle}>
       <button
         aria-label="返回"
         onClick={() => navigate("/plants")}
@@ -32,6 +33,8 @@ export function DetailNavBar({ plantName, onMenuToggle }: DetailNavBarProps) {
       <span style={titleStyle}>{plantName}</span>
 
       <button
+        aria-expanded={menuOpen ?? false}
+        aria-haspopup="menu"
         aria-label="更多操作"
         onClick={onMenuToggle}
         style={menuButtonStyle}

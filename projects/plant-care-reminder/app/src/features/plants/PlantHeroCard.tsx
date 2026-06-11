@@ -101,6 +101,16 @@ export function PlantHeroCard({ plant, tasks = [], onThumbnailClick }: PlantHero
         aria-label={hasImage ? "查看大图" : undefined}
         aria-hidden={!hasImage ? "true" : undefined}
         onClick={hasImage ? onThumbnailClick : undefined}
+        onKeyDown={
+          hasImage
+            ? (e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  onThumbnailClick?.();
+                }
+              }
+            : undefined
+        }
         role={hasImage ? "button" : undefined}
         style={{
           ...thumbnailWrapStyle,

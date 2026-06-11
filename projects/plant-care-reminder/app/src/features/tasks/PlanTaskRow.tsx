@@ -53,7 +53,6 @@ export function PlanTaskRow({ onEdit, task }: PlanTaskRowProps) {
     <button
       aria-label={`编辑${label}任务，${interval}，下次${dueText}`}
       onClick={() => onEdit(task.id)}
-      role="button"
       style={rowStyle}
       type="button"
     >

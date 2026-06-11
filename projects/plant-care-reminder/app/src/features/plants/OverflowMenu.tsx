@@ -26,6 +26,17 @@ export function OverflowMenu({
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const firstItemRef = useRef<HTMLButtonElement>(null);
+
+  // 打开时聚焦第一个菜单项
+  useEffect(() => {
+    if (isOpen) {
+      // 延迟一帧确保 DOM 已渲染
+      requestAnimationFrame(() => {
+        firstItemRef.current?.focus();
+      });
+    }
+  }, [isOpen]);
 
   // 点击外部关闭菜单
   useEffect(() => {
@@ -47,6 +58,20 @@ export function OverflowMenu({
       window.clearTimeout(timer);
       document.removeEventListener("click", handleClickOutside);
     };
+  }, [isOpen, onClose]);
+
+  // Escape 关闭菜单
+  useEffect(() => {
+    if (!isOpen) return;
+
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
+      }
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
 
   // 关闭时重置确认状态
@@ -91,15 +116,22 @@ export function OverflowMenu({
       {/* 遮罩层 */}
       <div aria-hidden="true" onClick={onClose} style={overlayStyle} />
       {/* 菜单 */}
-      <div ref={menuRef} role="menu" style={menuStyle}>
+      <div
+        aria-label="植物操作菜单"
+        ref={menuRef}
+        role="menu"
+        style={menuStyle}
+      >
         <button
           disabled={isSubmitting}
           onClick={() => {
             navigate(`/plants/${plantId}/edit`);
             onClose();
           }}
+          ref={firstItemRef}
           role="menuitem"
           style={menuItemStyle}
+          tabIndex={0}
           type="button"
         >
           编辑植物
@@ -109,22 +141,24 @@ export function OverflowMenu({
           onClick={() => void handleArchiveToggle()}
           role="menuitem"
           style={menuItemStyle}
+          tabIndex={-1}
           type="button"
         >
           {isArchived ? "恢复到看板" : "归档植物"}
         </button>
-        <div style={dividerStyle} />
+        <div aria-hidden="true" style={dividerStyle} />
         <button
           disabled={isSubmitting}
           onClick={handleDelete}
           role="menuitem"
           style={dangerMenuItemStyle}
+          tabIndex={-1}
           type="button"
         >
           {confirmingDelete ? "确认删除" : "删除植物"}
         </button>
         {confirmingDelete && (
-          <p style={confirmHintStyle}>
+          <p aria-live="assertive" role="alert" style={confirmHintStyle}>
             删除后「{plantName}」的所有数据将无法恢复
           </p>
         )}

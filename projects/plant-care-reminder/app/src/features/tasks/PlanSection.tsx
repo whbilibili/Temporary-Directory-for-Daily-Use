@@ -36,7 +36,7 @@ export function PlanSection({ onAdd, onEdit, plantId, tasks }: PlanSectionProps)
         <h2 style={titleStyle}>
           📋 养护计划（{sortedTasks.length}）
         </h2>
-        <button onClick={onAdd} style={addButtonStyle} type="button">
+        <button aria-label="添加养护计划" onClick={onAdd} style={addButtonStyle} type="button">
           + 添加
         </button>
       </div>
