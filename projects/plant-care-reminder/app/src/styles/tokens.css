@@ -152,6 +152,18 @@
   }
 }
 
+/* 溢出菜单展开动效（PDETAIL2-001）。 */
+@keyframes menu-appear {
+  0% {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
 /* 尊重用户减少动画偏好 */
 @media (prefers-reduced-motion: reduce) {
   *,

@@ -84,6 +84,20 @@
         "care-reminders",
         "frontend-refresh"
       ]
+    },
+    {
+      "module": "plant-detail-v2",
+      "file": "docs/exec-plans/modules/plant-detail-v2.json",
+      "description": "植物详情页 v0.2 迭代：从「植物资料卡」重构为「单株养护面板」。NavBar + Compact Hero + Action Zone（到期任务高亮操作区）+ Plan Overview + Plant Archive（可折叠）+ FAB + 全屏图片预览。每个 Task 同时承载功能开发契约与 UI 美化契约。",
+      "prd": "docs/product-specs/2026-06-11-plant-detail-iteration-spec.md",
+      "ui_spec": "docs/product-specs/2026-06-11-plant-detail-ui-spec.md",
+      "task_count": 9,
+      "completed": 0,
+      "depends_on": [
+        "plant-registry",
+        "care-reminders",
+        "frontend-refresh"
+      ]
     }
   ],
   "tasks_summary": [
@@ -493,14 +507,77 @@
       "status": "pending",
       "priority": "2-Medium"
     },
+{
+"task_id": "PLIST2-010",
+"module": "plant-list-v2",
+"description": "PlantListPage 整合：集成新卡片+归档区，搜索栏视觉优化，标题栏改造，空状态落地。",
+"status": "pending",
+"priority": "1-High"
+},
     {
-      "task_id": "PLIST2-010",
-      "module": "plant-list-v2",
-      "description": "PlantListPage 整合：集成新卡片+归档区，搜索栏视觉优化，标题栏改造，空状态落地。",
+      "task_id": "PDETAIL2-001",
+      "module": "plant-detail-v2",
+      "description": "顶部导航栏 + 溢出菜单：DetailNavBar（sticky 顶栏）+ OverflowMenu（编辑/归档/删除）。",
       "status": "pending",
       "priority": "1-High"
+    },
+    {
+      "task_id": "PDETAIL2-002",
+      "module": "plant-detail-v2",
+      "description": "紧凑 Hero 区重构：48×48 缩略图 + 名称 + 位置·状态摘要横向布局，状态摘要动态变色。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "PDETAIL2-003",
+      "module": "plant-detail-v2",
+      "description": "需要处理区（核心操作区）：高亮紧凑行（色条+emoji+标签+到期状态+圆形完成按钮），无到期时不渲染。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "PDETAIL2-004",
+      "module": "plant-detail-v2",
+      "description": "任务完成交互与动效：按钮变绿+emoji上浮+震动→行折叠退场→UndoToast（下次时间+撤销）。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "PDETAIL2-005",
+      "module": "plant-detail-v2",
+      "description": "养护计划区：全部任务下次时间总览（信息行可点击编辑），含空状态引导和添加按钮。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "PDETAIL2-006",
+      "module": "plant-detail-v2",
+      "description": "植物档案折叠区：可折叠描述/备注/时间，默认收起，localStorage 持久化，grid 动效。",
+      "status": "pending",
+      "priority": "2-Medium"
+    },
+    {
+      "task_id": "PDETAIL2-007",
+      "module": "plant-detail-v2",
+      "description": "悬浮添加按钮（FAB）+ 全屏图片预览：pill 形 FAB 跳转创建任务页 + 缩略图全屏 overlay。",
+      "status": "pending",
+      "priority": "2-Medium"
+    },
+    {
+      "task_id": "PDETAIL2-008",
+      "module": "plant-detail-v2",
+      "description": "页面整体组装与布局重构：五层信息架构组装，区域间距，进入动效，条件渲染，废弃旧组件。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "PDETAIL2-009",
+      "module": "plant-detail-v2",
+      "description": "无障碍与跨页面一致性验收：aria 属性补齐，对比度检测，与待办页/列表页视觉一致性。",
+      "status": "pending",
+      "priority": "2-Medium"
     }
-  ],
+],
   "cross_module_dependencies": [
     {
       "from": "ACCESS-001",
@@ -686,6 +763,56 @@
       "from": "PLIST2-010",
       "to": "VIS-001",
       "reason": "页面布局全面引用 VIS-001 建立的 design token 基础设施。"
+    },
+    {
+      "from": "PDETAIL2-003",
+      "to": "CARE-006",
+      "reason": "需要处理区的完成按钮复用 care-reminders 模块的 completePlantTask mutation。"
+    },
+    {
+      "from": "PDETAIL2-004",
+      "to": "CARE-006",
+      "reason": "完成交互复用 completePlantTask / undoCompletePlantTask mutation 和 UndoToast 组件。"
+    },
+    {
+      "from": "PDETAIL2-002",
+      "to": "PLANT-006",
+      "reason": "Hero 区重构基于 plant-registry 模块建立的 getPlantDetail query 和 PlantHeroCard 组件。"
+    },
+    {
+      "from": "PDETAIL2-008",
+      "to": "VIS-001",
+      "reason": "页面布局全面引用 VIS-001 建立的 design token 基础设施。"
+    },
+    {
+      "from": "PDETAIL2-008",
+      "to": "PDETAIL2-001",
+      "reason": "页面组装依赖 DetailNavBar 组件已完成。"
+    },
+    {
+      "from": "PDETAIL2-008",
+      "to": "PDETAIL2-002",
+      "reason": "页面组装依赖紧凑 Hero 区已完成。"
+    },
+    {
+      "from": "PDETAIL2-008",
+      "to": "PDETAIL2-003",
+      "reason": "页面组装依赖需要处理区已完成。"
+    },
+    {
+      "from": "PDETAIL2-008",
+      "to": "PDETAIL2-005",
+      "reason": "页面组装依赖养护计划区已完成。"
+    },
+    {
+      "from": "PDETAIL2-008",
+      "to": "PDETAIL2-006",
+      "reason": "页面组装依赖植物档案折叠区已完成。"
+    },
+    {
+      "from": "PDETAIL2-008",
+      "to": "PDETAIL2-007",
+      "reason": "页面组装依赖 FAB 和图片预览已完成。"
     }
   ]
 }

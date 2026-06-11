@@ -16,6 +16,10 @@
   - 迭代 v0.2 PRD：植物列表页展示逻辑、排序规则、归档策略、卡片信息架构、交互与动效（8 条已拍板决策）
 - [2026-06-11-plant-list-ui-spec.md](./2026-06-11-plant-list-ui-spec.md)
   - 迭代 v0.2 UI 设计规格：植物列表页卡片视觉、色彩应用、动效细节、归档区设计（与 PRD 配套）
+- [2026-06-11-plant-detail-iteration-spec.md](./2026-06-11-plant-detail-iteration-spec.md)
+  - 迭代 v0.2 PRD：植物详情页信息层级重构、任务状态前置、完成交互与正反馈闭环、UI 美化（8 条已拍板决策）
+- [2026-06-11-plant-detail-ui-spec.md](./2026-06-11-plant-detail-ui-spec.md)
+  - 迭代 v0.2 UI 设计规格：植物详情页布局结构、各区域视觉规格、色彩应用、动效细节与交互反馈（与 PRD 配套）
 
 ## 约定
 

@@ -6,7 +6,8 @@ import type { Id } from "../../../convex/_generated/dataModel";
 import { navigate } from "../../app/router";
 import { Button } from "../../components/ui/Button";
 import { EmptyState } from "../../components/ui/EmptyState";
-import { ArchivePlantAction } from "./ArchivePlantAction";
+import { DetailNavBar } from "./DetailNavBar";
+import { OverflowMenu } from "./OverflowMenu";
 import { PlantHeroCard } from "./PlantHeroCard";
 import { TaskSection } from "../tasks/TaskSection";
 
@@ -51,6 +52,7 @@ export function PlantDetailPage({ plantId }: PlantDetailPageProps) {
     archivedAt: number | null;
     isArchived: boolean;
   } | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     setArchivedStateOverride(null);
@@ -74,7 +76,8 @@ export function PlantDetailPage({ plantId }: PlantDetailPageProps) {
   if (result === undefined) {
     return (
       <section style={loadingStyle}>
-        <p style={loadingBodyStyle}>加载中…</p>
+        <DetailNavBar plantName="加载中…" onMenuToggle={() => {}} />
+        <p style={loadingBodyStyle}>正在加载植物信息…</p>
       </section>
     );
   }
@@ -104,45 +107,39 @@ export function PlantDetailPage({ plantId }: PlantDetailPageProps) {
 
   return (
     <section style={pageStyle}>
-      <PlantHeroCard
-        actionSlot={
-          <ArchivePlantAction
-            isArchived={plant.isArchived}
-            onArchivedStateChange={setArchivedStateOverride}
-            plantId={plant.id}
-            plantName={plant.name}
-          />
-        }
-        plant={plant}
-      />
+      <div style={navWrapStyle}>
+        <DetailNavBar
+          plantName={plant.name}
+          onMenuToggle={() => setMenuOpen((prev) => !prev)}
+        />
+        <OverflowMenu
+          isArchived={plant.isArchived}
+          isOpen={menuOpen}
+          onArchivedStateChange={setArchivedStateOverride}
+          onClose={() => setMenuOpen(false)}
+          plantId={plant.id}
+          plantName={plant.name}
+        />
+      </div>
+
+      <PlantHeroCard plant={plant} />
+
       <TaskSection
         onAdd={() => navigate(`/plants/${plant.id}/tasks/new`)}
         onEdit={(taskId) => navigate(`/plants/${plant.id}/tasks/${taskId}/edit`)}
         plantName={plant.name}
         tasks={result.tasks}
       />
+
       <div style={actionBarStyle}>
-        <Button fullWidth={false} onClick={() => navigate("/plants")} type="button" variant="ghost">
-          返回列表
+        <Button
+          fullWidth={false}
+          onClick={() => navigate(`/plants/${plant.id}/tasks/new`)}
+          style={addTaskButtonStyle}
+          type="button"
+        >
+          添加任务
         </Button>
-        <div style={actionBarPrimaryGroupStyle}>
-          <Button
-            fullWidth={false}
-            onClick={() => navigate(`/plants/${plant.id}/edit`)}
-            type="button"
-            variant="ghost"
-          >
-            编辑植物
-          </Button>
-          <Button
-            fullWidth={false}
-            onClick={() => navigate(`/plants/${plant.id}/tasks/new`)}
-            style={addTaskButtonStyle}
-            type="button"
-          >
-            添加任务
-          </Button>
-        </div>
       </div>
     </section>
   );
@@ -153,17 +150,22 @@ const pageStyle: React.CSSProperties = {
   gap: "var(--space-lg)",
 };
 
+const navWrapStyle: React.CSSProperties = {
+  position: "relative",
+};
+
 const loadingStyle: React.CSSProperties = {
   display: "grid",
   gap: "var(--space-sm)",
-  padding: "var(--space-md)",
 };
 
 const loadingBodyStyle: React.CSSProperties = {
   margin: 0,
+  padding: "var(--space-md)",
   color: "var(--color-muted)",
   fontSize: "14px",
   lineHeight: 1.6,
+  textAlign: "center",
 };
 
 const actionBarStyle: React.CSSProperties = {
@@ -172,7 +174,7 @@ const actionBarStyle: React.CSSProperties = {
   zIndex: 20,
   display: "flex",
   alignItems: "center",
-  justifyContent: "space-between",
+  justifyContent: "flex-end",
   gap: "var(--space-sm)",
   minHeight: "56px",
   padding: "var(--space-sm) var(--space-md)",
@@ -181,12 +183,6 @@ const actionBarStyle: React.CSSProperties = {
   border: "1px solid var(--color-line)",
   borderRadius: "var(--radius-sheet)",
   boxShadow: "var(--shadow-sheet)",
-};
-
-const actionBarPrimaryGroupStyle: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: "var(--space-sm)",
 };
 
 const addTaskButtonStyle: React.CSSProperties = {
