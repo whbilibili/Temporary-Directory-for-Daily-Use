@@ -17,6 +17,8 @@
 
 **PLIST2-007 已完成（2026-06-11）**：列表 Stagger 渐入动效。PlantListPage 中为每张卡片包裹 stagger 动画容器：首次数据加载后卡片依次 fade-in + translateY(8px→0)，stagger 50ms/卡，单卡 250ms cubic-bezier(0.25,0.46,0.45,0.94)，前 6 张有递增 delay 第 7 张起 delay 固定 300ms。通过 hasAnimatedRef 防止路由返回时重复动画。CSS keyframe 通过 idempotent style 注入（id="plant-stagger-keyframes"），内含 @media(prefers-reduced-motion:reduce) 退化为即时显示。typecheck 0 错误、86 tests 全绿。
 
+**PLIST2-008 已完成（2026-06-11）**：卡片按压反馈。PlantCard article 添加 className="plant-card"，通过 idempotent CSS 注入（id="plant-card-press-css"）实现 :active 态 scale(0.98) + background var(--color-mist)；按下 transition 120ms ease-out，松开 200ms cubic-bezier(0.34,1.56,0.64,1) 回弹缓动。scale 微小不触发 motion 敏感，无需 reduced-motion 退化。typecheck 0 错误、86 tests 全绿。
+
 ---
 
 `frontend-refresh` 模块已完成任务细拆（2026-06-10），从原来的 5 个粗粒度 UX 任务拆解为 13 个原子任务（VIS-001 ~ VIS-013），每个任务对应可独立交付的垂直切片。

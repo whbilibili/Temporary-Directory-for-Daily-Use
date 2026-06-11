@@ -49,7 +49,7 @@ export function PlantCard({ onEdit, onOpen, plant }: PlantCardProps) {
     : cardStyle;
 
   return (
-    <article style={resolvedCardStyle}>
+    <article className="plant-card" style={resolvedCardStyle}>
       <div style={imageWrapStyle} onClick={() => onOpen(plant.id)}>
         <PlantImage alt={`${plant.name}封面图`} imageUrl={plant.imageUrl} />
       </div>
@@ -225,3 +225,19 @@ const detailButtonStyle: React.CSSProperties = {
   lineHeight: 1,
   color: "var(--color-muted)",
 };
+
+// --- Press feedback CSS injection (idempotent) ---
+if (typeof document !== "undefined" && !document.getElementById("plant-card-press-css")) {
+  const style = document.createElement("style");
+  style.id = "plant-card-press-css";
+  style.textContent = `
+.plant-card {
+  transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1), background 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.plant-card:active {
+  transform: scale(0.98);
+  background: var(--color-mist);
+  transition: transform 120ms ease-out, background 120ms ease-out;
+}`;
+  document.head.appendChild(style);
+}

@@ -456,7 +456,7 @@
       "task_id": "PLIST2-008",
       "description": "卡片按压反馈：整卡 :active 态 scale(0.98) + 底色微变（surface→mist），按下 120ms ease-out，松开 200ms 回弹缓动。",
       "priority": "2-Medium",
-      "status": "pending",
+      "status": "done",
       "plan_path": null,
       "contracts": {
         "data_layer": {
