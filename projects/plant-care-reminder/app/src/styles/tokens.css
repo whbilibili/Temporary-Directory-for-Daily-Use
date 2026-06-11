@@ -103,6 +103,55 @@
   }
 }
 
+/* ---- 底部确认 sheet 弹层动效（推迟确认等） ---- */
+/* 遮罩淡入。 */
+@keyframes sheet-overlay-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* 遮罩淡出。 */
+@keyframes sheet-overlay-out {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* sheet 从底部滑入，带轻微回弹（spring 感）。 */
+@keyframes sheet-rise-in {
+  0% {
+    transform: translateY(110%);
+    opacity: 0;
+  }
+  70% {
+    transform: translateY(-6px);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* sheet 向下滑出并淡出。 */
+@keyframes sheet-sink-out {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110%);
+    opacity: 0;
+  }
+}
+
 /* 尊重用户减少动画偏好 */
 @media (prefers-reduced-motion: reduce) {
   *,
