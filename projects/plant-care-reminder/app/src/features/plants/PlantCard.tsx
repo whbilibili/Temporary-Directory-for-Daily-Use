@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import { StorageImage } from "../../components/ui/StorageImage";
 import { formatDueDate, formatTaskTypeLabel } from "../../lib/formatters";
 
@@ -34,6 +36,7 @@ interface PlantCardProps {
 }
 
 export function PlantCard({ onEdit, onOpen, plant }: PlantCardProps) {
+  const [editPressed, setEditPressed] = useState(false);
   const isOverdue = plant.nextDueTask ? plant.nextDueTask.nextDueAt < Date.now() : false;
   const nextDueTitle = plant.nextDueTask
     ? formatTaskTypeLabel(plant.nextDueTask.taskType, plant.nextDueTask.customLabel)
@@ -71,7 +74,10 @@ export function PlantCard({ onEdit, onOpen, plant }: PlantCardProps) {
               event.stopPropagation();
               onEdit(plant.id);
             }}
-            style={editIconStyle}
+            onPointerDown={() => setEditPressed(true)}
+            onPointerUp={() => setEditPressed(false)}
+            onPointerLeave={() => setEditPressed(false)}
+            style={{ ...editIconStyle, opacity: editPressed ? 1.0 : 0.4 }}
             type="button"
           >
             ✏️
@@ -179,12 +185,20 @@ const nameStyle: React.CSSProperties = {
 
 const editIconStyle: React.CSSProperties = {
   flexShrink: 0,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: "44px",
+  height: "44px",
+  margin: "-14px -14px -14px 0",
   background: "none",
   border: "none",
   padding: 0,
   cursor: "pointer",
-  fontSize: "14px",
+  fontSize: "16px",
   lineHeight: 1,
+  color: "var(--color-muted)",
+  transition: "opacity 100ms",
 };
 
 const locationStyle: React.CSSProperties = {

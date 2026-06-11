@@ -260,7 +260,7 @@
       "task_id": "PLIST2-005",
       "description": "编辑图标交互：右上角铅笔图标（16×16 视觉，44×44 热区），点击进入编辑页并阻止冒泡，默认 opacity 0.4，按下时 opacity 1.0。",
       "priority": "2-Medium",
-      "status": "pending",
+      "status": "done",
       "plan_path": null,
       "contracts": {
         "data_layer": {

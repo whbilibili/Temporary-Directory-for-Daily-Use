@@ -9,6 +9,8 @@
 
 **PLIST2-004 已完成（2026-06-11）**：任务状态行 emoji + 逾期色条。状态行增加 taskTypeEmoji 映射（💧浇水/🧪施肥/🌫️喷雾/🪴换盆/✂️修剪/📋自定义）；逾期判断 nextDueAt < Date.now()：逾期时到期文案用 --color-warning + fontWeight 600，卡片左侧 border-left 3px solid --color-warning（paddingLeft 减 3px 补偿）。非逾期无色条。typecheck 0 错误、86 tests 全绿。
 
+**PLIST2-005 已完成（2026-06-11）**：编辑图标交互优化。editIconStyle 改为 44×44 热区（负 margin 不撑高行）、默认 opacity 0.4、按下 opacity 1.0（onPointerDown/Up/Leave + useState）、transition 100ms。stopPropagation 已在 PLIST2-003 实现。typecheck 0 错误、86 tests 全绿。
+
 ---
 
 `frontend-refresh` 模块已完成任务细拆（2026-06-10），从原来的 5 个粗粒度 UX 任务拆解为 13 个原子任务（VIS-001 ~ VIS-013），每个任务对应可独立交付的垂直切片。
