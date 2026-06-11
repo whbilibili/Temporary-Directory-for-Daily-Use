@@ -9,6 +9,7 @@ import { EmptyState } from "../../components/ui/EmptyState";
 import { DetailNavBar } from "./DetailNavBar";
 import { OverflowMenu } from "./OverflowMenu";
 import { PlantHeroCard } from "./PlantHeroCard";
+import { ActionableTaskSection } from "../tasks/ActionableTaskSection";
 import { TaskSection } from "../tasks/TaskSection";
 
 interface PlantDetailPageProps {
@@ -123,6 +124,15 @@ export function PlantDetailPage({ plantId }: PlantDetailPageProps) {
       </div>
 
       <PlantHeroCard plant={plant} tasks={result.tasks} />
+
+      {!plant.isArchived && (
+        <ActionableTaskSection
+          onCompleted={() => {
+            // Convex 实时同步会自动更新 tasks 数据
+          }}
+          tasks={result.tasks}
+        />
+      )}
 
       <TaskSection
         onAdd={() => navigate(`/plants/${plant.id}/tasks/new`)}
