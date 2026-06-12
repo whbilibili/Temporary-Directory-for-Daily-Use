@@ -1,14 +1,12 @@
-import { navigate } from "../../app/router";
 import { PlanTaskRow, type PlanTask } from "./PlanTaskRow";
 
 interface PlanSectionProps {
   onAdd: () => void;
   onEdit: (taskId: string) => void;
-  plantId: string;
   tasks: PlanTask[];
 }
 
-export function PlanSection({ onAdd, onEdit, plantId, tasks }: PlanSectionProps) {
+export function PlanSection({ onAdd, onEdit, tasks }: PlanSectionProps) {
   // 按 nextDueAt 升序排列
   const sortedTasks = [...tasks].sort((a, b) => a.nextDueAt - b.nextDueAt);
 

@@ -20,6 +20,12 @@
   - 迭代 v0.2 PRD：植物详情页信息层级重构、任务状态前置、完成交互与正反馈闭环、UI 美化（8 条已拍板决策）
 - [2026-06-11-plant-detail-ui-spec.md](./2026-06-11-plant-detail-ui-spec.md)
   - 迭代 v0.2 UI 设计规格：植物详情页布局结构、各区域视觉规格、色彩应用、动效细节与交互反馈（与 PRD 配套）
+- [2026-06-12-settings-page-iteration-spec.md](./2026-06-12-settings-page-iteration-spec.md)
+  - 迭代 v0.2 PRD：设置页信息架构重组（个人/家庭/通知与应用三组）、缺失能力补齐（改称呼、移除成员、重置邀请码、排障指引）、权限语义落地、文案与层级清理（10 条已拍板决策）
+- [2026-06-12-settings-page-ui-spec.md](./2026-06-12-settings-page-ui-spec.md)
+  - 迭代 v0.2 UI 设计规格：设置页三分组布局、图标 chip、家庭头图卡、邀请码与成员卡视觉、统一确认 sheet、色彩与动效细节（与 PRD 配套）
+- [2026-06-12-settings-page-task-breakdown.md](./2026-06-12-settings-page-task-breakdown.md)
+  - 迭代 v0.2 功能拆分：基于 PRD + UI Spec 的可执行任务清单，功能任务（BE/FE）与 UI 美化任务逐能力配对，含依赖拓扑、执行顺序与功能×UI 配对总览
 
 ## 约定
 

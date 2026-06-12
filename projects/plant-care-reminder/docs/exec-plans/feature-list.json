@@ -98,6 +98,20 @@
         "care-reminders",
         "frontend-refresh"
       ]
+    },
+    {
+      "module": "settings-page-v2",
+      "file": "docs/exec-plans/modules/settings-page-v2.json",
+      "description": "设置页 v0.2 迭代：从「扁平 4 卡 + 退出」重构为「个人 / 家庭 / 通知与应用」三分组信息架构。补齐后端能力（移除成员、重置邀请码、设置摘要扩展），新增家庭头图卡情感锚点、成员头像与角色徽章、邀请码高亮容器、收不到提醒排障折叠、关于卡，并抽象通用 ConfirmSheet 承载退出/移除/重置三类破坏性确认。每个 Task 同时承载功能开发契约与 UI 美化契约。",
+      "prd": "docs/product-specs/2026-06-12-settings-page-iteration-spec.md",
+      "ui_spec": "docs/product-specs/2026-06-12-settings-page-ui-spec.md",
+      "task_count": 12,
+      "completed": 0,
+      "depends_on": [
+        "family-access",
+        "care-reminders",
+        "frontend-refresh"
+      ]
     }
   ],
   "tasks_summary": [
@@ -571,14 +585,98 @@
       "priority": "1-High"
     },
     {
-      "task_id": "PDETAIL2-009",
-      "module": "plant-detail-v2",
-      "description": "无障碍与跨页面一致性验收：aria 属性补齐，对比度检测，与待办页/列表页视觉一致性。",
-      "status": "pending",
-      "priority": "2-Medium"
-    }
+"task_id": "PDETAIL2-009",
+"module": "plant-detail-v2",
+"description": "无障碍与跨页面一致性验收：aria 属性补齐，对比度检测，与待办页/列表页视觉一致性。",
+"status": "pending",
+"priority": "2-Medium"
+},
+{
+"task_id": "SET2-001",
+"module": "settings-page-v2",
+"description": "扩展 getFamilySettingsSummary：追加 createdBy/currentUserRole/currentUserId/myEmail，成员项补 isCreator，支撑移除/重置入口权限渲染与「我的账号」只读行。",
+"status": "pending",
+"priority": "1-High"
+},
+{
+"task_id": "SET2-002",
+"module": "settings-page-v2",
+"description": "新增 removeMember mutation：仅 admin，禁移除自己/创建者，级联删除 pushSubscriptions，保留 taskCompletionLogs。",
+"status": "pending",
+"priority": "1-High"
+},
+{
+"task_id": "SET2-003",
+"module": "settings-page-v2",
+"description": "新增 resetInviteCode mutation：仅 admin，抽 generateUniqueInviteCode helper，旧码即时失效返回新码。",
+"status": "pending",
+"priority": "1-High"
+},
+{
+"task_id": "SET2-004",
+"module": "settings-page-v2",
+"description": "校验/补齐 users.updateMyProfile（非空 + maxLength 40），供设置页改称呼复用，不重造规则。",
+"status": "pending",
+"priority": "2-Medium"
+},
+{
+"task_id": "SET2-005",
+"module": "settings-page-v2",
+"description": "抽象通用 ConfirmSheet（从 PostponeConfirmSheet 提炼）：参数化 + 三种 variant（描边危险/实底危险/品牌绿），复用现有 sheet 动效与 focus trap。",
+"status": "pending",
+"priority": "1-High"
+},
+{
+"task_id": "SET2-006",
+"module": "settings-page-v2",
+"description": "FamilySettingsPage 三分组骨架重构 + SettingsGroup（h2 分组）+ SettingCardHeader（图标 chip + eyebrow + h3），落地 h1 与整页间距。",
+"status": "pending",
+"priority": "1-High"
+},
+{
+"task_id": "SET2-007",
+"module": "settings-page-v2",
+"description": "家庭头图卡 FamilyHeroCard（品牌绿渐变情感锚点，全页唯一强色块）+ 人数分支文案。",
+"status": "pending",
+"priority": "1-High"
+},
+{
+"task_id": "SET2-008",
+"module": "settings-page-v2",
+"description": "邀请码卡 InviteCodeCard：高亮虚线容器 + 复制/fallback 不回归 + admin 专属重置文字链（primary variant 确认 sheet 调 resetInviteCode）。",
+"status": "pending",
+"priority": "1-High"
+},
+{
+"task_id": "SET2-009",
+"module": "settings-page-v2",
+"description": "个人组：SettingRow（称呼可编辑 sheet 复用 updateMyProfile / 账号只读行）+ 退出登录迁组并接 danger-outline 确认 sheet。",
+"status": "pending",
+"priority": "1-High"
+},
+{
+"task_id": "SET2-010",
+"module": "settings-page-v2",
+"description": "成员卡：MemberAvatar 首字头像 + 角色徽章 + 我 pill + 标题去重 + 三条件移除入口（danger-solid 确认 sheet 调 removeMember）。",
+"status": "pending",
+"priority": "1-High"
+},
+{
+"task_id": "SET2-011",
+"module": "settings-page-v2",
+"description": "通知卡外壳统一 + NotificationTroubleshooting 排障折叠（disclosure + a11y）+ AboutCard 关于卡（版本号构建注入）。",
+"status": "pending",
+"priority": "2-Medium"
+},
+{
+"task_id": "SET2-012",
+"module": "settings-page-v2",
+"description": "端到端验收：PRD §9 + UI §14 逐条核对、aria/对比度、320px 窄屏、token 纪律、admin/普通成员两视角、跨页面一致性。",
+"status": "pending",
+"priority": "2-Medium"
+}
 ],
-  "cross_module_dependencies": [
+"cross_module_dependencies": [
     {
       "from": "ACCESS-001",
       "to": "INFRA-004",
@@ -813,6 +911,121 @@
       "from": "PDETAIL2-008",
       "to": "PDETAIL2-007",
       "reason": "页面组装依赖 FAB 和图片预览已完成。"
+    },
+    {
+      "from": "SET2-001",
+      "to": "ACCESS-006",
+      "reason": "扩展 getFamilySettingsSummary 基于 family-access 模块 ACCESS-006 建立的家庭设置摘要 query。"
+    },
+    {
+      "from": "SET2-002",
+      "to": "SET2-001",
+      "reason": "removeMember 的角色判定与创建者保护依赖 SET2-001 透出的 currentUserRole / createdBy。"
+    },
+    {
+      "from": "SET2-002",
+      "to": "CARE-007",
+      "reason": "移除成员需级联删除 pushSubscriptions，该表由 care-reminders 模块 CARE-007 建立。"
+    },
+    {
+      "from": "SET2-003",
+      "to": "ACCESS-003",
+      "reason": "resetInviteCode 复用 createFamily（ACCESS-003）的 generateInviteCode 逻辑，抽 generateUniqueInviteCode helper 共用。"
+    },
+    {
+      "from": "SET2-004",
+      "to": "ACCESS-002",
+      "reason": "复用 onboarding（ACCESS-002 profile bootstrap）建立的 users.updateMyProfile 写入链路与校验。"
+    },
+    {
+      "from": "SET2-005",
+      "to": "TODO2-004",
+      "reason": "通用 ConfirmSheet 从 todo-page-v2 的 PostponeConfirmSheet（TODO2-004 推迟确认）提炼复用其遮罩/动效/退场时序。"
+    },
+    {
+      "from": "SET2-006",
+      "to": "SET2-001",
+      "reason": "三分组骨架的条件渲染消费 SET2-001 扩展后的 currentUserRole / createdBy 字段。"
+    },
+    {
+      "from": "SET2-006",
+      "to": "VIS-009",
+      "reason": "三分组重构在 VIS-009 设置页视觉重构与 frontend-refresh design token 基础上迭代。"
+    },
+    {
+      "from": "SET2-007",
+      "to": "SET2-006",
+      "reason": "家庭头图卡作为家庭组首卡嵌入 SET2-006 建立的分组骨架与卡片头部语言。"
+    },
+    {
+      "from": "SET2-008",
+      "to": "SET2-003",
+      "reason": "邀请码卡重置入口调用 SET2-003 的 resetInviteCode mutation。"
+    },
+    {
+      "from": "SET2-008",
+      "to": "SET2-005",
+      "reason": "重置邀请码确认复用 SET2-005 ConfirmSheet（primary variant）。"
+    },
+    {
+      "from": "SET2-008",
+      "to": "VIS-010",
+      "reason": "复制 + fallback 交互不回归，沿用 VIS-010 邀请码复制修复建立的逻辑。"
+    },
+    {
+      "from": "SET2-009",
+      "to": "SET2-004",
+      "reason": "称呼编辑 sheet 复用 SET2-004 校验完整的 users.updateMyProfile。"
+    },
+    {
+      "from": "SET2-009",
+      "to": "SET2-005",
+      "reason": "退出登录二次确认复用 SET2-005 ConfirmSheet（danger-outline variant）。"
+    },
+    {
+      "from": "SET2-010",
+      "to": "SET2-002",
+      "reason": "成员移除入口调用 SET2-002 的 removeMember mutation。"
+    },
+    {
+      "from": "SET2-010",
+      "to": "SET2-005",
+      "reason": "移除成员确认复用 SET2-005 ConfirmSheet（danger-solid variant）。"
+    },
+    {
+      "from": "SET2-011",
+      "to": "VIS-012",
+      "reason": "通知卡外壳统一在 VIS-012 通知权限卡基础上对齐，三态与 needs_install 兜底不回归。"
+    },
+    {
+      "from": "SET2-012",
+      "to": "SET2-006",
+      "reason": "端到端验收依赖三分组骨架与全部子组件就位。"
+    },
+    {
+      "from": "SET2-012",
+      "to": "SET2-007",
+      "reason": "验收覆盖家庭头图卡的窄屏适配与对比度。"
+    },
+    {
+      "from": "SET2-012",
+      "to": "SET2-008",
+      "reason": "验收覆盖邀请码卡两视角权限与窄屏溢出。"
+    },
+    {
+      "from": "SET2-012",
+      "to": "SET2-009",
+      "reason": "验收覆盖个人组称呼编辑与退出确认链路。"
+    },
+    {
+      "from": "SET2-012",
+      "to": "SET2-010",
+      "reason": "验收覆盖成员卡两视角移除入口与头像一致性。"
+    },
+    {
+      "from": "SET2-012",
+      "to": "SET2-011",
+      "reason": "验收覆盖通知卡外壳、排障无障碍与关于卡版本号。"
     }
   ]
 }

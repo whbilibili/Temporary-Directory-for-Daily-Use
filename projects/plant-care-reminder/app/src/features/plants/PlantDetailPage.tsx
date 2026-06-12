@@ -208,7 +208,6 @@ export function PlantDetailPage({ plantId }: PlantDetailPageProps) {
         <PlanSection
           onAdd={() => navigate(`/plants/${plant.id}/tasks/new`)}
           onEdit={(taskId) => navigate(`/plants/${plant.id}/tasks/${taskId}/edit`)}
-          plantId={plant.id}
           tasks={result.tasks}
         />
       </div>
