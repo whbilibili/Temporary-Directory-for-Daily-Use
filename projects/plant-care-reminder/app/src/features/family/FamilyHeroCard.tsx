@@ -35,7 +35,7 @@ const heroStyle: CSSProperties = {
   padding: "var(--space-md)",
   background: "linear-gradient(135deg, var(--color-leaf), var(--color-leaf-light))",
   display: "grid",
-  gap: "6px",
+  gap: "var(--space-xs)",
   boxShadow: "var(--shadow-card)",
 };
 
@@ -51,9 +51,10 @@ const leafDecorationStyle: CSSProperties = {
 
 const chipStyle: CSSProperties = {
   justifySelf: "start",
-  padding: "2px 10px",
+  padding: "2px var(--space-sm)",
   borderRadius: "var(--radius-pill)",
-  background: "rgba(251, 252, 247, 0.18)",
+  /* 纸白 18% 透明，用于品牌绿底上的半透明 chip */
+  background: "color-mix(in srgb, var(--color-paper) 18%, transparent)",
   color: "var(--color-paper)",
   fontSize: "11px",
   fontWeight: 700,
@@ -61,7 +62,7 @@ const chipStyle: CSSProperties = {
 };
 
 const familyNameStyle: CSSProperties = {
-  margin: "4px 0 0",
+  margin: "var(--space-xs) 0 0",
   position: "relative",
   color: "var(--color-paper)",
   fontFamily: "var(--font-heading)",
@@ -73,8 +74,8 @@ const familyNameStyle: CSSProperties = {
 const subtextStyle: CSSProperties = {
   margin: 0,
   position: "relative",
-  // 纸白 85% 透明，保证与品牌绿底对比度 ≥ 4.5:1。
-  color: "rgba(251, 252, 247, 0.85)",
+  /* 纸白 85% 透明，保证与品牌绿底对比度 ≥ 4.5:1 */
+  color: "color-mix(in srgb, var(--color-paper) 85%, transparent)",
   fontSize: "13px",
   lineHeight: 1.5,
 };

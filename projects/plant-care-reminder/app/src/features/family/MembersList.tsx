@@ -120,7 +120,7 @@ const listStyle: CSSProperties = {
 const memberRowStyle: CSSProperties = {
   display: "flex",
   alignItems: "center",
-  gap: "12px",
+  gap: "var(--space-sm)",
   paddingBottom: "var(--space-sm)",
   borderBottom: "1px solid var(--color-line)",
 };
@@ -135,7 +135,7 @@ const identityStyle: CSSProperties = {
 const nameLineStyle: CSSProperties = {
   display: "flex",
   alignItems: "center",
-  gap: "8px",
+  gap: "var(--space-xs)",
   flexWrap: "wrap",
 };
 
@@ -163,7 +163,7 @@ const selfPillStyle: CSSProperties = {
   display: "inline-flex",
   alignItems: "center",
   minHeight: "20px",
-  padding: "0 8px",
+  padding: "0 var(--space-xs)",
   borderRadius: "var(--radius-pill)",
   background: "var(--color-mist)",
   color: "var(--color-leaf)",
@@ -175,7 +175,7 @@ const adminBadgeStyle: CSSProperties = {
   display: "inline-flex",
   alignItems: "center",
   minHeight: "20px",
-  padding: "0 8px",
+  padding: "0 var(--space-xs)",
   borderRadius: "var(--radius-pill)",
   background: "var(--color-leaf)",
   color: "var(--color-paper)",
@@ -187,7 +187,7 @@ const memberBadgeStyle: CSSProperties = {
   display: "inline-flex",
   alignItems: "center",
   minHeight: "20px",
-  padding: "0 8px",
+  padding: "0 var(--space-xs)",
   borderRadius: "var(--radius-pill)",
   background: "var(--color-mist)",
   color: "var(--color-muted)",
@@ -203,7 +203,7 @@ const removeLinkStyle: CSSProperties = {
   alignItems: "center",
   justifyContent: "center",
   minHeight: "44px",
-  padding: "0 8px",
+  padding: "0 var(--space-xs)",
   background: "transparent",
   border: "none",
   color: "var(--color-error)",

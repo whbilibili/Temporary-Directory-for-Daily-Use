@@ -137,6 +137,7 @@ export function ConfirmSheet({
         {children}
         <div style={actionsStyle}>
           <button
+            aria-busy={isSubmitting}
             disabled={isSubmitting}
             onClick={requestClose}
             style={cancelButtonStyle}
@@ -146,6 +147,7 @@ export function ConfirmSheet({
           </button>
           <button
             ref={confirmButtonRef}
+            aria-busy={isSubmitting}
             disabled={isSubmitting}
             onClick={onConfirm}
             style={{ ...confirmButtonBaseStyle, ...CONFIRM_VARIANT_STYLES[variant] }}
@@ -234,7 +236,7 @@ const actionsStyle: CSSProperties = {
 const buttonBaseStyle: CSSProperties = {
   appearance: "none",
   minHeight: "44px",
-  padding: "0 18px",
+  padding: "0 var(--space-md)",
   borderRadius: "var(--radius-button)",
   fontSize: "14px",
   fontWeight: 600,

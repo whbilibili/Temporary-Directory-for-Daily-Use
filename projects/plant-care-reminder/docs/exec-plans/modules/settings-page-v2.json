@@ -404,10 +404,10 @@
       "acceptance_criteria": ["TypeScript 编译无 error", "通知卡统一 🔔 chip + eyebrow，三态 + needs_install 不回归", "排障 disclosure 默认收起，aria-expanded/aria-controls 正确，展开有动效且遵循 reduced-motion", "排障含 1–4 条静态清单", "关于卡含 ℹ️ chip + 正文 + 版本行", "版本号从构建注入不硬编码"]
     },
     {
-      "task_id": "SET2-012",
-      "description": "端到端验收与无障碍/一致性收口（对照 PRD §9 + UI §14）：逐条核对 PRD 9 条 + UI Spec 11 条验收；为所有交互元素补齐 aria 属性；色彩对比度 ≥ 4.5:1；320px 窄屏邀请码/成员行/头图卡不溢出且文字正确省略；全部色值/间距/圆角引用 token 无新增硬编码，reduced-motion 降级正常；管理员与普通成员两视角各跑一遍（admin 见重置/移除，普通成员全只读无置灰暗示）；与待办页/列表页/详情页视觉一致。",
-      "priority": "2-Medium",
-      "status": "pending",
+"task_id": "SET2-012",
+"description": "端到端验收与无障碍/一致性收口（对照 PRD §9 + UI §14）：逐条核对 PRD 9 条 + UI Spec 11 条验收；为所有交互元素补齐 aria 属性；色彩对比度 ≥ 4.5:1；320px 窄屏邀请码/成员行/头图卡不溢出且文字正确省略；全部色值/间距/圆角引用 token 无新增硬编码，reduced-motion 降级正常；管理员与普通成员两视角各跑一遍（admin 见重置/移除，普通成员全只读无置灰暗示）；与待办页/列表页/详情页视觉一致。",
+"priority": "2-Medium",
+"status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {"schema": {"tables_or_collections": [], "key_fields": {}, "indexes": [], "relations": "N/A", "notes": "纯验收，无数据变更。"}, "queries": {"read": "N/A", "write": "N/A"}, "migration_strategy": "No schema change."},

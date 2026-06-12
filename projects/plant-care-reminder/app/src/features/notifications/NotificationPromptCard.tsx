@@ -158,7 +158,7 @@ export function NotificationPromptCard() {
           </span>
           <div style={headerTextStyle}>
             <span style={eyebrowStyle}>通知</span>
-            <h2 style={titleStyle}>开启设备提醒</h2>
+            <h3 style={titleStyle}>开启设备提醒</h3>
           </div>
         </div>
         <span style={{ ...badgeBaseStyle, ...badge.style }}>{badge.label}</span>
@@ -309,7 +309,7 @@ const titleStyle: React.CSSProperties = {
 
 const badgeBaseStyle: React.CSSProperties = {
   flexShrink: 0,
-  padding: "4px 10px",
+  padding: "var(--space-xs) var(--space-sm)",
   borderRadius: "var(--radius-pill)",
   fontSize: "12px",
   fontWeight: 700,

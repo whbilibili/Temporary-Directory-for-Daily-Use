@@ -213,7 +213,7 @@ const resetLinkStyle: CSSProperties = {
   appearance: "none",
   background: "transparent",
   border: "none",
-  padding: "12px 0",
+  padding: "var(--space-sm) 0",
   minHeight: "44px",
   color: "var(--color-muted)",
   fontSize: "13px",
