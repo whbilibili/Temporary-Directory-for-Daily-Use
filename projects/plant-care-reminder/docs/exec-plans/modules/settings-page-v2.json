@@ -142,9 +142,9 @@
     },
     {
       "task_id": "SET2-005",
-      "description": "抽象通用 ConfirmSheet 组件（横切，退出/移除/重置三处复用）：从 PostponeConfirmSheet 提炼，参数化 title/description/confirmLabel/cancelLabel/variant('danger-solid'|'danger-outline'|'primary')/isSubmitting/onConfirm/onCancel；复用现有遮罩 + sheet 动效（sheet-overlay-in/out + sheet-rise-in/sink-out）、grabber、退场时序 EXIT_DURATION_MS、reduced-motion 兜底、点遮罩/取消/Esc 关闭与 focus trap。三种 variant 对应三类破坏性确认配色。",
-      "priority": "1-High",
-      "status": "pending",
+"description": "抽象通用 ConfirmSheet 组件（横切，退出/移除/重置三处复用）：从 PostponeConfirmSheet 提炼，参数化 title/description/confirmLabel/cancelLabel/variant('danger-solid'|'danger-outline'|'primary')/isSubmitting/onConfirm/onCancel；复用现有遮罩 + sheet 动效（sheet-overlay-in/out + sheet-rise-in/sink-out）、grabber、退场时序 EXIT_DURATION_MS、reduced-motion 兜底、点遮罩/取消/Esc 关闭与 focus trap。三种 variant 对应三类破坏性确认配色。",
+"priority": "1-High",
+"status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {
