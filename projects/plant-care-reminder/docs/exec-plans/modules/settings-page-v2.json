@@ -183,7 +183,7 @@
       "task_id": "SET2-006",
       "description": "重构 FamilySettingsPage 为「个人 / 家庭 / 通知与应用」三分组骨架 + 公共片段：新增页面唯一 <h1>设置</h1>；按三组重排现有卡片；引入 currentUserRole/createdBy 等新字段做条件渲染数据准备；新增 SettingsGroup 分组容器（h2 分组小标题 + children slot + 组间/组内间距）与 SettingCardHeader（32×32 图标 chip + eyebrow + h3 卡内标题）；落地 h1 样式与整页间距/底部安全区。保留加载态文案。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {

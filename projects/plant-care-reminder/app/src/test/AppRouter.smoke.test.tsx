@@ -482,7 +482,8 @@ describe("AppShell smoke coverage", () => {
     expect(screen.getByText("ABCD12")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /复制邀请码/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /家庭成员/i })).toBeInTheDocument();
-    expect(screen.getByText("Wang")).toBeInTheDocument();
+    // 当前用户名「Wang」同时出现在「个人」卡（我的称呼）与成员列表中，故用 getAllByText。
+    expect(screen.getAllByText("Wang").length).toBeGreaterThan(0);
     expect(screen.getByText("Li")).toBeInTheDocument();
     expect(screen.getByText("管理员")).toBeInTheDocument();
     expect(screen.getAllByText("成员").length).toBeGreaterThan(0);
