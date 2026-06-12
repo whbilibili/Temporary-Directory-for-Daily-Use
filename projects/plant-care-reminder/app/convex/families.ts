@@ -166,6 +166,7 @@ export const getFamilySettingsSummary = query({
           displayName: user?.displayName ?? user?.name ?? null,
           email: user?.email ?? null,
           isCurrentUser: membership.userId === currentUserContext.userId,
+          isCreator: membership.userId === family.createdBy,
         };
       }),
     );
@@ -182,11 +183,17 @@ export const getFamilySettingsSummary = query({
       return left.joinedAt - right.joinedAt;
     });
 
+    const currentMember = members.find((member) => member.isCurrentUser);
+
     return {
       familyName: family.name,
       inviteCode: family.inviteCode,
       memberCount: members.length,
       members,
+      createdBy: family.createdBy,
+      currentUserId: currentUserContext.userId,
+      currentUserRole: currentMember?.role ?? null,
+      myEmail: currentMember?.email ?? null,
     };
   },
 });

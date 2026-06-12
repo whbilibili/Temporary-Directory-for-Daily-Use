@@ -16,7 +16,7 @@
       "task_id": "SET2-001",
       "description": "扩展 getFamilySettingsSummary 返回字段：追加 createdBy、currentUserRole、currentUserId、当前用户 email（「我的账号」展示用）；成员项补 isCreator（userId === family.createdBy）。前端据此判定移除入口（admin && 非自己 && 非创建者）与重置入口（admin）的可见性。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {
