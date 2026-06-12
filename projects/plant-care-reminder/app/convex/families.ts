@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 
 import { mutation, query } from "./_generated/server";
+import type { MutationCtx } from "./_generated/server";
 import { getCurrentUserContext as loadCurrentUserContext } from "./lib/auth";
 
 const INVITE_CODE_LENGTH = 6;
@@ -19,6 +20,22 @@ function generateInviteCode() {
 
 function normalizeInviteCode(inviteCode: string) {
   return inviteCode.trim().toUpperCase();
+}
+
+async function generateUniqueInviteCode(ctx: MutationCtx): Promise<string> {
+  for (let attempt = 0; attempt < 12; attempt += 1) {
+    const candidateInviteCode = generateInviteCode();
+    const existingFamily = await ctx.db
+      .query("families")
+      .withIndex("by_inviteCode", (q) => q.eq("inviteCode", candidateInviteCode))
+      .unique();
+
+    if (!existingFamily) {
+      return candidateInviteCode;
+    }
+  }
+
+  throw new Error("Unable to generate a unique invite code. Please try again.");
 }
 
 export const createFamily = mutation({
@@ -41,23 +58,7 @@ export const createFamily = mutation({
       throw new Error("Family name is required.");
     }
 
-    let inviteCode: string | null = null;
-    for (let attempt = 0; attempt < 12; attempt += 1) {
-      const candidateInviteCode = generateInviteCode();
-      const existingFamily = await ctx.db
-        .query("families")
-        .withIndex("by_inviteCode", (q) => q.eq("inviteCode", candidateInviteCode))
-        .unique();
-
-      if (!existingFamily) {
-        inviteCode = candidateInviteCode;
-        break;
-      }
-    }
-
-    if (!inviteCode) {
-      throw new Error("Unable to generate a unique invite code. Please try again.");
-    }
+    const inviteCode = await generateUniqueInviteCode(ctx);
 
     const createdAt = Date.now();
 
@@ -195,5 +196,102 @@ export const getFamilySettingsSummary = query({
       currentUserRole: currentMember?.role ?? null,
       myEmail: currentMember?.email ?? null,
     };
+  },
+});
+
+export const removeMember = mutation({
+  args: {
+    targetUserId: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    const currentUserContext = await loadCurrentUserContext(ctx);
+
+    if (!currentUserContext.userId || !currentUserContext.familyId) {
+      throw new Error("You must belong to a family to manage members.");
+    }
+
+    const familyId = currentUserContext.familyId;
+
+    const currentMembership = await ctx.db
+      .query("familyMembers")
+      .withIndex("by_familyId_and_userId", (q) =>
+        q.eq("familyId", familyId).eq("userId", currentUserContext.userId!),
+      )
+      .unique();
+
+    if (!currentMembership || currentMembership.role !== "admin") {
+      throw new Error("Only a family admin can remove members.");
+    }
+
+    if (args.targetUserId === currentUserContext.userId) {
+      throw new Error("You cannot remove yourself from the family.");
+    }
+
+    const family = await ctx.db.get(familyId);
+    if (!family) {
+      throw new Error("Family record not found.");
+    }
+
+    if (args.targetUserId === family.createdBy) {
+      throw new Error("The family creator cannot be removed.");
+    }
+
+    const targetMembership = await ctx.db
+      .query("familyMembers")
+      .withIndex("by_familyId_and_userId", (q) =>
+        q.eq("familyId", familyId).eq("userId", args.targetUserId),
+      )
+      .unique();
+
+    if (!targetMembership) {
+      throw new Error("That member is not part of this family.");
+    }
+
+    // Cascade delete the target user's push subscriptions for this family.
+    const targetPushSubscriptions = await ctx.db
+      .query("pushSubscriptions")
+      .withIndex("by_familyId_and_userId", (q) =>
+        q.eq("familyId", familyId).eq("userId", args.targetUserId),
+      )
+      .collect();
+
+    for (const subscription of targetPushSubscriptions) {
+      await ctx.db.delete(subscription._id);
+    }
+
+    // taskCompletionLogs are intentionally preserved (household care history).
+    await ctx.db.delete(targetMembership._id);
+
+    return { removedUserId: args.targetUserId };
+  },
+});
+
+export const resetInviteCode = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const currentUserContext = await loadCurrentUserContext(ctx);
+
+    if (!currentUserContext.userId || !currentUserContext.familyId) {
+      throw new Error("You must belong to a family to reset the invite code.");
+    }
+
+    const familyId = currentUserContext.familyId;
+
+    const currentMembership = await ctx.db
+      .query("familyMembers")
+      .withIndex("by_familyId_and_userId", (q) =>
+        q.eq("familyId", familyId).eq("userId", currentUserContext.userId!),
+      )
+      .unique();
+
+    if (!currentMembership || currentMembership.role !== "admin") {
+      throw new Error("Only a family admin can reset the invite code.");
+    }
+
+    const newInviteCode = await generateUniqueInviteCode(ctx);
+
+    await ctx.db.patch(familyId, { inviteCode: newInviteCode });
+
+    return { inviteCode: newInviteCode };
   },
 });

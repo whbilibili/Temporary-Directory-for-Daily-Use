@@ -51,7 +51,7 @@
       "task_id": "SET2-002",
       "description": "新增 removeMember mutation（移除成员）：仅 admin 可操作；禁止移除自己与创建者（family.createdBy）；删除目标 familyMembers 记录；级联删除该用户在本家庭的 pushSubscriptions；保留 taskCompletionLogs（养护历史属家庭资产）。错误文案走「家庭语言」由前端兜底翻译。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {
