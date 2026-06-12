@@ -3,25 +3,30 @@ import { useState } from "react";
 import { useAuthActions } from "@convex-dev/auth/react";
 
 import { api } from "../../../convex/_generated/api";
-import { Button } from "../../components/ui/Button";
+import { ConfirmSheet } from "../../components/ui/ConfirmSheet";
 import { NotificationPromptCard } from "../notifications/NotificationPromptCard";
 import { FamilyHeroCard } from "./FamilyHeroCard";
 import { InviteCodeCard } from "./InviteCodeCard";
 import { MembersList } from "./MembersList";
+import { NicknameEditSheet } from "./NicknameEditSheet";
 import { SettingCardHeader } from "./SettingCardHeader";
+import { SettingRow } from "./SettingRow";
 import { SettingsGroup } from "./SettingsGroup";
 
 export function FamilySettingsPage() {
   const { signOut } = useAuthActions();
   const summary = useQuery(api.families.getFamilySettingsSummary, {});
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [nicknameSheetOpen, setNicknameSheetOpen] = useState(false);
+  const [signOutSheetOpen, setSignOutSheetOpen] = useState(false);
 
   async function handleSignOut() {
     setIsSigningOut(true);
     try {
       await signOut();
-    } finally {
+    } catch {
       setIsSigningOut(false);
+      setSignOutSheetOpen(false);
     }
   }
 
@@ -47,16 +52,29 @@ export function FamilySettingsPage() {
 
       <SettingsGroup title="个人">
         <section style={cardStyle}>
-          <SettingCardHeader eyebrow="我的称呼" icon="🙂" title={myDisplayName} />
-          <p style={bodyStyle}>{summary.myEmail ?? "已登录"}</p>
-          <Button
-            onClick={() => void handleSignOut()}
+          <SettingCardHeader eyebrow="账号" icon="🙂" title="个人信息" />
+          <div style={rowGroupStyle}>
+            <SettingRow
+              ariaLabel="修改我的称呼"
+              icon="🙂"
+              label="我的称呼"
+              onClick={() => setNicknameSheetOpen(true)}
+              value={myDisplayName}
+            />
+            <div style={dividerStyle} />
+            <SettingRow
+              icon="✉️"
+              label="我的账号"
+              value={summary.myEmail ?? "已登录"}
+            />
+          </div>
+          <button
+            onClick={() => setSignOutSheetOpen(true)}
             style={logoutButtonStyle}
             type="button"
-            variant="ghost"
           >
-            {isSigningOut ? "退出中…" : "退出登录"}
-          </Button>
+            退出登录
+          </button>
         </section>
       </SettingsGroup>
 
@@ -77,6 +95,26 @@ export function FamilySettingsPage() {
       <SettingsGroup title="通知与应用">
         <NotificationPromptCard />
       </SettingsGroup>
+
+      {nicknameSheetOpen ? (
+        <NicknameEditSheet
+          currentName={myDisplayName}
+          onClose={() => setNicknameSheetOpen(false)}
+        />
+      ) : null}
+
+      {signOutSheetOpen ? (
+        <ConfirmSheet
+          ariaLabel="退出登录确认"
+          confirmLabel={isSigningOut ? "退出中…" : "退出登录"}
+          description="退出后需要重新登录才能查看家庭和植物信息。"
+          isSubmitting={isSigningOut}
+          onCancel={() => setSignOutSheetOpen(false)}
+          onConfirm={() => void handleSignOut()}
+          title="确认退出登录吗？"
+          variant="danger-outline"
+        />
+      ) : null}
     </section>
   );
 }
@@ -123,7 +161,17 @@ const bodyStyle: React.CSSProperties = {
   lineHeight: 1.5,
 };
 
+const rowGroupStyle: React.CSSProperties = {
+  display: "grid",
+};
+
+const dividerStyle: React.CSSProperties = {
+  height: "1px",
+  background: "var(--color-line)",
+};
+
 const logoutButtonStyle: React.CSSProperties = {
+  appearance: "none",
   width: "100%",
   minHeight: "44px",
   borderRadius: "var(--radius-button)",
@@ -132,5 +180,5 @@ const logoutButtonStyle: React.CSSProperties = {
   color: "var(--color-error)",
   fontSize: "14px",
   fontWeight: 500,
-  boxShadow: "none",
+  cursor: "pointer",
 };

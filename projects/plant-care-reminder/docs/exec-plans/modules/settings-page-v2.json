@@ -292,10 +292,10 @@
       "acceptance_criteria": ["TypeScript 编译无 error", "邀请码高亮虚线容器 + Mono 24/700 user-select:all", "复制 + fallback 逻辑不回归", "重置文字链仅 admin 渲染（非置灰）", "重置走 primary variant 确认 sheet 调 resetInviteCode", "重置后展示新码并提示重新分享"]
     },
     {
-      "task_id": "SET2-009",
-      "description": "个人组（称呼可编辑 / 账号只读 / 退出迁组接确认）+ SettingRow 视觉：新增 SettingRow（标签—值—chevron 横向结构，可点项尾 chevron、只读项无箭头、多项 1px --color-line 分割）；「我的称呼」可点行打开编辑 sheet（复用 users.updateMyProfile，抽 ProfileBootstrapForm 逻辑为可嵌入 sheet 的轻量编辑表单，保留 maxLength/非空校验）；「我的账号」只读行展示 email；退出登录迁到个人组末尾，点击改为打开退出确认 sheet（danger-outline variant），保留描边危险态按钮。",
-      "priority": "1-High",
-      "status": "pending",
+"task_id": "SET2-009",
+"description": "个人组（称呼可编辑 / 账号只读 / 退出迁组接确认）+ SettingRow 视觉：新增 SettingRow（标签—值—chevron 横向结构，可点项尾 chevron、只读项无箭头、多项 1px --color-line 分割）；「我的称呼」可点行打开编辑 sheet（复用 users.updateMyProfile，抽 ProfileBootstrapForm 逻辑为可嵌入 sheet 的轻量编辑表单，保留 maxLength/非空校验）；「我的账号」只读行展示 email；退出登录迁到个人组末尾，点击改为打开退出确认 sheet（danger-outline variant），保留描边危险态按钮。",
+"priority": "1-High",
+"status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {
