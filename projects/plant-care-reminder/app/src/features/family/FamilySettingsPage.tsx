@@ -1,48 +1,20 @@
 import { useQuery } from "convex/react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useAuthActions } from "@convex-dev/auth/react";
 
 import { api } from "../../../convex/_generated/api";
 import { Button } from "../../components/ui/Button";
 import { NotificationPromptCard } from "../notifications/NotificationPromptCard";
 import { FamilyHeroCard } from "./FamilyHeroCard";
+import { InviteCodeCard } from "./InviteCodeCard";
 import { MembersList } from "./MembersList";
 import { SettingCardHeader } from "./SettingCardHeader";
 import { SettingsGroup } from "./SettingsGroup";
 
-type CopyStatus = "idle" | "copied" | "failed" | "fallback_open";
-
 export function FamilySettingsPage() {
   const { signOut } = useAuthActions();
   const summary = useQuery(api.families.getFamilySettingsSummary, {});
-  const [copyStatus, setCopyStatus] = useState<CopyStatus>("idle");
   const [isSigningOut, setIsSigningOut] = useState(false);
-  const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    return () => {
-      if (resetTimerRef.current !== null) {
-        clearTimeout(resetTimerRef.current);
-      }
-    };
-  }, []);
-
-  const handleCopyInviteCode = useCallback(async () => {
-    if (!summary) {
-      return;
-    }
-
-    try {
-      await navigator.clipboard.writeText(summary.inviteCode);
-      setCopyStatus("copied");
-      resetTimerRef.current = setTimeout(() => {
-        setCopyStatus("idle");
-        resetTimerRef.current = null;
-      }, 1500);
-    } catch {
-      setCopyStatus("fallback_open");
-    }
-  }, [summary]);
 
   async function handleSignOut() {
     setIsSigningOut(true);
@@ -65,15 +37,9 @@ export function FamilySettingsPage() {
     );
   }
 
-  const copyButtonLabel =
-    copyStatus === "copied" ? "已复制" : "复制邀请码";
-  const copyButtonDynamicStyle: React.CSSProperties =
-    copyStatus === "copied"
-      ? { ...copyButtonStyle, background: "var(--color-success)", color: "var(--color-surface)" }
-      : copyButtonStyle;
-
   const currentMember = summary.members.find((member) => member.isCurrentUser);
   const myDisplayName = currentMember?.displayName ?? "我";
+  const isAdmin = summary.currentUserRole === "admin";
 
   return (
     <section style={pageStyle}>
@@ -100,29 +66,7 @@ export function FamilySettingsPage() {
           memberCount={summary.memberCount}
         />
 
-        <section style={cardStyle}>
-          <SettingCardHeader eyebrow="邀请码与分享" icon="🔑" title="把这串邀请码发给家人" />
-          <p style={bodyStyle}>
-            家人在加入家庭时输入这串邀请码，就能进入同一个植物看板和提醒列表。
-          </p>
-          <p style={inviteCodeStyle}>{summary.inviteCode}</p>
-          <Button
-            onClick={() => void handleCopyInviteCode()}
-            style={copyButtonDynamicStyle}
-            type="button"
-            variant="primary"
-          >
-            {copyButtonLabel}
-          </Button>
-
-          {copyStatus === "fallback_open" ? (
-            <div style={fallbackPanelStyle} role="region" aria-label="手动复制邀请码">
-              <p style={fallbackCodeStyle}>{summary.inviteCode}</p>
-              <p style={fallbackHintStyle}>长按可复制</p>
-              <p style={fallbackDescStyle}>你也可以直接把这串码发给家人</p>
-            </div>
-          ) : null}
-        </section>
+        <InviteCodeCard inviteCode={summary.inviteCode} isAdmin={isAdmin} />
 
         <section style={cardStyle}>
           <SettingCardHeader eyebrow="家庭成员" icon="👥" title="家庭成员" />
@@ -173,61 +117,6 @@ const cardTitleStyle: React.CSSProperties = {
 };
 
 const bodyStyle: React.CSSProperties = {
-  margin: 0,
-  color: "var(--color-muted)",
-  fontSize: "14px",
-  lineHeight: 1.5,
-};
-
-const inviteCodeStyle: React.CSSProperties = {
-  margin: "var(--space-xs) 0",
-  color: "var(--color-leaf)",
-  fontFamily: "var(--font-mono)",
-  fontSize: "28px",
-  fontWeight: 700,
-  lineHeight: 1,
-  letterSpacing: "0.12em",
-  textAlign: "center",
-  userSelect: "all",
-};
-
-const copyButtonStyle: React.CSSProperties = {
-  width: "100%",
-  minHeight: "44px",
-  borderRadius: "var(--radius-button)",
-  fontSize: "14px",
-  fontWeight: 600,
-};
-
-const fallbackPanelStyle: React.CSSProperties = {
-  background: "var(--color-mist)",
-  borderRadius: "var(--radius-input)",
-  padding: "var(--space-md)",
-  border: "1px dashed var(--color-line)",
-  display: "grid",
-  gap: "var(--space-xs)",
-  textAlign: "center",
-};
-
-const fallbackCodeStyle: React.CSSProperties = {
-  margin: 0,
-  color: "var(--color-leaf)",
-  fontFamily: "var(--font-mono)",
-  fontSize: "28px",
-  fontWeight: 700,
-  letterSpacing: "0.12em",
-  lineHeight: 1,
-  userSelect: "all",
-};
-
-const fallbackHintStyle: React.CSSProperties = {
-  margin: 0,
-  color: "var(--color-muted)",
-  fontSize: "12px",
-  lineHeight: 1.5,
-};
-
-const fallbackDescStyle: React.CSSProperties = {
   margin: 0,
   color: "var(--color-muted)",
   fontSize: "14px",

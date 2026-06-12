@@ -255,10 +255,10 @@
       "acceptance_criteria": ["TypeScript 编译无 error", "家庭名从 h1 降为卡内信息", "品牌绿渐变背景 + 右上角半透明 🌿", "副文案按 1 人/≥2 人两套切换", "白字对比度 ≥ 4.5:1", "全页唯一强色块"]
     },
     {
-      "task_id": "SET2-008",
-      "description": "邀请码卡 + 重置：新增 InviteCodeCard（从设置页抽出）——高亮容器（--color-mist 底 + 1px dashed --color-line 虚线框 + --radius-input，邀请码 Mono 24/700 --color-leaf 字距 0.12em user-select:all），复制按钮内嵌右侧（成功切「已复制」+ --color-success）；保留现有复制 + fallback 逻辑不回归；重置文字链仅 admin 渲染，点击触发重置确认 sheet（primary variant）→ 调 resetInviteCode → 展示新码并提示重新分享。",
-      "priority": "1-High",
-      "status": "pending",
+"task_id": "SET2-008",
+"description": "邀请码卡 + 重置：新增 InviteCodeCard（从设置页抽出）——高亮容器（--color-mist 底 + 1px dashed --color-line 虚线框 + --radius-input，邀请码 Mono 24/700 --color-leaf 字距 0.12em user-select:all），复制按钮内嵌右侧（成功切「已复制」+ --color-success）；保留现有复制 + fallback 逻辑不回归；重置文字链仅 admin 渲染，点击触发重置确认 sheet（primary variant）→ 调 resetInviteCode → 展示新码并提示重新分享。",
+"priority": "1-High",
+"status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {
