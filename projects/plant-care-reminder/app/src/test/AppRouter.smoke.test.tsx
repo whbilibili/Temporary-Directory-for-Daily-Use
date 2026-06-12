@@ -478,7 +478,8 @@ describe("AppShell smoke coverage", () => {
     );
 
     await waitFor(() => expect(window.location.pathname).toBe("/settings"));
-    expect(screen.getByRole("heading", { name: /wang family greenhouse/i })).toBeInTheDocument();
+    // 家庭名已从 heading 降为家庭头图卡内信息（SET2-007），故用 getByText。
+    expect(screen.getByText(/wang family greenhouse/i)).toBeInTheDocument();
     expect(screen.getByText("ABCD12")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /复制邀请码/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /家庭成员/i })).toBeInTheDocument();

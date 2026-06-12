@@ -5,6 +5,7 @@ import { useAuthActions } from "@convex-dev/auth/react";
 import { api } from "../../../convex/_generated/api";
 import { Button } from "../../components/ui/Button";
 import { NotificationPromptCard } from "../notifications/NotificationPromptCard";
+import { FamilyHeroCard } from "./FamilyHeroCard";
 import { MembersList } from "./MembersList";
 import { SettingCardHeader } from "./SettingCardHeader";
 import { SettingsGroup } from "./SettingsGroup";
@@ -94,12 +95,10 @@ export function FamilySettingsPage() {
       </SettingsGroup>
 
       <SettingsGroup title="家庭">
-        <section style={cardStyle}>
-          <SettingCardHeader eyebrow="家庭摘要" icon="🏠" title={summary.familyName} />
-          <p style={bodyStyle}>
-            当前已有 {summary.memberCount} 位家人加入这个共享植物看板。
-          </p>
-        </section>
+        <FamilyHeroCard
+          familyName={summary.familyName}
+          memberCount={summary.memberCount}
+        />
 
         <section style={cardStyle}>
           <SettingCardHeader eyebrow="邀请码与分享" icon="🔑" title="把这串邀请码发给家人" />

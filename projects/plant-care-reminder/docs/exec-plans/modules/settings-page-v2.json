@@ -221,7 +221,7 @@
       "task_id": "SET2-007",
       "description": "家庭头图卡（情感锚点，全页唯一强色块）+ 数据绑定：新增 FamilyHeroCard，品牌绿渐变背景（--color-leaf → --color-leaf-light）+ 右上角半透明 🌿 + 白底半透明 chip + 家庭名 Lora 22/700 白字 + 副文案。家庭名从 h1 降为卡内信息；副文案按人数走两套文案（1 人引导发邀请码 / ≥2 人「N 位家人 · 一起照顾这片植物」）。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {
