@@ -87,8 +87,12 @@ export function FamilySettingsPage() {
         <InviteCodeCard inviteCode={summary.inviteCode} isAdmin={isAdmin} />
 
         <section style={cardStyle}>
-          <SettingCardHeader eyebrow="家庭成员" icon="👥" title="家庭成员" />
-          <MembersList members={summary.members} />
+          <SettingCardHeader
+            eyebrow="家庭"
+            icon="👥"
+            title={`成员（${summary.memberCount}）`}
+          />
+          <MembersList isAdmin={isAdmin} members={summary.members} />
         </section>
       </SettingsGroup>
 

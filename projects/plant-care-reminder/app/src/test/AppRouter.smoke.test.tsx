@@ -481,9 +481,12 @@ describe("AppShell smoke coverage", () => {
     // 家庭名已从 heading 降为家庭头图卡内信息（SET2-007），故用 getByText。
     expect(screen.getByText(/wang family greenhouse/i)).toBeInTheDocument();
     expect(screen.getByText("ABCD12")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /复制邀请码/i })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /家庭成员/i })).toBeInTheDocument();
-    // 当前用户名「Wang」同时出现在「个人」卡（我的称呼）与成员列表中，故用 getAllByText。
+  expect(screen.getByRole("button", { name: /复制邀请码/i })).toBeInTheDocument();
+  // SET2-010：成员卡标题去重为 eyebrow「家庭」+ 标题「成员（N）」。
+  expect(
+    screen.getByRole("heading", { name: /成员（2）/ }),
+  ).toBeInTheDocument();
+  // 当前用户名「Wang」同时出现在「个人」卡（我的称呼）与成员列表中，故用 getAllByText。
     expect(screen.getAllByText("Wang").length).toBeGreaterThan(0);
     expect(screen.getByText("Li")).toBeInTheDocument();
     expect(screen.getByText("管理员")).toBeInTheDocument();

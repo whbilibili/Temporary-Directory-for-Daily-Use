@@ -328,10 +328,10 @@
       "acceptance_criteria": ["TypeScript 编译无 error", "SettingRow 标签—值—chevron 结构，可点尾 chevron / 只读无箭头", "称呼可点行打开编辑 sheet 复用 updateMyProfile（保留校验）", "保存后成员列表「我」实时更新", "账号行只读展示 email", "退出迁个人组末尾走 danger-outline 确认 sheet", "退出按钮保留描边危险态"]
     },
     {
-      "task_id": "SET2-010",
-      "description": "成员卡 + 头像 + 角色徽章 + 移除：新增 MemberAvatar（36×36 圆形首字，底色按 displayName hash 取色池轮换保证同人稳定，无名兜底 👤）；成员行视觉（头像 + 名字 15/600 单行省略 + 邮箱副行 + 「我」pill + 管理员实底徽章 / 成员描边徽章 + 移除文字链）；标题去重为 eyebrow「家庭」+「成员（N）」；移除文字链仅「admin && 非自己 && 非创建者」三条件同时满足渲染，点击触发移除确认 sheet（danger-solid variant，含被移除人名字）→ 调 removeMember（stopPropagation）→ 列表自动刷新。",
-      "priority": "1-High",
-      "status": "pending",
+"task_id": "SET2-010",
+"description": "成员卡 + 头像 + 角色徽章 + 移除：新增 MemberAvatar（36×36 圆形首字，底色按 displayName hash 取色池轮换保证同人稳定，无名兜底 👤）；成员行视觉（头像 + 名字 15/600 单行省略 + 邮箱副行 + 「我」pill + 管理员实底徽章 / 成员描边徽章 + 移除文字链）；标题去重为 eyebrow「家庭」+「成员（N）」；移除文字链仅「admin && 非自己 && 非创建者」三条件同时满足渲染，点击触发移除确认 sheet（danger-solid variant，含被移除人名字）→ 调 removeMember（stopPropagation）→ 列表自动刷新。",
+"priority": "1-High",
+"status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {

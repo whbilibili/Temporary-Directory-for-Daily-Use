@@ -1,9 +1,18 @@
+import { useMutation } from "convex/react";
+import { useState } from "react";
+import type { CSSProperties } from "react";
+
+import { api } from "../../../convex/_generated/api";
+import type { Id } from "../../../convex/_generated/dataModel";
+import { ConfirmSheet } from "../../components/ui/ConfirmSheet";
 import type { FamilyRole } from "../../types/domain";
+import { MemberAvatar } from "./MemberAvatar";
 
 interface MemberSummary {
   displayName: string | null;
   email: string | null;
   id: string;
+  isCreator: boolean;
   isCurrentUser: boolean;
   joinedAt: number;
   role: FamilyRole;
@@ -12,106 +21,193 @@ interface MemberSummary {
 
 interface MembersListProps {
   members: MemberSummary[];
+  /** 当前用户是否为管理员，决定移除入口是否可能出现。 */
+  isAdmin: boolean;
 }
 
 function formatRole(role: FamilyRole) {
   return role === "admin" ? "管理员" : "成员";
 }
 
-export function MembersList({ members }: MembersListProps) {
+export function MembersList({ members, isAdmin }: MembersListProps) {
+  const removeMember = useMutation(api.families.removeMember);
+  const [removeTarget, setRemoveTarget] = useState<MemberSummary | null>(null);
+  const [isRemoving, setIsRemoving] = useState(false);
+
+  async function handleConfirmRemove() {
+    if (!removeTarget) return;
+    setIsRemoving(true);
+    try {
+      await removeMember({
+        targetUserId: removeTarget.userId as Id<"users">,
+      });
+      setRemoveTarget(null);
+    } catch (error) {
+      // 出错时保持 sheet 打开，便于用户重试；错误细节交由全局错误边界。
+      console.error("移除成员失败", error);
+    } finally {
+      setIsRemoving(false);
+    }
+  }
+
   return (
     <div style={listStyle}>
       {members.map((member) => {
         const label = member.displayName?.trim() || member.email || "家庭成员";
+        // 移除入口三条件：当前用户是 admin，且目标不是自己，且目标不是创建者。
+        const canRemove =
+          isAdmin && !member.isCurrentUser && !member.isCreator;
 
         return (
-          <article key={member.id} style={memberCardStyle}>
-            <div style={memberHeaderStyle}>
-              <div style={memberIdentityStyle}>
-                <h3 style={memberNameStyle}>
-                  {label}
-                  {member.isCurrentUser ? <span style={selfTagStyle}>我</span> : null}
-                </h3>
-                {member.email && member.email !== label ? (
-                  <p style={memberMetaStyle}>{member.email}</p>
-                ) : null}
+          <article key={member.id} style={memberRowStyle}>
+            <MemberAvatar name={member.displayName ?? member.email} />
+            <div style={identityStyle}>
+              <div style={nameLineStyle}>
+                <span style={nameStyle}>{label}</span>
+                {member.isCurrentUser ? <span style={selfPillStyle}>我</span> : null}
+                <span
+                  style={
+                    member.role === "admin"
+                      ? adminBadgeStyle
+                      : memberBadgeStyle
+                  }
+                >
+                  {formatRole(member.role)}
+                </span>
               </div>
-              <span style={roleBadgeStyle}>{formatRole(member.role)}</span>
+              {member.email && member.email !== label ? (
+                <p style={emailStyle}>{member.email}</p>
+              ) : null}
             </div>
+            {canRemove ? (
+              <button
+                aria-label={`移除${label}`}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setRemoveTarget(member);
+                }}
+                style={removeLinkStyle}
+                type="button"
+              >
+                移除
+              </button>
+            ) : null}
           </article>
         );
       })}
+
+      {removeTarget ? (
+        <ConfirmSheet
+          ariaLabel={`移除${removeTarget.displayName?.trim() || removeTarget.email || "成员"}`}
+          confirmLabel={isRemoving ? "移除中…" : "移除成员"}
+          description={`确认把「${removeTarget.displayName?.trim() || removeTarget.email || "该成员"}」移出家庭吗？TA 将无法再查看家庭和植物信息，但已完成的养护记录会保留。`}
+          isSubmitting={isRemoving}
+          onCancel={() => setRemoveTarget(null)}
+          onConfirm={() => void handleConfirmRemove()}
+          title="移出家庭成员"
+          variant="danger-solid"
+        />
+      ) : null}
     </div>
   );
 }
 
-const listStyle: React.CSSProperties = {
+const listStyle: CSSProperties = {
   display: "grid",
-  gap: "12px",
+  gap: "var(--space-sm)",
 };
 
-const memberCardStyle: React.CSSProperties = {
-  borderRadius: "18px",
-  border: "1px solid var(--color-line)",
-  background: "var(--color-mist)",
-  padding: "16px",
-};
-
-const memberHeaderStyle: React.CSSProperties = {
+const memberRowStyle: CSSProperties = {
   display: "flex",
-  alignItems: "flex-start",
-  justifyContent: "space-between",
+  alignItems: "center",
   gap: "12px",
+  paddingBottom: "var(--space-sm)",
+  borderBottom: "1px solid var(--color-line)",
 };
 
-const memberIdentityStyle: React.CSSProperties = {
+const identityStyle: CSSProperties = {
+  flex: 1,
+  minWidth: 0,
   display: "grid",
-  gap: "6px",
+  gap: "2px",
 };
 
-const memberNameStyle: React.CSSProperties = {
-  margin: 0,
-  color: "var(--color-ink)",
-  fontSize: "1rem",
-  lineHeight: 1.25,
+const nameLineStyle: CSSProperties = {
   display: "flex",
   alignItems: "center",
   gap: "8px",
   flexWrap: "wrap",
 };
 
-const selfTagStyle: React.CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  minHeight: "22px",
-  padding: "0 8px",
-  borderRadius: "999px",
-  background: "var(--color-mist)",
-  color: "var(--color-leaf)",
-  fontSize: "0.72rem",
-  fontWeight: 700,
-  letterSpacing: "0.04em",
-  textTransform: "uppercase",
+const nameStyle: CSSProperties = {
+  color: "var(--color-ink)",
+  fontSize: "15px",
+  fontWeight: 600,
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+  maxWidth: "100%",
 };
 
-const memberMetaStyle: React.CSSProperties = {
+const emailStyle: CSSProperties = {
   margin: 0,
   color: "var(--color-muted)",
-  fontSize: "0.88rem",
-  lineHeight: 1.5,
+  fontSize: "12px",
+  lineHeight: 1.4,
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
 };
 
-const roleBadgeStyle: React.CSSProperties = {
+const selfPillStyle: CSSProperties = {
   display: "inline-flex",
   alignItems: "center",
-  minHeight: "26px",
-  padding: "0 10px",
-  borderRadius: "999px",
+  minHeight: "20px",
+  padding: "0 8px",
+  borderRadius: "var(--radius-pill)",
   background: "var(--color-mist)",
   color: "var(--color-leaf)",
-  fontSize: "0.74rem",
+  fontSize: "11px",
   fontWeight: 700,
-  letterSpacing: "0.06em",
-  textTransform: "uppercase",
-  whiteSpace: "nowrap",
+};
+
+const adminBadgeStyle: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  minHeight: "20px",
+  padding: "0 8px",
+  borderRadius: "var(--radius-pill)",
+  background: "var(--color-leaf)",
+  color: "var(--color-paper)",
+  fontSize: "11px",
+  fontWeight: 700,
+};
+
+const memberBadgeStyle: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  minHeight: "20px",
+  padding: "0 8px",
+  borderRadius: "var(--radius-pill)",
+  background: "var(--color-mist)",
+  color: "var(--color-muted)",
+  border: "1px solid var(--color-line)",
+  fontSize: "11px",
+  fontWeight: 700,
+};
+
+const removeLinkStyle: CSSProperties = {
+  appearance: "none",
+  flex: "none",
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  minHeight: "44px",
+  padding: "0 8px",
+  background: "transparent",
+  border: "none",
+  color: "var(--color-error)",
+  fontSize: "13px",
+  fontWeight: 500,
+  cursor: "pointer",
 };
