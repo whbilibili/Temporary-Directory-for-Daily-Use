@@ -115,7 +115,7 @@
       "task_id": "SET2-004",
       "description": "校验「我的称呼」写入链路可被设置页复用：确认 users.updateMyProfile 存在且约束齐全（非空 + maxLength 40，与 onboarding 一致），如有缺口补齐。设置页改称呼复用此 mutation，不重造规则。",
       "priority": "2-Medium",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {

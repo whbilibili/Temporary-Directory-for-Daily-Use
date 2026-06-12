@@ -3,6 +3,8 @@ import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { getCurrentUserContext as loadCurrentUserContext } from "./lib/auth";
 
+const DISPLAY_NAME_MAX_LENGTH = 40;
+
 export const getCurrentUserContext = query({
   args: {},
   handler: async (ctx) => {
@@ -30,6 +32,10 @@ export const updateMyProfile = mutation({
     const displayName = args.displayName.trim();
     if (displayName.length === 0) {
       throw new Error("Display name is required.");
+    }
+
+    if (displayName.length > DISPLAY_NAME_MAX_LENGTH) {
+      throw new Error(`Display name must be ${DISPLAY_NAME_MAX_LENGTH} characters or fewer.`);
     }
 
     await ctx.db.patch(currentUserContext.userId, {
