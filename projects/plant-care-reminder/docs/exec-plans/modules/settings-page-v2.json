@@ -86,7 +86,7 @@
       "task_id": "SET2-003",
       "description": "新增 resetInviteCode mutation（重置邀请码）：仅 admin；抽 helper generateUniqueInviteCode(ctx)（复用 generateInviteCode + by_inviteCode 唯一性循环，与 createFamily 同逻辑去重）；patch families.inviteCode 为新码，旧码即时失效；返回新 inviteCode。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {
