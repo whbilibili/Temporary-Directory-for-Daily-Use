@@ -152,9 +152,14 @@ export function NotificationPromptCard() {
   return (
     <section style={cardStyle}>
       <header style={headerStyle}>
-        <div style={headerTextStyle}>
-          <span style={eyebrowStyle}>通知</span>
-          <h2 style={titleStyle}>开启设备提醒</h2>
+        <div style={headerLeadStyle}>
+          <span aria-hidden="true" style={iconChipStyle}>
+            🔔
+          </span>
+          <div style={headerTextStyle}>
+            <span style={eyebrowStyle}>通知</span>
+            <h2 style={titleStyle}>开启设备提醒</h2>
+          </div>
         </div>
         <span style={{ ...badgeBaseStyle, ...badge.style }}>{badge.label}</span>
       </header>
@@ -259,9 +264,30 @@ const headerStyle: React.CSSProperties = {
   gap: "var(--space-sm)",
 };
 
+const headerLeadStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: "var(--space-sm)",
+  minWidth: 0,
+};
+
+const iconChipStyle: React.CSSProperties = {
+  flexShrink: 0,
+  width: "32px",
+  height: "32px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  borderRadius: "var(--radius-button)",
+  background: "var(--color-mist)",
+  fontSize: "18px",
+  lineHeight: 1,
+};
+
 const headerTextStyle: React.CSSProperties = {
   display: "grid",
   gap: "var(--space-xs)",
+  minWidth: 0,
 };
 
 const eyebrowStyle: React.CSSProperties = {

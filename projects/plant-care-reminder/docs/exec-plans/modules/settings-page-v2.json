@@ -367,10 +367,10 @@
       "acceptance_criteria": ["TypeScript 编译无 error", "MemberAvatar 36×36 首字头像，同人颜色稳定，无名兜底 👤", "成员行含头像 + 名字省略 + 邮箱 + 我 pill + 角色徽章", "标题去重为 eyebrow 家庭 + 成员（N）", "移除文字链仅 admin && 非自己 && 非创建者 三条件渲染", "移除走 danger-solid 确认 sheet 调 removeMember", "移除后列表自动刷新且 taskCompletionLogs 不丢"]
     },
     {
-      "task_id": "SET2-011",
-      "description": "通知卡外壳统一 + 收不到提醒排障折叠 + 关于卡：NotificationPromptCard 顶部替换为统一 🔔 chip + eyebrow「通知」（三态 + needs_install 兜底不回归）；新增 NotificationTroubleshooting（disclosure 折叠态机，默认收起，aria-expanded/aria-controls，静态清单 1–4 条加主屏/允许通知/系统设置/待办页兜底，触发器旋转箭头 + max-height/opacity 展开动效遵循 reduced-motion）；新增 AboutCard（ℹ️ chip + eyebrow「关于」+ 正文 + 版本行 Mono 12 muted，版本号从构建变量/package.json 注入不硬编码）。",
-      "priority": "2-Medium",
-      "status": "pending",
+"task_id": "SET2-011",
+"description": "通知卡外壳统一 + 收不到提醒排障折叠 + 关于卡：NotificationPromptCard 顶部替换为统一 🔔 chip + eyebrow「通知」（三态 + needs_install 兜底不回归）；新增 NotificationTroubleshooting（disclosure 折叠态机，默认收起，aria-expanded/aria-controls，静态清单 1–4 条加主屏/允许通知/系统设置/待办页兜底，触发器旋转箭头 + max-height/opacity 展开动效遵循 reduced-motion）；新增 AboutCard（ℹ️ chip + eyebrow「关于」+ 正文 + 版本行 Mono 12 muted，版本号从构建变量/package.json 注入不硬编码）。",
+"priority": "2-Medium",
+"status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {

@@ -5,6 +5,8 @@ import { useAuthActions } from "@convex-dev/auth/react";
 import { api } from "../../../convex/_generated/api";
 import { ConfirmSheet } from "../../components/ui/ConfirmSheet";
 import { NotificationPromptCard } from "../notifications/NotificationPromptCard";
+import { NotificationTroubleshooting } from "../notifications/NotificationTroubleshooting";
+import { AboutCard } from "./AboutCard";
 import { FamilyHeroCard } from "./FamilyHeroCard";
 import { InviteCodeCard } from "./InviteCodeCard";
 import { MembersList } from "./MembersList";
@@ -98,6 +100,8 @@ export function FamilySettingsPage() {
 
       <SettingsGroup title="通知与应用">
         <NotificationPromptCard />
+        <NotificationTroubleshooting />
+        <AboutCard />
       </SettingsGroup>
 
       {nicknameSheetOpen ? (
