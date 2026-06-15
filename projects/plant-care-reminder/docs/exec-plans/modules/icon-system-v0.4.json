@@ -37,7 +37,7 @@
       "task_id": "ICON-001",
       "description": "引入图标库 + 封装统一 Icon 壳：(1) app 工作区 npm i lucide-react@0.471.1（pin 版本写入 package.json dependencies）；(2) 新建 app/src/components/ui/Icon.tsx —— props { icon: LucideIcon, size?(默认20), strokeWidth?(默认2), colorVar?(注入 style.color=var(...)，缺省继承 currentColor), label?(有则 role=img+aria-label，无则 aria-hidden), className? }；(3) 不替换任何业务 emoji，仅交付底座 + 最小渲染测试。确立『所有 Lucide 图标经 Icon 壳消费、禁止业务组件直接传字面色』纪律。",
       "priority": "0-Critical",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {"schema": {"tables_or_collections": [], "key_fields": {}, "indexes": [], "relations": "纯前端基建。", "notes": "无 schema 变更。"}, "queries": {"read": "N/A", "write": "N/A"}, "migration_strategy": "No schema change."},

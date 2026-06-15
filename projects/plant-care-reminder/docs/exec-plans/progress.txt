@@ -1,5 +1,9 @@
 ### [Current Focus]
-`plant-list-v2` 模块开发中（2026-06-11 启动）。
+`icon-system-v0.4` 模块开发中（2026-06-15 启动）：emoji → Lucide 线性图标系统化迁移。基线 tsc 0 错误 / 91 tests 全绿。
+
+**ICON-001 已完成（2026-06-15）**：图标基建。`app/` 工作区 `npm i lucide-react@0.471.1 --save-exact`（pin 写入 dependencies，无 ^）。新建 `app/src/components/ui/Icon.tsx` 统一壳：props { icon: LucideIcon, size?(默认20), strokeWidth?(默认2), colorVar?(注入 style.color=var(...)，缺省继承 currentColor), label?(有→role=img+aria-label，无→aria-hidden), className?, style? }；额外加 flexShrink:0 防图标在 flex 行内被压缩。新建 `Icon.test.tsx` 6 用例覆盖：渲染 lucide svg / 缺省不注入字面色（currentColor）/ colorVar 注入 var(--color-leaf) / label→role=img+aria-label / 无 label→aria-hidden / size+strokeWidth 自定义。确立纪律：所有 Lucide 图标经 Icon 壳消费、业务组件禁止直接传字面色。未替换任何业务 emoji（仅交付底座）。typecheck 0 错误、15 files / 97 tests 全绿（+6）。
+
+---
 
 **PLIST2-001 已完成（2026-06-11）**：后端排序改造。`app/convex/plants.ts` listPlantsWithNextDue query 排序逻辑从 `name.localeCompare` 改为 nextDueAt 升序（有任务植物按最近到期排前）+ null 沉底（无任务植物按 _creationTime 降序）。map 中新增 `creationTime: plant._creationTime` 字段用于排序。前端 PlantListPage.tsx 无本地排序代码，无需改动。typecheck 0 错误、86 tests 全绿。
 
