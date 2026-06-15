@@ -12,6 +12,7 @@ import { FamilyNameEditSheet } from "./FamilyNameEditSheet";
 import { InviteCodeCard } from "./InviteCodeCard";
 import { MembersList } from "./MembersList";
 import { NicknameEditSheet } from "./NicknameEditSheet";
+import { AvatarUploadField } from "./AvatarUploadField";
 import { SettingCardHeader } from "./SettingCardHeader";
 import { SettingRow } from "./SettingRow";
 import { SettingsGroup } from "./SettingsGroup";
@@ -91,6 +92,10 @@ export function FamilySettingsPage() {
       <SettingsGroup title="个人">
         <section style={cardStyle}>
           <SettingCardHeader eyebrow="账号" icon="🙂" title="个人信息" />
+          <AvatarUploadField
+            displayName={myDisplayName}
+            imageStorageId={currentMember?.imageStorageId ?? null}
+          />
           <div style={rowGroupStyle}>
             <SettingRow
               ariaLabel="修改我的称呼"
