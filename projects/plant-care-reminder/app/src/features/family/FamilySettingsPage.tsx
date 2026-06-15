@@ -85,6 +85,16 @@ export function FamilySettingsPage() {
   const myDisplayName = currentMember?.displayName ?? "我";
   const isAdmin = summary.currentUserRole === "admin";
 
+  // 最后一名成员退出 = 整个家庭被解散，后端会级联删除全部植物、提醒与养护记录（families.leaveFamily 分支二）。
+  // 因此必须用更强的「数据将被永久删除」措辞，而不是普通成员退出的「数据仍归家庭所有」。
+  const isLastMember = summary.memberCount <= 1;
+  const leaveTitle = isLastMember
+    ? "退出后将解散这个家庭"
+    : "确认退出这个家庭吗？";
+  const leaveDescription = isLastMember
+    ? `你是「${summary.familyName}」的最后一名成员，退出后这个家庭会被解散，里面的所有植物、提醒和养护记录都会被永久删除，且无法恢复。`
+    : `退出后你将离开「${summary.familyName}」，家庭里的养护数据仍由其他家人保留，需要重新被邀请才能回来。`;
+
   return (
     <section style={pageStyle}>
       <h1 style={pageTitleStyle}>设置</h1>
@@ -170,15 +180,14 @@ export function FamilySettingsPage() {
       {leaveSheetOpen ? (
         <ConfirmSheet
           ariaLabel="退出家庭确认"
-          confirmLabel={isLeaving ? "退出中…" : "退出家庭"}
-          description={
-            leaveError ??
-            `退出后你将离开「${summary.familyName}」，养护数据仍归这个家庭所有，需要重新被邀请才能回来。`
+          confirmLabel={
+            isLeaving ? "退出中…" : isLastMember ? "退出并解散家庭" : "退出家庭"
           }
+          description={leaveError ?? leaveDescription}
           isSubmitting={isLeaving}
           onCancel={closeLeaveSheet}
           onConfirm={() => void handleLeaveFamily()}
-          title="确认退出这个家庭吗？"
+          title={leaveTitle}
           variant="danger-solid"
         />
       ) : null}
