@@ -140,3 +140,11 @@
   - 成功后 familyId→null 由 RouteGate 响应式重定向 onboarding，卸载前不再 setState
   - 验证：tsc -b 通过；AppRouter.smoke 35/35 通过
   - 下一步：SET3-006（E2 退出家庭整体验证）
+
+[2026-06-15 14:31] SET3-006 DONE — E2 退出家庭整体验证（QA，无代码改动）
+  - 逐条核对 leaveFamily 三分支实现与 D5 一致：
+    分支1 唯一管理员(有他人) role=admin && adminCount=1 && memberships>1 → 抛错，前端 translate 兜底
+    分支2 最后一人 memberships=1 → deleteEntireFamily 遍历删 plants/plantTasks/taskCompletionLogs/pushSubscriptions/familyMembers + families，无残留
+    分支3 普通成员 → 级联删自身 pushSubscriptions(by_familyId_and_userId) + 删自身 membership，保留 taskCompletionLogs
+  - 验证：tsc -b 通过；npx convex dev --once 函数编译并部署成功；AppRouter.smoke 35/35 通过
+  - 下一步：SET3-007（P1 头像 schema + 用户级接口 D6）

@@ -120,7 +120,7 @@
       "prd": "docs/product-specs/2026-06-15-settings-page-v0.3-iteration-spec.md",
       "task_breakdown": "docs/product-specs/2026-06-15-settings-page-v0.3-task-breakdown.md",
       "task_count": 16,
-      "completed": 5,
+      "completed": 6,
       "depends_on": [
         "family-access",
         "plant-registry",
@@ -729,7 +729,7 @@
       "task_id": "SET3-006",
       "module": "settings-page-v0.3",
       "description": "退出家庭验证：普通成员退出回 onboarding、级联删保留正确、唯一管理员按 D5 被拒、最后一人删整库无残留。",
-      "status": "pending",
+      "status": "completed",
       "priority": "0-Critical"
     },
     {

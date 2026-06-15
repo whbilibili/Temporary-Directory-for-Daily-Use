@@ -128,10 +128,10 @@
       "acceptance_criteria": ["「个人」组在退出登录之上有「退出家庭」破坏性行", "二次确认 danger-solid 且文案点名家庭名与后果", "成功退出后回 onboarding 不报错崩溃", "唯一管理员被拒时前端兜底友好提示"]
     },
     {
-      "task_id": "SET3-006",
-      "description": "退出家庭验证：普通成员退出回 onboarding 可重新加入/创建不报错；退出级联删 pushSubscriptions、保留 taskCompletionLogs；唯一管理员/创建者按 D5 被拒并提示；最后一人退出删整个家庭无脏数据残留。",
-      "priority": "0-Critical",
-      "status": "pending",
+"task_id": "SET3-006",
+"description": "退出家庭验证：普通成员退出回 onboarding 可重新加入/创建不报错；退出级联删 pushSubscriptions、保留 taskCompletionLogs；唯一管理员/创建者按 D5 被拒并提示；最后一人退出删整个家庭无脏数据残留。",
+"priority": "0-Critical",
+"status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {"schema": {"tables_or_collections": ["familyMembers", "pushSubscriptions", "taskCompletionLogs", "plants", "plantTasks", "families"], "key_fields": {}, "indexes": [], "relations": "", "notes": "验证任务。"}, "queries": {"read": "N/A", "write": "N/A"}, "migration_strategy": "N/A"},
