@@ -1,6 +1,8 @@
 ### [Current Focus]
 `icon-system-v0.4` 模块开发中（2026-06-15 启动）：emoji → Lucide 线性图标系统化迁移。基线 tsc 0 错误 / 91 tests 全绿。
 
+**ICON-002 已完成（2026-06-15）**：BottomNav 试点替换 + 核心 bug 修复。`app/src/components/navigation/BottomNav.tsx` navItems 的 icon 字段类型由 string 改为 LucideIcon，值由 emoji(🗓️🪴⚙️) 改为组件引用（待办=CalendarCheck、植物=Sprout、设置=Settings）；渲染处 `<span style={iconStyle}>{item.icon}</span>` 替换为 `<Icon icon={item.icon} size={22} />`，删除已无用的 iconStyle。activeItemStyle 保持 color:var(--color-paper)、itemStyle 保持 color:var(--color-muted)——SVG stroke=currentColor 自动跟随父级 color，**彻底修复 emoji active 态白色失效核心 bug**（emoji 是彩色位图，CSS color 无效）。新建 `BottomNav.test.tsx` 4 用例：三标签渲染 / 3 个 svg.lucide 且无 emoji 文本(正则 /[🗓🪴⚙]/u) / 图标 aria-hidden / **active 按钮 color === var(--color-paper) 且 inactive === var(--color-muted)**（核心 bug 修复断言，反向用例：若回灌 emoji 会红）。typecheck 0 错误、16 files / 101 tests 全绿（+4）。
+
 **ICON-001 已完成（2026-06-15）**：图标基建。`app/` 工作区 `npm i lucide-react@0.471.1 --save-exact`（pin 写入 dependencies，无 ^）。新建 `app/src/components/ui/Icon.tsx` 统一壳：props { icon: LucideIcon, size?(默认20), strokeWidth?(默认2), colorVar?(注入 style.color=var(...)，缺省继承 currentColor), label?(有→role=img+aria-label，无→aria-hidden), className?, style? }；额外加 flexShrink:0 防图标在 flex 行内被压缩。新建 `Icon.test.tsx` 6 用例覆盖：渲染 lucide svg / 缺省不注入字面色（currentColor）/ colorVar 注入 var(--color-leaf) / label→role=img+aria-label / 无 label→aria-hidden / size+strokeWidth 自定义。确立纪律：所有 Lucide 图标经 Icon 壳消费、业务组件禁止直接传字面色。未替换任何业务 emoji（仅交付底座）。typecheck 0 错误、15 files / 97 tests 全绿（+6）。
 
 ---

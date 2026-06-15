@@ -54,9 +54,9 @@
     },
     {
       "task_id": "ICON-002",
-      "description": "BottomNav 试点替换（修复核心 bug）：把 BottomNav.tsx:9-11 的 icon 字段由 emoji(🗓️🪴⚙️) 改为 Lucide 组件引用（待办=CalendarCheck、植物=Sprout、设置=Settings），经 Icon 壳渲染，size 对齐当前导航视觉尺寸（约22-24），图标颜色继承导航项 color（未选中 muted、选中 var(--color-paper)）。验证 active 态图标随父级 color 正确转白——本模块最核心收益验证点。保持 label 文案与点击热区不变，图标 aria-hidden。",
-      "priority": "0-Critical",
-      "status": "pending",
+"description": "BottomNav 试点替换（修复核心 bug）：把 BottomNav.tsx:9-11 的 icon 字段由 emoji(🗓️🪴⚙️) 改为 Lucide 组件引用（待办=CalendarCheck、植物=Sprout、设置=Settings），经 Icon 壳渲染，size 对齐当前导航视觉尺寸（约22-24），图标颜色继承导航项 color（未选中 muted、选中 var(--color-paper)）。验证 active 态图标随父级 color 正确转白——本模块最核心收益验证点。保持 label 文案与点击热区不变，图标 aria-hidden。",
+"priority": "0-Critical",
+"status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {"schema": {"tables_or_collections": [], "key_fields": {}, "indexes": [], "relations": "纯前端。", "notes": "无 schema 变更。"}, "queries": {"read": "N/A", "write": "N/A"}, "migration_strategy": "No schema change."},

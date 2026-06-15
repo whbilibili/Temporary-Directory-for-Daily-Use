@@ -1,14 +1,18 @@
+import type { LucideIcon } from "lucide-react";
+import { CalendarCheck, Settings, Sprout } from "lucide-react";
+
 import type { AppPath } from "../../app/router";
 import { navigate } from "../../app/router";
+import { Icon } from "../ui/Icon";
 
 interface BottomNavProps {
   pathname: AppPath;
 }
 
-const navItems: Array<{ href: AppPath; label: string; icon: string }> = [
-  { href: "/todo", label: "待办", icon: "🗓️" },
-  { href: "/plants", label: "植物", icon: "🪴" },
-  { href: "/settings", label: "设置", icon: "⚙️" },
+const navItems: Array<{ href: AppPath; label: string; icon: LucideIcon }> = [
+  { href: "/todo", label: "待办", icon: CalendarCheck },
+  { href: "/plants", label: "植物", icon: Sprout },
+  { href: "/settings", label: "设置", icon: Settings },
 ];
 
 export function BottomNav({ pathname }: BottomNavProps) {
@@ -30,7 +34,7 @@ export function BottomNav({ pathname }: BottomNavProps) {
               ...(isActive ? activeItemStyle : null),
             }}
           >
-            <span aria-hidden="true" style={iconStyle}>{item.icon}</span>
+            <Icon icon={item.icon} size={22} />
             <span>{item.label}</span>
           </button>
         );
@@ -84,9 +88,4 @@ const activeItemStyle: React.CSSProperties = {
   color: "var(--color-paper)",
   fontWeight: 700,
   boxShadow: "0 6px 16px rgba(31, 71, 61, 0.28)",
-};
-
-const iconStyle: React.CSSProperties = {
-  fontSize: "20px",
-  lineHeight: 1,
 };
