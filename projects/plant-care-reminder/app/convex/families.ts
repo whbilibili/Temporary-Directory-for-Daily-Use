@@ -168,6 +168,8 @@ export const getFamilySettingsSummary = query({
           joinedAt: membership.joinedAt,
           displayName: user?.displayName ?? user?.name ?? null,
           email: user?.email ?? null,
+          // 成员头像 storageId（D6）：前端用 getAvatarUrl 解析展示真实头像；无则回退首字母。
+          imageStorageId: user?.imageStorageId ?? null,
           isCurrentUser: membership.userId === currentUserContext.userId,
           isCreator: membership.userId === family.createdBy,
         };

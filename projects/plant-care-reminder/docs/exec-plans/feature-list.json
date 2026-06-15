@@ -120,7 +120,7 @@
       "prd": "docs/product-specs/2026-06-15-settings-page-v0.3-iteration-spec.md",
       "task_breakdown": "docs/product-specs/2026-06-15-settings-page-v0.3-task-breakdown.md",
       "task_count": 16,
-      "completed": 6,
+      "completed": 7,
       "depends_on": [
         "family-access",
         "plant-registry",
@@ -735,9 +735,9 @@
     {
       "task_id": "SET3-007",
       "module": "settings-page-v0.3",
-      "description": "头像 schema + 用户级接口（D6）：userFields 增 imageStorageId(id('_storage'))；新增 generateAvatarUploadUrl/getAvatarUrl/updateMyAvatar（不带家庭门槛）；摘要 members 补 imageStorageId。",
-      "status": "pending",
-      "priority": "1-High"
+"description": "头像 schema + 用户级接口（D6）：userFields 增 imageStorageId(id('_storage'))；新增 generateAvatarUploadUrl/getAvatarUrl/updateMyAvatar（不带家庭门槛）；摘要 members 补 imageStorageId。",
+"status": "completed",
+"priority": "1-High"
     },
     {
       "task_id": "SET3-008",

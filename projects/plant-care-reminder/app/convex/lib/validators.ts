@@ -25,6 +25,9 @@ export const userFields = {
   phoneVerificationTime: v.optional(v.number()),
   isAnonymous: v.optional(v.boolean()),
   displayName: optionalTrimmedTextValidator,
+  // 用户级头像（D6）：不复用 authTables 自带 image(URL 语义)，统一用 storageId 方案，
+  // 与 plantFields.imageStorageId 一致；optional 向后兼容，老用户无需回填。
+  imageStorageId: v.optional(v.id("_storage")),
   createdAt: utcTimestampValidator,
   updatedAt: utcTimestampValidator,
 };

@@ -148,3 +148,11 @@
     分支3 普通成员 → 级联删自身 pushSubscriptions(by_familyId_and_userId) + 删自身 membership，保留 taskCompletionLogs
   - 验证：tsc -b 通过；npx convex dev --once 函数编译并部署成功；AppRouter.smoke 35/35 通过
   - 下一步：SET3-007（P1 头像 schema + 用户级接口 D6）
+
+[2026-06-15 14:34] SET3-007 DONE — 头像 schema + 用户级接口（D6, E3 个人头像）
+  - validators.ts userFields 新增 imageStorageId: v.optional(v.id("_storage"))（统一 storageId 方案，向后兼容）
+  - users.ts 新增三个用户级接口（仅校验登录，无 requireCurrentFamilyMember 家庭门槛）：
+    generateAvatarUploadUrl(mutation)、getAvatarUrl(query, storageId)、updateMyAvatar(mutation, imageStorageId 传 null 清除)
+  - families.getFamilySettingsSummary members[] 补 imageStorageId（user.imageStorageId ?? null）
+  - 验证：tsc -b 通过；convex 函数编译部署成功；smoke 35/35
+  - 下一步：SET3-008（头像上传交互 AvatarUploadField 前端）

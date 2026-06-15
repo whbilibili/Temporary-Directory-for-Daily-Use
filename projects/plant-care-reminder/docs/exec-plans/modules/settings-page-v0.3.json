@@ -150,7 +150,7 @@
       "task_id": "SET3-007",
       "description": "头像 schema + 用户级接口（D6）：(1) lib/validators.ts userFields 新增 imageStorageId: v.optional(v.id('_storage'))（不复用 authTables 自带 image，统一 storageId 方案）；(2) users.ts 新增用户级接口（仅校验登录，不带 requireCurrentFamilyMember 家庭门槛）：generateAvatarUploadUrl(mutation)、getAvatarUrl(query, storageId)、updateMyAvatar(mutation, imageStorageId: union(id('_storage'), null) 传 null 移除)；(3) getFamilySettingsSummary 成员对象补 imageStorageId。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {
