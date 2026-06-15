@@ -127,6 +127,21 @@
         "care-reminders",
         "settings-page-v2"
       ]
+    },
+    {
+      "module": "icon-system-v0.4",
+      "file": "docs/exec-plans/modules/icon-system-v0.4.json",
+      "description": "图标系统 v0.4 迁移：emoji → Lucide 线性图标系统化替换。引入 lucide-react@0.471.1 + 封装 Icon 统一壳；按三级分类落地——A 级功能性图标必换（导航/完成/编辑/通知，修复 BottomNav active 态 emoji 白色失效核心 bug）、B 级任务类型图标统一收口（TaskTypeBadge/PlantCard/PlantDetailPage 三处既有不一致 emoji 收敛为 taskTypes.ts 单一 taskTypeIcon 映射）、C 级装饰 emoji（🌿🍃）保留。最后 DetailNavBar 手写 SVG 收口到 Lucide，并以守护单测固化『不准回退 emoji』。所有图标 stroke=currentColor 跟随主题/token，不新增 token、不引入 #hex。落地节奏 P0=基建+导航试点、P1=任务类型收口、P2=操作图标、P3=信息标识+DetailNavBar 收口、回归验收兜底。",
+      "prd": "docs/design-docs/icon-system-migration.md",
+      "task_count": 9,
+      "completed": 0,
+      "depends_on": [
+        "frontend-refresh",
+        "todo-page-v2",
+        "plant-list-v2",
+        "plant-detail-v2",
+        "settings-page-v2"
+      ]
     }
   ],
   "tasks_summary": [
@@ -801,6 +816,69 @@
       "description": "v0.3 整体回归 + smoke：tsc/convex 编译、AppRouter.smoke（含 /join）、v0.2 getByText 不破坏、无 #hex、D5 三分支专项手测、StorageImage 植物回归。",
       "status": "completed",
       "priority": "1-High"
+    },
+    {
+      "task_id": "ICON-001",
+      "module": "icon-system-v0.4",
+      "description": "引入 lucide-react@0.471.1（pin）+ 封装 Icon 统一壳（size/strokeWidth/colorVar/label，默认 currentColor），确立图标统一消费纪律 + 最小渲染测试。",
+      "status": "pending",
+      "priority": "0-Critical"
+    },
+    {
+      "task_id": "ICON-002",
+      "module": "icon-system-v0.4",
+      "description": "BottomNav 试点替换 🗓️🪴⚙️ → CalendarCheck/Sprout/Settings，验证 active 态图标随父级 color 转白，修复 emoji active 态白色失效核心 bug。",
+      "status": "pending",
+      "priority": "0-Critical"
+    },
+    {
+      "task_id": "ICON-003",
+      "module": "icon-system-v0.4",
+      "description": "taskTypes.ts 建立权威 taskTypeIcon 映射（Droplet/Sprout/SprayCan/Flower2/Scissors/Tag）+ 六类型全映射单测，作为 B 级收口唯一来源。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "ICON-004",
+      "module": "icon-system-v0.4",
+      "description": "任务类型图标三处消费方（TaskTypeBadge/PlantCard/PlantDetailPage）统一切到 taskTypeIcon，删除第二份 emoji 映射，消除 fertilizing/misting/custom 历史不一致，fallback 统一。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "ICON-005",
+      "module": "icon-system-v0.4",
+      "description": "操作类图标替换：完成态 ✓→Check（CompleteTaskButton/ActionableTaskRow）、编辑入口 ✎→Pencil（FamilyHeroCard），stroke=currentColor 跟随按钮文字色，动效与 aria 不回归。",
+      "status": "pending",
+      "priority": "2-Medium"
+    },
+    {
+      "task_id": "ICON-006",
+      "module": "icon-system-v0.4",
+      "description": "信息标识图标替换：🔔→Bell、📝→NotebookPen、📋→ClipboardList、⚠️→Info（或保留），对齐卡片标题语言与基线，图标 aria-hidden。",
+      "status": "pending",
+      "priority": "3-Low"
+    },
+    {
+      "task_id": "ICON-007",
+      "module": "icon-system-v0.4",
+      "description": "DetailNavBar 手写 SVG（chevron/三点）收口为 Lucide ChevronLeft/EllipsisVertical，统一图标来源，外观像素级一致、交互与 a11y 不回归。",
+      "status": "pending",
+      "priority": "3-Low"
+    },
+    {
+      "task_id": "ICON-008",
+      "module": "icon-system-v0.4",
+      "description": "图标纪律守护单测：任务类型映射完整性 + A/B 级文件 emoji 不回灌（白名单仅 C 级装饰）+ Icon a11y 契约，故意回灌 emoji 应失败。",
+      "status": "pending",
+      "priority": "2-Medium"
+    },
+    {
+      "task_id": "ICON-009",
+      "module": "icon-system-v0.4",
+      "description": "整体回归验收：tsc+convex typecheck+vitest 全绿、A/B 级 emoji 全清 C 级保留、tree-shaking/reduced-motion/#hex 纪律核对、四页面双视角走查、迁移验收小结追加。",
+      "status": "pending",
+      "priority": "1-High"
     }
   ],
   "cross_module_dependencies": [
@@ -1153,6 +1231,61 @@
       "from": "SET2-012",
       "to": "SET2-011",
       "reason": "验收覆盖通知卡外壳、排障无障碍与关于卡版本号。"
+    },
+    {
+      "from": "ICON-002",
+      "to": "VIS-005",
+      "reason": "BottomNav 图标替换在 frontend-refresh VIS-005 建立的 task-first 底栏外壳与 active 态样式上原位改造。"
+    },
+    {
+      "from": "ICON-002",
+      "to": "ICON-001",
+      "reason": "试点替换消费 ICON-001 引入的 lucide-react 依赖与 Icon 统一壳。"
+    },
+    {
+      "from": "ICON-003",
+      "to": "CARE-001",
+      "reason": "taskTypeIcon 权威映射与 care-reminders CARE-001 建立的 careTaskType 类型集合一一对应，须保持类型同源。"
+    },
+    {
+      "from": "ICON-004",
+      "to": "ICON-003",
+      "reason": "三处消费方收口统一依赖 ICON-003 已建立的 taskTypeIcon 权威映射。"
+    },
+    {
+      "from": "ICON-004",
+      "to": "PLIST2-003",
+      "reason": "PlantCard 任务类型图标改造在 plant-list-v2 PLIST2-003 重写后的卡片结构上原位替换。"
+    },
+    {
+      "from": "ICON-004",
+      "to": "PDETAIL2-003",
+      "reason": "PlantDetailPage 任务类型图标改造在 plant-detail-v2 PDETAIL2-003 需要处理区结构上原位替换。"
+    },
+    {
+      "from": "ICON-005",
+      "to": "ICON-001",
+      "reason": "操作类图标替换消费 ICON-001 的 Icon 壳并遵循 currentColor 跟随纪律。"
+    },
+    {
+      "from": "ICON-006",
+      "to": "ICON-001",
+      "reason": "信息标识图标替换消费 ICON-001 的 Icon 壳。"
+    },
+    {
+      "from": "ICON-007",
+      "to": "PDETAIL2-001",
+      "reason": "DetailNavBar 手写 SVG 收口在 plant-detail-v2 PDETAIL2-001 建立的导航栏组件上像素级等价替换。"
+    },
+    {
+      "from": "ICON-008",
+      "to": "ICON-003",
+      "reason": "守护单测的映射完整性断言依赖 ICON-003 的 taskTypeIcon 权威映射。"
+    },
+    {
+      "from": "ICON-009",
+      "to": "ICON-008",
+      "reason": "整体验收依赖 ICON-008 守护单测就位，并核对全部 A/B/C 级替换结果。"
     }
   ]
 }
