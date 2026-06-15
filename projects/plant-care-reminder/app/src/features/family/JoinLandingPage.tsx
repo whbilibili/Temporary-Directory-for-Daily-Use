@@ -1,9 +1,11 @@
 import { useQuery } from "convex/react";
+import { useEffect } from "react";
 
 import { api } from "../../../convex/_generated/api";
 import { navigate } from "../../app/router";
 import type { RouteContext } from "../../app/router";
 import { Button } from "../../components/ui/Button";
+import { setPendingInviteCode } from "./usePendingInvite";
 
 interface JoinLandingPageProps {
   inviteCode: string | null;
@@ -30,6 +32,16 @@ export function JoinLandingPage({ inviteCode, routeContext }: JoinLandingPagePro
     api.families.getFamilySettingsSummary,
     isAuthenticated && hasFamily ? {} : "skip",
   );
+
+  // SET3-012 暂存：只要带有效码且「尚未加入家庭」，就把邀请码写入 sessionStorage，
+  // 让它跨「登录→填称呼→onboarding」多跳存活，最终在 onboarding 末端自动加入。
+  // 已有家庭场景（D3）不暂存，避免离开后误触发加入。
+  const shouldStash = hasValidCode && !hasFamily;
+  useEffect(() => {
+    if (shouldStash) {
+      setPendingInviteCode(trimmedCode);
+    }
+  }, [shouldStash, trimmedCode]);
 
   // 兜底：邀请码缺失或为空 —— 友好提示，不白屏。
   if (!hasValidCode) {
@@ -63,18 +75,18 @@ export function JoinLandingPage({ inviteCode, routeContext }: JoinLandingPagePro
     );
   }
 
-  // 分支 3：已登录但未加入家庭 —— 引导带码加入。
+  // 分支 3：已登录但未加入家庭 —— 邀请码已暂存，去 onboarding 末端自动加入（SET3-012）。
   if (isAuthenticated && !hasFamily) {
     return (
       <LandingShell
-        body="你收到了一个家庭邀请。点击下方按钮，用这串邀请码加入家人的共享植物看板。"
+        body="你收到了一个家庭邀请。点击下方按钮，立即用这串邀请码加入家人的共享植物看板。"
         eyebrow="家庭邀请"
         title="加入家人的植物看板"
       >
         <p style={codeChipStyle}>邀请码：{trimmedCode}</p>
         <Button
           fullWidth
-          onClick={() => navigate("/onboarding/join-family")}
+          onClick={() => navigate("/onboarding")}
           type="button"
           variant="primary"
         >

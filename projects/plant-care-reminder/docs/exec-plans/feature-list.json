@@ -120,7 +120,7 @@
       "prd": "docs/product-specs/2026-06-15-settings-page-v0.3-iteration-spec.md",
       "task_breakdown": "docs/product-specs/2026-06-15-settings-page-v0.3-task-breakdown.md",
 "task_count": 16,
-"completed": 12,
+"completed": 13,
 "depends_on": [
 "family-access",
 "plant-registry",
@@ -771,7 +771,7 @@
       "task_id": "SET3-012",
       "module": "settings-page-v0.3",
       "description": "跨多跳暂存邀请码 + onboarding 自动加入：sessionStorage 暂存码跨登录/填称呼/多跳存活，到二选一阶段自动 joinFamilyByInviteCode 跳 /todo；已有家庭不重复加入。",
-      "status": "pending",
+      "status": "completed",
       "priority": "1-High"
     },
     {

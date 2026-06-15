@@ -249,7 +249,7 @@
       "task_id": "SET3-012",
       "description": "跨多跳暂存邀请码 + onboarding 自动加入：(1)未登录落在 /join/:code → 邀请码写 sessionStorage(键 pendingInviteCode，关标签页即清) → 走 RouteGate 重定向 /login；(2)经登录/注册→填称呼→onboarding 多跳邀请码始终存活；(3)到 onboarding 创建/加入二选一阶段若有暂存码 → 自动调 joinFamilyByInviteCode → 成功清除暂存 → 跳 /todo，跳过手输码与二选一页；(4)已登录无家庭点链接直接加入→/todo；已登录已有家庭点链接不重复加入、明确提示(见 SET3-013)。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {"schema": {"tables_or_collections": ["familyMembers", "families"], "key_fields": {"families": "inviteCode", "familyMembers": "familyId, userId"}, "indexes": ["families.by_inviteCode"], "relations": "joinFamilyByInviteCode 已含单一家庭校验，前端仅喂码。", "notes": "后端零新增，纯前端编排 + sessionStorage 暂存。"}, "queries": {"read": "N/A", "write": "调用既有 api.families.joinFamilyByInviteCode(code)"}, "migration_strategy": "No schema change."},

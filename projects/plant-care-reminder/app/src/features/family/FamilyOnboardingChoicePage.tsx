@@ -1,5 +1,13 @@
+import { useMutation } from "convex/react";
+import { useEffect, useRef, useState } from "react";
+
+import { api } from "../../../convex/_generated/api";
 import { navigate } from "../../app/router";
 import { Button } from "../../components/ui/Button";
+import {
+  clearPendingInviteCode,
+  getPendingInviteCode,
+} from "./usePendingInvite";
 
 interface FamilyOnboardingChoicePageProps {
   displayName: string;
@@ -8,6 +16,65 @@ interface FamilyOnboardingChoicePageProps {
 export function FamilyOnboardingChoicePage({
   displayName,
 }: FamilyOnboardingChoicePageProps) {
+  const joinFamilyByInviteCode = useMutation(api.families.joinFamilyByInviteCode);
+  // 自动加入态：检测到暂存邀请码时进入「加入中」，跳过二选一页直接编排加入。
+  const [autoJoinState, setAutoJoinState] = useState<
+    "idle" | "joining" | "failed"
+  >(() => (getPendingInviteCode() ? "joining" : "idle"));
+  const [autoJoinError, setAutoJoinError] = useState<string | null>(null);
+  // 防 StrictMode/重渲染重复触发：同一暂存码仅尝试一次自动加入。
+  const hasAttemptedRef = useRef(false);
+
+  useEffect(() => {
+    const pendingCode = getPendingInviteCode();
+    if (!pendingCode || hasAttemptedRef.current) {
+      return;
+    }
+    hasAttemptedRef.current = true;
+
+    let cancelled = false;
+    void (async () => {
+      try {
+        await joinFamilyByInviteCode({ inviteCode: pendingCode });
+        // 成功：清除暂存，RouteGate 会据新 familyId 放行；显式跳 /todo 更稳。
+        clearPendingInviteCode();
+        if (!cancelled) {
+          navigate("/todo", true);
+        }
+      } catch (error) {
+        // 失败（无效码/已失效/已在家庭等）：清除暂存避免反复失败，回落二选一页手动操作。
+        clearPendingInviteCode();
+        if (!cancelled) {
+          setAutoJoinError(
+            error instanceof Error
+              ? error.message
+              : "自动加入家庭失败，请手动输入邀请码重试。",
+          );
+          setAutoJoinState("failed");
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [joinFamilyByInviteCode]);
+
+  // 自动加入进行中：展示 botanical 基调的过渡态，跳过二选一页。
+  if (autoJoinState === "joining") {
+    return (
+      <section style={pageStyle}>
+        <header style={headerStyle}>
+          <p style={eyebrowStyle}>正在加入</p>
+          <h1 style={titleStyle}>正在接入家庭植物看板…</h1>
+          <p style={bodyStyle}>
+            正在用邀请链接里的邀请码把你加入家人的共享看板，请稍候。
+          </p>
+        </header>
+      </section>
+    );
+  }
+
   return (
     <section style={pageStyle}>
       <header style={headerStyle}>
@@ -17,6 +84,11 @@ export function FamilyOnboardingChoicePage({
           选择进入家庭植物看板的方式：新建一个共享空间，或用家人发来的邀请码加入。
         </p>
       </header>
+      {autoJoinState === "failed" && autoJoinError ? (
+        <p aria-live="polite" style={autoJoinErrorStyle}>
+          {autoJoinError}
+        </p>
+      ) : null}
       <div style={choiceGridStyle}>
         <ChoiceCard
           badge="新建家庭"
@@ -113,6 +185,16 @@ const bodyStyle: React.CSSProperties = {
 const choiceGridStyle: React.CSSProperties = {
   display: "grid",
   gap: "var(--space-md)",
+};
+
+const autoJoinErrorStyle: React.CSSProperties = {
+  margin: 0,
+  padding: "var(--space-sm) var(--space-md)",
+  borderRadius: "var(--radius-button)",
+  background: "var(--color-mist)",
+  color: "var(--color-error)",
+  fontSize: "0.9rem",
+  lineHeight: 1.5,
 };
 
 const choiceCardStyle: React.CSSProperties = {
