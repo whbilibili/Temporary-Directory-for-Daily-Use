@@ -89,7 +89,7 @@
       "task_id": "SET3-004",
       "description": "新增 leaveFamily mutation（退出家庭，含 D5 最简兜底策略）：loadCurrentUserContext → 校验 userId && familyId → 取 currentMembership 与本家庭全部 memberships，按三分支处理：(1) 当前用户是 admin 且家庭内 admin 仅 1 且家庭还有其他成员 → 抛错（唯一管理员暂不能直接退出，后续支持转让）；(2) 最后一人退出（家庭仅剩当前用户）→ 删整个家庭全部数据（plants/plantTasks/taskCompletionLogs/pushSubscriptions/familyMembers 各按 family 维度遍历删，最后删 families 记录）；(3) 普通成员/非唯一管理员退出 → 删自己 familyMembers + 级联删本家庭自己的 pushSubscriptions（照搬 removeMember），保留 taskCompletionLogs。",
       "priority": "0-Critical",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {

@@ -120,7 +120,7 @@
       "prd": "docs/product-specs/2026-06-15-settings-page-v0.3-iteration-spec.md",
       "task_breakdown": "docs/product-specs/2026-06-15-settings-page-v0.3-task-breakdown.md",
       "task_count": 16,
-      "completed": 3,
+      "completed": 4,
       "depends_on": [
         "family-access",
         "plant-registry",
@@ -715,7 +715,7 @@
       "task_id": "SET3-004",
       "module": "settings-page-v0.3",
       "description": "新增 leaveFamily mutation（含 D5 三分支）：唯一管理员/创建者（有他人）禁退、最后一人退出删整库、普通成员退出级联删 pushSubscriptions 保留 taskCompletionLogs。",
-      "status": "pending",
+      "status": "completed",
       "priority": "0-Critical"
     },
     {

@@ -2,6 +2,7 @@ import { v } from "convex/values";
 
 import { mutation, query } from "./_generated/server";
 import type { MutationCtx } from "./_generated/server";
+import type { Id } from "./_generated/dataModel";
 import { getCurrentUserContext as loadCurrentUserContext } from "./lib/auth";
 
 const INVITE_CODE_LENGTH = 6;
@@ -333,5 +334,123 @@ export const renameFamily = mutation({
     await ctx.db.patch(familyId, { name });
 
     return { ok: true as const };
+  },
+});
+
+/**
+ * 删除整个家庭的全部数据（最后一人退出场景，D5 分支 2）。
+ * 按 family 维度遍历 plants / plantTasks / taskCompletionLogs / pushSubscriptions /
+ * familyMembers 全部记录逐一删除，最后删 families 记录本身。注意此分支会连带删除
+ * taskCompletionLogs（与普通退出保留 logs 不同）——因为家庭已不复存在，养护历史无归属。
+ */
+async function deleteEntireFamily(
+  ctx: MutationCtx,
+  familyId: Id<"families">,
+): Promise<void> {
+  const plants = await ctx.db
+    .query("plants")
+    .withIndex("by_familyId", (q) => q.eq("familyId", familyId))
+    .collect();
+  for (const plant of plants) {
+    await ctx.db.delete(plant._id);
+  }
+
+  const plantTasks = await ctx.db
+    .query("plantTasks")
+    .withIndex("by_familyId", (q) => q.eq("familyId", familyId))
+    .collect();
+  for (const plantTask of plantTasks) {
+    await ctx.db.delete(plantTask._id);
+  }
+
+  const completionLogs = await ctx.db
+    .query("taskCompletionLogs")
+    .withIndex("by_familyId_and_completedAt", (q) => q.eq("familyId", familyId))
+    .collect();
+  for (const log of completionLogs) {
+    await ctx.db.delete(log._id);
+  }
+
+  const pushSubscriptions = await ctx.db
+    .query("pushSubscriptions")
+    .withIndex("by_familyId", (q) => q.eq("familyId", familyId))
+    .collect();
+  for (const subscription of pushSubscriptions) {
+    await ctx.db.delete(subscription._id);
+  }
+
+  const memberships = await ctx.db
+    .query("familyMembers")
+    .withIndex("by_familyId", (q) => q.eq("familyId", familyId))
+    .collect();
+  for (const membership of memberships) {
+    await ctx.db.delete(membership._id);
+  }
+
+  await ctx.db.delete(familyId);
+}
+
+export const leaveFamily = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const currentUserContext = await loadCurrentUserContext(ctx);
+
+    if (!currentUserContext.userId || !currentUserContext.familyId) {
+      throw new Error("You must belong to a family to leave it.");
+    }
+
+    const userId = currentUserContext.userId;
+    const familyId = currentUserContext.familyId;
+
+    const memberships = await ctx.db
+      .query("familyMembers")
+      .withIndex("by_familyId", (q) => q.eq("familyId", familyId))
+      .collect();
+
+    const currentMembership = memberships.find(
+      (membership) => membership.userId === userId,
+    );
+
+    if (!currentMembership) {
+      throw new Error("You are not part of this family.");
+    }
+
+    const adminCount = memberships.filter(
+      (membership) => membership.role === "admin",
+    ).length;
+
+    // 分支 1：当前用户是唯一管理员，且家庭内还有其他成员 → 暂不允许直接退出。
+    // 退出会导致家庭失去管理员（无主），管理员转让能力推迟到 v0.4。
+    if (
+      currentMembership.role === "admin" &&
+      adminCount === 1 &&
+      memberships.length > 1
+    ) {
+      throw new Error(
+        "You are the only admin. Transfer the admin role to another member before leaving.",
+      );
+    }
+
+    // 分支 2：最后一人退出（家庭仅剩当前用户）→ 删除整个家庭的全部数据，无残留。
+    if (memberships.length === 1) {
+      await deleteEntireFamily(ctx, familyId);
+      return { leftFamily: true as const, deletedFamily: true as const };
+    }
+
+    // 分支 3：普通成员 / 非唯一管理员退出 → 删自身 membership + 级联删本家庭自己的
+    // pushSubscriptions（照搬 removeMember），保留 taskCompletionLogs（家庭养护历史）。
+    const ownPushSubscriptions = await ctx.db
+      .query("pushSubscriptions")
+      .withIndex("by_familyId_and_userId", (q) =>
+        q.eq("familyId", familyId).eq("userId", userId),
+      )
+      .collect();
+    for (const subscription of ownPushSubscriptions) {
+      await ctx.db.delete(subscription._id);
+    }
+
+    await ctx.db.delete(currentMembership._id);
+
+    return { leftFamily: true as const, deletedFamily: false as const };
   },
 });
