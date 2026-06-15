@@ -11,6 +11,7 @@ export type AppPath =
   | "/onboarding/profile"
   | "/onboarding/create-family"
   | "/onboarding/join-family"
+  | "/join"
   | "/plants"
   | "/plants/detail"
   | "/plants/tasks/edit"
@@ -30,6 +31,7 @@ export interface AppRoute {
   params: {
     plantId?: string;
     taskId?: string;
+    inviteCode?: string;
   };
   pathname: AppPath;
 }
@@ -56,6 +58,16 @@ export function normalizePath(pathname: string): AppRoute {
     return {
       pathname,
       params: {},
+    };
+  }
+
+  const joinMatch = pathname.match(/^\/join\/([^/]+)$/);
+  if (joinMatch) {
+    return {
+      pathname: "/join",
+      params: {
+        inviteCode: decodeURIComponent(joinMatch[1]),
+      },
     };
   }
 

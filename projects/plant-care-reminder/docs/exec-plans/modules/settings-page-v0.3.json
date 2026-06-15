@@ -230,7 +230,7 @@
       "task_id": "SET3-011",
       "description": "路由扩展 /join/:code（D2）：router.tsx 的 AppPath 增 '/join'；normalizePath 新增动态段解析 ^\\/join\\/([^/]+)$ → { pathname:'/join', params:{ inviteCode: decodeURIComponent(...) } }；AppRoute.params 增 inviteCode?:string。采用路径段方案（语义清晰、承载独立落地页），不采用 ?invite= query。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {"schema": {"tables_or_collections": [], "key_fields": {}, "indexes": [], "relations": "", "notes": "纯前端路由。"}, "queries": {"read": "N/A", "write": "N/A"}, "migration_strategy": "N/A"},

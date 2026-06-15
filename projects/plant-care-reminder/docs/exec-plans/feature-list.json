@@ -120,7 +120,7 @@
       "prd": "docs/product-specs/2026-06-15-settings-page-v0.3-iteration-spec.md",
       "task_breakdown": "docs/product-specs/2026-06-15-settings-page-v0.3-task-breakdown.md",
 "task_count": 16,
-"completed": 10,
+"completed": 11,
 "depends_on": [
 "family-access",
 "plant-registry",
@@ -761,10 +761,10 @@
       "priority": "1-High"
     },
     {
-      "task_id": "SET3-011",
-      "module": "settings-page-v0.3",
+"task_id": "SET3-011",
+"module": "settings-page-v0.3",
       "description": "路由扩展 /join/:code（D2）：AppPath 增 /join，normalizePath 新增动态段解析出 inviteCode，不采用 ?invite= query。",
-      "status": "pending",
+      "status": "completed",
       "priority": "1-High"
     },
     {
