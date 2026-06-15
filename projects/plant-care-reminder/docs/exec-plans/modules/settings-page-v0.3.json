@@ -70,7 +70,7 @@
       "task_id": "SET3-003",
       "description": "家庭改名验证：管理员可改、保存实时更新；普通成员无编辑入口；非 admin 调 renameFamily 被后端拒绝；空名/超长被拒；不破坏 v0.2 getByText。",
       "priority": "0-Critical",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {"schema": {"tables_or_collections": ["families"], "key_fields": {}, "indexes": [], "relations": "", "notes": "验证任务。"}, "queries": {"read": "N/A", "write": "N/A"}, "migration_strategy": "N/A"},
