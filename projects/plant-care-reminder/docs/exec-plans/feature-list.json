@@ -120,7 +120,7 @@
       "prd": "docs/product-specs/2026-06-15-settings-page-v0.3-iteration-spec.md",
       "task_breakdown": "docs/product-specs/2026-06-15-settings-page-v0.3-task-breakdown.md",
       "task_count": 16,
-      "completed": 4,
+      "completed": 5,
       "depends_on": [
         "family-access",
         "plant-registry",
@@ -719,10 +719,10 @@
       "priority": "0-Critical"
     },
     {
-      "task_id": "SET3-005",
-      "module": "settings-page-v0.3",
-      "description": "「退出家庭」破坏性行 + ConfirmSheet danger-solid 二次确认，成功回 onboarding 不报错，唯一管理员被拒前端兜底友好提示，文案点名家庭名与后果。",
-      "status": "pending",
+"task_id": "SET3-005",
+"module": "settings-page-v0.3",
+"description": "「退出家庭」破坏性行 + ConfirmSheet danger-solid 二次确认，成功回 onboarding 不报错，唯一管理员被拒前端兜底友好提示，文案点名家庭名与后果。",
+"status": "completed",
       "priority": "0-Critical"
     },
     {

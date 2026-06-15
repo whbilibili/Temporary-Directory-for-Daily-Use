@@ -109,10 +109,10 @@
       "acceptance_criteria": ["Convex 编译无 error", "唯一管理员/创建者（家庭有其他成员）退出被拒并返回明确文案", "普通成员退出删自身 membership + 级联删本家庭 pushSubscriptions + 保留 taskCompletionLogs", "最后一人退出删除整个家庭全部数据无残留"]
     },
     {
-      "task_id": "SET3-005",
-      "description": "「退出家庭」破坏性行 + 二次确认：「个人」组在「退出登录」之上新增「退出家庭」行；点击打开 ConfirmSheet variant=danger-solid；确认调 leaveFamily；成功后用户回 familyId===null 走 onboarding 不报错崩溃；后端唯一管理员被拒错误前端兜底翻译为友好文案保留在确认 sheet/toast。确认文案点名后果：退出后离开『{家庭名}』，养护数据仍归家庭所有，需重新邀请才能回来。",
-      "priority": "0-Critical",
-      "status": "pending",
+"task_id": "SET3-005",
+"description": "「退出家庭」破坏性行 + 二次确认：「个人」组在「退出登录」之上新增「退出家庭」行；点击打开 ConfirmSheet variant=danger-solid；确认调 leaveFamily；成功后用户回 familyId===null 走 onboarding 不报错崩溃；后端唯一管理员被拒错误前端兜底翻译为友好文案保留在确认 sheet/toast。确认文案点名后果：退出后离开『{家庭名}』，养护数据仍归家庭所有，需重新邀请才能回来。",
+"priority": "0-Critical",
+"status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {"schema": {"tables_or_collections": ["familyMembers"], "key_fields": {}, "indexes": [], "relations": "消费 getFamilySettingsSummary.familyName 用于确认文案。", "notes": "前端任务。"}, "queries": {"read": "getFamilySettingsSummary（familyName）", "write": "调用 api.families.leaveFamily"}, "migration_strategy": "No schema change."},

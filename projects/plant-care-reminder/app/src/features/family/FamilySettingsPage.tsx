@@ -1,4 +1,4 @@
-import { useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { useState } from "react";
 import { useAuthActions } from "@convex-dev/auth/react";
 
@@ -16,13 +16,29 @@ import { SettingCardHeader } from "./SettingCardHeader";
 import { SettingRow } from "./SettingRow";
 import { SettingsGroup } from "./SettingsGroup";
 
+/**
+ * 把 leaveFamily 后端错误翻译为面向用户的友好中文文案（SET3-005）。
+ * 唯一管理员被拒（后端文案含 "only admin"）单独兜底，其余统一兜底。
+ */
+function translateLeaveFamilyError(error: unknown): string {
+  const message = error instanceof Error ? error.message : "";
+  if (message.toLowerCase().includes("only admin")) {
+    return "你是这个家庭目前唯一的管理员，请先把管理员转交给其他家人，再退出家庭。";
+  }
+  return "退出家庭失败，请稍后再试。";
+}
+
 export function FamilySettingsPage() {
   const { signOut } = useAuthActions();
   const summary = useQuery(api.families.getFamilySettingsSummary, {});
+  const leaveFamily = useMutation(api.families.leaveFamily);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [nicknameSheetOpen, setNicknameSheetOpen] = useState(false);
   const [familyNameSheetOpen, setFamilyNameSheetOpen] = useState(false);
   const [signOutSheetOpen, setSignOutSheetOpen] = useState(false);
+  const [leaveSheetOpen, setLeaveSheetOpen] = useState(false);
+  const [isLeaving, setIsLeaving] = useState(false);
+  const [leaveError, setLeaveError] = useState<string | null>(null);
 
   async function handleSignOut() {
     setIsSigningOut(true);
@@ -32,6 +48,24 @@ export function FamilySettingsPage() {
       setIsSigningOut(false);
       setSignOutSheetOpen(false);
     }
+  }
+
+  async function handleLeaveFamily() {
+    setLeaveError(null);
+    setIsLeaving(true);
+    try {
+      // 成功后用户 familyId 变为 null，RouteGate 会响应式重定向到 onboarding，
+      // 此处无需手动跳转，仅在卸载前不再 setState 即可。
+      await leaveFamily({});
+    } catch (error) {
+      setLeaveError(translateLeaveFamilyError(error));
+      setIsLeaving(false);
+    }
+  }
+
+  function closeLeaveSheet() {
+    setLeaveSheetOpen(false);
+    setLeaveError(null);
   }
 
   if (summary === undefined) {
@@ -72,6 +106,13 @@ export function FamilySettingsPage() {
               value={summary.myEmail ?? "已登录"}
             />
           </div>
+          <button
+            onClick={() => setLeaveSheetOpen(true)}
+            style={leaveFamilyButtonStyle}
+            type="button"
+          >
+            退出家庭
+          </button>
           <button
             onClick={() => setSignOutSheetOpen(true)}
             style={logoutButtonStyle}
@@ -118,6 +159,22 @@ export function FamilySettingsPage() {
         <FamilyNameEditSheet
           currentName={summary.familyName}
           onClose={() => setFamilyNameSheetOpen(false)}
+        />
+      ) : null}
+
+      {leaveSheetOpen ? (
+        <ConfirmSheet
+          ariaLabel="退出家庭确认"
+          confirmLabel={isLeaving ? "退出中…" : "退出家庭"}
+          description={
+            leaveError ??
+            `退出后你将离开「${summary.familyName}」，养护数据仍归这个家庭所有，需要重新被邀请才能回来。`
+          }
+          isSubmitting={isLeaving}
+          onCancel={closeLeaveSheet}
+          onConfirm={() => void handleLeaveFamily()}
+          title="确认退出这个家庭吗？"
+          variant="danger-solid"
         />
       ) : null}
 
@@ -198,5 +255,19 @@ const logoutButtonStyle: React.CSSProperties = {
   color: "var(--color-error)",
   fontSize: "14px",
   fontWeight: 500,
+  cursor: "pointer",
+};
+
+// 退出家庭为更强的破坏性操作：红实底 + 纸白字，视觉上区别于退出登录（红描边）。
+const leaveFamilyButtonStyle: React.CSSProperties = {
+  appearance: "none",
+  width: "100%",
+  minHeight: "44px",
+  borderRadius: "var(--radius-button)",
+  background: "var(--color-error)",
+  border: "1px solid var(--color-error)",
+  color: "var(--color-paper)",
+  fontSize: "14px",
+  fontWeight: 600,
   cursor: "pointer",
 };
