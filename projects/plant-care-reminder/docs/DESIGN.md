@@ -16,18 +16,35 @@
 
 ## 色彩 Token
 
+> 权威来源为 `app/src/styles/tokens.css`（botanical 视觉方向）。下表为同步快照，
+> 以代码中的 `tokens.css` 为准；组件一律引用变量，禁止硬编码 #hex。
+
 ```css
 :root {
-  --color-primary: #2563EB;
-  --color-secondary: #3B82F6;
-  --color-cta: #F97316;
-  --color-background: #F8FAFC;
-  --color-text: #1E293B;
-  --color-surface: #FFFFFF;
-  --color-border: #D9E2EC;
-  --color-success: #2F855A;
-  --color-warning: #DD6B20;
-  --color-error: #C53030;
+  /* 主色 / 文字 */
+  --color-ink: #16342f;
+  --color-muted: #637b71;
+  --color-leaf: #1f473d;
+  --color-leaf-light: #467061;
+  /* 强调 / CTA */
+  --color-gold: #f1c567;
+  --color-gold-hover: #ddb04e;
+  /* 中性 / 背景 */
+  --color-paper: #fbfcf7;
+  --color-mist: #edf5f1;
+  --color-surface: #ffffff;
+  --color-line: #d8e4da;
+  /* 语义 */
+  --color-success: #2f855a;
+  --color-warning: #dd6b20;
+  --color-error: #c53030;
+  /* 任务类型识别色（emoji + 色彩双编码） */
+  --color-task-watering: #3b82c4;
+  --color-task-fertilizing: #a06a3c;
+  --color-task-misting: #2f9c8a;
+  --color-task-repotting: #d2773b;
+  --color-task-pruning: #5c8a3a;
+  --color-task-custom: #8a9690;
 }
 ```
 
@@ -60,4 +77,4 @@
 - 文本对比度不低于 4.5:1
 - 焦点态可见
 - 尊重 `prefers-reduced-motion`
-- 不使用 emoji 作为功能图标
+- 任务类型图标采用 **emoji + 色彩双编码**（💧🧪🌫️ 等），颜色不作为唯一区分手段，以兼顾色盲用户

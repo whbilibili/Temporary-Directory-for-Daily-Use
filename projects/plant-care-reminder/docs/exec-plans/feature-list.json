@@ -112,6 +112,21 @@
         "care-reminders",
         "frontend-refresh"
       ]
+    },
+    {
+      "module": "settings-page-v0.3",
+      "file": "docs/exec-plans/modules/settings-page-v0.3.json",
+      "description": "设置页 v0.3 迭代：在 v0.2 三分组架构上补齐四项能力——①个人头像上传（复用植物 storage 链路 + HEIC 转码，圆形预览，schema 增 imageStorageId，新建用户级头像接口不带家庭门槛）、②家庭改名（admin-only，复用 NicknameEditSheet 范本，无二次确认）、③邀请链接（前端为主，复用既有 joinFamilyByInviteCode；扩展 /join/:code 路由、跨 onboarding sessionStorage 暂存自动加入、复制邀请链接 + 邀请落地页 + 已有家庭兜底）、④退出家庭（新建 leaveFamily，按 D5：唯一管理员/创建者在有他人时禁退、最后一人退出删整库、普通成员退出级联删 pushSubscriptions 保留 logs）。顺带 .unique()→.first() 防御加固。落地节奏 P0=②④（含加固）先行、P1=①③ 次之。",
+      "prd": "docs/product-specs/2026-06-15-settings-page-v0.3-iteration-spec.md",
+      "task_breakdown": "docs/product-specs/2026-06-15-settings-page-v0.3-task-breakdown.md",
+      "task_count": 16,
+      "completed": 0,
+      "depends_on": [
+        "family-access",
+        "plant-registry",
+        "care-reminders",
+        "settings-page-v2"
+      ]
     }
   ],
   "tasks_summary": [
@@ -674,6 +689,118 @@
       "description": "端到端验收：PRD §9 + UI §14 逐条核对、aria/对比度、320px 窄屏、token 纪律、admin/普通成员两视角、跨页面一致性。",
       "status": "completed",
       "priority": "2-Medium"
+    },
+    {
+      "task_id": "SET3-001",
+      "module": "settings-page-v0.3",
+      "description": "新增 renameFamily mutation（家庭改名，admin-only）：照搬 resetInviteCode 权限模式，trim 非空 + 长度上限，patch families.name。",
+      "status": "pending",
+      "priority": "0-Critical"
+    },
+    {
+      "task_id": "SET3-002",
+      "module": "settings-page-v0.3",
+      "description": "FamilyNameEditSheet（克隆 NicknameEditSheet）+ 管理员家庭名可点击行（普通成员只读不置灰），非破坏性无二次确认，不破坏 v0.2 getByText。",
+      "status": "pending",
+      "priority": "0-Critical"
+    },
+    {
+      "task_id": "SET3-003",
+      "module": "settings-page-v0.3",
+      "description": "家庭改名验证：管理员可改实时更新、普通成员无入口、非 admin/空名/超长被拒、不破坏 v0.2 getByText。",
+      "status": "pending",
+      "priority": "0-Critical"
+    },
+    {
+      "task_id": "SET3-004",
+      "module": "settings-page-v0.3",
+      "description": "新增 leaveFamily mutation（含 D5 三分支）：唯一管理员/创建者（有他人）禁退、最后一人退出删整库、普通成员退出级联删 pushSubscriptions 保留 taskCompletionLogs。",
+      "status": "pending",
+      "priority": "0-Critical"
+    },
+    {
+      "task_id": "SET3-005",
+      "module": "settings-page-v0.3",
+      "description": "「退出家庭」破坏性行 + ConfirmSheet danger-solid 二次确认，成功回 onboarding 不报错，唯一管理员被拒前端兜底友好提示，文案点名家庭名与后果。",
+      "status": "pending",
+      "priority": "0-Critical"
+    },
+    {
+      "task_id": "SET3-006",
+      "module": "settings-page-v0.3",
+      "description": "退出家庭验证：普通成员退出回 onboarding、级联删保留正确、唯一管理员按 D5 被拒、最后一人删整库无残留。",
+      "status": "pending",
+      "priority": "0-Critical"
+    },
+    {
+      "task_id": "SET3-007",
+      "module": "settings-page-v0.3",
+      "description": "头像 schema + 用户级接口（D6）：userFields 增 imageStorageId(id('_storage'))；新增 generateAvatarUploadUrl/getAvatarUrl/updateMyAvatar（不带家庭门槛）；摘要 members 补 imageStorageId。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "SET3-008",
+      "module": "settings-page-v0.3",
+      "description": "头像上传交互：「个人」组「我的头像」入口，复用 normalizeImageFile + uploadPlantImage（注入头像回调）+ 三态，圆形预览，MVP 不裁剪/不进度。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "SET3-009",
+      "module": "settings-page-v0.3",
+      "description": "StorageImage 参数化（D1，默认走植物不回归）+ MemberAvatar 扩展 imageStorageId（圆形真实头像，无值回退首字母色块）。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "SET3-010",
+      "module": "settings-page-v0.3",
+      "description": "头像验证：可上传 + HEIC 转 JPEG、三态失败保留、成员列表实时更新真实图、无头像回退色块、StorageImage 植物调用方不回归。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "SET3-011",
+      "module": "settings-page-v0.3",
+      "description": "路由扩展 /join/:code（D2）：AppPath 增 /join，normalizePath 新增动态段解析出 inviteCode，不采用 ?invite= query。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "SET3-012",
+      "module": "settings-page-v0.3",
+      "description": "跨多跳暂存邀请码 + onboarding 自动加入：sessionStorage 暂存码跨登录/填称呼/多跳存活，到二选一阶段自动 joinFamilyByInviteCode 跳 /todo；已有家庭不重复加入。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "SET3-013",
+      "module": "settings-page-v0.3",
+      "description": "复制邀请链接（origin/join/{code}）+ 邀请落地页 JoinLandingPage（botanical 基调，引导登录），已有家庭兜底提示（D3），无效码不白屏。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "SET3-014",
+      "module": "settings-page-v0.3",
+      "description": "邀请链接验证：复制链接可点、未登录全链路自动加入不手输码、已有家庭拦截提示、无效码兜底、暂存跨多跳存活、放弃不残留。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "SET3-015",
+      "module": "settings-page-v0.3",
+      "description": "全局加固（§6.1 红线）：lib/auth.ts getCurrentUserContext 读 familyMembers 由 .unique()→.first() 降级取一条 + warn，保持单一家庭约束不变。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "SET3-016",
+      "module": "settings-page-v0.3",
+      "description": "v0.3 整体回归 + smoke：tsc/convex 编译、AppRouter.smoke（含 /join）、v0.2 getByText 不破坏、无 #hex、D5 三分支专项手测、StorageImage 植物回归。",
+      "status": "pending",
+      "priority": "1-High"
     }
   ],
   "cross_module_dependencies": [

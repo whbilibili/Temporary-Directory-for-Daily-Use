@@ -26,6 +26,10 @@
   - 迭代 v0.2 UI 设计规格：设置页三分组布局、图标 chip、家庭头图卡、邀请码与成员卡视觉、统一确认 sheet、色彩与动效细节（与 PRD 配套）
 - [2026-06-12-settings-page-task-breakdown.md](./2026-06-12-settings-page-task-breakdown.md)
   - 迭代 v0.2 功能拆分：基于 PRD + UI Spec 的可执行任务清单，功能任务（BE/FE）与 UI 美化任务逐能力配对，含依赖拓扑、执行顺序与功能×UI 配对总览
+- [2026-06-15-settings-page-v0.3-iteration-spec.md](./2026-06-15-settings-page-v0.3-iteration-spec.md)
+  - 迭代 v0.3 PRD：设置页四项能力补齐（个人头像上传、家庭改名、邀请链接、退出家庭），含数据一致性与单一家庭红线约束（D1~D6 已拍板决策）
+- [2026-06-15-settings-page-v0.3-task-breakdown.md](./2026-06-15-settings-page-v0.3-task-breakdown.md)
+  - 迭代 v0.3 功能规格：基于 v0.3 PRD 的可执行任务清单（SET3-001~016），功能任务（BE/FE）与 UI 美化任务逐能力配对，含 D5 数据一致性边界用例、依赖拓扑与落地节奏（对应 Agent 清单 modules/settings-page-v0.3.json）
 
 ## 约定
 

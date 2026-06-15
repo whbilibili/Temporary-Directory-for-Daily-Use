@@ -18,7 +18,7 @@
 | 层次 | 技术选型 | 选型理由 |
 |------|---------|---------|
 | 框架 | React + Vite | 适合轻量 PWA，启动快，和 `app/` 目录匹配 |
-| UI 样式 | Tailwind CSS v4 | 便于快速落地移动端设计系统 |
+| UI 样式 | Design Tokens（`app/src/styles/tokens.css`）+ 内联样式 | botanical 设计系统以 CSS 变量为单一来源，组件不硬编码色值 |
 | 状态管理 | Zustand（仅 UI 状态） | 只承载轻量本地状态，避免过度全局化 |
 | 服务端状态 | Convex `useQuery` / `useMutation` | 天然适配实时同步 |
 | API 层 | Convex Functions | 单仓库全栈，减少额外 API 层样板 |
@@ -31,7 +31,7 @@
 
 ```text
 plant-care-reminder/
-├── app/                  # 代码工作区（本次未动）
+├── app/                  # 主代码区（完整实现：Convex 后端 + React/Vite 前端）
 ├── AGENTS.md
 ├── ARCHITECTURE.md
 ├── PLANS.md
@@ -92,15 +92,15 @@ Page/Route -> Feature Component -> Hook -> Convex Client API -> Convex Function 
 
 - 风格：`Organic Biophilic`
 - 字体：标题 `Lora`，正文 `Raleway`
-- CSS Token：
-  - `--color-primary: #2563EB`
-  - `--color-secondary: #3B82F6`
-  - `--color-cta: #F97316`
-  - `--color-background: #F8FAFC`
-  - `--color-text: #1E293B`
-- 圆角：16-24px
+- CSS Token 权威来源：`app/src/styles/tokens.css`（botanical 色板，禁止再硬编码 #hex）
+  - 主色：`--color-ink: #16342f` / `--color-leaf: #1f473d` / `--color-leaf-light: #467061`
+  - 强调：`--color-gold: #f1c567`（CTA）
+  - 中性：`--color-paper: #fbfcf7` / `--color-mist: #edf5f1` / `--color-surface: #ffffff` / `--color-line: #d8e4da`
+  - 任务类型识别色：`--color-task-watering/fertilizing/misting/repotting/pruning/custom`
+- 圆角：16-24px（卡片 16 / sheet 20）
 - 响应式断点：375px / 768px / 1024px / 1440px
-- 无障碍：4.5:1 对比度、可见焦点态、尊重 reduced motion、禁止 emoji 图标
+- 无障碍：4.5:1 对比度、可见焦点态、尊重 reduced motion
+- 图标策略：任务类型采用 **emoji + 色彩双编码**（💧浇水 / 🧪施肥 / 🌫️喷雾 等），颜色不作为唯一区分手段，满足色盲无障碍
 
 ## PWA 与通知约束
 
