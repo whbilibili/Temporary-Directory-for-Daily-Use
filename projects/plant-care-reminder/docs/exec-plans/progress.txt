@@ -1,5 +1,7 @@
 ### [Current Focus]
-`long-text-hardening-v0.5` 模块进行中（2026-06-15，TEXT-001 ~ TEXT-007 共 1/7）：超长字符串四层防御。当前已完成第一批·止血①（TEXT-001）。基线 tsc -b 0 错误 / vitest 22 files 135 tests 全绿。下一件事：TEXT-002（PageHeader/DeleteTaskAction overflowWrap）。
+`long-text-hardening-v0.5` 模块进行中（2026-06-15，TEXT-001 ~ TEXT-007 共 2/7）：超长字符串四层防御。第一批·止血 ①②（TEXT-001/002）已完成。基线 tsc -b 0 错误 / vitest 22 files 135 tests 全绿。下一件事：TEXT-003（PlantCard description 显示策略确认，第一批·止血③）。
+
+**TEXT-002 已完成（2026-06-15）**：第一批·止血②（截图3 编辑页标题撑爆 + 截图4 删除区文案溢出）。(1) `PageHeader.tsx` titleStyle 加 overflowWrap+wordBreak:break-word，clamp 大字号标题（clamp(2rem,5vw,3.1rem)）遇超长连续串/植物名+任务名拼接时换行不横向溢出。(2) `DeleteTaskAction.tsx` 四处嵌入或可能嵌入 taskLabel 的文本样式加 break-word：titleStyle、bodyStyle（"删除后这条 {taskLabel} 提醒…"）、dialogTitleStyle（"确认删除"{taskLabel}"吗？"）、dialogCopyStyle。纯 CSS 零数据风险。验收：typecheck 0 错误、vitest 22 files 135 tests 全绿（不回归，删除流程 smoke 未受影响）。
 
 **TEXT-001 已完成（2026-06-15）**：第一批·止血①（截图1 植物名称撑爆卡片）。根因——`PlantCard.tsx` nameRowStyle 是 flex 容器但缺 minWidth:0，且 nameStyle（h2 子项）无 flex:1/minWidth:0，flex 子项默认 min-width:auto 不收缩 → 既有 ellipsis 三件套（whiteSpace:nowrap+overflow:hidden+textOverflow:ellipsis）形同虚设（假截断）。修复：nameRowStyle 补 minWidth:0；nameStyle 补 flex:1 + minWidth:0，使 h2 可收缩触发 ellipsis（编辑按钮 editIconStyle 既有 flexShrink:0 不被压缩）。location 单行省略由 textAreaStyle（已有 minWidth:0，column flex 下 p 块级撑满）本就生效，仅核对不回归。纯 CSS 零数据风险。无独立 PlantCard 测试文件，由 AppRouter.smoke 覆盖。验收：typecheck 0 错误、vitest 22 files 135 tests 全绿（不回归）。
 

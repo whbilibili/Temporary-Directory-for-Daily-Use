@@ -65,7 +65,7 @@
       "task_id": "TEXT-002",
       "description": "第一批·止血②（截图3 编辑页标题撑爆 + 截图4 删除区文案溢出）：(1) PageHeader.tsx 标题样式加 overflowWrap:break-word + wordBreak:break-word（可选 2 行 WebkitLineClamp），让超长连续串/植物名+任务名拼接标题换行不横向溢出；(2) DeleteTaskAction.tsx 删除确认正文 bodyStyle/dialogTitleStyle 加 overflowWrap/wordBreak:break-word，嵌入的任务名不溢出气泡/弹窗。纯 CSS，零数据风险。",
       "priority": "0-Critical",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {"schema": {"tables_or_collections": [], "key_fields": {}, "indexes": [], "relations": "纯前端样式。", "notes": "无 schema 变更。"}, "queries": {"read": "N/A", "write": "N/A"}, "migration_strategy": "No schema change."},

@@ -39,6 +39,8 @@ const titleStyle: CSSProperties = {
   fontWeight: 700,
   letterSpacing: "-0.05em",
   color: "var(--color-ink)",
+  overflowWrap: "break-word",
+  wordBreak: "break-word",
 };
 
 const descriptionStyle: CSSProperties = {

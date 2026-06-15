@@ -116,6 +116,8 @@ const titleStyle: React.CSSProperties = {
   color: "var(--color-error)",
   fontSize: "1.08rem",
   lineHeight: 1.2,
+  overflowWrap: "break-word",
+  wordBreak: "break-word",
 };
 
 const bodyStyle: React.CSSProperties = {
@@ -123,6 +125,8 @@ const bodyStyle: React.CSSProperties = {
   color: "var(--color-error)",
   fontSize: "0.92rem",
   lineHeight: 1.6,
+  overflowWrap: "break-word",
+  wordBreak: "break-word",
 };
 
 const dialogStyle: React.CSSProperties = {
@@ -139,6 +143,8 @@ const dialogTitleStyle: React.CSSProperties = {
   color: "var(--color-error)",
   fontSize: "1rem",
   fontWeight: 700,
+  overflowWrap: "break-word",
+  wordBreak: "break-word",
 };
 
 const dialogCopyStyle: React.CSSProperties = {
@@ -146,6 +152,8 @@ const dialogCopyStyle: React.CSSProperties = {
   color: "var(--color-error)",
   fontSize: "0.9rem",
   lineHeight: 1.5,
+  overflowWrap: "break-word",
+  wordBreak: "break-word",
 };
 
 const dialogActionsStyle: React.CSSProperties = {
