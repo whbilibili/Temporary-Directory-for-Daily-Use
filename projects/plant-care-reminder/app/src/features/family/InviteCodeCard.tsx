@@ -128,17 +128,31 @@ export function InviteCodeCard({ inviteCode, isAdmin }: InviteCodeCardProps) {
         </Button>
       </div>
 
+      <div style={shareDividerStyle}>
+        <span style={shareDividerLineStyle} />
+        <span style={shareDividerTextStyle}>或分享链接</span>
+        <span style={shareDividerLineStyle} />
+      </div>
+
       <button
         aria-label="复制邀请链接"
         onClick={() => void handleCopyLink()}
         style={
           linkCopyStatus === "copied"
-            ? { ...copyLinkButtonStyle, color: "var(--color-success)", borderColor: "var(--color-success)" }
+            ? {
+                ...copyLinkButtonStyle,
+                background: "var(--color-success)",
+                border: "1px solid var(--color-success)",
+                color: "var(--color-surface)",
+              }
             : copyLinkButtonStyle
         }
         type="button"
       >
-        🔗 {linkButtonLabel}
+        <span aria-hidden="true" style={linkIconStyle}>
+          🔗
+        </span>
+        {linkButtonLabel}
       </button>
 
       {/* 重置成功后用 aria-live 通知新码已生成，提示重新分享。 */}
@@ -252,18 +266,49 @@ const copyButtonBaseStyle: CSSProperties = {
   fontWeight: 600,
 };
 
+const shareDividerStyle: CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: "var(--space-sm)",
+  margin: "var(--space-xs) 0",
+};
+
+const shareDividerLineStyle: CSSProperties = {
+  flex: "1 1 auto",
+  height: "1px",
+  background: "var(--color-line)",
+};
+
+const shareDividerTextStyle: CSSProperties = {
+  flex: "0 0 auto",
+  color: "var(--color-muted)",
+  fontSize: "12px",
+  fontWeight: 500,
+  letterSpacing: "0.02em",
+};
+
 const copyLinkButtonStyle: CSSProperties = {
-  justifySelf: "start",
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "var(--space-xs)",
+  width: "100%",
   appearance: "none",
   minHeight: "44px",
   padding: "0 var(--space-md)",
   borderRadius: "var(--radius-button)",
-  background: "transparent",
+  background: "var(--color-mist)",
   border: "1px solid var(--color-line)",
   color: "var(--color-leaf)",
   fontSize: "14px",
   fontWeight: 600,
   cursor: "pointer",
+  transition: "background 160ms ease, border-color 160ms ease, color 160ms ease",
+};
+
+const linkIconStyle: CSSProperties = {
+  fontSize: "15px",
+  lineHeight: 1,
 };
 
 const resetLinkStyle: CSSProperties = {

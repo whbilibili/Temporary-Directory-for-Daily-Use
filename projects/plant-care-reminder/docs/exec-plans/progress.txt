@@ -183,3 +183,13 @@
   - D5 三分支逻辑代码核验：leaveFamily 分支1 唯一管理员有他人禁退 / 分支2 最后一人 deleteEntireFamily 删整库含 logs / 分支3 普通成员退删自身 membership + 级联删本人 pushSubscriptions 保留 taskCompletionLogs
   - StorageImage 植物调用方随全量 vitest 通过，无回归
   - 状态：module+feature-list SET3-016→completed，settings-page-v0.3 completed 15→16（模块全部完成）
+
+[2026-06-15 15:56] FEEDBACK-FIX v0.3 — 用户问题反馈三连修复（UI/交互文案/安全文案）
+  - 反馈1(UI)：InviteCodeCard 复制邀请链接按钮原为透明描边+justifySelf:start，与金色全宽复制邀请码按钮不协调。
+    调用 frontend-design 技能后重做：加「或分享链接」分隔线把两种分享方式归为一组；链接按钮改为全宽 mist 底色次级按钮（与卡片同语系，从属于金色主按钮），复制成功态切 success 绿；修复 border/borderColor shorthand 混用 React 警告。
+  - 反馈2(交互)：用户经邀请链接而来，落地页却展示「邀请码：XXX」+「用邀请码加入」，点后直接加入使邀请码展示无意义。
+    JoinLandingPage 分支3(已登录无家庭)去掉 codeChip，按钮改「加入这个家庭」，body 聚焦共享看板；分支2(未登录)同样去掉邀请码暴露；codeChipStyle 已删除。邀请码仍 sessionStorage 暂存，加入流程不变。
+    smoke 断言同步：邀请码 getByText→queryByText not present + 验证 pendingInviteCode 仍暂存；按钮名 用邀请码加入→加入这个家庭。
+  - 反馈3(安全文案)：最后一人退出=解散家庭(后端 leaveFamily 分支2 级联删全库)，原文案误称「养护数据仍归这个家庭所有」。
+    FamilySettingsPage 据 summary.memberCount<=1 派生 isLastMember：标题「退出后将解散这个家庭」、描述明确「所有植物/提醒/养护记录将被永久删除且无法恢复」、确认按钮「退出并解散家庭」；非最后一人维持原温和文案（措辞修正为「仍由其他家人保留」）。
+  - 验证：tsc -b 0 err / convex --once --typecheck 0 err / 全量 vitest 14 files 91 passed（AppRouter.smoke 40 全过）
