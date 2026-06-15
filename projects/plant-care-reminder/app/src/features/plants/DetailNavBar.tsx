@@ -1,3 +1,6 @@
+import { ChevronLeft, EllipsisVertical } from "lucide-react";
+
+import { Icon } from "../../components/ui/Icon";
 import { navigate } from "../../app/router";
 
 interface DetailNavBarProps {
@@ -15,19 +18,7 @@ export function DetailNavBar({ menuOpen, plantName, onMenuToggle }: DetailNavBar
         style={backButtonStyle}
         type="button"
       >
-        <svg
-          aria-hidden="true"
-          fill="none"
-          height="20"
-          stroke="currentColor"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="2"
-          viewBox="0 0 24 24"
-          width="20"
-        >
-          <polyline points="15 18 9 12 15 6" />
-        </svg>
+        <Icon icon={ChevronLeft} size={20} strokeWidth={2} />
       </button>
 
       <span style={titleStyle}>{plantName}</span>
@@ -40,17 +31,7 @@ export function DetailNavBar({ menuOpen, plantName, onMenuToggle }: DetailNavBar
         style={menuButtonStyle}
         type="button"
       >
-        <svg
-          aria-hidden="true"
-          fill="currentColor"
-          height="20"
-          viewBox="0 0 24 24"
-          width="20"
-        >
-          <circle cx="12" cy="5" r="1.5" />
-          <circle cx="12" cy="12" r="1.5" />
-          <circle cx="12" cy="19" r="1.5" />
-        </svg>
+        <Icon icon={EllipsisVertical} size={20} strokeWidth={2} />
       </button>
     </nav>
   );

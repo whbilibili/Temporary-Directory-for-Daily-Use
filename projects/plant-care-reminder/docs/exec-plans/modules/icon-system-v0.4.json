@@ -154,7 +154,8 @@
       "task_id": "ICON-007",
       "description": "DetailNavBar 手写 SVG 收口（A 级·去重）：把 DetailNavBar.tsx 内联手写 SVG（chevron 返回 + 三点更多）替换为 Lucide ChevronLeft / EllipsisVertical 经 Icon 壳渲染，删除手写 path，统一图标来源。保持既有 viewBox 视觉尺寸、strokeWidth、currentColor 行为与点击热区/aria-label 完全不变（这是纯重构，外观应像素级一致）。",
       "priority": "3-Low",
-      "status": "pending",
+      "status": "completed",
+      "completion_note": "DetailNavBar.tsx 两处手写内联 SVG 全部收口到 Lucide 经 Icon 壳渲染：① 返回按钮手写 <polyline points='15 18 9 12 15 6'> → <Icon icon={ChevronLeft} size={20} strokeWidth={2}/>，删除手写 path；② 更多按钮手写三点 <circle r='1.5'×3 fill=currentColor> → <Icon icon={EllipsisVertical} size={20} strokeWidth={2}/>，删除手写 circle。尺寸/线宽/currentColor 行为对齐原值（size20 strokeWidth2），按钮 44×44 热区、aria-label（返回/更多操作）、aria-haspopup/aria-expanded 与 onMenuToggle 回调完全不变，Icon 壳自动给图标加 aria-hidden 不污染可访问名。注意：Lucide EllipsisVertical 本身以三个 r='1' circle 描边实现（非手写 r='1.5' 填充），属正常——防回退断言改为校验 svg 带 lucide class 且不含手写 r='1.5' 圆点。新建 DetailNavBar.test.tsx 3 用例：返回按钮渲染 svg.lucide-chevron-left 且无手写 polyline / 更多按钮渲染 svg.lucide-ellipsis-vertical 且无手写 r=1.5 圆点 / aria-label+aria-expanded+菜单回调+图标 aria-hidden 不回归。验收：typecheck 0 错误、21 files / 117 tests 全绿（+3）。",
       "plan_path": null,
       "contracts": {
         "data_layer": {"schema": {"tables_or_collections": [], "key_fields": {}, "indexes": [], "relations": "纯前端重构。", "notes": "无 schema 变更。"}, "queries": {"read": "N/A", "write": "N/A"}, "migration_strategy": "No schema change."},
