@@ -1,6 +1,10 @@
 import { useState } from "react";
+import { Pencil } from "lucide-react";
 
+import { Icon } from "../../components/ui/Icon";
 import { formatDueDate, formatTaskTypeLabel } from "../../lib/formatters";
+import { getTaskTypeIcon } from "../tasks/taskTypes";
+import { taskTypeColorVar } from "../tasks/TaskTypeBadge";
 import { PlantImage } from "./PlantImage";
 
 export interface PlantListCardData {
@@ -20,15 +24,6 @@ export interface PlantListCardData {
     | null;
 }
 
-const taskTypeEmoji: Record<string, string> = {
-  watering: "💧",
-  fertilizing: "🧪",
-  misting: "🌫️",
-  repotting: "🪴",
-  pruning: "✂️",
-  custom: "📋",
-};
-
 interface PlantCardProps {
   onOpen: (plantId: string) => void;
   onEdit: (plantId: string) => void;
@@ -42,7 +37,7 @@ export function PlantCard({ onEdit, onOpen, plant }: PlantCardProps) {
     ? formatTaskTypeLabel(plant.nextDueTask.taskType, plant.nextDueTask.customLabel)
     : null;
   const nextDueCopy = plant.nextDueTask ? formatDueDate(plant.nextDueTask.nextDueAt) : null;
-  const emoji = plant.nextDueTask ? taskTypeEmoji[plant.nextDueTask.taskType] ?? "📋" : null;
+  const nextDueTaskType = plant.nextDueTask?.taskType ?? null;
 
   const resolvedCardStyle: React.CSSProperties = isOverdue
     ? { ...cardStyle, borderLeft: "3px solid var(--color-warning)", paddingLeft: "9px" }
@@ -68,7 +63,7 @@ export function PlantCard({ onEdit, onOpen, plant }: PlantCardProps) {
             style={{ ...editIconStyle, opacity: editPressed ? 1.0 : 0.4 }}
             type="button"
           >
-            ✏️
+            <Icon icon={Pencil} size={16} />
           </button>
         </div>
         {plant.location?.trim() ? (
@@ -78,8 +73,19 @@ export function PlantCard({ onEdit, onOpen, plant }: PlantCardProps) {
           {nextDueTitle ? (
             <>
               <span style={carePillStyle}>
-                {emoji ? <span aria-hidden="true">{emoji}</span> : null}
-                {" "}{nextDueTitle}
+                {nextDueTaskType ? (
+                  <span
+                    aria-hidden="true"
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      color: taskTypeColorVar(nextDueTaskType),
+                    }}
+                  >
+                    <Icon icon={getTaskTypeIcon(nextDueTaskType)} size={13} />
+                  </span>
+                ) : null}
+                {nextDueTitle}
               </span>
               {nextDueCopy ? (
                 <span style={isOverdue ? overdueCopyStyle : dueCopyStyle}>{nextDueCopy}</span>

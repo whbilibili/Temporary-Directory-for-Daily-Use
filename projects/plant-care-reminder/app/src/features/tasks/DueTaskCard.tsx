@@ -4,7 +4,7 @@ import { formatDueDate, formatTaskTypeLabel } from "../../lib/formatters";
 import { CompleteTaskButton } from "./CompleteTaskButton";
 import { PostponeButton } from "./PostponeButton";
 import { PostponeHintBanner, shouldShowPostponeHint } from "./PostponeHintBanner";
-import { TaskTypeBadge, taskTypeColorVar, taskTypeEmoji } from "./TaskTypeBadge";
+import { TaskTypeBadge, taskTypeColorVar } from "./TaskTypeBadge";
 import type { CompletionUndoPayload } from "./UndoToast";
 
 export interface DueTaskCardData {
@@ -76,7 +76,7 @@ export function DueTaskCard({ onCompleted, onOpenPlant, task }: DueTaskCardProps
       <div style={actionsStyle}>
         <CompleteTaskButton
           appearance="circle"
-          celebrateEmoji={taskTypeEmoji(task.taskType)}
+          celebrateEmoji="🍃"
           onCompleted={(result) => {
             setCompleted(true);
             onCompleted?.(result.undo);

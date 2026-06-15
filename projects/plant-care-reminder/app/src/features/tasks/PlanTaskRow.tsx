@@ -1,6 +1,7 @@
+import { Icon } from "../../components/ui/Icon";
 import { getUtcDayStart } from "./scheduling";
-import { formatTaskTypeLabel, type CareTaskType } from "./taskTypes";
-import { taskTypeEmoji } from "./TaskTypeBadge";
+import { formatTaskTypeLabel, getTaskTypeIcon, type CareTaskType } from "./taskTypes";
+import { taskTypeColorVar } from "./TaskTypeBadge";
 
 export interface PlanTask {
   customLabel: string | null;
@@ -44,7 +45,6 @@ function formatNextDue(nextDueAt: number): { text: string; color: string } {
 }
 
 export function PlanTaskRow({ onEdit, task }: PlanTaskRowProps) {
-  const emoji = taskTypeEmoji(task.taskType);
   const label = formatTaskTypeLabel(task.taskType, task.customLabel);
   const interval = `每${task.intervalDays}天`;
   const { text: dueText, color: dueColor } = formatNextDue(task.nextDueAt);
@@ -56,8 +56,8 @@ export function PlanTaskRow({ onEdit, task }: PlanTaskRowProps) {
       style={rowStyle}
       type="button"
     >
-      <span aria-hidden="true" style={emojiStyle}>
-        {emoji}
+      <span style={{ ...iconWrapStyle, color: taskTypeColorVar(task.taskType) }}>
+        <Icon icon={getTaskTypeIcon(task.taskType)} size={16} />
       </span>
       <span style={labelStyle}>{label}</span>
       <span style={intervalStyle}>{interval}</span>
@@ -84,8 +84,9 @@ const rowStyle: React.CSSProperties = {
   textAlign: "left",
 };
 
-const emojiStyle: React.CSSProperties = {
-  fontSize: "16px",
+const iconWrapStyle: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
   lineHeight: 1,
   flexShrink: 0,
 };

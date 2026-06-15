@@ -1,25 +1,22 @@
-import type { CareTaskType } from "./taskTypes";
+import { Icon } from "../../components/ui/Icon";
+import { getTaskTypeIcon, type CareTaskType } from "./taskTypes";
 
 /**
- * 任务类型可视化映射：emoji + token 色双编码。
+ * 任务类型色彩映射：token 色编码。
  * 色值一律引用 tokens.css 的 --color-task-* 变量，禁止行内 #hex。
+ * 图标来源统一收口到 taskTypes.ts 的 taskTypeIcon（ICON-003/004），此处不再维护 emoji。
  */
-const taskTypeVisuals: Record<CareTaskType, { emoji: string; colorVar: string }> = {
-  watering: { emoji: "💧", colorVar: "var(--color-task-watering)" },
-  fertilizing: { emoji: "🌱", colorVar: "var(--color-task-fertilizing)" },
-  misting: { emoji: "💨", colorVar: "var(--color-task-misting)" },
-  repotting: { emoji: "🪴", colorVar: "var(--color-task-repotting)" },
-  pruning: { emoji: "✂️", colorVar: "var(--color-task-pruning)" },
-  custom: { emoji: "🏷️", colorVar: "var(--color-task-custom)" },
+const taskTypeColorVars: Record<CareTaskType, string> = {
+  watering: "var(--color-task-watering)",
+  fertilizing: "var(--color-task-fertilizing)",
+  misting: "var(--color-task-misting)",
+  repotting: "var(--color-task-repotting)",
+  pruning: "var(--color-task-pruning)",
+  custom: "var(--color-task-custom)",
 };
 
 export function taskTypeColorVar(taskType: CareTaskType): string {
-  return taskTypeVisuals[taskType].colorVar;
-}
-
-/** 任务类型对应的 emoji，供完成微动效等复用同一套双编码。 */
-export function taskTypeEmoji(taskType: CareTaskType): string {
-  return taskTypeVisuals[taskType].emoji;
+  return taskTypeColorVars[taskType];
 }
 
 interface TaskTypeBadgeProps {
@@ -27,11 +24,11 @@ interface TaskTypeBadgeProps {
 }
 
 /**
- * 缩略图右下角的类型小圆点角标，emoji + 类型色描边，
+ * 缩略图右下角的类型小圆点角标，线性图标 + 类型色描边，
  * 让用户扫一眼即知任务类型，而非读文字。静态识别元素，无动效。
  */
 export function TaskTypeBadge({ taskType }: TaskTypeBadgeProps) {
-  const { emoji, colorVar } = taskTypeVisuals[taskType];
+  const colorVar = taskTypeColorVars[taskType];
 
   return (
     <span
@@ -40,9 +37,10 @@ export function TaskTypeBadge({ taskType }: TaskTypeBadgeProps) {
         ...badgeStyle,
         borderColor: colorVar,
         boxShadow: `0 0 0 1px ${colorVar}`,
+        color: colorVar,
       }}
     >
-      {emoji}
+      <Icon icon={getTaskTypeIcon(taskType)} size={11} strokeWidth={2.25} />
     </span>
   );
 }
@@ -55,10 +53,10 @@ const badgeStyle: React.CSSProperties = {
   height: "18px",
   borderRadius: "var(--radius-pill)",
   background: "var(--color-surface)",
-  border: "1.5px solid",
+  borderWidth: "1.5px",
+  borderStyle: "solid",
   display: "inline-flex",
   alignItems: "center",
   justifyContent: "center",
-  fontSize: "10px",
   lineHeight: 1,
 };

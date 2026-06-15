@@ -3,10 +3,11 @@ import { useMutation } from "convex/react";
 
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
+import { Icon } from "../../components/ui/Icon";
 import { prefersReducedMotion, triggerHaptic } from "../../lib/motion";
 import { buildUndoPayload, type CompletionUndoPayload } from "./undoComplete";
-import { formatTaskTypeLabel, type CareTaskType } from "./taskTypes";
-import { taskTypeColorVar, taskTypeEmoji } from "./TaskTypeBadge";
+import { formatTaskTypeLabel, getTaskTypeIcon, type CareTaskType } from "./taskTypes";
+import { taskTypeColorVar } from "./TaskTypeBadge";
 
 export interface ActionableTask {
   customLabel: string | null;
@@ -33,7 +34,6 @@ export function ActionableTaskRow({ isOverdue, onCompleted, task }: ActionableTa
   const [showFx, setShowFx] = useState(false);
 
   const label = formatTaskTypeLabel(task.taskType, task.customLabel);
-  const emoji = taskTypeEmoji(task.taskType);
   const colorVar = taskTypeColorVar(task.taskType);
   const dueText = isOverdue ? "逾期" : "今天";
   const dueColor = isOverdue ? "var(--color-warning)" : "var(--color-leaf-light)";
@@ -66,9 +66,9 @@ export function ActionableTaskRow({ isOverdue, onCompleted, task }: ActionableTa
       {/* 左侧色条 */}
       <div style={{ ...colorBarStyle, background: colorVar }} />
 
-      {/* emoji */}
-      <span aria-hidden="true" style={emojiStyle}>
-        {emoji}
+      {/* 任务类型图标 */}
+      <span style={{ ...iconWrapStyle, color: colorVar }}>
+        <Icon icon={getTaskTypeIcon(task.taskType)} size={16} />
       </span>
 
       {/* 标签 */}
@@ -94,7 +94,7 @@ export function ActionableTaskRow({ isOverdue, onCompleted, task }: ActionableTa
             onAnimationEnd={() => setShowFx(false)}
             style={fxStyle}
           >
-            {emoji}
+            🍃
           </span>
         )}
       </div>
@@ -117,8 +117,9 @@ const colorBarStyle: React.CSSProperties = {
   flexShrink: 0,
 };
 
-const emojiStyle: React.CSSProperties = {
-  fontSize: "16px",
+const iconWrapStyle: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
   lineHeight: 1,
   flexShrink: 0,
 };

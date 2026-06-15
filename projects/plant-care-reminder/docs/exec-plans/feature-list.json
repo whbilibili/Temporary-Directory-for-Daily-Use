@@ -134,7 +134,7 @@
       "description": "图标系统 v0.4 迁移：emoji → Lucide 线性图标系统化替换。引入 lucide-react@0.471.1 + 封装 Icon 统一壳；按三级分类落地——A 级功能性图标必换（导航/完成/编辑/通知，修复 BottomNav active 态 emoji 白色失效核心 bug）、B 级任务类型图标统一收口（TaskTypeBadge/PlantCard/PlantDetailPage 三处既有不一致 emoji 收敛为 taskTypes.ts 单一 taskTypeIcon 映射）、C 级装饰 emoji（🌿🍃）保留。最后 DetailNavBar 手写 SVG 收口到 Lucide，并以守护单测固化『不准回退 emoji』。所有图标 stroke=currentColor 跟随主题/token，不新增 token、不引入 #hex。落地节奏 P0=基建+导航试点、P1=任务类型收口、P2=操作图标、P3=信息标识+DetailNavBar 收口、回归验收兜底。",
 "prd": "docs/design-docs/icon-system-migration.md",
 "task_count": 9,
-"completed": 3,
+"completed": 4,
 "depends_on": [
 "frontend-refresh",
         "todo-page-v2",
@@ -839,11 +839,11 @@
       "priority": "1-High"
     },
     {
-      "task_id": "ICON-004",
-      "module": "icon-system-v0.4",
-      "description": "任务类型图标三处消费方（TaskTypeBadge/PlantCard/PlantDetailPage）统一切到 taskTypeIcon，删除第二份 emoji 映射，消除 fertilizing/misting/custom 历史不一致，fallback 统一。",
-      "status": "pending",
-      "priority": "1-High"
+"task_id": "ICON-004",
+"module": "icon-system-v0.4",
+"description": "任务类型图标三处消费方（TaskTypeBadge/PlantCard/PlantDetailPage）统一切到 taskTypeIcon，删除第二份 emoji 映射，消除 fertilizing/misting/custom 历史不一致，fallback 统一。",
+"status": "completed",
+"priority": "1-High"
     },
     {
       "task_id": "ICON-005",

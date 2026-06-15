@@ -94,7 +94,8 @@
       "task_id": "ICON-004",
       "description": "任务类型图标三处消费方统一切换：(1) TaskTypeBadge.tsx 改消费 taskTypeIcon，删除内部 taskTypeVisuals 的 emoji 字段（colorVar 保留或一并迁来源），徽章内渲染 Icon 壳 + style 注入对应 --color-task-* 色；(2) PlantCard.tsx:24-29 删除第二份 taskTypeEmoji，:45/:71 改用统一 API + Pencil 编辑图标；(3) PlantDetailPage.tsx:137 改统一图标 API。完成后全仓库只剩一份任务类型图标来源。PlantDetailPage(原'🍃')与 PlantCard(原'📋') fallback 统一为同一缺省图标（实现时锁定并在 PR 说明）。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
+      "completion_note": "实现时扩大到全部 taskTypeEmoji 消费方以彻底实现单一来源：除契约列出的 TaskTypeBadge/PlantCard/PlantDetailPage 外，ActionableTaskRow.tsx 与 PlanTaskRow.tsx 的任务类型 emoji 也同步切到 getTaskTypeIcon+Icon 壳（着色用 taskTypeColorVar）。DueTaskCard 的 celebrateEmoji、ActionableTaskRow 的完成 FX、PlantDetailPage 的 toast 文案前缀属 C 级情感装饰，统一固定为 🍃（按 ICON-005 指引保留装饰 emoji，不再依赖任务类型映射）。删除 TaskTypeBadge 导出的 taskTypeEmoji 与 PlantCard 本地 taskTypeEmoji 两份映射，全仓库 grep taskTypeEmoji 0 命中。fallback 统一为 taskTypeIcon.custom(Tag)。新增 TaskTypeBadge.test.tsx 3 用例固化。",
       "plan_path": null,
       "contracts": {
         "data_layer": {"schema": {"tables_or_collections": [], "key_fields": {}, "indexes": [], "relations": "消费 ICON-003 的 taskTypeIcon。", "notes": "无 schema 变更。"}, "queries": {"read": "N/A", "write": "N/A"}, "migration_strategy": "No schema change."},

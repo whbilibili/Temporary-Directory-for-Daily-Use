@@ -17,7 +17,6 @@ import { PlanSection } from "../tasks/PlanSection";
 import { UndoToast } from "../tasks/UndoToast";
 import type { CompletionUndoPayload } from "../tasks/undoComplete";
 import { formatTaskTypeLabel } from "../tasks/taskTypes";
-import { taskTypeEmoji } from "../tasks/TaskTypeBadge";
 
 interface PlantDetailPageProps {
   plantId: string | null;
@@ -134,10 +133,9 @@ export function PlantDetailPage({ plantId }: PlantDetailPageProps) {
     undo: CompletionUndoPayload;
   }) {
     const task = result!.tasks.find((t) => t.id === completionResult.taskId);
-    const emoji = task ? taskTypeEmoji(task.taskType) : "🍃";
     const label = task ? formatTaskTypeLabel(task.taskType, task.customLabel) : "任务";
     const nextDateStr = dateFormatter.format(new Date(completionResult.nextDueAt));
-    const message = `${emoji} ${label}已完成，下次 ${nextDateStr}`;
+    const message = `🍃 ${label}已完成，下次 ${nextDateStr}`;
 
     setUndoPayload({
       ...completionResult.undo,
