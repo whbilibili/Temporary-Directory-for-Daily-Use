@@ -83,8 +83,9 @@
     {
       "task_id": "TEXT-003",
       "description": "第一批·止血③（截图5 简介/位置铺满撑宽卡片）：PlantCard 概览卡片不应平铺整段简介——若当前不渲染 description 则核对确认无平铺（仅文档化结论）；若需露出则限 1-2 行 WebkitLineClamp + break-word，不让次要文本横向铺满撑宽卡片。位置字段单行省略由 TEXT-001 已覆盖，此处仅处理简介展示策略。纯 CSS / 展示决策，零数据风险。",
+      "completion_note": "核对结论（无代码改动）：PlantCard 的 PlantListCardData 接口虽含 description:string|null 字段，但组件 JSX 全程零引用（grep plant.description / .description 均 0 命中），列表概览卡片只渲染 name（h2）与 location（p，单行省略）——不存在简介整段平铺撑宽卡片的风险。位置单行省略由 TEXT-001 的 ellipsis 修复覆盖。故概览展示策略确认为『不露出简介』，无需 clamp，无需改动 PlantCard。简介完整内容在详情页可读。验收：typecheck 0 错误、vitest 22 files 135 tests 全绿（不回归）。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {"schema": {"tables_or_collections": [], "key_fields": {}, "indexes": [], "relations": "纯前端样式。", "notes": "无 schema 变更。"}, "queries": {"read": "N/A", "write": "N/A"}, "migration_strategy": "No schema change."},

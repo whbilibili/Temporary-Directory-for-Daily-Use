@@ -1,5 +1,7 @@
 ### [Current Focus]
-`long-text-hardening-v0.5` 模块进行中（2026-06-15，TEXT-001 ~ TEXT-007 共 2/7）：超长字符串四层防御。第一批·止血 ①②（TEXT-001/002）已完成。基线 tsc -b 0 错误 / vitest 22 files 135 tests 全绿。下一件事：TEXT-003（PlantCard description 显示策略确认，第一批·止血③）。
+`long-text-hardening-v0.5` 模块进行中（2026-06-15，TEXT-001 ~ TEXT-007 共 3/7）：超长字符串四层防御。**第一批·止血（TEXT-001/002/003）全部完成**——截图 1/3/4/5 视觉撑爆已消除，纯 CSS 零数据风险。基线 tsc -b 0 错误 / vitest 22 files 135 tests 全绿。下一件事：进入第二批·治本 TEXT-004（constants.ts 5 个长度常量 + PlantForm/TaskForm maxLength + 字数计数器）。
+
+**TEXT-003 已完成（2026-06-15）**：第一批·止血③（截图5 简介铺满撑宽卡片）——核对结论任务，无代码改动。核对：`PlantCard.tsx` 的 PlantListCardData 接口虽含 `description: string | null` 字段，但组件 JSX 全程零引用（grep `plant.description`/`.description` 均 0 命中），概览卡片只渲染 name（h2，TEXT-001 ellipsis）与 location（p，单行省略）——不存在简介整段平铺撑宽风险。位置单行省略已由 TEXT-001 覆盖。故概览展示策略确认为『不露出简介』，无需 clamp，无需改 PlantCard；简介完整内容在详情页可读。验收：typecheck 0 错误、vitest 22 files 135 tests 全绿（不回归）。
 
 **TEXT-002 已完成（2026-06-15）**：第一批·止血②（截图3 编辑页标题撑爆 + 截图4 删除区文案溢出）。(1) `PageHeader.tsx` titleStyle 加 overflowWrap+wordBreak:break-word，clamp 大字号标题（clamp(2rem,5vw,3.1rem)）遇超长连续串/植物名+任务名拼接时换行不横向溢出。(2) `DeleteTaskAction.tsx` 四处嵌入或可能嵌入 taskLabel 的文本样式加 break-word：titleStyle、bodyStyle（"删除后这条 {taskLabel} 提醒…"）、dialogTitleStyle（"确认删除"{taskLabel}"吗？"）、dialogCopyStyle。纯 CSS 零数据风险。验收：typecheck 0 错误、vitest 22 files 135 tests 全绿（不回归，删除流程 smoke 未受影响）。
 
