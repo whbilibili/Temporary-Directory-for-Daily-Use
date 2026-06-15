@@ -75,7 +75,7 @@
       "task_id": "ICON-003",
       "description": "任务类型图标单一来源建立：在 taskTypes.ts 新增权威映射 taskTypeIcon: Record<CareTaskType, LucideIcon> = { watering: Droplet, fertilizing: Sprout, misting: SprayCan, repotting: Flower2, pruning: Scissors, custom: Tag } 并导出取值函数。这是 B 级收口唯一权威源，从根上消除 TaskTypeBadge/PlantCard 两处映射在 fertilizing/misting/custom 三处的不一致。本任务只建来源 + 单测覆盖六类型全映射，不改消费方。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {"schema": {"tables_or_collections": [], "key_fields": {}, "indexes": [], "relations": "消费既有 CareTaskType，扩展 taskTypes.ts。", "notes": "纯前端常量映射。"}, "queries": {"read": "N/A", "write": "N/A"}, "migration_strategy": "No schema change."},

@@ -1,3 +1,13 @@
+import {
+  Droplet,
+  Flower2,
+  Scissors,
+  SprayCan,
+  Sprout,
+  Tag,
+  type LucideIcon,
+} from "lucide-react";
+
 export const careTaskTypeValues = [
   "watering",
   "fertilizing",
@@ -8,6 +18,26 @@ export const careTaskTypeValues = [
 ] as const;
 
 export type CareTaskType = (typeof careTaskTypeValues)[number];
+
+/**
+ * 任务类型图标唯一权威来源（ICON-003）。
+ * 全仓库任何需要任务类型图标的消费方（TaskTypeBadge / PlantCard / PlantDetailPage）
+ * 必须经此映射取值，禁止再维护第二份 emoji / 图标映射。
+ * 图标名严格对齐 icon_mapping_authority.task_type（repotting=Flower2 而非 FlowerPot）。
+ */
+export const taskTypeIcon: Record<CareTaskType, LucideIcon> = {
+  watering: Droplet,
+  fertilizing: Sprout,
+  misting: SprayCan,
+  repotting: Flower2,
+  pruning: Scissors,
+  custom: Tag,
+};
+
+/** 任务类型图标取值函数：始终返回合法 LucideIcon，custom 作为安全 fallback。 */
+export function getTaskTypeIcon(taskType: CareTaskType): LucideIcon {
+  return taskTypeIcon[taskType] ?? taskTypeIcon.custom;
+}
 
 export interface CareTaskTypeOption {
   description: string;
