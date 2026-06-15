@@ -175,3 +175,11 @@
   - 严格保持单一家庭约束语义不变；正常单 membership 用户行为完全不变
   - 验证：tsc 0 err / convex 0 err / vitest 40 passed
   - 状态：module+feature-list SET3-015→completed，settings-page-v0.3 completed 14→15
+
+[2026-06-15 15:05] SET3-016 DONE — v0.3 整体回归收口（settings-page-v0.3 16/16 全部完成）
+  - tsc -b 0 err；convex --once --typecheck 0 err
+  - 全量 vitest：14 files / 91 tests 全通过（含 AppRouter.smoke 40 个，新增 /join/:code 5 例；v0.2 家庭名 getByText 断言未被改名破坏）
+  - grep app/src/features/family + AvatarUploadField + components/ui 无硬编码 #hex（token 纪律达标）
+  - D5 三分支逻辑代码核验：leaveFamily 分支1 唯一管理员有他人禁退 / 分支2 最后一人 deleteEntireFamily 删整库含 logs / 分支3 普通成员退删自身 membership + 级联删本人 pushSubscriptions 保留 taskCompletionLogs
+  - StorageImage 植物调用方随全量 vitest 通过，无回归
+  - 状态：module+feature-list SET3-016→completed，settings-page-v0.3 completed 15→16（模块全部完成）

@@ -120,7 +120,7 @@
       "prd": "docs/product-specs/2026-06-15-settings-page-v0.3-iteration-spec.md",
       "task_breakdown": "docs/product-specs/2026-06-15-settings-page-v0.3-task-breakdown.md",
 "task_count": 16,
-"completed": 15,
+"completed": 16,
 "depends_on": [
 "family-access",
 "plant-registry",
@@ -799,7 +799,7 @@
       "task_id": "SET3-016",
       "module": "settings-page-v0.3",
       "description": "v0.3 整体回归 + smoke：tsc/convex 编译、AppRouter.smoke（含 /join）、v0.2 getByText 不破坏、无 #hex、D5 三分支专项手测、StorageImage 植物回归。",
-      "status": "pending",
+      "status": "completed",
       "priority": "1-High"
     }
   ],

@@ -325,7 +325,7 @@
       "task_id": "SET3-016",
       "description": "v0.3 整体回归 + smoke：app 目录 tsc --noEmit 无 error；四个新/改 mutation/query 编译通过；AppRouter.smoke.test 通过(含新 /join/:code)；v0.2 家庭名 getByText 断言不被改名破坏；grep 四项新增前端文件无硬编码 #hex；D5 数据一致性专项手测(唯一管理员拒退/最后一人删整库/普通成员级联删保留)；StorageImage 植物调用方不回归。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {"schema": {"tables_or_collections": ["all touched"], "key_fields": {}, "indexes": [], "relations": "", "notes": "整体验收任务。"}, "queries": {"read": "N/A", "write": "N/A"}, "migration_strategy": "N/A"},
