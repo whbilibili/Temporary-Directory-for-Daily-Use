@@ -1,8 +1,10 @@
 import { useMutation } from "convex/react";
 import { useMemo, useState } from "react";
+import { Bell } from "lucide-react";
 
 import { api } from "../../../convex/_generated/api";
 import { Button } from "../../components/ui/Button";
+import { Icon } from "../../components/ui/Icon";
 import { normalizeSubscription } from "./normalizeSubscription";
 
 interface PushSubscriptionLike {
@@ -154,7 +156,7 @@ export function NotificationPromptCard() {
       <header style={headerStyle}>
         <div style={headerLeadStyle}>
           <span aria-hidden="true" style={iconChipStyle}>
-            🔔
+            <Icon icon={Bell} size={18} />
           </span>
           <div style={headerTextStyle}>
             <span style={eyebrowStyle}>通知</span>

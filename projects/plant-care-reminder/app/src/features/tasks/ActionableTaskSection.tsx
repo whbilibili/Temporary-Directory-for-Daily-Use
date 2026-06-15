@@ -1,3 +1,6 @@
+import { Info } from "lucide-react";
+
+import { Icon } from "../../components/ui/Icon";
 import { getUtcDayStart, computeCompletedToday } from "./scheduling";
 import { ActionableTaskRow, type ActionableTask } from "./ActionableTaskRow";
 import type { CompletionUndoPayload } from "./undoComplete";
@@ -37,7 +40,8 @@ export function ActionableTaskSection({ onCompleted, tasks }: ActionableTaskSect
     >
       {/* 区域标题 */}
       <h2 style={{ ...titleStyle, color: accentColor }}>
-        ⚠️ 需要处理（{actionableTasks.length}）
+        <Icon icon={Info} size={13} strokeWidth={2.5} />
+        需要处理（{actionableTasks.length}）
       </h2>
 
       {/* 任务行列表 */}
@@ -67,6 +71,9 @@ const containerStyle: React.CSSProperties = {
 
 const titleStyle: React.CSSProperties = {
   margin: 0,
+  display: "flex",
+  alignItems: "center",
+  gap: "6px",
   fontSize: "12px",
   fontWeight: 700,
   textTransform: "uppercase",

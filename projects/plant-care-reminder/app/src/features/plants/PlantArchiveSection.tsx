@@ -1,4 +1,7 @@
 import { useEffect, useState } from "react";
+import { NotebookPen } from "lucide-react";
+
+import { Icon } from "../../components/ui/Icon";
 
 interface PlantArchiveSectionProps {
   plant: {
@@ -69,7 +72,10 @@ export function PlantArchiveSection({ plant, plantId }: PlantArchiveSectionProps
         style={triggerStyle}
         type="button"
       >
-        <span style={triggerLabelStyle}>📝 植物档案</span>
+        <span style={triggerLabelStyle}>
+          <Icon icon={NotebookPen} size={15} />
+          植物档案
+        </span>
         <span aria-hidden="true" style={triggerArrowStyle}>
           {collapsed ? "▾" : "▴"}
         </span>
@@ -139,9 +145,12 @@ const triggerStyle: React.CSSProperties = {
 };
 
 const triggerLabelStyle: React.CSSProperties = {
-  fontSize: "14px",
-  fontWeight: 600,
-  color: "var(--color-ink)",
+display: "inline-flex",
+alignItems: "center",
+gap: "6px",
+fontSize: "14px",
+fontWeight: 600,
+color: "var(--color-ink)",
 };
 
 const triggerArrowStyle: React.CSSProperties = {

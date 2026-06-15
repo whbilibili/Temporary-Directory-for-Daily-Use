@@ -1,3 +1,6 @@
+import { ClipboardList } from "lucide-react";
+
+import { Icon } from "../../components/ui/Icon";
 import { PlanTaskRow, type PlanTask } from "./PlanTaskRow";
 
 interface PlanSectionProps {
@@ -32,7 +35,8 @@ export function PlanSection({ onAdd, onEdit, tasks }: PlanSectionProps) {
       {/* 区域标题 */}
       <div style={headerStyle}>
         <h2 style={titleStyle}>
-          📋 养护计划（{sortedTasks.length}）
+          <Icon icon={ClipboardList} size={13} strokeWidth={2.5} />
+          养护计划（{sortedTasks.length}）
         </h2>
         <button aria-label="添加养护计划" onClick={onAdd} style={addButtonStyle} type="button">
           + 添加
@@ -67,6 +71,9 @@ const headerStyle: React.CSSProperties = {
 
 const titleStyle: React.CSSProperties = {
   margin: 0,
+  display: "flex",
+  alignItems: "center",
+  gap: "6px",
   fontSize: "12px",
   fontWeight: 700,
   textTransform: "uppercase",

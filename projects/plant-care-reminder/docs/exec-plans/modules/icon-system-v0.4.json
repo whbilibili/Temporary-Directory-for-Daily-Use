@@ -134,7 +134,8 @@
       "task_id": "ICON-006",
       "description": "信息标识图标替换（A/B 级·通知/档案/计划/提示）：(1) NotificationPromptCard.tsx:157 🔔 改 Bell；(2) PlantArchiveSection.tsx:72 📝 改 NotebookPen；(3) PlanSection.tsx:35 📋 养护计划 改 ClipboardList；(4) ActionableTaskSection.tsx:40 ⚠️ 需要处理 改 Info（或保留 ⚠️ 视情感强度，实现时锁定）。这些图标位于卡片标题/eyebrow 处，与 SettingCardHeader chip 视觉语言对齐，stroke=currentColor 跟随标题色。",
       "priority": "3-Low",
-      "status": "pending",
+      "status": "completed",
+      "completion_note": "四处信息标识 emoji 全部线性化：① NotificationPromptCard 🔔→Icon(Bell size18)，沿用 32px mist chip 容器；② PlantArchiveSection:72 📝→Icon(NotebookPen size15)，triggerLabel 改 inline-flex 对齐（折叠箭头 ▾/▴ 不在本任务范围，保留）；③ PlanSection:35 📋→Icon(ClipboardList size13 strokeWidth2.5)，titleStyle 改 flex+gap6；④ ActionableTaskSection:40 锁定 ⚠️→Icon(Info size13 strokeWidth2.5)（颜色已由 accentColor=warning/leaf-light 经 currentColor 表达紧急度，无需保留 emoji），titleStyle 改 flex+gap6。所有标题图标 aria-hidden，标题可访问名（如『养护计划（N）』『开启设备提醒』）不变——AppRouter smoke 的 heading name 断言全部未回归。PlanSection 空态 🌱 与各卡装饰属 C 级，保留。新建 PlanSection.test.tsx 2 用例：养护计划标题渲染 svg.lucide-clipboard-list 且无 📋、需要处理标题渲染 svg.lucide-info 且无 ⚠️，均断言可访问名保留。验收：typecheck 0 错误、20 files / 114 tests 全绿（+2）。",
       "plan_path": null,
       "contracts": {
         "data_layer": {"schema": {"tables_or_collections": [], "key_fields": {}, "indexes": [], "relations": "纯前端。", "notes": "无 schema 变更。"}, "queries": {"read": "N/A", "write": "N/A"}, "migration_strategy": "No schema change."},
