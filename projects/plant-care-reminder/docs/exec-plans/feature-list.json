@@ -78,7 +78,7 @@
       "prd": "docs/product-specs/2026-06-11-plant-list-iteration-spec.md",
       "ui_spec": "docs/product-specs/2026-06-11-plant-list-ui-spec.md",
       "task_count": 10,
-      "completed": 0,
+      "completed": 10,
       "depends_on": [
         "plant-registry",
         "care-reminders",
@@ -106,7 +106,7 @@
       "prd": "docs/product-specs/2026-06-12-settings-page-iteration-spec.md",
       "ui_spec": "docs/product-specs/2026-06-12-settings-page-ui-spec.md",
       "task_count": 12,
-      "completed": 0,
+      "completed": 12,
       "depends_on": [
         "family-access",
         "care-reminders",
@@ -462,70 +462,70 @@
       "task_id": "PLIST2-001",
       "module": "plant-list-v2",
       "description": "后端排序改造：listPlantsWithNextDue 改为按 nextDueAt 升序（无任务沉底），替代按名称排序。",
-      "status": "pending",
+      "status": "completed",
       "priority": "1-High"
     },
     {
       "task_id": "PLIST2-002",
       "module": "plant-list-v2",
       "description": "归档植物查询：新增 listArchivedPlants query（isArchived===true，按归档时间降序）。",
-      "status": "pending",
+      "status": "completed",
       "priority": "1-High"
     },
     {
       "task_id": "PLIST2-003",
       "module": "plant-list-v2",
       "description": "PlantCard 重写：竖向大图改为横向紧凑布局（左图 80×80 + 右文三行），整卡可点击进详情。",
-      "status": "pending",
+      "status": "completed",
       "priority": "1-High"
     },
     {
       "task_id": "PLIST2-004",
       "module": "plant-list-v2",
       "description": "任务状态行与逾期色条：第三行展示最紧迫任务 emoji+到期文案，逾期时左侧 3px 暖橙色条。",
-      "status": "pending",
+      "status": "completed",
       "priority": "1-High"
     },
     {
       "task_id": "PLIST2-005",
       "module": "plant-list-v2",
       "description": "编辑图标交互：右上角铅笔图标（16×16 视觉/44×44 热区），点击进编辑页并阻止冒泡。",
-      "status": "pending",
+      "status": "completed",
       "priority": "2-Medium"
     },
     {
       "task_id": "PLIST2-006",
       "module": "plant-list-v2",
       "description": "归档折叠区组件：ArchivedSection + ArchivedPlantCard（灰态+恢复按钮+展开收起动效）。",
-      "status": "pending",
+      "status": "completed",
       "priority": "1-High"
     },
     {
       "task_id": "PLIST2-007",
       "module": "plant-list-v2",
       "description": "列表 Stagger 渐入动效：卡片依次 fade-in+translateY，stagger 50ms，尊重 reduced-motion。",
-      "status": "pending",
+      "status": "completed",
       "priority": "2-Medium"
     },
     {
       "task_id": "PLIST2-008",
       "module": "plant-list-v2",
       "description": "卡片按压反馈：:active 态 scale(0.98)+底色微变，按下 120ms，松开 200ms 回弹缓动。",
-      "status": "pending",
+      "status": "completed",
       "priority": "2-Medium"
     },
     {
       "task_id": "PLIST2-009",
       "module": "plant-list-v2",
       "description": "图片渐显与占位态：无图 mist 底+🌿；有图 onLoad 渐显 200ms；失败回退占位态。",
-      "status": "pending",
+      "status": "completed",
       "priority": "2-Medium"
     },
     {
       "task_id": "PLIST2-010",
       "module": "plant-list-v2",
       "description": "PlantListPage 整合：集成新卡片+归档区，搜索栏视觉优化，标题栏改造，空状态落地。",
-      "status": "pending",
+      "status": "completed",
       "priority": "1-High"
     },
     {
@@ -595,84 +595,84 @@
       "task_id": "SET2-001",
       "module": "settings-page-v2",
       "description": "扩展 getFamilySettingsSummary：追加 createdBy/currentUserRole/currentUserId/myEmail，成员项补 isCreator，支撑移除/重置入口权限渲染与「我的账号」只读行。",
-      "status": "pending",
+      "status": "completed",
       "priority": "1-High"
     },
     {
       "task_id": "SET2-002",
       "module": "settings-page-v2",
       "description": "新增 removeMember mutation：仅 admin，禁移除自己/创建者，级联删除 pushSubscriptions，保留 taskCompletionLogs。",
-      "status": "pending",
+      "status": "completed",
       "priority": "1-High"
     },
     {
       "task_id": "SET2-003",
       "module": "settings-page-v2",
       "description": "新增 resetInviteCode mutation：仅 admin，抽 generateUniqueInviteCode helper，旧码即时失效返回新码。",
-      "status": "pending",
+      "status": "completed",
       "priority": "1-High"
     },
     {
       "task_id": "SET2-004",
       "module": "settings-page-v2",
       "description": "校验/补齐 users.updateMyProfile（非空 + maxLength 40），供设置页改称呼复用，不重造规则。",
-      "status": "pending",
+      "status": "completed",
       "priority": "2-Medium"
     },
     {
       "task_id": "SET2-005",
       "module": "settings-page-v2",
       "description": "抽象通用 ConfirmSheet（从 PostponeConfirmSheet 提炼）：参数化 + 三种 variant（描边危险/实底危险/品牌绿），复用现有 sheet 动效与 focus trap。",
-      "status": "pending",
+      "status": "completed",
       "priority": "1-High"
     },
     {
       "task_id": "SET2-006",
       "module": "settings-page-v2",
       "description": "FamilySettingsPage 三分组骨架重构 + SettingsGroup（h2 分组）+ SettingCardHeader（图标 chip + eyebrow + h3），落地 h1 与整页间距。",
-      "status": "pending",
+      "status": "completed",
       "priority": "1-High"
     },
     {
       "task_id": "SET2-007",
       "module": "settings-page-v2",
       "description": "家庭头图卡 FamilyHeroCard（品牌绿渐变情感锚点，全页唯一强色块）+ 人数分支文案。",
-      "status": "pending",
+      "status": "completed",
       "priority": "1-High"
     },
     {
       "task_id": "SET2-008",
       "module": "settings-page-v2",
       "description": "邀请码卡 InviteCodeCard：高亮虚线容器 + 复制/fallback 不回归 + admin 专属重置文字链（primary variant 确认 sheet 调 resetInviteCode）。",
-      "status": "pending",
+      "status": "completed",
       "priority": "1-High"
     },
     {
       "task_id": "SET2-009",
       "module": "settings-page-v2",
       "description": "个人组：SettingRow（称呼可编辑 sheet 复用 updateMyProfile / 账号只读行）+ 退出登录迁组并接 danger-outline 确认 sheet。",
-      "status": "pending",
+      "status": "completed",
       "priority": "1-High"
     },
     {
       "task_id": "SET2-010",
       "module": "settings-page-v2",
       "description": "成员卡：MemberAvatar 首字头像 + 角色徽章 + 我 pill + 标题去重 + 三条件移除入口（danger-solid 确认 sheet 调 removeMember）。",
-      "status": "pending",
+      "status": "completed",
       "priority": "1-High"
     },
     {
       "task_id": "SET2-011",
       "module": "settings-page-v2",
       "description": "通知卡外壳统一 + NotificationTroubleshooting 排障折叠（disclosure + a11y）+ AboutCard 关于卡（版本号构建注入）。",
-      "status": "pending",
+      "status": "completed",
       "priority": "2-Medium"
     },
     {
       "task_id": "SET2-012",
       "module": "settings-page-v2",
       "description": "端到端验收：PRD §9 + UI §14 逐条核对、aria/对比度、320px 窄屏、token 纪律、admin/普通成员两视角、跨页面一致性。",
-      "status": "pending",
+      "status": "completed",
       "priority": "2-Medium"
     }
   ],
