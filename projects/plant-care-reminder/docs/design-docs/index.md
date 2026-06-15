@@ -7,6 +7,7 @@
 - [2026-06-05-technical-solution.md](./2026-06-05-technical-solution.md)
 - [2026-06-09-frontend-refresh-plan.md](./2026-06-09-frontend-refresh-plan.md)
 - [2026-06-09-ui-ux-visual-spec.md](./2026-06-09-ui-ux-visual-spec.md)
+- [2026-06-15-long-text-handling-plan.md](./2026-06-15-long-text-handling-plan.md)
 - [moodboard/README.md](./moodboard/README.md)
 - [core-beliefs.md](./core-beliefs.md)
 

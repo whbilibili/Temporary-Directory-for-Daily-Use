@@ -246,3 +246,44 @@ npx vitest run                                       # 全量回归 91 tests
 3. **核心收益**：解决底部导航激活态变色 bug、根除任务类型图标三处不一致、统一两套并存图标体系、提升无障碍质量。
 4. **落地**：统一封装 `Icon.tsx` 适配层，色彩走 token，按 P0→P4 小步实施，每步验证三连 + 独立提交。
 5. **下一步**：建议从 **P0（BottomNav 试点）** 开始，验证视觉效果后再推进 P1 任务类型统一。
+
+---
+
+## 8. 迁移验收小结（ICON-009 · 2026-06-15）
+
+icon-system-v0.4 模块 9 个任务（ICON-001 ~ ICON-009）全部完成。本节为模块收尾的整体回归验收记录，证明迁移完整、无回归、纪律达标。
+
+### 8.1 自动化验证三件套
+
+| 验证项 | 命令 | 结果 |
+| --- | --- | --- |
+| 类型检查 | `npm run typecheck`（tsc -b，走 project references 真实编译 src） | 0 错误 |
+| 单元/集成测试 | `npm run test`（vitest run） | 22 files / 135 tests 全绿 |
+| 后端函数编译 | `npx convex dev --once --typecheck enable` | 函数编译部署成功，0 错误 |
+| 生产构建 | `npm run build`（tsc -b && vite build） | 1732 模块转换成功 |
+
+相比迁移前基线（15 files / 97 tests），本模块共净增 38 个测试（Icon 壳 6、BottomNav 4、taskTypes 5、TaskTypeBadge 3、FamilyHeroCard 3、PlanSection 2、DetailNavBar 3、no-functional-emoji 守护 18 含 it.each 15 例 等），全部固化「不准回退到 emoji」纪律。
+
+### 8.2 emoji 清理与 token 纪律
+
+- **B 级收口**：全仓库 `grep taskTypeEmoji` **0 命中**——任务类型图标只剩 `taskTypes.ts` 的 `taskTypeIcon` 单一权威源，fertilizing/misting/custom 三处历史不一致彻底消除。
+- **A/B 级落点 emoji 已清**：本模块迁移的 13 个落点源文件（BottomNav / taskTypes / TaskTypeBadge / PlantCard / PlantDetailPage / CompleteTaskButton / ActionableTaskRow / FamilyHeroCard / PlantArchiveSection / NotificationPromptCard / PlanSection / ActionableTaskSection / DetailNavBar）均无功能性 emoji 残留（`no-functional-emoji.test.ts` 守护，故意回灌时变红已实操验证）。
+- **C 级装饰保留**：🌿🍃🌱 在空状态插画、Hero 装饰、完成情感反馈（celebrateEmoji、toast 前缀）处全部按策略保留，与功能图标边界精确。
+- **非本模块范围 emoji**：SettingCardHeader chip（🔑🙂✉️👥ℹ️）、PlantHeroCard 无图占位 🪴 等不在 icon-system-v0.4 任务范围，按外科手术原则未动。
+- **token 纪律**：`.tsx` 全仓库 `grep` **无 `#hex` 字面色**；图标颜色一律 currentColor 继承或经 `colorVar` 注入 `var(--color-*)`，Icon 壳层强制禁字面色。本次迁移未新增 token。
+
+### 8.3 核心收益验证
+
+- **导航 active 态变色 bug 修复**：BottomNav 三图标改为 Lucide（CalendarCheck / Sprout / Settings）经 stroke=currentColor 渲染，active 态随父级 `color:var(--color-paper)` 自动转白——`BottomNav.test.tsx` 断言 active===paper / inactive===muted，反向验证若回灌 emoji 则红。
+- **任务类型六图标三页面一致**：待办 / 列表 / 详情统一消费 `getTaskTypeIcon`，着色经 `--color-task-*`。
+- **DetailNavBar 手写 SVG 收口**：返回（ChevronLeft）/ 更多（EllipsisVertical）由手写 path 收口到 Lucide 统一来源，外观与 a11y 不回归。
+
+### 8.4 性能与无障碍
+
+- **tree-shaking 生效**：全部 lucide-react import 为**具名按需引入**（无 `import * as` 整包导入），仅约 16 个实际使用图标被打入。主 bundle `index-*.js` 426 KB（gzip 122 KB），未发生整包膨胀（lucide 全量库 minify 后约数 MB）。
+- **reduced-motion**：本模块唯一新增动效 `.complete-spin`（pending 旋转）由 `tokens.css` 全局 `@media (prefers-reduced-motion: reduce)` 压制为 `0.01ms` 单次，等效静止，无异常。
+- **a11y 契约**：`Icon.tsx` 壳层 `label` 有值→`role="img"+aria-label`、无值→`aria-hidden`；业务图标默认不传 label 自动 aria-hidden，不污染可访问名——AppRouter smoke 的 heading / button name 断言全程 40/40 未回归。
+
+### 8.5 结论
+
+迁移完整、无回归、纪律达标，icon-system-v0.4 模块（ICON-001 ~ ICON-009）验收通过，可结项。

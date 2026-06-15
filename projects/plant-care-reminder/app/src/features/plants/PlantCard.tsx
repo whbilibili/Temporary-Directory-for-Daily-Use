@@ -142,9 +142,12 @@ const nameRowStyle: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
   gap: "var(--space-sm)",
+  minWidth: 0,
 };
 
 const nameStyle: React.CSSProperties = {
+  flex: 1,
+  minWidth: 0,
   margin: 0,
   fontFamily: "var(--font-heading)",
   fontSize: "16px",

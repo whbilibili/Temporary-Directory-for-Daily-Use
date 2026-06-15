@@ -1,5 +1,7 @@
 ### [Current Focus]
-`icon-system-v0.4` 模块开发中（2026-06-15 启动）：emoji → Lucide 线性图标系统化迁移。基线 tsc 0 错误 / 91 tests 全绿。
+`long-text-hardening-v0.5` 模块进行中（2026-06-15，TEXT-001 ~ TEXT-007 共 1/7）：超长字符串四层防御。当前已完成第一批·止血①（TEXT-001）。基线 tsc -b 0 错误 / vitest 22 files 135 tests 全绿。下一件事：TEXT-002（PageHeader/DeleteTaskAction overflowWrap）。
+
+**TEXT-001 已完成（2026-06-15）**：第一批·止血①（截图1 植物名称撑爆卡片）。根因——`PlantCard.tsx` nameRowStyle 是 flex 容器但缺 minWidth:0，且 nameStyle（h2 子项）无 flex:1/minWidth:0，flex 子项默认 min-width:auto 不收缩 → 既有 ellipsis 三件套（whiteSpace:nowrap+overflow:hidden+textOverflow:ellipsis）形同虚设（假截断）。修复：nameRowStyle 补 minWidth:0；nameStyle 补 flex:1 + minWidth:0，使 h2 可收缩触发 ellipsis（编辑按钮 editIconStyle 既有 flexShrink:0 不被压缩）。location 单行省略由 textAreaStyle（已有 minWidth:0，column flex 下 p 块级撑满）本就生效，仅核对不回归。纯 CSS 零数据风险。无独立 PlantCard 测试文件，由 AppRouter.smoke 覆盖。验收：typecheck 0 错误、vitest 22 files 135 tests 全绿（不回归）。
 
 **ICON-007 已完成（2026-06-15）**：DetailNavBar 手写 SVG 收口（A 级·去重）。`DetailNavBar.tsx` 两处内联手写 SVG 全部切到 Lucide 经 Icon 壳：① 返回按钮 `<polyline points='15 18 9 12 15 6'/>`→`<Icon icon={ChevronLeft} size={20} strokeWidth={2}/>`；② 更多按钮手写三点 `<circle r='1.5'×3 fill=currentColor>`→`<Icon icon={EllipsisVertical} size={20} strokeWidth={2}/>`。尺寸/线宽/currentColor 对齐原值，44×44 热区、aria-label（返回/更多操作）、aria-haspopup/aria-expanded、onMenuToggle 回调全不变，图标由壳自动 aria-hidden。坑：Lucide EllipsisVertical 本身以三个 `r='1'` circle 描边实现（非手写填充），首版"无 circle"断言误红——改为校验 svg 带 lucide class 且无手写 `r='1.5'` 圆点。新建 `DetailNavBar.test.tsx` 3 用例：返回渲染 svg.lucide-chevron-left 且无手写 polyline / 更多渲染 svg.lucide-ellipsis-vertical 且无 r=1.5 圆点 / aria-label+aria-expanded+菜单回调+图标 aria-hidden 不回归。验收：typecheck 0 错误、21 files / 117 tests 全绿（+3）。
 
@@ -209,3 +211,15 @@
   - 反馈3(安全文案)：最后一人退出=解散家庭(后端 leaveFamily 分支2 级联删全库)，原文案误称「养护数据仍归这个家庭所有」。
     FamilySettingsPage 据 summary.memberCount<=1 派生 isLastMember：标题「退出后将解散这个家庭」、描述明确「所有植物/提醒/养护记录将被永久删除且无法恢复」、确认按钮「退出并解散家庭」；非最后一人维持原温和文案（措辞修正为「仍由其他家人保留」）。
   - 验证：tsc -b 0 err / convex --once --typecheck 0 err / 全量 vitest 14 files 91 passed（AppRouter.smoke 40 全过）
+
+[2026-06-15 17:52] ICON-009 DONE — icon-system-v0.4 模块整体回归验收（模块 9/9 全部完成并结项）
+  - 自动化三件套：npm run typecheck（tsc -b）0 错误 / npm run test 22 files 135 tests 全绿 / npx convex dev --once --typecheck enable 函数编译部署成功；额外 npm run build（tsc -b && vite build）1732 模块构建成功、主 bundle index 426KB(gzip122KB)。
+  - emoji 清理：grep taskTypeEmoji 全仓库 0 命中（B 级单一来源彻底）；本模块 13 个 A/B 级落点源文件无功能性 emoji 残留（no-functional-emoji.test.ts 守护，故意回灌已实操验证变红）；C 级 🌿🍃🌱 在空态插画/Hero 装饰/完成情感反馈（celebrateEmoji/toast 前缀）处按策略保留；非本模块范围的 SettingCardHeader chip(🔑🙂✉️👥ℹ️)、PlantHeroCard 无图占位 🪴 按外科手术原则未动。
+  - token 纪律：.tsx 全仓库 grep 无 #hex 字面色，图标色一律 currentColor 继承或 colorVar 注入 var(--color-*)，Icon 壳层强制；本次未新增 token。
+  - tree-shaking：全部 lucide-react import 为具名按需引入（无 import * as 整包导入），仅约 16 个使用图标打入；反证 airplay/anchor/banana/rocket/zap 等未使用图标 0 命中，未整包膨胀。
+  - reduced-motion：唯一新增动效 .complete-spin 由 tokens.css 全局 @media(prefers-reduced-motion:reduce){animation-duration:0.01ms!important;animation-iteration-count:1!important} 压制为单次近 0 时长等效静止。
+  - a11y：Icon.tsx 壳 label 有值→role=img+aria-label、无值→aria-hidden；业务图标默认不传 label 自动 aria-hidden，AppRouter smoke heading/button name 断言 40/40 未回归。
+  - 走查替代说明：当前环境无 GUI，design_contract 的"四页面双视角截图走查"以代码/构建/测试证据核对替代（导航 active 转白由 BottomNav.test active===paper / inactive===muted 反向断言保证；任务类型六图标一致由 getTaskTypeIcon 单一源 + TaskTypeBadge.test 保证）。
+  - 文档：docs/design-docs/icon-system-migration.md 末尾追加 §8 迁移验收小结。
+  - 状态同步：module JSON ICON-009→completed（含 completion_note）；feature-list.json ICON-009→completed、顺手修正 ICON-008 误标 pending→completed、模块 completed 7→9（jq empty 校验两文件合法、module 内 9/9 completed）。
+  - 结论：icon-system-v0.4 模块全部完成，迁移完整、无回归、纪律达标，可结项。下一件事待用户指派。

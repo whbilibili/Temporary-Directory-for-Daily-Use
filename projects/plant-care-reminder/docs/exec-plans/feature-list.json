@@ -133,14 +133,28 @@
       "file": "docs/exec-plans/modules/icon-system-v0.4.json",
       "description": "图标系统 v0.4 迁移：emoji → Lucide 线性图标系统化替换。引入 lucide-react@0.471.1 + 封装 Icon 统一壳；按三级分类落地——A 级功能性图标必换（导航/完成/编辑/通知，修复 BottomNav active 态 emoji 白色失效核心 bug）、B 级任务类型图标统一收口（TaskTypeBadge/PlantCard/PlantDetailPage 三处既有不一致 emoji 收敛为 taskTypes.ts 单一 taskTypeIcon 映射）、C 级装饰 emoji（🌿🍃）保留。最后 DetailNavBar 手写 SVG 收口到 Lucide，并以守护单测固化『不准回退 emoji』。所有图标 stroke=currentColor 跟随主题/token，不新增 token、不引入 #hex。落地节奏 P0=基建+导航试点、P1=任务类型收口、P2=操作图标、P3=信息标识+DetailNavBar 收口、回归验收兜底。",
 "prd": "docs/design-docs/icon-system-migration.md",
-"task_count": 9,
-"completed": 7,
+      "task_count": 9,
+      "completed": 9,
 "depends_on": [
 "frontend-refresh",
         "todo-page-v2",
         "plant-list-v2",
         "plant-detail-v2",
         "settings-page-v2"
+      ]
+    },
+    {
+      "module": "long-text-hardening-v0.5",
+      "file": "docs/exec-plans/modules/long-text-hardening-v0.5.json",
+      "description": "超长字符串处理 v0.5：对植物名称/摆放位置/简介/养护备注/自定义任务名五个文本字段，系统性补齐『输入端无上限 + 后端无校验 + 展示端截断不到位』三重缺口（缺陷治理 + 一致性补齐，对齐 families/nickname/inviteCode 既有长度纪律）。四层防御：输入端 maxLength（防错源头）、前端长度校验（可读提示）、后端 Convex mutation 二次校验（防绕过）、展示端单行省略 / 多行 clamp（兜存量超长不撑爆）。三批落地：第一批·止血（纯 CSS 消除截图撑爆，零风险）、第二批·治本（maxLength + 前端校验杜绝新增超长）、第三批·加固（后端校验 + 卡片 clamp + 抽公共截断工具 + PlanTaskRow flex + 回归验收）。上限：植物名 30 / 位置 30 / 简介 200 / 备注 200 / 任务名 20。不新增 token、不引入 #hex。",
+      "prd": "docs/design-docs/2026-06-15-long-text-handling-plan.md",
+      "task_count": 7,
+      "completed": 1,
+      "depends_on": [
+        "plant-registry",
+        "care-reminders",
+        "plant-list-v2",
+        "plant-detail-v2"
       ]
     }
   ],
@@ -870,15 +884,64 @@
       "task_id": "ICON-008",
       "module": "icon-system-v0.4",
       "description": "图标纪律守护单测：任务类型映射完整性 + A/B 级文件 emoji 不回灌（白名单仅 C 级装饰）+ Icon a11y 契约，故意回灌 emoji 应失败。",
-      "status": "pending",
+      "status": "completed",
       "priority": "2-Medium"
     },
     {
       "task_id": "ICON-009",
       "module": "icon-system-v0.4",
       "description": "整体回归验收：tsc+convex typecheck+vitest 全绿、A/B 级 emoji 全清 C 级保留、tree-shaking/reduced-motion/#hex 纪律核对、四页面双视角走查、迁移验收小结追加。",
+      "status": "completed",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "TEXT-001",
+      "module": "long-text-hardening-v0.5",
+      "description": "第一批·止血①：PlantCard nameRowStyle 补 minWidth:0 让既有 ellipsis 生效（消除植物名假截断撑爆卡片），核对 location 单行省略不回归。纯 CSS 零风险。",
+      "status": "completed",
+      "priority": "0-Critical"
+    },
+    {
+      "task_id": "TEXT-002",
+      "module": "long-text-hardening-v0.5",
+      "description": "第一批·止血②：PageHeader 标题 + DeleteTaskAction 删除文案加 overflowWrap/wordBreak:break-word，超长连续串/任务名换行不溢出气泡弹窗。纯 CSS 零风险。",
+      "status": "pending",
+      "priority": "0-Critical"
+    },
+    {
+      "task_id": "TEXT-003",
+      "module": "long-text-hardening-v0.5",
+      "description": "第一批·止血③：PlantCard 概览卡片简介不平铺（或限 1-2 行 clamp + break-word），次要文本不撑宽卡片；位置由 TEXT-001 覆盖。纯 CSS / 展示决策零风险。",
       "status": "pending",
       "priority": "1-High"
+    },
+    {
+      "task_id": "TEXT-004",
+      "module": "long-text-hardening-v0.5",
+      "description": "第二批·治本①：constants.ts 抽五个长度常量（名30/位置30/简介200/备注200/任务名20），PlantForm 四字段 + TaskForm 任务名加 maxLength，简介/备注加字数计数。源头杜绝新增超长。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "TEXT-005",
+      "module": "long-text-hardening-v0.5",
+      "description": "第二批·治本②：validatePlantEditorValues 四字段 + validateCustomTaskName 追加长度校验，超限返回可读错误文案（消费同组常量），补单测。maxLength 被绕过时的前端二道防线。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "TEXT-006",
+      "module": "long-text-hardening-v0.5",
+      "description": "第三批·加固①：convex/lib/validators.ts 新增 assertMaxLength；plants.createPlant/updatePlant 补 name trim+非空+长度及 location/description/note 长度；tasks mutation customTaskName 复用增强校验。后端二次校验防绕过。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "TEXT-007",
+      "module": "long-text-hardening-v0.5",
+      "description": "第三批·加固②：新建 textTruncate.ts 公共截断工具收口复制粘贴；TaskListItem/DueTaskCard/UpcomingDueCard 任务名 clamp(2)+植物名单行省略；PlanTaskRow flex 加固；整体回归验收 500+ 字符全页面无溢出 + 验收小结。",
+      "status": "pending",
+      "priority": "2-Medium"
     }
   ],
   "cross_module_dependencies": [
@@ -1286,6 +1349,36 @@
       "from": "ICON-009",
       "to": "ICON-008",
       "reason": "整体验收依赖 ICON-008 守护单测就位，并核对全部 A/B/C 级替换结果。"
+    },
+    {
+      "from": "TEXT-001",
+      "to": "PLIST2-003",
+      "reason": "PlantCard nameRowStyle minWidth:0 修复落在 plant-list-v2 PLIST2-003 重写后的卡片结构上。"
+    },
+    {
+      "from": "TEXT-003",
+      "to": "PLIST2-003",
+      "reason": "PlantCard 简介/位置展示策略基于 plant-list-v2 PLIST2-003 的卡片布局原位处理。"
+    },
+    {
+      "from": "TEXT-002",
+      "to": "PDETAIL2-001",
+      "reason": "PageHeader/DeleteTaskAction 文案换行修复作用于编辑/详情侧已建立的页头与删除交互组件。"
+    },
+    {
+      "from": "TEXT-005",
+      "to": "TEXT-004",
+      "reason": "前端长度校验复用 TEXT-004 在 constants.ts 抽取的同组长度常量，保证文案与 maxLength 一致。"
+    },
+    {
+      "from": "TEXT-006",
+      "to": "TEXT-005",
+      "reason": "后端 Convex 校验与前端 validateCustomTaskName/长度规则同源对齐，复用增强后的校验语义与上限数值。"
+    },
+    {
+      "from": "TEXT-007",
+      "to": "TEXT-001",
+      "reason": "公共截断工具 textTruncate.ts 收口 TEXT-001 的单行省略写法，并统一全列表卡片截断；回归验收覆盖前序所有 TEXT 任务结果。"
     }
   ]
 }

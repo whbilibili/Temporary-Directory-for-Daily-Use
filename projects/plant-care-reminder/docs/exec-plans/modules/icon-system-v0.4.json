@@ -174,7 +174,8 @@
       "task_id": "ICON-008",
       "description": "图标系统纪律守护单测：新增测试断言 (1) careTaskTypeValues 每个值在 taskTypeIcon 有唯一映射；(2) grep 风格的源码扫描测试或约定——A/B 级目标文件不再包含被替换的 emoji 字符（白名单允许 C 级装饰 🌿🍃）；(3) Icon 壳 a11y 契约（label→role=img、无 label→aria-hidden）回归。把『不准回退到 emoji』固化为可执行守护，防止后续 PR 回灌。",
       "priority": "2-Medium",
-      "status": "pending",
+      "status": "completed",
+      "completion_note": "三类守护齐备。(1) 映射完整性：taskTypeIcon 六类型唯一映射 + getTaskTypeIcon fallback 已由 taskTypes.test.ts 覆盖（ICON-003 建立，复用）。(2) Icon a11y 契约：label→role=img+aria-label、无 label→aria-hidden、colorVar 注入、currentColor 缺省、size/strokeWidth 已由 Icon.test.tsx 覆盖（ICON-001 建立，复用）。(3) 核心新增——源码扫描守护 `app/src/__tests__/no-functional-emoji.test.ts`：用 Vite import.meta.glob('?raw', eager) 在构建期把本模块迁移过的 15 个 A/B 级落点源文件读成原始文本（规避 src/ 测试引入 node:fs 导致 tsc 报错，app tsconfig 仅含 vite/client 类型），断言均不含黑名单功能性 emoji（导航 🗓️⚙️ / 任务类型 💧🧪🌫️✂️🏷️📋 / 操作 ✔✎✏️🔔 / 信息标识 📝⚠️）；C 级白名单 🌿🍃🌱 明确放行（含『黑白名单无交集』自检 + 『FamilyHeroCard 保留装饰 🌿』正向用例 + 『glob 命中 15 文件防空转』哨兵）。范围纪律：仅扫本模块 9 任务实际改过的文件，未纳入 SettingCardHeader chip(🔑🙂✉️👥ℹ️)/CompleteAllButton(✅)/头像兜底(👤) 等不在本模块任务范围的 emoji，避免误伤。自验证有效性：临时向 PlanSection.tsx 注入 💧 后该守护正确变红、移除后恢复全绿（已实操验证并还原）。验收：typecheck 0 错误、22 files / 135 tests 全绿（+18，其中扫描 it.each 15 例）。",
       "plan_path": null,
       "contracts": {
         "data_layer": {"schema": {"tables_or_collections": [], "key_fields": {}, "indexes": [], "relations": "测试任务。", "notes": "无 schema 变更。"}, "queries": {"read": "N/A", "write": "N/A"}, "migration_strategy": "No schema change."},
@@ -193,7 +194,8 @@
       "task_id": "ICON-009",
       "description": "整体回归验收：(1) tsc --noEmit + npx convex --once typecheck + vitest 全绿；(2) 全局 grep 确认 A/B 级落点文件 emoji 已清、C 级装饰保留；(3) bundle 体积核对（lucide-react tree-shaking 生效，仅打入实际使用图标）；(4) 三页面（待办/植物/详情/设置）双视角走查截图：导航 active 态图标转白、任务类型六图标一致、操作/标识图标线性化；(5) reduced-motion 下图标无异常；(6) 无 #hex 字面色纪律核对。出具一页迁移验收小结追加到 icon-system-migration.md 末尾。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
+      "completion_note": "icon-system-v0.4 模块收尾验收通过（9/9 全部完成）。① 自动化三件套：npm run typecheck（tsc -b）0 错误 / npm run test 22 files 135 tests 全绿 / npx convex dev --once --typecheck enable 函数编译部署成功；额外 npm run build（tsc -b && vite build）1732 模块构建成功。② emoji 清理：grep taskTypeEmoji 全仓库 0 命中；本模块 13 个 A/B 级落点源文件无功能性 emoji 残留（no-functional-emoji.test.ts 守护，故意回灌已验证变红）；C 级 🌿🍃🌱 按策略保留（空态/Hero/完成反馈）；SettingCardHeader chip 与 PlantHeroCard 占位 🪴 不在本模块范围未动。③ token 纪律：.tsx 全仓库 grep 无 #hex 字面色，图标色一律 currentColor/colorVar 注入 var(--color-*)。④ tree-shaking：全部 lucide import 为具名按需引入无整包导入，主 bundle index 426KB(gzip122KB)，未使用图标未打入（反证 airplay/anchor/banana/rocket/zap 0 命中）。⑤ reduced-motion：唯一新增动效 .complete-spin 由 tokens.css 全局 @media(prefers-reduced-motion:reduce) 压制为 0.01ms 单次等效静止。⑥ a11y：Icon 壳 label→role=img+aria-label、缺省 aria-hidden，AppRouter smoke heading/button name 断言 40/40 未回归。⑦ 文档：icon-system-migration.md 末尾追加 §8 迁移验收小结。无图形界面，走查项以代码/构建/测试证据核对替代截图。",
       "plan_path": null,
       "contracts": {
         "data_layer": {"schema": {"tables_or_collections": [], "key_fields": {}, "indexes": [], "relations": "验收任务。", "notes": "无 schema 变更。"}, "queries": {"read": "N/A", "write": "N/A"}, "migration_strategy": "No schema change."},
