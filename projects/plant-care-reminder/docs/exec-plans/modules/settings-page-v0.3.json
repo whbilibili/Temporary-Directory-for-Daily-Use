@@ -28,7 +28,7 @@
       "task_id": "SET3-001",
       "description": "新增 renameFamily mutation（家庭改名，admin-only）：照搬 resetInviteCode 权限模式——loadCurrentUserContext → 校验 userId && familyId → 取 currentMembership 判 role!=='admin' 抛错；args.name.trim() 非空 + 长度上限（≤20，抽常量 FAMILY_NAME_MAX_LENGTH）→ ctx.db.patch(familyId, { name })。",
       "priority": "0-Critical",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {

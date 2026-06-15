@@ -124,3 +124,7 @@
 - ✅ plant-detail-v2（PDETAIL2-001 ~ PDETAIL2-009，9/9 全部完成并提交）。植物详情页从「资料卡」重构为「单株养护面板」五层信息架构：DetailNavBar（sticky 顶栏）+ OverflowMenu（编辑/归档/删除，归档与删除均含二次确认）+ Compact Hero（48×48 缩略图+名称+状态摘要动态变色，缩略图可点开全屏预览）+ Action Zone（需要处理区，无到期任务时不渲染）+ Plan Overview（养护计划区，含空状态引导）+ PlantArchiveSection（可折叠档案）+ FloatingAddButton（FAB）+ UndoToast 完成正反馈 + ImagePreviewOverlay。
   本轮关键收尾：(1) 补齐 PDETAIL2-001 契约要求的「归档二次确认」——OverflowMenu 归档/恢复改为弹出 ConfirmSheet（title「确认归档/恢复这盆植物吗？」，variant danger-outline/primary），此前仅删除有二次确认、归档为直接 mutation，属契约缺口；(2) 4 个 baseline smoke 失败用例均为旧 UI 断言，已按新五层 UI 重写（养护计划（n）/需要处理（n）/状态摘要文案/编辑x任务 aria-label/确认归档 等），其中恢复用例最终断言改用 getAllByText 适配「暂无养护计划」在 Hero 与空态计划区各出现一次。
   验证：cd app && npm run typecheck = 0 错误；npx vitest run src/test/AppRouter.smoke.test.tsx = 35/35 全绿（消除 4 个历史失败）。
+
+
+### [settings-page-v0.3 迭代 · 2026-06-15 启动]
+- ✅ SET3-001 已完成并提交。新增 families.renameFamily mutation（家庭改名，admin-only）：照搬 resetInviteCode 权限范式——loadCurrentUserContext → 校验 userId && familyId → by_familyId_and_userId 取 currentMembership 判 role!==admin 抛错；新增常量 FAMILY_NAME_MAX_LENGTH=20，args.name.trim() 非空校验 + 长度上限校验，最终 ctx.db.patch(familyId, { name })，返回 { ok: true }。纯后端无 schema 变更。验证：npx convex dev --once --typecheck enable 编译通过。

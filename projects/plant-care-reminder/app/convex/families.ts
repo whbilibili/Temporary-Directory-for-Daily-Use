@@ -6,6 +6,7 @@ import { getCurrentUserContext as loadCurrentUserContext } from "./lib/auth";
 
 const INVITE_CODE_LENGTH = 6;
 const INVITE_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+const FAMILY_NAME_MAX_LENGTH = 20;
 
 function generateInviteCode() {
   let inviteCode = "";
@@ -293,5 +294,44 @@ export const resetInviteCode = mutation({
     await ctx.db.patch(familyId, { inviteCode: newInviteCode });
 
     return { inviteCode: newInviteCode };
+  },
+});
+
+export const renameFamily = mutation({
+  args: {
+    name: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const currentUserContext = await loadCurrentUserContext(ctx);
+
+    if (!currentUserContext.userId || !currentUserContext.familyId) {
+      throw new Error("You must belong to a family to rename it.");
+    }
+
+    const familyId = currentUserContext.familyId;
+
+    const currentMembership = await ctx.db
+      .query("familyMembers")
+      .withIndex("by_familyId_and_userId", (q) =>
+        q.eq("familyId", familyId).eq("userId", currentUserContext.userId!),
+      )
+      .unique();
+
+    if (!currentMembership || currentMembership.role !== "admin") {
+      throw new Error("Only a family admin can rename the family.");
+    }
+
+    const name = args.name.trim();
+    if (name.length === 0) {
+      throw new Error("Family name is required.");
+    }
+
+    if (name.length > FAMILY_NAME_MAX_LENGTH) {
+      throw new Error(`Family name must be ${FAMILY_NAME_MAX_LENGTH} characters or fewer.`);
+    }
+
+    await ctx.db.patch(familyId, { name });
+
+    return { ok: true as const };
   },
 });
