@@ -1,5 +1,5 @@
 import { useConvex } from "convex/react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { api } from "../../../convex/_generated/api";
 import type { StorageId } from "../../types/domain";
@@ -10,6 +10,11 @@ interface StorageImageProps {
   initialUrl?: string | null;
   storageId?: StorageId | null;
   style?: React.CSSProperties;
+  /**
+   * D1：自定义 storageId → URL 解析器。默认走 plants.getPlantImageUrl 以保证
+   * 植物图片调用方零回归；头像等其他场景可注入自己的解析回调。
+   */
+  fetchUrl?: (storageId: StorageId) => Promise<{ imageUrl: string | null }>;
 }
 
 export function StorageImage({
@@ -18,8 +23,17 @@ export function StorageImage({
   initialUrl = null,
   storageId = null,
   style,
+  fetchUrl,
 }: StorageImageProps) {
   const convex = useConvex();
+
+  const resolveUrl = useCallback(
+    (id: StorageId) =>
+      fetchUrl
+        ? fetchUrl(id)
+        : convex.query(api.plants.getPlantImageUrl, { storageId: id as never }),
+    [convex, fetchUrl],
+  );
   const [imageUrl, setImageUrl] = useState<string | null>(initialUrl);
   const [hasFailed, setHasFailed] = useState(false);
   const [hasRetried, setHasRetried] = useState(false);
@@ -37,10 +51,7 @@ export function StorageImage({
 
     let isCancelled = false;
 
-    void convex
-      .query(api.plants.getPlantImageUrl, {
-        storageId: storageId as never,
-      })
+    void resolveUrl(storageId)
       .then((result) => {
         if (isCancelled) {
           return;
@@ -62,7 +73,7 @@ export function StorageImage({
     return () => {
       isCancelled = true;
     };
-  }, [convex, hasRetried, imageUrl, storageId]);
+  }, [hasRetried, imageUrl, resolveUrl, storageId]);
 
   async function handleImageError() {
     if (!storageId || hasRetried) {
@@ -71,9 +82,7 @@ export function StorageImage({
     }
 
     try {
-      const result = await convex.query(api.plants.getPlantImageUrl, {
-        storageId: storageId as never,
-      });
+      const result = await resolveUrl(storageId);
       setImageUrl(result.imageUrl);
       setHasRetried(true);
       setHasFailed(false);

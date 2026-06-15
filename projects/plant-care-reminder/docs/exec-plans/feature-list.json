@@ -120,7 +120,7 @@
       "prd": "docs/product-specs/2026-06-15-settings-page-v0.3-iteration-spec.md",
       "task_breakdown": "docs/product-specs/2026-06-15-settings-page-v0.3-task-breakdown.md",
 "task_count": 16,
-"completed": 8,
+"completed": 9,
 "depends_on": [
 "family-access",
 "plant-registry",
@@ -747,10 +747,10 @@
       "priority": "1-High"
     },
     {
-      "task_id": "SET3-009",
-      "module": "settings-page-v0.3",
-      "description": "StorageImage 参数化（D1，默认走植物不回归）+ MemberAvatar 扩展 imageStorageId（圆形真实头像，无值回退首字母色块）。",
-      "status": "pending",
+"task_id": "SET3-009",
+"module": "settings-page-v0.3",
+"description": "StorageImage 参数化（D1，默认走植物不回归）+ MemberAvatar 扩展 imageStorageId（圆形真实头像，无值回退首字母色块）。",
+"status": "completed",
       "priority": "1-High"
     },
     {

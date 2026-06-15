@@ -157,3 +157,4 @@
   - 验证：tsc -b 通过；convex 函数编译部署成功；smoke 35/35
   - 下一步：SET3-008（头像上传交互 AvatarUploadField 前端）
 [2026-06-15 14:39] SET3-008 DONE — AvatarUploadField.tsx 新建（圆形预览 + 上传中/已保存/错误三态，注入 generateAvatarUploadUrl/getAvatarUrl/updateMyAvatar，复用 normalizeImageFile + uploadPlantImage，失败保留原头像）；FamilySettingsPage 在「个人信息」组首项渲染。验证：typecheck PASS，smoke 35/35 PASS。module/feature-list completed=8/16。
+[2026-06-15 14:42] SET3-009 DONE — StorageImage 参数化（新增可选 fetchUrl，默认 plants.getPlantImageUrl 零回归，resolveUrl 用 useCallback 稳定依赖）；MemberAvatar 新增可选 imageStorageId（有值注入 users.getAvatarUrl 渲染 36×36 圆形真实头像，无值/失败回退首字母色块）；MembersList 透传 imageStorageId。验证：typecheck PASS，smoke 35/35 PASS。completed=9/16。

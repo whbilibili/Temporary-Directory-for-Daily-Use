@@ -192,7 +192,7 @@
       "task_id": "SET3-009",
       "description": "StorageImage 参数化（D1）+ MemberAvatar 改造：StorageImage 新增可选 prop（如 fetchUrl?:(storageId)=>Promise<{imageUrl}>），默认仍走 api.plants.getPlantImageUrl 不回归现有植物调用方，头像场景注入 getAvatarUrl；MemberAvatar 新增可选 imageStorageId，有值用参数化 StorageImage(注入 getAvatarUrl)渲染圆形真实头像，无值/解码失败回退现有首字母色块（保留同人 hash 取色 fallback），尺寸与色块一致(36×36)不抖动。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {"schema": {"tables_or_collections": ["users"], "key_fields": {"users": "imageStorageId"}, "indexes": [], "relations": "MemberAvatar 据 imageStorageId 取 URL 渲染。", "notes": "前端组件改造。"}, "queries": {"read": "getAvatarUrl(storageId)（注入）", "write": "N/A"}, "migration_strategy": "No schema change."},

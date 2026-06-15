@@ -12,6 +12,7 @@ interface MemberSummary {
   displayName: string | null;
   email: string | null;
   id: string;
+  imageStorageId?: string | null;
   isCreator: boolean;
   isCurrentUser: boolean;
   joinedAt: number;
@@ -60,7 +61,10 @@ export function MembersList({ members, isAdmin }: MembersListProps) {
 
         return (
           <article key={member.id} style={memberRowStyle}>
-            <MemberAvatar name={member.displayName ?? member.email} />
+            <MemberAvatar
+              name={member.displayName ?? member.email}
+              imageStorageId={member.imageStorageId ?? null}
+            />
             <div style={identityStyle}>
               <div style={nameLineStyle}>
                 <span style={nameStyle}>{label}</span>

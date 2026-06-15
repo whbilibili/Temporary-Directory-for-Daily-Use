@@ -1,4 +1,9 @@
+import { useConvex } from "convex/react";
 import type { CSSProperties } from "react";
+
+import { api } from "../../../convex/_generated/api";
+import { StorageImage } from "../../components/ui/StorageImage";
+import type { StorageId } from "../../types/domain";
 
 /** 头像底色池：同人按 displayName hash 取模轮换，保证颜色稳定。 */
 const AVATAR_COLORS = [
@@ -30,31 +35,55 @@ function getInitial(name: string): string {
 interface MemberAvatarProps {
   /** 成员显示名；为空/空白时兜底 👤。 */
   name: string | null | undefined;
+  /** 用户头像 storageId（SET3-009）；有值时渲染真实头像，无值回退首字母色块。 */
+  imageStorageId?: StorageId | null;
 }
 
 /**
- * 成员头像（SET2-010）：36×36 圆形首字头像。
- * 底色按 displayName hash 取模从色池轮换，保证同人颜色稳定；
- * 无名兜底 👤 + --color-muted。纯装饰，aria-hidden。
+ * 成员头像（SET2-010 / SET3-009）：36×36 圆形头像。
+ * 有 imageStorageId 时渲染真实头像（注入 users.getAvatarUrl 解析），
+ * 加载失败或无值时回退到首字头像：底色按 displayName hash 取模从色池轮换，
+ * 保证同人颜色稳定；无名兜底 👤 + --color-muted。纯装饰，aria-hidden。
  */
-export function MemberAvatar({ name }: MemberAvatarProps) {
+export function MemberAvatar({ name, imageStorageId = null }: MemberAvatarProps) {
+  const convex = useConvex();
   const trimmed = name?.trim() ?? "";
   const initial = getInitial(trimmed);
 
-  if (initial.length === 0) {
-    return (
+  const fallback =
+    initial.length === 0 ? (
       <span aria-hidden="true" style={{ ...avatarStyle, ...fallbackStyle }}>
         👤
       </span>
+    ) : (
+      <span
+        aria-hidden="true"
+        style={{
+          ...avatarStyle,
+          background: AVATAR_COLORS[hashString(trimmed) % AVATAR_COLORS.length],
+        }}
+      >
+        {initial}
+      </span>
     );
+
+  if (!imageStorageId) {
+    return fallback;
   }
 
-  const color = AVATAR_COLORS[hashString(trimmed) % AVATAR_COLORS.length];
-
   return (
-    <span aria-hidden="true" style={{ ...avatarStyle, background: color }}>
-      {initial}
-    </span>
+    <StorageImage
+      alt=""
+      fallback={fallback}
+      storageId={imageStorageId}
+      style={imageStyle}
+      fetchUrl={async (id) => {
+        const { url } = await convex.query(api.users.getAvatarUrl, {
+          storageId: id as never,
+        });
+        return { imageUrl: url };
+      }}
+    />
   );
 }
 
@@ -71,6 +100,15 @@ const avatarStyle: CSSProperties = {
   fontWeight: 700,
   lineHeight: 1,
   userSelect: "none",
+};
+
+const imageStyle: CSSProperties = {
+  flex: "none",
+  width: "36px",
+  height: "36px",
+  borderRadius: "var(--radius-pill)",
+  objectFit: "cover",
+  display: "block",
 };
 
 const fallbackStyle: CSSProperties = {
