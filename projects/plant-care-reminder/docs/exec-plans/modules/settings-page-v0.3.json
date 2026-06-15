@@ -268,7 +268,7 @@
       "task_id": "SET3-013",
       "description": "复制邀请链接 + 邀请落地页：(1)InviteCodeCard 在复制邀请码旁新增复制邀请链接，拼接 origin/join/{inviteCode}，沿用 clipboard 复制 + 长按兜底 + 已复制反馈；(2)新增 JoinLandingPage 渲染 /join/:code 轻量落地页引导未登录去登录/注册（真正加入由 SET3-012 在 onboarding 末端完成）；(3)已登录已有家庭访问落地页不重复加入、明确提示(D3：你已在『{当前家庭名}』中，每位用户同一时间只能属一个家庭)+返回入口；(4)无效/失效码友好兜底不白屏。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {"schema": {"tables_or_collections": ["families"], "key_fields": {"families": "inviteCode, name"}, "indexes": ["families.by_inviteCode"], "relations": "落地页据码可选展示家庭名；已有家庭兜底读 currentUserContext。", "notes": "前端任务。"}, "queries": {"read": "getCurrentUserContext(判已有家庭)；可选据码查家庭名", "write": "N/A（加入在 SET3-012）"}, "migration_strategy": "No schema change."},

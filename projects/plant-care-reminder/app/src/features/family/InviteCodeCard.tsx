@@ -8,6 +8,16 @@ import { ConfirmSheet } from "../../components/ui/ConfirmSheet";
 import { SettingCardHeader } from "./SettingCardHeader";
 
 type CopyStatus = "idle" | "copied" | "fallback_open";
+type LinkCopyStatus = "idle" | "copied";
+
+/** 据邀请码拼接可分享的邀请链接：origin/join/{inviteCode}。 */
+function buildInviteLink(inviteCode: string): string {
+  const origin =
+    typeof window !== "undefined" && window.location?.origin
+      ? window.location.origin
+      : "";
+  return `${origin}/join/${encodeURIComponent(inviteCode)}`;
+}
 
 interface InviteCodeCardProps {
   inviteCode: string;
@@ -23,16 +33,21 @@ interface InviteCodeCardProps {
 export function InviteCodeCard({ inviteCode, isAdmin }: InviteCodeCardProps) {
   const resetInviteCode = useMutation(api.families.resetInviteCode);
   const [copyStatus, setCopyStatus] = useState<CopyStatus>("idle");
+  const [linkCopyStatus, setLinkCopyStatus] = useState<LinkCopyStatus>("idle");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   const [justReset, setJustReset] = useState(false);
   const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const linkCopyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const resetNoticeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     return () => {
       if (copyTimerRef.current !== null) {
         clearTimeout(copyTimerRef.current);
+      }
+      if (linkCopyTimerRef.current !== null) {
+        clearTimeout(linkCopyTimerRef.current);
       }
       if (resetNoticeTimerRef.current !== null) {
         clearTimeout(resetNoticeTimerRef.current);
@@ -49,6 +64,21 @@ export function InviteCodeCard({ inviteCode, isAdmin }: InviteCodeCardProps) {
         copyTimerRef.current = null;
       }, 1500);
     } catch {
+      setCopyStatus("fallback_open");
+    }
+  }, [inviteCode]);
+
+  const handleCopyLink = useCallback(async () => {
+    const link = buildInviteLink(inviteCode);
+    try {
+      await navigator.clipboard.writeText(link);
+      setLinkCopyStatus("copied");
+      linkCopyTimerRef.current = setTimeout(() => {
+        setLinkCopyStatus("idle");
+        linkCopyTimerRef.current = null;
+      }, 1500);
+    } catch {
+      // 复制失败兜底：复用邀请码的长按面板提示。
       setCopyStatus("fallback_open");
     }
   }, [inviteCode]);
@@ -74,6 +104,7 @@ export function InviteCodeCard({ inviteCode, isAdmin }: InviteCodeCardProps) {
     copyStatus === "copied"
       ? { ...copyButtonBaseStyle, background: "var(--color-success)", color: "var(--color-surface)" }
       : copyButtonBaseStyle;
+  const linkButtonLabel = linkCopyStatus === "copied" ? "链接已复制" : "复制邀请链接";
 
   return (
     <section style={cardStyle}>
@@ -96,6 +127,19 @@ export function InviteCodeCard({ inviteCode, isAdmin }: InviteCodeCardProps) {
           {copyButtonLabel}
         </Button>
       </div>
+
+      <button
+        aria-label="复制邀请链接"
+        onClick={() => void handleCopyLink()}
+        style={
+          linkCopyStatus === "copied"
+            ? { ...copyLinkButtonStyle, color: "var(--color-success)", borderColor: "var(--color-success)" }
+            : copyLinkButtonStyle
+        }
+        type="button"
+      >
+        🔗 {linkButtonLabel}
+      </button>
 
       {/* 重置成功后用 aria-live 通知新码已生成，提示重新分享。 */}
       <p aria-live="polite" style={srOnlyOrNoticeStyle(justReset)}>
@@ -206,6 +250,20 @@ const copyButtonBaseStyle: CSSProperties = {
   borderRadius: "var(--radius-button)",
   fontSize: "14px",
   fontWeight: 600,
+};
+
+const copyLinkButtonStyle: CSSProperties = {
+  justifySelf: "start",
+  appearance: "none",
+  minHeight: "44px",
+  padding: "0 var(--space-md)",
+  borderRadius: "var(--radius-button)",
+  background: "transparent",
+  border: "1px solid var(--color-line)",
+  color: "var(--color-leaf)",
+  fontSize: "14px",
+  fontWeight: 600,
+  cursor: "pointer",
 };
 
 const resetLinkStyle: CSSProperties = {

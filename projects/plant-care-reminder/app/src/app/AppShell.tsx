@@ -4,6 +4,7 @@ import { CreateFamilyPage } from "../features/family/CreateFamilyPage";
 import { FamilyOnboardingChoicePage } from "../features/family/FamilyOnboardingChoicePage";
 import { FamilySettingsPage } from "../features/family/FamilySettingsPage";
 import { JoinFamilyPage } from "../features/family/JoinFamilyPage";
+import { JoinLandingPage } from "../features/family/JoinLandingPage";
 import { CreatePlantPage } from "../features/plants/CreatePlantPage";
 import { EditPlantPage } from "../features/plants/EditPlantPage";
 import { PlantDetailPage } from "../features/plants/PlantDetailPage";
@@ -42,6 +43,12 @@ export function AppShell({ pathname, routeContext, routeParams }: AppShellProps)
           ) : null}
           {pathname === "/onboarding/join-family" ? (
             <JoinFamilyPage />
+          ) : null}
+          {pathname === "/join" ? (
+            <JoinLandingPage
+              inviteCode={routeParams?.inviteCode ?? null}
+              routeContext={routeContext}
+            />
           ) : null}
           {pathname === "/plants" ? (
             <PlantListPage />

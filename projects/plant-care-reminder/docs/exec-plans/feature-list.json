@@ -120,7 +120,7 @@
       "prd": "docs/product-specs/2026-06-15-settings-page-v0.3-iteration-spec.md",
       "task_breakdown": "docs/product-specs/2026-06-15-settings-page-v0.3-task-breakdown.md",
 "task_count": 16,
-"completed": 11,
+"completed": 12,
 "depends_on": [
 "family-access",
 "plant-registry",
@@ -778,7 +778,7 @@
       "task_id": "SET3-013",
       "module": "settings-page-v0.3",
       "description": "复制邀请链接（origin/join/{code}）+ 邀请落地页 JoinLandingPage（botanical 基调，引导登录），已有家庭兜底提示（D3），无效码不白屏。",
-      "status": "pending",
+      "status": "completed",
       "priority": "1-High"
     },
     {

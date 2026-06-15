@@ -27,6 +27,12 @@ function getTargetPath(
   const isProtectedPath =
     pathname.startsWith("/plants") || pathname === "/todo" || pathname === "/settings";
 
+  // 邀请落地页 /join/:code 公开可达：自身据登录态/家庭状态引导（SET3-013），
+  // 未登录暂存邀请码后再去登录的编排由 SET3-012 在落地页内完成。这里直接放行。
+  if (pathname === "/join") {
+    return null;
+  }
+
   if (!isAuthenticated) {
     return pathname === "/login" ? null : "/login";
   }
