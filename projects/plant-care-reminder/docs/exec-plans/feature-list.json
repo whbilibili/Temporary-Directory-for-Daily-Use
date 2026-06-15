@@ -120,7 +120,7 @@
       "prd": "docs/product-specs/2026-06-15-settings-page-v0.3-iteration-spec.md",
       "task_breakdown": "docs/product-specs/2026-06-15-settings-page-v0.3-task-breakdown.md",
 "task_count": 16,
-"completed": 13,
+"completed": 14,
 "depends_on": [
 "family-access",
 "plant-registry",
@@ -785,7 +785,7 @@
       "task_id": "SET3-014",
       "module": "settings-page-v0.3",
       "description": "邀请链接验证：复制链接可点、未登录全链路自动加入不手输码、已有家庭拦截提示、无效码兜底、暂存跨多跳存活、放弃不残留。",
-      "status": "pending",
+      "status": "completed",
       "priority": "1-High"
     },
     {

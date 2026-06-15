@@ -162,3 +162,10 @@
 [2026-06-15 14:45] SET3-011 DONE — 路由扩展 /join/:code（D2）：AppPath 增 /join；AppRoute.params 增 inviteCode?；normalizePath 新增 ^/join/([^/]+)$ 动态段解析（decodeURIComponent）；路径段方案非 query。验证：typecheck PASS，smoke 35/35 PASS（/join 用例待 SET3-014 补）。completed=11/16。
 [2026-06-15 14:51] SET3-013 完成：复制邀请链接 + 邀请落地页。InviteCodeCard 在复制邀请码旁新增「🔗复制邀请链接」按钮（拼接 origin/join/{code}，复用 clipboard+长按兜底+已复制反馈）；新增 JoinLandingPage.tsx 渲染 /join/:code 四分支落地（无效码友好兜底/未登录引导登录注册/已登录无家庭引导带码加入/已登录已有家庭 D3 不重复加入提示家庭名）；AppShell 挂载 /join→JoinLandingPage；RouteGate 已放行 /join 公开可达。验证：tsc -b 0 err、vitest 35/35、convex --once 0 err、JSON 校验 OK。模块进度 11→12/16。
 [2026-06-15 14:55] SET3-012 完成：跨多跳暂存邀请码 + onboarding 自动加入。新增 usePendingInvite.ts（sessionStorage 键 pendingInviteCode，关标签页即清，隐私模式降级容错）；JoinLandingPage 在「带有效码且未加入家庭」时暂存码、已登录无家庭分支改跳 /onboarding 触发自动加入；FamilyOnboardingChoicePage 检测暂存码→进入「加入中」过渡态→自动 joinFamilyByInviteCode→成功清除暂存跳 /todo，失败清除暂存+回落二选一页友好提示（useRef 防 StrictMode 重复触发）。验证：tsc -b 0 err、vitest 35/35、convex --once 0 err、JSON OK。模块进度 12→13/16。
+
+[2026-06-15 15:00] SET3-014 DONE — 邀请链接 E2E 验证 + /join smoke 用例
+  - 新增 describe("Invite link landing (/join/:code)") 5 个用例：normalizePath 解码、未登录引导登录、已登录无家庭引导 onboarding 自动加入(校验暂存码)、已有家庭 D3 友好提示(不暂存)、无效码兜底不白屏
+  - 修正 routeParams inviteCode:null 类型错误 → 省略字段
+  - 验证三件套：tsc 0 err / vitest 40 passed(35→40) / convex 0 err
+  - 状态：module json SET3-014→completed；feature-list.json SET3-014→completed，settings-page-v0.3 completed 13→14
+  - commit 待提交

@@ -1428,3 +1428,142 @@ describe("AppShell smoke coverage", () => {
     await waitFor(() => expect(window.location.pathname).toBe("/plants"));
   });
 });
+
+describe("Invite link landing (/join/:code)", () => {
+  it("normalizes /join/:code into the /join route with the decoded invite code", () => {
+    expect(normalizePath("/join/ABCD12")).toEqual({
+      pathname: "/join",
+      params: {
+        inviteCode: "ABCD12",
+      },
+    });
+    expect(normalizePath("/join/ab%20cd")).toEqual({
+      pathname: "/join",
+      params: {
+        inviteCode: "ab cd",
+      },
+    });
+  });
+
+  it("renders the landing page for an anonymous visitor without redirecting away", async () => {
+    renderWithProviders(
+      <AppShell
+        pathname="/join"
+        routeContext={{
+          userId: null,
+          familyId: null,
+          displayName: null,
+        }}
+        routeParams={{
+          inviteCode: "ABCD12",
+        }}
+      />,
+      {
+        route: "/join/ABCD12",
+      },
+    );
+
+    expect(window.location.pathname).toBe("/join/ABCD12");
+    expect(
+      screen.getByRole("heading", { name: /登录后加入家庭/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/邀请码：ABCD12/)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /登录 \/ 注册/i }));
+    await waitFor(() => expect(window.location.pathname).toBe("/login"));
+  });
+
+  it("guides an authenticated visitor without a family into the onboarding auto-join", async () => {
+    renderWithProviders(
+      <AppShell
+        pathname="/join"
+        routeContext={{
+          userId: "user_1",
+          familyId: null,
+          displayName: "Wang",
+        }}
+        routeParams={{
+          inviteCode: "ABCD12",
+        }}
+      />,
+      {
+        route: "/join/ABCD12",
+      },
+    );
+
+    expect(window.location.pathname).toBe("/join/ABCD12");
+    expect(
+      screen.getByRole("heading", { name: /加入家人的植物看板/i }),
+    ).toBeInTheDocument();
+    expect(window.sessionStorage.getItem("pendingInviteCode")).toBe("ABCD12");
+
+    fireEvent.click(screen.getByRole("button", { name: /用邀请码加入/i }));
+    await waitFor(() => expect(window.location.pathname).toBe("/onboarding"));
+  });
+
+  it("shows the D3 friendly notice for a visitor that already belongs to a family", () => {
+    renderWithProviders(
+      <AppShell
+        pathname="/join"
+        routeContext={{
+          userId: "user_1",
+          familyId: "family_1",
+          displayName: "Wang",
+        }}
+        routeParams={{
+          inviteCode: "ABCD12",
+        }}
+      />,
+      {
+        route: "/join/ABCD12",
+        queryResult: {
+          familyName: "向阳花房",
+          inviteCode: "ZZZ999",
+          memberCount: 2,
+          members: [],
+          createdBy: "user_1",
+          currentUserId: "user_1",
+          currentUserRole: "admin",
+        },
+      },
+    );
+
+    expect(window.location.pathname).toBe("/join/ABCD12");
+    expect(
+      screen.getByRole("heading", { name: /无需重复加入/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/你已经在「向阳花房」中啦/),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/每位成员同一时间只能属于一个家庭/),
+    ).toBeInTheDocument();
+    // D3 场景不应暂存邀请码，避免离开后误触发加入。
+    expect(window.sessionStorage.getItem("pendingInviteCode")).toBeNull();
+  });
+
+  it("falls back gracefully when the invite code is missing instead of going blank", async () => {
+    renderWithProviders(
+      <AppShell
+        pathname="/join"
+        routeContext={{
+          userId: null,
+          familyId: null,
+          displayName: null,
+        }}
+        routeParams={{}}
+      />,
+      {
+        route: "/join/",
+      },
+    );
+
+    expect(
+      screen.getByRole("heading", { name: /链接好像失效了/i }),
+    ).toBeInTheDocument();
+    expect(window.sessionStorage.getItem("pendingInviteCode")).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: /返回首页/i }));
+    await waitFor(() => expect(window.location.pathname).toBe("/"));
+  });
+});

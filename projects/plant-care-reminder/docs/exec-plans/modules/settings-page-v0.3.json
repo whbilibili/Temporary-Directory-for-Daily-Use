@@ -287,7 +287,7 @@
       "task_id": "SET3-014",
       "description": "邀请链接验证：复制链接为 origin/join/{code} 可点；未登录点链接→注册→填称呼→自动加入(不手输码)；已登录无家庭点链接直接加入；已登录已有家庭点链接被拦截友好提示(D3)；无效码不白屏；onboarding 多跳后暂存码存活；中途放弃不残留。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {"schema": {"tables_or_collections": ["familyMembers", "families"], "key_fields": {}, "indexes": [], "relations": "", "notes": "验证任务。"}, "queries": {"read": "N/A", "write": "N/A"}, "migration_strategy": "N/A"},
@@ -299,7 +299,7 @@
         "design_contract": {"ui_spec_ref": "PRD §4", "intent": "确认邀请链接全链路可用。", "tokens_new": [], "tokens_reuse": [], "visual_spec": {}, "accessibility": "N/A", "acceptance": "见 acceptance_criteria。"}
       },
       "verification": {"auto": "AppRouter.smoke.test + tsc --noEmit 通过", "data": "加入后 membership 仅 1 条", "visual": "落地页/已有家庭/无效码截图", "manual": "未登录全链路 + 已有家庭拦截 + 暂存存活/清除"},
-      "metadata": {"files_affected": [], "modules": ["settings-page-v0.3"], "layer": "qa", "epic": "E4 邀请链接"},
+      "metadata": {"files_affected": ["app/src/test/AppRouter.smoke.test.tsx (modify)"], "modules": ["settings-page-v0.3"], "layer": "qa", "epic": "E4 邀请链接"},
       "acceptance_criteria": ["复制链接 origin/join/{code} 可点且未登录全链路自动加入不手输码", "已登录无家庭直接加入、已有家庭被拦截友好提示(D3)", "无效码不白屏、暂存码跨多跳存活", "中途放弃不残留"]
     },
     {
