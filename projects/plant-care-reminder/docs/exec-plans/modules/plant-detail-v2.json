@@ -14,7 +14,7 @@
       "task_id": "PDETAIL2-001",
       "description": "顶部导航栏 + 溢出菜单：新增 DetailNavBar 组件（sticky 顶栏：返回按钮 + 植物名居中 + ⋯ 溢出菜单），新增 OverflowMenu 组件（编辑/归档/删除三项，含危险操作红色文字与二次确认）。替代原底部操作栏的「返回列表」和「编辑植物」按钮。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {
@@ -42,7 +42,10 @@
         },
         "component_tree": {
           "entry_component": "PlantDetailPage",
-          "children": ["DetailNavBar", "OverflowMenu"],
+          "children": [
+            "DetailNavBar",
+            "OverflowMenu"
+          ],
           "notes": "DetailNavBar 为新增组件，放在 src/features/plants/DetailNavBar.tsx。OverflowMenu 为新增组件，放在 src/features/plants/OverflowMenu.tsx。OverflowMenu 内部复用 ArchivePlantAction 的归档/恢复逻辑。"
         },
         "state_management": {
@@ -64,7 +67,22 @@
           "ui_spec_ref": "plant-detail-ui-spec §2",
           "intent": "轻量顶栏替代底部操作栏，释放内容空间；低频操作收纳进溢出菜单。",
           "tokens_new": [],
-          "tokens_reuse": ["--color-paper", "--color-ink", "--color-muted", "--color-leaf", "--color-surface", "--color-mist", "--color-line", "--color-error", "--radius-card", "--shadow-card-emphasis", "--space-md", "--space-sm", "--space-lg", "--space-xs"],
+          "tokens_reuse": [
+            "--color-paper",
+            "--color-ink",
+            "--color-muted",
+            "--color-leaf",
+            "--color-surface",
+            "--color-mist",
+            "--color-line",
+            "--color-error",
+            "--radius-card",
+            "--shadow-card-emphasis",
+            "--space-md",
+            "--space-sm",
+            "--space-lg",
+            "--space-xs"
+          ],
           "visual_spec": {
             "nav_bar": "高度 48px，sticky，背景 --color-paper，返回箭头 20px --color-leaf 热区 44×44，标题 15px/600 --color-ink 居中 max-width 60%，⋯ 图标 20px --color-muted 热区 44×44",
             "overflow_menu": "从右上角展开，背景 --color-surface，圆角 --radius-card，阴影 --shadow-card-emphasis，菜单项 44px 高 14px/500，删除项 --color-error，展开 150ms ease-out scale(0.95→1)+opacity，收起 100ms"
@@ -85,7 +103,9 @@
           "app/src/features/plants/OverflowMenu.tsx (new)",
           "app/src/features/plants/PlantDetailPage.tsx (modify)"
         ],
-        "modules": ["plant-detail-v2"],
+        "modules": [
+          "plant-detail-v2"
+        ],
         "layer": "ui"
       },
       "acceptance_criteria": [
@@ -100,12 +120,15 @@
       "task_id": "PDETAIL2-002",
       "description": "紧凑 Hero 区重构：将 PlantHeroCard 从 4:3 大封面图改为 48×48 圆角方形缩略图 + 右侧文字（名称 + 位置·状态摘要）的横向紧凑布局。状态摘要根据任务到期情况动态变色（逾期 warning / 今天 leaf-light / 正常 muted / 已归档 muted）。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {
           "schema": {
-            "tables_or_collections": ["plants", "plantTasks"],
+            "tables_or_collections": [
+              "plants",
+              "plantTasks"
+            ],
             "key_fields": {
               "plants": "name, imageUrl, location, isArchived, archivedAt",
               "plantTasks": "nextDueAt, lastCompletedAt"
@@ -122,7 +145,9 @@
         },
         "api_layer": {
           "type": "convex-query",
-          "endpoints": ["plants.getPlantDetail (existing)"],
+          "endpoints": [
+            "plants.getPlantDetail (existing)"
+          ],
           "notes": "无需新增 API。前端本地计算状态摘要。"
         },
         "component_tree": {
@@ -149,7 +174,19 @@
           "ui_spec_ref": "plant-detail-ui-spec §3",
           "intent": "释放首屏空间给任务操作区，1 秒内确认「我在看哪盆植物」。",
           "tokens_new": [],
-          "tokens_reuse": ["--color-surface", "--color-line", "--color-mist", "--color-ink", "--color-muted", "--color-warning", "--color-leaf-light", "--radius-card", "--space-md", "--font-heading", "--font-body"],
+          "tokens_reuse": [
+            "--color-surface",
+            "--color-line",
+            "--color-mist",
+            "--color-ink",
+            "--color-muted",
+            "--color-warning",
+            "--color-leaf-light",
+            "--radius-card",
+            "--space-md",
+            "--font-heading",
+            "--font-body"
+          ],
           "visual_spec": {
             "container": "flex row, align-items center, gap --space-md, padding --space-md, 背景 --color-surface, 圆角 --radius-card, 边框 1px --color-line",
             "thumbnail": "48×48px, border-radius 12px, 1px border --color-line, object-fit cover, 无图时 --color-mist 背景 + 🪴 24px emoji 居中",
@@ -171,7 +208,9 @@
           "app/src/features/plants/PlantHeroCard.tsx (rewrite)",
           "app/src/features/plants/PlantDetailPage.tsx (modify)"
         ],
-        "modules": ["plant-detail-v2"],
+        "modules": [
+          "plant-detail-v2"
+        ],
         "layer": "ui"
       },
       "acceptance_criteria": [
@@ -186,12 +225,14 @@
       "task_id": "PDETAIL2-003",
       "description": "需要处理区（核心操作区）：新增 ActionableTaskSection 组件，从 tasks 中筛选逾期+今天到期且未完成的任务，渲染为高亮紧凑行（左色条 + emoji + 标签 + 到期状态 + 圆形完成按钮）。含区域标题（⚠️ 需要处理(N)）和左侧 3px 装饰色条。无到期任务时整区不渲染。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {
           "schema": {
-            "tables_or_collections": ["plantTasks"],
+            "tables_or_collections": [
+              "plantTasks"
+            ],
             "key_fields": {
               "plantTasks": "taskType, customLabel, intervalDays, nextDueAt, lastCompletedAt"
             },
@@ -207,12 +248,16 @@
         },
         "api_layer": {
           "type": "convex-query",
-          "endpoints": ["plants.getPlantDetail (existing)"],
+          "endpoints": [
+            "plants.getPlantDetail (existing)"
+          ],
           "notes": "无需新增 API。前端分桶逻辑复用 scheduling.ts。"
         },
         "component_tree": {
           "entry_component": "ActionableTaskSection",
-          "children": ["ActionableTaskRow"],
+          "children": [
+            "ActionableTaskRow"
+          ],
           "notes": "ActionableTaskSection 放在 src/features/tasks/ActionableTaskSection.tsx（新增）。ActionableTaskRow 放在 src/features/tasks/ActionableTaskRow.tsx（新增）。ActionableTaskRow 内含圆形完成按钮（复用 CompleteTaskButton 的 mutation 逻辑，但 UI 重新设计为 36×36 圆形）。"
         },
         "state_management": {
@@ -234,7 +279,26 @@
           "ui_spec_ref": "plant-detail-ui-spec §4",
           "intent": "将到期/逾期任务从普通列表中提取出来形成独立高亮操作区，用户一眼看到「现在该做什么」。",
           "tokens_new": [],
-          "tokens_reuse": ["--color-surface", "--color-line", "--color-warning", "--color-leaf-light", "--color-ink", "--color-muted", "--color-mist", "--color-success", "--color-task-watering", "--color-task-fertilizing", "--color-task-misting", "--color-task-repotting", "--color-task-pruning", "--color-task-custom", "--radius-card", "--radius-pill", "--space-md", "--space-sm"],
+          "tokens_reuse": [
+            "--color-surface",
+            "--color-line",
+            "--color-warning",
+            "--color-leaf-light",
+            "--color-ink",
+            "--color-muted",
+            "--color-mist",
+            "--color-success",
+            "--color-task-watering",
+            "--color-task-fertilizing",
+            "--color-task-misting",
+            "--color-task-repotting",
+            "--color-task-pruning",
+            "--color-task-custom",
+            "--radius-card",
+            "--radius-pill",
+            "--space-md",
+            "--space-sm"
+          ],
           "visual_spec": {
             "container": "背景 --color-surface, 圆角 --radius-card, 边框 1px --color-line, 内边距 --space-md, 左侧 3px 装饰色条（逾期时 --color-warning，仅今天时 --color-leaf-light）",
             "section_title": "12px/700 uppercase letter-spacing 0.08em，颜色与色条同色，格式 ⚠️ 需要处理（N）",
@@ -257,7 +321,9 @@
           "app/src/features/tasks/ActionableTaskRow.tsx (new)",
           "app/src/features/plants/PlantDetailPage.tsx (modify)"
         ],
-        "modules": ["plant-detail-v2"],
+        "modules": [
+          "plant-detail-v2"
+        ],
         "layer": "ui"
       },
       "acceptance_criteria": [
@@ -273,12 +339,14 @@
       "task_id": "PDETAIL2-004",
       "description": "任务完成交互与动效：在 ActionableTaskRow 中实现完成流程——点击圆形按钮 → 按钮变绿+emoji上浮+震动 → 行折叠退场动画(300ms) → 弹出 UndoToast（显示下次到期时间，5秒可撤销）。全部完成后整个需要处理区折叠消失，Hero 状态摘要实时更新。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {
           "schema": {
-            "tables_or_collections": ["plantTasks"],
+            "tables_or_collections": [
+              "plantTasks"
+            ],
             "key_fields": {
               "plantTasks": "lastCompletedAt, nextDueAt, intervalDays"
             },
@@ -302,7 +370,9 @@
         },
         "component_tree": {
           "entry_component": "ActionableTaskRow",
-          "children": ["UndoToast"],
+          "children": [
+            "UndoToast"
+          ],
           "notes": "复用现有 UndoToast 组件（src/features/tasks/UndoToast.tsx），但文案格式调整为「{emoji} {任务标签}已完成，下次 M月D日」。完成动效在 ActionableTaskRow 内部用 CSS animation + triggerHaptic() 实现。"
         },
         "state_management": {
@@ -324,7 +394,10 @@
           "ui_spec_ref": "plant-detail-ui-spec §4.4 + iteration-spec §5.1",
           "intent": "把「打勾」变成小确幸——每次完成都有微动效+震动+告知下次时间，形成正反馈闭环。",
           "tokens_new": [],
-          "tokens_reuse": ["--color-success", "--color-surface"],
+          "tokens_reuse": [
+            "--color-success",
+            "--color-surface"
+          ],
           "visual_spec": {
             "button_done": "背景 --color-success + ✓ 白色 + emoji 上浮（复用 complete-fx-rise keyframe）",
             "row_exit": "100ms opacity→0，然后 200ms height→0+padding→0（折叠），总计 300ms",
@@ -347,7 +420,9 @@
           "app/src/features/tasks/UndoToast.tsx (modify - 文案格式适配)",
           "app/src/features/plants/PlantDetailPage.tsx (modify)"
         ],
-        "modules": ["plant-detail-v2"],
+        "modules": [
+          "plant-detail-v2"
+        ],
         "layer": "fullstack"
       },
       "acceptance_criteria": [
@@ -366,12 +441,14 @@
       "task_id": "PDETAIL2-005",
       "description": "养护计划区：新增 PlanSection 组件，展示该植物所有任务的下次时间总览（信息模式行：emoji + 标签 + 每N天 + 下次时间 + 右箭头）。区域标题含计数和「+ 添加」按钮。任务行可点击进入编辑页。空状态引导用户添加养护计划。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {
           "schema": {
-            "tables_or_collections": ["plantTasks"],
+            "tables_or_collections": [
+              "plantTasks"
+            ],
             "key_fields": {
               "plantTasks": "taskType, customLabel, intervalDays, nextDueAt"
             },
@@ -387,12 +464,16 @@
         },
         "api_layer": {
           "type": "convex-query",
-          "endpoints": ["plants.getPlantDetail (existing)"],
+          "endpoints": [
+            "plants.getPlantDetail (existing)"
+          ],
           "notes": "无需新增 API。"
         },
         "component_tree": {
           "entry_component": "PlanSection",
-          "children": ["PlanTaskRow"],
+          "children": [
+            "PlanTaskRow"
+          ],
           "notes": "PlanSection 放在 src/features/tasks/PlanSection.tsx（新增）。PlanTaskRow 放在 src/features/tasks/PlanTaskRow.tsx（新增）。点击行跳转到 /plants/:plantId/tasks/:taskId/edit。"
         },
         "state_management": {
@@ -414,7 +495,21 @@
           "ui_spec_ref": "plant-detail-ui-spec §5",
           "intent": "让用户对这盆植物的养护安排心里有数，知道接下来什么时候需要做什么。",
           "tokens_new": [],
-          "tokens_reuse": ["--color-surface", "--color-line", "--color-leaf-light", "--color-leaf", "--color-ink", "--color-muted", "--color-warning", "--color-mist", "--color-gold", "--radius-card", "--radius-button", "--space-md", "--space-sm"],
+          "tokens_reuse": [
+            "--color-surface",
+            "--color-line",
+            "--color-leaf-light",
+            "--color-leaf",
+            "--color-ink",
+            "--color-muted",
+            "--color-warning",
+            "--color-mist",
+            "--color-gold",
+            "--radius-card",
+            "--radius-button",
+            "--space-md",
+            "--space-sm"
+          ],
           "visual_spec": {
             "container": "背景 --color-surface, 圆角 --radius-card, 边框 1px --color-line, 内边距 --space-md",
             "section_title": "flex between，左侧 12px/700 uppercase --color-leaf-light + 📋 + (N)，右侧「+ 添加」13px/500 --color-leaf 热区 44×44",
@@ -435,7 +530,9 @@
           "app/src/features/tasks/PlanSection.tsx",
           "app/src/features/tasks/PlanTaskRow.tsx"
         ],
-        "modules": ["plant-detail-v2"],
+        "modules": [
+          "plant-detail-v2"
+        ],
         "layer": "ui",
         "source_issue_id": null
       },
@@ -452,7 +549,7 @@
       "task_id": "PDETAIL2-006",
       "description": "植物档案折叠区：可折叠的描述/备注/时间信息区域，默认收起，折叠状态持久化到 localStorage，展开/收起有 grid-template-rows 动效。",
       "priority": "2-Medium",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {
@@ -498,7 +595,14 @@
           "ui_spec_ref": "plant-detail-ui-spec §6",
           "intent": "低频信息折叠收纳，不抢占操作区空间，需要时展开查看。",
           "tokens_new": [],
-          "tokens_reuse": ["--color-surface", "--color-line", "--radius-card", "--color-muted", "--color-leaf-light", "--space-md"],
+          "tokens_reuse": [
+            "--color-surface",
+            "--color-line",
+            "--radius-card",
+            "--color-muted",
+            "--color-leaf-light",
+            "--space-md"
+          ],
           "visual_spec": {
             "trigger": "整行可点击，44px 高，📝 植物档案 + ▾/▴ 箭头",
             "container": "展开后 --color-surface 背景 + --radius-card 圆角 + 1px --color-line 边框",
@@ -519,7 +623,9 @@
         "files_affected": [
           "app/src/features/plants/PlantArchiveSection.tsx"
         ],
-        "modules": ["plant-detail-v2"],
+        "modules": [
+          "plant-detail-v2"
+        ],
         "layer": "ui",
         "source_issue_id": null
       },
@@ -537,7 +643,7 @@
       "task_id": "PDETAIL2-007",
       "description": "悬浮添加按钮（FAB）+ 全屏图片预览：右下角 pill 形悬浮按钮（--color-gold 背景）跳转创建任务页；Hero 缩略图点击触发全屏 overlay 预览（带遮罩 + 关闭按钮 + scale 动效）。",
       "priority": "2-Medium",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {
@@ -586,7 +692,13 @@
           "ui_spec_ref": "plant-detail-ui-spec §7 + §8",
           "intent": "FAB 提供随时可达的添加入口；图片预览满足用户查看大图的需求。",
           "tokens_new": [],
-          "tokens_reuse": ["--color-gold", "--color-gold-hover", "--color-ink", "--radius-pill", "--shadow-card-emphasis"],
+          "tokens_reuse": [
+            "--color-gold",
+            "--color-gold-hover",
+            "--color-ink",
+            "--radius-pill",
+            "--shadow-card-emphasis"
+          ],
           "visual_spec": {
             "fab": "fixed 右下角，pill 形，12px 20px 内边距，--color-gold 背景，--color-ink 14px/600 文字，+ 添加养护，z-index 30，hover scale(0.96) 100ms",
             "fab_position": "right: var(--space-md); bottom: calc(56px + env(safe-area-inset-bottom) + var(--space-md))",
@@ -609,7 +721,9 @@
           "app/src/features/plants/FloatingAddButton.tsx",
           "app/src/features/plants/ImagePreviewOverlay.tsx"
         ],
-        "modules": ["plant-detail-v2"],
+        "modules": [
+          "plant-detail-v2"
+        ],
         "layer": "ui",
         "source_issue_id": null
       },
@@ -628,12 +742,15 @@
       "task_id": "PDETAIL2-008",
       "description": "页面整体组装与布局重构：重写 PlantDetailPage.tsx，按 L0-L4 五层信息架构组装所有子组件，实现区域间距规则、页面进入动效（fade-in + translateY）、加载态/错误态/归档态的条件渲染，废弃旧 TaskSection + TaskListItem。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {
           "schema": {
-            "tables_or_collections": ["plants", "plantTasks"],
+            "tables_or_collections": [
+              "plants",
+              "plantTasks"
+            ],
             "key_fields": {},
             "indexes": [],
             "relations": "消费 getPlantDetail 返回的 plant + tasks 完整数据。",
@@ -647,7 +764,9 @@
         },
         "api_layer": {
           "type": "convex-query",
-          "endpoints": ["plants.getPlantDetail"],
+          "endpoints": [
+            "plants.getPlantDetail"
+          ],
           "notes": "复用已有 query，无需修改后端。前端负责分桶逻辑（actionable vs all tasks）。"
         },
         "component_tree": {
@@ -682,7 +801,12 @@
           "ui_spec_ref": "plant-detail-ui-spec §1 + §9 + §12",
           "intent": "五层信息架构组装，区域间距精确控制，页面进入动效，响应式适配。",
           "tokens_new": [],
-          "tokens_reuse": ["--color-paper", "--color-line", "--space-md", "--space-lg"],
+          "tokens_reuse": [
+            "--color-paper",
+            "--color-line",
+            "--space-md",
+            "--space-lg"
+          ],
           "visual_spec": {
             "page_background": "--color-paper",
             "spacing_hero_to_action": "--space-md（16px）",
@@ -712,7 +836,9 @@
         "files_affected": [
           "app/src/features/plants/PlantDetailPage.tsx"
         ],
-        "modules": ["plant-detail-v2"],
+        "modules": [
+          "plant-detail-v2"
+        ],
         "layer": "fullstack",
         "source_issue_id": null
       },
@@ -733,7 +859,7 @@
       "task_id": "PDETAIL2-009",
       "description": "无障碍与跨页面一致性验收：为所有交互元素补齐 aria 属性（aria-label/aria-expanded/role），确保色彩对比度 ≥ 4.5:1，验证与待办页/列表页的视觉一致性（容器样式/完成按钮/动效节制），清理废弃文件引用。",
       "priority": "2-Medium",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {
@@ -833,7 +959,9 @@
           "app/src/features/tasks/PlanSection.tsx",
           "app/src/features/tasks/PlanTaskRow.tsx"
         ],
-        "modules": ["plant-detail-v2"],
+        "modules": [
+          "plant-detail-v2"
+        ],
         "layer": "ui",
         "source_issue_id": null
       },

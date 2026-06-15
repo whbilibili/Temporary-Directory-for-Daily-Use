@@ -826,16 +826,23 @@ describe("AppShell smoke coverage", () => {
 
     await waitFor(() => expect(window.location.pathname).toBe("/plants/plant_1"));
     expect(screen.getByRole("heading", { name: /monstera deliciosa/i })).toBeInTheDocument();
+    // 备注在「植物档案」折叠区内，DOM 始终渲染（CSS 折叠）。
     expect(screen.getByText(/rotate the pot every sunday\./i)).toBeInTheDocument();
-    expect(screen.getByText(/正在家庭看板中使用/i)).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /已启用的提醒/i })).toBeInTheDocument();
+    // 紧凑 Hero 状态摘要：两个任务都在未来到期，养护状态良好。
+    expect(screen.getByText(/养护状态良好/i)).toBeInTheDocument();
+    // 养护计划区标题（含任务计数）。
+    expect(screen.getByRole("heading", { name: /养护计划（2）/i })).toBeInTheDocument();
     expect(screen.getByText(/^浇水$/i)).toBeInTheDocument();
     expect(screen.getByText(/^Leaf wipe$/i)).toBeInTheDocument();
-    expect(screen.getByText(/每 7 天一次/i)).toBeInTheDocument();
-    expect(screen.getAllByRole("button", { name: /添加提醒/i })).toHaveLength(1);
-    expect(screen.getAllByRole("button", { name: /^编辑$/i })).toHaveLength(2);
-    expect(screen.getAllByRole("button", { name: /^完成$/i })).toHaveLength(2);
-    expect(screen.getByAltText(/monstera deliciosa封面图/i)).toHaveAttribute(
+    expect(screen.getByText(/^每7天$/i)).toBeInTheDocument();
+    // 养护计划区的「+ 添加」按钮。
+    expect(screen.getAllByRole("button", { name: /添加养护计划/i })).toHaveLength(1);
+    // 每条养护计划整行是可点击的编辑入口。
+    expect(screen.getAllByRole("button", { name: /编辑.*任务/i })).toHaveLength(2);
+    // 两个任务均为未来到期，不进入「需要处理」区，因此没有圆形完成按钮。
+    expect(screen.queryByRole("button", { name: /^完成/i })).not.toBeInTheDocument();
+    // 紧凑 Hero 缩略图。
+    expect(screen.getByAltText(/monstera deliciosa缩略图/i)).toHaveAttribute(
       "src",
       "https://cdn.test/monstera.jpg",
     );
@@ -892,7 +899,8 @@ describe("AppShell smoke coverage", () => {
       },
     );
 
-    fireEvent.click(screen.getByRole("button", { name: /^编辑$/i }));
+    // 养护计划区整行即编辑入口（aria-label 形如「编辑浇水任务，每7天，下次2天后」）。
+    fireEvent.click(screen.getByRole("button", { name: /编辑浇水任务/i }));
     await waitFor(() => expect(window.location.pathname).toBe("/plants/plant_1/tasks/task_1/edit"));
 
     renderWithProviders(
@@ -930,7 +938,8 @@ describe("AppShell smoke coverage", () => {
               taskType: "watering",
               customLabel: null,
               intervalDays: 7,
-              nextDueAt: Date.now() + 2 * 24 * 60 * 60 * 1000,
+              // 逾期任务才会进入「需要处理」区并展示圆形完成按钮。
+              nextDueAt: Date.now() - 2 * 24 * 60 * 60 * 1000,
               lastCompletedAt: Date.UTC(2026, 5, 1),
             },
           ],
@@ -938,7 +947,8 @@ describe("AppShell smoke coverage", () => {
       },
     );
 
-    fireEvent.click(screen.getAllByRole("button", { name: /^完成$/i })[0]);
+    // 「需要处理」区的圆形完成按钮 aria-label 形如「完成浇水」。
+    fireEvent.click(screen.getByRole("button", { name: /^完成浇水$/i }));
     await waitFor(() =>
       expect(mutationHandler).toHaveBeenCalledWith({
         taskId: "task_1",
@@ -1288,11 +1298,14 @@ describe("AppShell smoke coverage", () => {
       },
     );
 
-    fireEvent.click(screen.getByRole("button", { name: /归档植物/i }));
+    // 归档入口收纳进溢出菜单：先打开菜单，再点击「归档植物」。
+    fireEvent.click(screen.getByRole("button", { name: /更多操作/i }));
+    fireEvent.click(screen.getByRole("menuitem", { name: /归档植物/i }));
+    // 二次确认：ConfirmSheet 弹出，此时尚未调用 mutation。
     expect(mutationHandler).not.toHaveBeenCalled();
-    expect(screen.getByRole("heading", { name: /确认归档这盆植物吗？/i })).toBeInTheDocument();
+    expect(screen.getByText(/确认归档这盆植物吗？/i)).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /确认归档/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^确认归档$/i }));
 
     await waitFor(() =>
       expect(mutationHandler).toHaveBeenCalledWith({
@@ -1300,10 +1313,8 @@ describe("AppShell smoke coverage", () => {
         isArchived: true,
       }),
     );
-    expect(screen.getByText(/已归档档案/i)).toBeInTheDocument();
-    expect(screen.getByText(/已从家庭看板隐藏，恢复后才会重新出现/i)).toBeInTheDocument();
-    expect(screen.getByText(/已归档，归档于/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /恢复植物/i })).toBeInTheDocument();
+    // 归档后紧凑 Hero 的状态摘要变为「已归档」。
+    await waitFor(() => expect(screen.getByText(/^已归档$/i)).toBeInTheDocument());
   });
 
   it("restores an archived plant from the detail page with the same mutation", async () => {
@@ -1346,11 +1357,14 @@ describe("AppShell smoke coverage", () => {
       },
     );
 
-    expect(screen.getByText(/已归档，归档于/i)).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /恢复植物/i }));
-    expect(screen.getByRole("heading", { name: /确认恢复这盆植物吗？/i })).toBeInTheDocument();
+    // 归档态：紧凑 Hero 状态摘要显示「已归档」。
+    expect(screen.getByText(/^已归档$/i)).toBeInTheDocument();
+    // 恢复入口在溢出菜单（归档态文案为「恢复到看板」）。
+    fireEvent.click(screen.getByRole("button", { name: /更多操作/i }));
+    fireEvent.click(screen.getByRole("menuitem", { name: /恢复到看板/i }));
+    expect(screen.getByText(/确认恢复这盆植物吗？/i)).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /确认恢复/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^确认恢复$/i }));
 
     await waitFor(() =>
       expect(mutationHandler).toHaveBeenCalledWith({
@@ -1358,9 +1372,10 @@ describe("AppShell smoke coverage", () => {
         isArchived: false,
       }),
     );
-    expect(screen.getByText(/使用中档案/i)).toBeInTheDocument();
-    expect(screen.getByText(/正在家庭看板中使用/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /归档植物/i })).toBeInTheDocument();
+    // 恢复后该植物无养护任务，Hero 状态摘要变为「暂无养护计划」（Hero 与空态计划区可能各出现一次）。
+    await waitFor(() =>
+      expect(screen.getAllByText(/^暂无养护计划$/i).length).toBeGreaterThan(0),
+    );
   });
 
   it("submits the edit-plant flow and keeps the existing image when unchanged", async () => {

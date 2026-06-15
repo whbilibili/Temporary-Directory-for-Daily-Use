@@ -4,6 +4,7 @@ import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { navigate } from "../../app/router";
+import { ConfirmSheet } from "../../components/ui/ConfirmSheet";
 
 interface OverflowMenuProps {
   isArchived: boolean;
@@ -24,6 +25,7 @@ export function OverflowMenu({
 }: OverflowMenuProps) {
   const setArchivedState = useMutation(api.plants.setPlantArchivedState);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [confirmingArchive, setConfirmingArchive] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const firstItemRef = useRef<HTMLButtonElement>(null);
@@ -94,6 +96,7 @@ export function OverflowMenu({
         isArchived: !isArchived,
         archivedAt: isArchived ? null : Date.now(),
       });
+      setConfirmingArchive(false);
       onClose();
     } catch {
       // 静默处理
@@ -138,7 +141,7 @@ export function OverflowMenu({
         </button>
         <button
           disabled={isSubmitting}
-          onClick={() => void handleArchiveToggle()}
+          onClick={() => setConfirmingArchive(true)}
           role="menuitem"
           style={menuItemStyle}
           tabIndex={-1}
@@ -163,6 +166,21 @@ export function OverflowMenu({
           </p>
         )}
       </div>
+      {confirmingArchive && (
+        <ConfirmSheet
+          title={isArchived ? "确认恢复这盆植物吗？" : "确认归档这盆植物吗？"}
+          description={
+            isArchived
+              ? `${plantName} 会重新回到家庭看板，养护任务和历史记录都会保留。`
+              : `${plantName} 会从家庭看板隐藏，但养护任务和完成记录仍会保留在数据里。`
+          }
+          confirmLabel={isArchived ? "确认恢复" : "确认归档"}
+          variant={isArchived ? "primary" : "danger-outline"}
+          isSubmitting={isSubmitting}
+          onConfirm={() => void handleArchiveToggle()}
+          onCancel={() => setConfirmingArchive(false)}
+        />
+      )}
     </>
   );
 }
