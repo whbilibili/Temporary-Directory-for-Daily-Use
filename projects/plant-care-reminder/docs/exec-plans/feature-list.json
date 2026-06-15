@@ -120,7 +120,7 @@
       "prd": "docs/product-specs/2026-06-15-settings-page-v0.3-iteration-spec.md",
       "task_breakdown": "docs/product-specs/2026-06-15-settings-page-v0.3-task-breakdown.md",
 "task_count": 16,
-"completed": 9,
+"completed": 10,
 "depends_on": [
 "family-access",
 "plant-registry",
@@ -754,10 +754,10 @@
       "priority": "1-High"
     },
     {
-      "task_id": "SET3-010",
-      "module": "settings-page-v0.3",
+"task_id": "SET3-010",
+"module": "settings-page-v0.3",
       "description": "头像验证：可上传 + HEIC 转 JPEG、三态失败保留、成员列表实时更新真实图、无头像回退色块、StorageImage 植物调用方不回归。",
-      "status": "pending",
+      "status": "completed",
       "priority": "1-High"
     },
     {

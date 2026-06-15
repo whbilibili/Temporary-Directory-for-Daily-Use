@@ -211,7 +211,7 @@
       "task_id": "SET3-010",
       "description": "头像验证：「个人」组可上传；iOS HEIC 转 JPEG 正常显示；三态明确失败保留原头像；保存后成员列表中我的头像实时更新真实图；无头像回退首字母色块不报错；StorageImage 植物调用方不回归。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {"schema": {"tables_or_collections": ["users"], "key_fields": {}, "indexes": [], "relations": "", "notes": "验证任务。"}, "queries": {"read": "N/A", "write": "N/A"}, "migration_strategy": "N/A"},
