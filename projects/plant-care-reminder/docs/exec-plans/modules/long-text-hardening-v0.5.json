@@ -103,8 +103,9 @@
     {
       "task_id": "TEXT-004",
       "description": "第二批·治本①（输入端 maxLength）：在 app/src/lib/constants.ts 抽五个常量（PLANT_NAME_MAX_LENGTH=30 / PLANT_LOCATION_MAX_LENGTH=30 / PLANT_DESCRIPTION_MAX_LENGTH=200 / PLANT_NOTE_MAX_LENGTH=200 / CUSTOM_TASK_NAME_MAX_LENGTH=20），并接到表单控件：PlantForm.tsx 名称(29-38)/位置(57-65) InputField 加 maxLength，简介(39-47)/备注(48-56) TextArea 加 maxLength + 字数计数（hint 右侧 12/30，接近上限变橙色，可选增强）；TaskForm.tsx 自定义任务名(83-91) 加 maxLength。源头杜绝新增超长数据。",
+      "completion_note": "已落地：新建 app/src/lib/constants.ts 集中五个长度上限常量。PlantForm.tsx 导入四常量，名称/位置 InputField 与简介/备注 TextAreaField 均加 maxLength；并增强 TextAreaField 渲染字数计数（hint 右侧『N/max』，currentLength 达 max*0.9 切到 var(--color-warning) 橙色加粗，aria-describedby 关联），新增 hintRowStyle/counterStyle/counterNearLimitStyle 三组样式，全部走既有 token、零 #hex 字面色。TaskForm.tsx 导入 CUSTOM_TASK_NAME_MAX_LENGTH，自定义任务名 InputField 加 maxLength。InputField/TextAreaField 均通过 ...props/原生属性把 maxLength 下发到 <input>/<textarea>，达上限无法继续输入。验收：typecheck 0 错误、vitest 22 files 135 tests 全绿（不回归）。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {"schema": {"tables_or_collections": [], "key_fields": {}, "indexes": [], "relations": "纯前端常量 + 控件属性。", "notes": "无 schema 变更。"}, "queries": {"read": "N/A", "write": "N/A"}, "migration_strategy": "No schema change."},

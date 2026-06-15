@@ -2,6 +2,7 @@ import { Button } from "../../components/ui/Button";
 import { FormError } from "../../components/ui/FormError";
 import { InputField } from "../../components/ui/InputField";
 import { PageHeader } from "../../components/ui/PageHeader";
+import { CUSTOM_TASK_NAME_MAX_LENGTH } from "../../lib/constants";
 import { formatDueDate } from "../../lib/formatters";
 import {
   careTaskTypeOptions,
@@ -85,6 +86,7 @@ export function TaskForm({
             errorMessage={errors.customTaskName}
             hint="仅在选择自定义任务时必填。"
             label="自定义任务名称"
+            maxLength={CUSTOM_TASK_NAME_MAX_LENGTH}
             onChange={(event) => onValueChange("customTaskName", event.target.value)}
             placeholder="擦拭叶片"
             value={values.customTaskName}

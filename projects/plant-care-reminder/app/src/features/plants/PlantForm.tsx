@@ -2,6 +2,12 @@ import { Button } from "../../components/ui/Button";
 import { FormError } from "../../components/ui/FormError";
 import { InputField } from "../../components/ui/InputField";
 import { PageHeader } from "../../components/ui/PageHeader";
+import {
+  PLANT_DESCRIPTION_MAX_LENGTH,
+  PLANT_LOCATION_MAX_LENGTH,
+  PLANT_NAME_MAX_LENGTH,
+  PLANT_NOTE_MAX_LENGTH,
+} from "../../lib/constants";
 import { PlantImageField } from "./PlantImageField";
 import type { PlantFormController } from "./usePlantForm";
 
@@ -31,6 +37,7 @@ export function PlantForm({
           errorMessage={form.errors.name}
           hint="必填。建议使用家里平时对这盆植物的叫法。"
           label="植物名称"
+          maxLength={PLANT_NAME_MAX_LENGTH}
           onChange={(event) => form.setFieldValue("name", event.target.value)}
           placeholder="蝴蝶兰"
           required
@@ -40,6 +47,7 @@ export function PlantForm({
           errorMessage={form.errors.description}
           hint="选填。可以写外观特征或基础养护信息。"
           label="简介"
+          maxLength={PLANT_DESCRIPTION_MAX_LENGTH}
           onChange={(event) => form.setFieldValue("description", event.target.value)}
           placeholder="喜欢散射光，放在客厅窗边。"
           rows={4}
@@ -49,6 +57,7 @@ export function PlantForm({
           errorMessage={form.errors.note}
           hint="选填。可以记录家庭内部才会用到的提醒或习惯。"
           label="养护备注"
+          maxLength={PLANT_NOTE_MAX_LENGTH}
           onChange={(event) => form.setFieldValue("note", event.target.value)}
           placeholder="每周日转盆一次，注意窗边叶缘发干。"
           rows={4}
@@ -59,6 +68,7 @@ export function PlantForm({
           errorMessage={form.errors.location}
           hint="选填。方便家人快速找到这盆植物。"
           label="摆放位置"
+          maxLength={PLANT_LOCATION_MAX_LENGTH}
           onChange={(event) => form.setFieldValue("location", event.target.value)}
           placeholder="客厅置物架"
           value={form.values.location}
@@ -87,24 +97,46 @@ function TextAreaField({
   hint,
   id,
   label,
+  maxLength,
   style,
+  value,
   ...props
 }: TextAreaFieldProps) {
   const fieldId = id ?? label.toLowerCase().replace(/\s+/g, "-");
+  const currentLength = typeof value === "string" ? value.length : 0;
+  const hasCounter = typeof maxLength === "number";
+  const isNearLimit = hasCounter && currentLength >= maxLength * 0.9;
+  const counterId = hasCounter ? `${fieldId}-counter` : undefined;
 
   return (
     <label htmlFor={fieldId} style={fieldWrapStyle}>
       <span style={fieldLabelStyle}>{label}</span>
       <textarea
         {...props}
+        aria-describedby={counterId}
         id={fieldId}
+        maxLength={maxLength}
         style={{
           ...textAreaStyle,
           ...(errorMessage ? textAreaErrorStyle : null),
           ...style,
         }}
+        value={value}
       />
-      {hint ? <span style={hintStyle}>{hint}</span> : null}
+      <span style={hintRowStyle}>
+        {hint ? <span style={hintStyle}>{hint}</span> : <span />}
+        {hasCounter ? (
+          <span
+            id={counterId}
+            style={{
+              ...counterStyle,
+              ...(isNearLimit ? counterNearLimitStyle : null),
+            }}
+          >
+            {currentLength}/{maxLength}
+          </span>
+        ) : null}
+      </span>
       <FormError message={errorMessage} />
     </label>
   );
@@ -164,4 +196,24 @@ const hintStyle: React.CSSProperties = {
   color: "var(--color-muted)",
   fontSize: "0.86rem",
   lineHeight: 1.5,
+};
+
+const hintRowStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "baseline",
+  justifyContent: "space-between",
+  gap: "12px",
+};
+
+const counterStyle: React.CSSProperties = {
+  color: "var(--color-muted)",
+  fontSize: "0.82rem",
+  fontVariantNumeric: "tabular-nums",
+  flexShrink: 0,
+  marginLeft: "auto",
+};
+
+const counterNearLimitStyle: React.CSSProperties = {
+  color: "var(--color-warning)",
+  fontWeight: 700,
 };
