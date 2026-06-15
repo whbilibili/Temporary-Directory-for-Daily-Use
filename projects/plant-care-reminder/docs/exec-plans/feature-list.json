@@ -120,7 +120,7 @@
       "prd": "docs/product-specs/2026-06-15-settings-page-v0.3-iteration-spec.md",
       "task_breakdown": "docs/product-specs/2026-06-15-settings-page-v0.3-task-breakdown.md",
 "task_count": 16,
-"completed": 14,
+"completed": 15,
 "depends_on": [
 "family-access",
 "plant-registry",
@@ -792,7 +792,7 @@
       "task_id": "SET3-015",
       "module": "settings-page-v0.3",
       "description": "全局加固（§6.1 红线）：lib/auth.ts getCurrentUserContext 读 familyMembers 由 .unique()→.first() 降级取一条 + warn，保持单一家庭约束不变。",
-      "status": "pending",
+      "status": "completed",
       "priority": "1-High"
     },
     {

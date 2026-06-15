@@ -169,3 +169,9 @@
   - 验证三件套：tsc 0 err / vitest 40 passed(35→40) / convex 0 err
   - 状态：module json SET3-014→completed；feature-list.json SET3-014→completed，settings-page-v0.3 completed 13→14
   - commit 待提交
+
+[2026-06-15 15:02] SET3-015 DONE — 全局加固 .unique()→.first()(关 §6.1 红线)
+  - lib/auth.ts getCurrentUserContext 读 familyMembers by_userId 改 .collect() 取第一条降级；>1 条时 console.warn 便于排查脏数据
+  - 严格保持单一家庭约束语义不变；正常单 membership 用户行为完全不变
+  - 验证：tsc 0 err / convex 0 err / vitest 40 passed
+  - 状态：module+feature-list SET3-015→completed，settings-page-v0.3 completed 14→15

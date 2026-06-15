@@ -306,7 +306,7 @@
       "task_id": "SET3-015",
       "description": "全局加固（关 §6.1 红线）：lib/auth.ts getCurrentUserContext 读 familyMembers 处 .unique()→.first()（保留取一条语义，多条时不崩溃取第一条降级 + console.warn 便于排查），严格保持逻辑上单一家庭约束不变；纯防御性，避免边界脏数据让用户彻底无法进应用。建议与 E2 同批落地（④ 是新写 membership 的能力）。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {"schema": {"tables_or_collections": ["familyMembers"], "key_fields": {"familyMembers": "userId, familyId"}, "indexes": ["familyMembers.by_userId"], "relations": ".first() 取一条降级；不改业务约束。", "notes": "§6.1 红线：.unique() 多条直接抛错使用户无法进应用。"}, "queries": {"read": "getCurrentUserContext 读用户 membership 由 .unique() 改 .first()", "write": "N/A"}, "migration_strategy": "No schema change."},
