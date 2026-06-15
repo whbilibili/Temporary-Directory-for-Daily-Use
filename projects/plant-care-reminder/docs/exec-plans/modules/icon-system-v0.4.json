@@ -114,7 +114,8 @@
       "task_id": "ICON-005",
       "description": "操作类图标替换（A 级·完成/编辑）：(1) CompleteTaskButton.tsx:73/75 完成态 ✓ 改 Check（pending 态 '…' 可改 Loader 或保留文字省略号，二选一锁定），:25 celebrateEmoji '🍃' 属情感装饰可保留或换克制图标，实现时锁定；(2) ActionableTaskRow.tsx:89 ✓/… 完成态切换与 CompleteTaskButton 对齐同一图标语言；(3) FamilyHeroCard.tsx:45 ✎ 编辑入口改 Pencil（:33 🌿 装饰保留）。所有图标 stroke=currentColor 跟随既有按钮/链接文字色，不引入新色。",
       "priority": "2-Medium",
-      "status": "pending",
+      "status": "completed",
+      "completion_note": "锁定二选一决策：完成态 ✓→Check、pending 态 …→Loader2（加 .complete-spin 旋转，reduced-motion 由 tokens.css 全局兜底压制时长）。celebrateEmoji '🍃' 与 FamilyHeroCard:33 '🌿' 属 C 级情感装饰，按 PRD 保留。改动：① CompleteTaskButton.tsx——圆形态/文字态完成与 pending 全部切到 Icon(Check/Loader2)，aria-label='完成' 不变；② ActionableTaskRow.tsx:89——圆形完成按钮 ✓/… 切到同一 Check/Loader2 图标语言，aria-label='完成{label}' 不变；③ FamilyHeroCard.tsx:45——编辑指示 ✎→Icon(Pencil size14)，aria-label='修改家庭名' 与点击回调不变。tokens.css 新增 @keyframes complete-spin + .complete-spin。新建 FamilyHeroCard.test.tsx 3 用例：管理员视角渲染 svg.lucide-pencil 且无 ✎ 字符(防回退) / 普通成员视角不渲染编辑入口 / aria-label 与回调保留且图标 aria-hidden。验收：typecheck 0 错误、19 files / 112 tests 全绿（+3）、grep 操作 emoji 0 命中。",
       "plan_path": null,
       "contracts": {
         "data_layer": {"schema": {"tables_or_collections": [], "key_fields": {}, "indexes": [], "relations": "纯前端。", "notes": "无 schema 变更。"}, "queries": {"read": "N/A", "write": "N/A"}, "migration_strategy": "No schema change."},

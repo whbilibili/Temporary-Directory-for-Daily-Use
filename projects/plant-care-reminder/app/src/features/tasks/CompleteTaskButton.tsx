@@ -1,9 +1,11 @@
 import { useMutation } from "convex/react";
 import { useState } from "react";
+import { Check, Loader2 } from "lucide-react";
 
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { Button } from "../../components/ui/Button";
+import { Icon } from "../../components/ui/Icon";
 import { prefersReducedMotion, triggerHaptic } from "../../lib/motion";
 import { buildUndoPayload, type CompletionUndoPayload } from "./undoComplete";
 
@@ -70,11 +72,21 @@ export function CompleteTaskButton({
           type="button"
         >
           {isCircle ? (
-            <span aria-hidden="true">{isPending ? "…" : "✓"}</span>
+            <span aria-hidden="true" style={iconInlineStyle}>
+              {isPending ? (
+                <Icon className="complete-spin" icon={Loader2} size={18} />
+              ) : (
+                <Icon icon={Check} size={18} />
+              )}
+            </span>
           ) : isDone ? (
-            "已完成 ✓"
+            <span aria-hidden="true" style={iconTextStyle}>
+              <Icon icon={Check} size={16} /> 已完成
+            </span>
           ) : isPending ? (
-            "完成中..."
+            <span aria-hidden="true" style={iconTextStyle}>
+              <Icon className="complete-spin" icon={Loader2} size={16} /> 完成中
+            </span>
           ) : (
             "完成"
           )}
@@ -101,6 +113,22 @@ export function CompleteTaskButton({
 const wrapStyle: React.CSSProperties = {
   display: "grid",
   gap: "6px",
+};
+
+// 圆形完成按钮内图标居中容器。
+const iconInlineStyle: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  lineHeight: 1,
+};
+
+// 文字态按钮内的图标 + 文案行（图标与文字基线对齐）。
+const iconTextStyle: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "6px",
+  lineHeight: 1,
 };
 
 const circleWrapStyle: React.CSSProperties = {

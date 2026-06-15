@@ -92,6 +92,17 @@
   }
 }
 
+/* 完成按钮 pending 态加载图标旋转（ICON-005）。reduced-motion 下由全局兜底压制为近 0 时长。 */
+@keyframes complete-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.complete-spin {
+  animation: complete-spin 800ms linear infinite;
+}
+
 /* 情感反馈区株数变化时的轻量淡入（TODO2-008）。 */
 @keyframes greeting-count-fade {
   0% {

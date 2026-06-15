@@ -1,4 +1,7 @@
 import type { CSSProperties } from "react";
+import { Pencil } from "lucide-react";
+
+import { Icon } from "../../components/ui/Icon";
 
 interface FamilyHeroCardProps {
   familyName: string;
@@ -42,7 +45,7 @@ export function FamilyHeroCard({
         >
           <span style={familyNameStyle}>{familyName}</span>
           <span aria-hidden="true" style={editIndicatorStyle}>
-            ✎
+            <Icon icon={Pencil} size={14} />
           </span>
         </button>
       ) : (
@@ -116,6 +119,8 @@ const editIndicatorStyle: CSSProperties = {
   color: "color-mix(in srgb, var(--color-paper) 75%, transparent)",
   fontSize: "14px",
   lineHeight: 1,
+  display: "inline-flex",
+  alignItems: "center",
 };
 
 const subtextStyle: CSSProperties = {

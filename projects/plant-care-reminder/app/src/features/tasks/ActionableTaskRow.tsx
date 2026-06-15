@@ -3,6 +3,8 @@ import { useMutation } from "convex/react";
 
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
+import { Check, Loader2 } from "lucide-react";
+
 import { Icon } from "../../components/ui/Icon";
 import { prefersReducedMotion, triggerHaptic } from "../../lib/motion";
 import { buildUndoPayload, type CompletionUndoPayload } from "./undoComplete";
@@ -86,7 +88,13 @@ export function ActionableTaskRow({ isOverdue, onCompleted, task }: ActionableTa
           style={isDone ? circleButtonDoneStyle : circleButtonStyle}
           type="button"
         >
-          <span aria-hidden="true">{status === "pending" ? "…" : "✓"}</span>
+          <span aria-hidden="true" style={completeIconStyle}>
+            {status === "pending" ? (
+              <Icon className="complete-spin" icon={Loader2} size={18} />
+            ) : (
+              <Icon icon={Check} size={18} />
+            )}
+          </span>
         </button>
         {showFx && (
           <span
@@ -145,6 +153,14 @@ const buttonShellStyle: React.CSSProperties = {
   position: "relative",
   display: "inline-flex",
   flexShrink: 0,
+};
+
+// 圆形完成按钮内图标居中容器，与 CompleteTaskButton 图标语言对齐。
+const completeIconStyle: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  lineHeight: 1,
 };
 
 const circleButtonStyle: React.CSSProperties = {
