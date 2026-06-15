@@ -1467,7 +1467,9 @@ describe("Invite link landing (/join/:code)", () => {
     expect(
       screen.getByRole("heading", { name: /登录后加入家庭/i }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/邀请码：ABCD12/)).toBeInTheDocument();
+    // 用户经链接而来，页面不再暴露原始邀请码；但邀请码仍被暂存以供登录后自动加入。
+    expect(screen.queryByText(/邀请码：ABCD12/)).not.toBeInTheDocument();
+    expect(window.sessionStorage.getItem("pendingInviteCode")).toBe("ABCD12");
 
     fireEvent.click(screen.getByRole("button", { name: /登录 \/ 注册/i }));
     await waitFor(() => expect(window.location.pathname).toBe("/login"));
@@ -1496,8 +1498,10 @@ describe("Invite link landing (/join/:code)", () => {
       screen.getByRole("heading", { name: /加入家人的植物看板/i }),
     ).toBeInTheDocument();
     expect(window.sessionStorage.getItem("pendingInviteCode")).toBe("ABCD12");
+    // 页面不再展示原始邀请码，文案聚焦"加入家庭"。
+    expect(screen.queryByText(/邀请码：ABCD12/)).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /用邀请码加入/i }));
+    fireEvent.click(screen.getByRole("button", { name: /加入这个家庭/i }));
     await waitFor(() => expect(window.location.pathname).toBe("/onboarding"));
   });
 

@@ -76,34 +76,34 @@ export function JoinLandingPage({ inviteCode, routeContext }: JoinLandingPagePro
   }
 
   // 分支 3：已登录但未加入家庭 —— 邀请码已暂存，去 onboarding 末端自动加入（SET3-012）。
+  // 用户经链接而来，无需感知"邀请码"这一实现细节，文案聚焦"加入家庭"本身。
   if (isAuthenticated && !hasFamily) {
     return (
       <LandingShell
-        body="你收到了一个家庭邀请。点击下方按钮，立即用这串邀请码加入家人的共享植物看板。"
+        body="你收到了一个家庭邀请。点击下方按钮，就能和家人共享同一个植物看板和提醒列表。"
         eyebrow="家庭邀请"
         title="加入家人的植物看板"
       >
-        <p style={codeChipStyle}>邀请码：{trimmedCode}</p>
         <Button
           fullWidth
           onClick={() => navigate("/onboarding")}
           type="button"
           variant="primary"
         >
-          用邀请码加入
+          加入这个家庭
         </Button>
       </LandingShell>
     );
   }
 
   // 分支 2：未登录 —— botanical 基调引导去登录 / 注册。
+  // 链接已携带邀请信息并暂存，无需把邀请码暴露给未登录用户。
   return (
     <LandingShell
-      body="你收到了一个家庭邀请。先登录或注册，登录后即可加入家人的共享植物看板。"
+      body="你收到了一个家庭邀请。先登录或注册，登录后就能和家人共享同一个植物看板。"
       eyebrow="家庭邀请"
       title="登录后加入家庭"
     >
-      <p style={codeChipStyle}>邀请码：{trimmedCode}</p>
       <Button fullWidth onClick={() => navigate("/login")} type="button" variant="primary">
         登录 / 注册
       </Button>
@@ -180,22 +180,6 @@ const bodyStyle: React.CSSProperties = {
   color: "var(--color-muted)",
   fontSize: "0.95rem",
   lineHeight: 1.6,
-};
-
-const codeChipStyle: React.CSSProperties = {
-  margin: "var(--space-xs) 0 0",
-  display: "inline-flex",
-  width: "fit-content",
-  alignItems: "center",
-  minHeight: "32px",
-  padding: "0 var(--space-sm)",
-  borderRadius: "var(--radius-pill)",
-  background: "var(--color-mist)",
-  color: "var(--color-leaf)",
-  fontFamily: "var(--font-mono)",
-  fontSize: "0.95rem",
-  fontWeight: 700,
-  letterSpacing: "0.08em",
 };
 
 const actionsStyle: React.CSSProperties = {
