@@ -128,3 +128,4 @@
 
 ### [settings-page-v0.3 迭代 · 2026-06-15 启动]
 - ✅ SET3-001 已完成并提交。新增 families.renameFamily mutation（家庭改名，admin-only）：照搬 resetInviteCode 权限范式——loadCurrentUserContext → 校验 userId && familyId → by_familyId_and_userId 取 currentMembership 判 role!==admin 抛错；新增常量 FAMILY_NAME_MAX_LENGTH=20，args.name.trim() 非空校验 + 长度上限校验，最终 ctx.db.patch(familyId, { name })，返回 { ok: true }。纯后端无 schema 变更。验证：npx convex dev --once --typecheck enable 编译通过。
+- ✅ SET3-002 已完成并提交。新增 FamilyNameEditSheet.tsx（克隆 NicknameEditSheet，写入改为 renameFamily，初始值取当前家庭名，非空 + maxLength 20 校验，无二次确认）。FamilyHeroCard.tsx 新增可选 onRename prop：管理员视角家庭名渲染为 button（内含家庭名 span + ✎ 编辑指示，文本原样保留兼容 getByText），普通成员视角为纯 <p> 只读文本（不渲染入口、不置灰）。FamilySettingsPage.tsx 接线 familyNameSheetOpen state，仅 isAdmin 传 onRename，渲染 FamilyNameEditSheet。验证：tsc -b 0 错误；AppRouter.smoke 35/35 全绿（家庭名 getByText 未破坏）。

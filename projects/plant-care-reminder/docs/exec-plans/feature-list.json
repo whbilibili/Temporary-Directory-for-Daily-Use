@@ -120,7 +120,7 @@
       "prd": "docs/product-specs/2026-06-15-settings-page-v0.3-iteration-spec.md",
       "task_breakdown": "docs/product-specs/2026-06-15-settings-page-v0.3-task-breakdown.md",
       "task_count": 16,
-      "completed": 1,
+      "completed": 2,
       "depends_on": [
         "family-access",
         "plant-registry",
@@ -701,7 +701,7 @@
       "task_id": "SET3-002",
       "module": "settings-page-v0.3",
       "description": "FamilyNameEditSheet（克隆 NicknameEditSheet）+ 管理员家庭名可点击行（普通成员只读不置灰），非破坏性无二次确认，不破坏 v0.2 getByText。",
-      "status": "pending",
+      "status": "completed",
       "priority": "0-Critical"
     },
     {

@@ -8,6 +8,7 @@ import { NotificationPromptCard } from "../notifications/NotificationPromptCard"
 import { NotificationTroubleshooting } from "../notifications/NotificationTroubleshooting";
 import { AboutCard } from "./AboutCard";
 import { FamilyHeroCard } from "./FamilyHeroCard";
+import { FamilyNameEditSheet } from "./FamilyNameEditSheet";
 import { InviteCodeCard } from "./InviteCodeCard";
 import { MembersList } from "./MembersList";
 import { NicknameEditSheet } from "./NicknameEditSheet";
@@ -20,6 +21,7 @@ export function FamilySettingsPage() {
   const summary = useQuery(api.families.getFamilySettingsSummary, {});
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [nicknameSheetOpen, setNicknameSheetOpen] = useState(false);
+  const [familyNameSheetOpen, setFamilyNameSheetOpen] = useState(false);
   const [signOutSheetOpen, setSignOutSheetOpen] = useState(false);
 
   async function handleSignOut() {
@@ -84,6 +86,7 @@ export function FamilySettingsPage() {
         <FamilyHeroCard
           familyName={summary.familyName}
           memberCount={summary.memberCount}
+          onRename={isAdmin ? () => setFamilyNameSheetOpen(true) : undefined}
         />
 
         <InviteCodeCard inviteCode={summary.inviteCode} isAdmin={isAdmin} />
@@ -108,6 +111,13 @@ export function FamilySettingsPage() {
         <NicknameEditSheet
           currentName={myDisplayName}
           onClose={() => setNicknameSheetOpen(false)}
+        />
+      ) : null}
+
+      {familyNameSheetOpen ? (
+        <FamilyNameEditSheet
+          currentName={summary.familyName}
+          onClose={() => setFamilyNameSheetOpen(false)}
         />
       ) : null}
 

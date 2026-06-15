@@ -3,14 +3,25 @@ import type { CSSProperties } from "react";
 interface FamilyHeroCardProps {
   familyName: string;
   memberCount: number;
+  /**
+   * 管理员改名入口回调（SET3-002）。传入时家庭名行可点击进入编辑 sheet；
+   * 普通成员视角不传，家庭名渲染为只读文本（不渲染入口、不置灰）。
+   */
+  onRename?: () => void;
 }
 
 /**
- * 家庭头图卡（SET2-007）。全页唯一的强色块情感锚点：品牌绿渐变背景 +
+ * 家庭头图卡（SET2-007 / SET3-002）。全页唯一的强色块情感锚点：品牌绿渐变背景 +
  * 右上角半透明 🌿 装饰 + 白底半透明 chip + 家庭名（卡内信息，非 h1）+ 副文案。
  * 副文案随人数切换：1 人引导发邀请码，≥2 人传达「一起照顾」的协作感。
+ * 管理员视角（onRename 存在）家庭名行可点击进入改名 sheet，尾部带编辑指示；
+ * 普通成员视角为纯只读文本。无论哪种视角，家庭名文本均原样渲染以兼容 getByText。
  */
-export function FamilyHeroCard({ familyName, memberCount }: FamilyHeroCardProps) {
+export function FamilyHeroCard({
+  familyName,
+  memberCount,
+  onRename,
+}: FamilyHeroCardProps) {
   const subtext =
     memberCount <= 1
       ? "还没有家人加入，把邀请码发出去吧"
@@ -22,7 +33,21 @@ export function FamilyHeroCard({ familyName, memberCount }: FamilyHeroCardProps)
         🌿
       </span>
       <span style={chipStyle}>家庭</span>
-      <p style={familyNameStyle}>{familyName}</p>
+      {onRename ? (
+        <button
+          aria-label="修改家庭名"
+          onClick={onRename}
+          style={familyNameButtonStyle}
+          type="button"
+        >
+          <span style={familyNameStyle}>{familyName}</span>
+          <span aria-hidden="true" style={editIndicatorStyle}>
+            ✎
+          </span>
+        </button>
+      ) : (
+        <p style={familyNameStyle}>{familyName}</p>
+      )}
       <p style={subtextStyle}>{subtext}</p>
     </section>
   );
@@ -69,6 +94,28 @@ const familyNameStyle: CSSProperties = {
   fontSize: "22px",
   fontWeight: 700,
   lineHeight: 1.2,
+};
+
+const familyNameButtonStyle: CSSProperties = {
+  appearance: "none",
+  position: "relative",
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "var(--space-xs)",
+  justifySelf: "start",
+  padding: 0,
+  border: "none",
+  background: "transparent",
+  color: "var(--color-paper)",
+  cursor: "pointer",
+  textAlign: "left",
+};
+
+const editIndicatorStyle: CSSProperties = {
+  /* 纸白 75% 透明的轻量编辑指示，提示该行可点击 */
+  color: "color-mix(in srgb, var(--color-paper) 75%, transparent)",
+  fontSize: "14px",
+  lineHeight: 1,
 };
 
 const subtextStyle: CSSProperties = {

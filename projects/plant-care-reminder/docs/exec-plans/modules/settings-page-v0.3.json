@@ -51,7 +51,7 @@
       "task_id": "SET3-002",
       "description": "新增 FamilyNameEditSheet（克隆 NicknameEditSheet：ConfirmSheet variant=primary + InputField），把 updateMyProfile 换为 renameFamily，初始值取当前家庭名，保留非空 + maxLength 校验；仅 currentUserRole==='admin' 渲染家庭名可点击行（普通成员纯只读文本，不渲染编辑入口、不置灰）；非破坏性、无二次确认。注意可点击元素内文本仍可被 v0.2 smoke 的 getByText 命中。",
       "priority": "0-Critical",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {"schema": {"tables_or_collections": ["families"], "key_fields": {"families": "name"}, "indexes": [], "relations": "消费 getFamilySettingsSummary.familyName/currentUserRole。", "notes": "前端任务，不改 schema。"}, "queries": {"read": "getFamilySettingsSummary（familyName, currentUserRole）", "write": "调用 api.families.renameFamily"}, "migration_strategy": "No schema change."},
