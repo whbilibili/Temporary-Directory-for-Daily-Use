@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { Droplet, Flower2, Scissors, SprayCan, Sprout, Tag } from "lucide-react";
+import { CUSTOM_TASK_NAME_MAX_LENGTH } from "../../lib/constants";
 import {
   careTaskTypeValues,
   getTaskTypeIcon,
   taskTypeIcon,
+  validateCustomTaskName,
   type CareTaskType,
 } from "./taskTypes";
 
@@ -44,5 +46,25 @@ describe("taskTypeIcon 权威映射 (ICON-003)", () => {
   it("getTaskTypeIcon 对未知值回退到 custom 图标", () => {
     // 故意绕过类型系统模拟脏数据
     expect(getTaskTypeIcon("unknown" as CareTaskType)).toBe(taskTypeIcon.custom);
+  });
+});
+
+describe("validateCustomTaskName 长度校验 (TEXT-005)", () => {
+  it("非 custom 类型不校验，返回 null", () => {
+    expect(validateCustomTaskName("watering", "x".repeat(999))).toBeNull();
+  });
+
+  it("custom 类型名称为空返回必填提示", () => {
+    expect(validateCustomTaskName("custom", "  ")).toBe("请输入这个提醒的自定义任务名称。");
+  });
+
+  it("custom 类型名称超过上限返回长度提示", () => {
+    expect(validateCustomTaskName("custom", "擦".repeat(CUSTOM_TASK_NAME_MAX_LENGTH + 1))).toBe(
+      `任务名称不能超过 ${CUSTOM_TASK_NAME_MAX_LENGTH} 个字符。`,
+    );
+  });
+
+  it("custom 类型名称正好等于上限时通过（边界）", () => {
+    expect(validateCustomTaskName("custom", "擦".repeat(CUSTOM_TASK_NAME_MAX_LENGTH))).toBeNull();
   });
 });

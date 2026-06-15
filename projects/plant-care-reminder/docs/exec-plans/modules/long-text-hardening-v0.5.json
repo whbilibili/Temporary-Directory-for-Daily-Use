@@ -123,8 +123,9 @@
     {
       "task_id": "TEXT-005",
       "description": "第二批·治本②（前端长度校验）：plantSchema.ts validatePlantEditorValues 在非空后追加长度校验——超限返回可读提示（『植物名称不能超过 30 个字符』，位置/简介/备注同理），消费 constants.ts 同组常量；taskTypes.ts validateCustomTaskName 在非空后追加长度校验（『任务名称不能超过 20 个字符』），CreateTaskPage/EditTaskPage 复用后自动生效。作为 maxLength 被绕过（粘贴/IME 等）时的前端二道防线，并产出明确错误文案。补充对应单测。",
+      "completion_note": "已落地：① plantSchema.ts 导入四常量，validatePlantEditorValues 在非空判断后追加四字段长度校验——name 用 else if（与必填互斥）超限报『植物名称不能超过 30 个字符』，location/description/note 各自独立 if 超限报对应文案，全部用模板串嵌入常量、与 maxLength 一致。② taskTypes.ts 导入 CUSTOM_TASK_NAME_MAX_LENGTH，validateCustomTaskName 改为先取 normalized：非空→必填提示；超 20→『任务名称不能超过 20 个字符』；否则 null。CreateTaskPage/EditTaskPage 复用此函数自动生效。③ 新建 plantSchema.test.ts 7 用例（四字段超限各 1 + 名称必填 + 边界等于上限不报错），taskTypes.test.ts 追加 validateCustomTaskName 4 用例（非 custom 不校验 / 必填 / 超限 / 边界）。验收：typecheck 0 错误、vitest 23 files 145 tests 全绿（+1 文件 +10 用例）。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {"schema": {"tables_or_collections": [], "key_fields": {}, "indexes": [], "relations": "前端纯函数校验。", "notes": "无 schema 变更。"}, "queries": {"read": "N/A", "write": "N/A"}, "migration_strategy": "No schema change."},

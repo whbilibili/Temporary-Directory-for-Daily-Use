@@ -149,7 +149,7 @@
       "description": "超长字符串处理 v0.5：对植物名称/摆放位置/简介/养护备注/自定义任务名五个文本字段，系统性补齐『输入端无上限 + 后端无校验 + 展示端截断不到位』三重缺口（缺陷治理 + 一致性补齐，对齐 families/nickname/inviteCode 既有长度纪律）。四层防御：输入端 maxLength（防错源头）、前端长度校验（可读提示）、后端 Convex mutation 二次校验（防绕过）、展示端单行省略 / 多行 clamp（兜存量超长不撑爆）。三批落地：第一批·止血（纯 CSS 消除截图撑爆，零风险）、第二批·治本（maxLength + 前端校验杜绝新增超长）、第三批·加固（后端校验 + 卡片 clamp + 抽公共截断工具 + PlanTaskRow flex + 回归验收）。上限：植物名 30 / 位置 30 / 简介 200 / 备注 200 / 任务名 20。不新增 token、不引入 #hex。",
       "prd": "docs/design-docs/2026-06-15-long-text-handling-plan.md",
       "task_count": 7,
-      "completed": 4,
+      "completed": 5,
       "depends_on": [
         "plant-registry",
         "care-reminders",
@@ -926,7 +926,7 @@
       "task_id": "TEXT-005",
       "module": "long-text-hardening-v0.5",
       "description": "第二批·治本②：validatePlantEditorValues 四字段 + validateCustomTaskName 追加长度校验，超限返回可读错误文案（消费同组常量），补单测。maxLength 被绕过时的前端二道防线。",
-      "status": "pending",
+      "status": "completed",
       "priority": "1-High"
     },
     {

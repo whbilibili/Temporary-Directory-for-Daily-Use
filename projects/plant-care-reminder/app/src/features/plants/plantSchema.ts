@@ -1,3 +1,9 @@
+import {
+  PLANT_DESCRIPTION_MAX_LENGTH,
+  PLANT_LOCATION_MAX_LENGTH,
+  PLANT_NAME_MAX_LENGTH,
+  PLANT_NOTE_MAX_LENGTH,
+} from "../../lib/constants";
 import type { Plant, StorageId } from "../../types/domain";
 import type { PlantImageValue } from "./PlantImageField";
 
@@ -93,6 +99,20 @@ export function validatePlantEditorValues(values: PlantEditorValues): PlantFormE
 
   if (!normalizePlantEditorText(values.name)) {
     errors.name = "请填写植物名称。";
+  } else if (values.name.length > PLANT_NAME_MAX_LENGTH) {
+    errors.name = `植物名称不能超过 ${PLANT_NAME_MAX_LENGTH} 个字符。`;
+  }
+
+  if (values.location.length > PLANT_LOCATION_MAX_LENGTH) {
+    errors.location = `摆放位置不能超过 ${PLANT_LOCATION_MAX_LENGTH} 个字符。`;
+  }
+
+  if (values.description.length > PLANT_DESCRIPTION_MAX_LENGTH) {
+    errors.description = `简介不能超过 ${PLANT_DESCRIPTION_MAX_LENGTH} 个字符。`;
+  }
+
+  if (values.note.length > PLANT_NOTE_MAX_LENGTH) {
+    errors.note = `养护备注不能超过 ${PLANT_NOTE_MAX_LENGTH} 个字符。`;
   }
 
   return errors;

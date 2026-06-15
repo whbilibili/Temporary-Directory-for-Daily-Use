@@ -7,6 +7,7 @@ import {
   Tag,
   type LucideIcon,
 } from "lucide-react";
+import { CUSTOM_TASK_NAME_MAX_LENGTH } from "../../lib/constants";
 
 export const careTaskTypeValues = [
   "watering",
@@ -103,9 +104,16 @@ export function validateCustomTaskName(
     return null;
   }
 
-  return normalizeCustomTaskName(customTaskName)
-    ? null
-    : "请输入这个提醒的自定义任务名称。";
+  const normalized = normalizeCustomTaskName(customTaskName);
+  if (!normalized) {
+    return "请输入这个提醒的自定义任务名称。";
+  }
+
+  if (normalized.length > CUSTOM_TASK_NAME_MAX_LENGTH) {
+    return `任务名称不能超过 ${CUSTOM_TASK_NAME_MAX_LENGTH} 个字符。`;
+  }
+
+  return null;
 }
 
 export function formatTaskTypeLabel(taskType: CareTaskType, customTaskName?: string | null) {
