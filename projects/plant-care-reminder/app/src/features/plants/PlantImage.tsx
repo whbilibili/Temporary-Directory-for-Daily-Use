@@ -1,36 +1,32 @@
 import { useState } from "react";
 
+import { PlantAvatar } from "./PlantAvatar";
+
 interface PlantImageProps {
   alt: string;
   imageUrl: string | null;
+  /** 植物名称，用于 PlantAvatar aria-label。 */
+  plantName?: string;
+  /** 头像槽边长（px），用于 PlantAvatar 尺寸。 */
+  slotSize?: number;
 }
 
 /**
  * Plant thumbnail with fade-in on load and graceful error fallback.
  * Renders at 80×80 with 12px border-radius (matches PlantCard image slot).
  */
-export function PlantImage({ alt, imageUrl }: PlantImageProps) {
+export function PlantImage({ alt, imageUrl, plantName = "植物", slotSize = 80 }: PlantImageProps) {
   const [status, setStatus] = useState<"loading" | "loaded" | "error">(
     imageUrl ? "loading" : "error",
   );
 
   if (!imageUrl || status === "error") {
-    return (
-      <div style={placeholderStyle}>
-        <span aria-hidden="true" style={placeholderIconStyle}>
-          🌿
-        </span>
-      </div>
-    );
+    return <PlantAvatar name={plantName} size={slotSize} />;
   }
 
   return (
     <div style={wrapStyle}>
-      <div style={placeholderStyle}>
-        <span aria-hidden="true" style={placeholderIconStyle}>
-          🌿
-        </span>
-      </div>
+      <PlantAvatar name={plantName} size={slotSize} />
       <img
         alt={alt}
         onError={() => setStatus("error")}
@@ -49,22 +45,6 @@ const wrapStyle: React.CSSProperties = {
   position: "relative",
   width: "100%",
   height: "100%",
-};
-
-const placeholderStyle: React.CSSProperties = {
-  position: "absolute",
-  inset: 0,
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  background: "var(--color-mist)",
-  borderRadius: "12px",
-};
-
-const placeholderIconStyle: React.CSSProperties = {
-  fontSize: "32px",
-  lineHeight: 1,
-  opacity: 0.7,
 };
 
 const imgStyle: React.CSSProperties = {

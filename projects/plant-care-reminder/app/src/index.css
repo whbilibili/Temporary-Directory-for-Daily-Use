@@ -22,9 +22,16 @@ body,
   min-height: 100svh;
 }
 
+html {
+  /* PWA：完全禁止水平溢出——overflow:clip 不创建可滚动区域，
+     兼容 iOS Safari 的 rubber-band 弹性滚动问题 */
+  overflow-x: clip;
+}
+
 body {
   margin: 0;
   background: var(--color-paper);
+  overflow-x: clip;
 }
 
 button,

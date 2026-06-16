@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { Pencil } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 
 import { Icon } from "../../components/ui/Icon";
 import { formatDueDate, formatTaskTypeLabel } from "../../lib/formatters";
@@ -26,12 +25,14 @@ export interface PlantListCardData {
 
 interface PlantCardProps {
   onOpen: (plantId: string) => void;
-  onEdit: (plantId: string) => void;
   plant: PlantListCardData;
 }
 
-export function PlantCard({ onEdit, onOpen, plant }: PlantCardProps) {
-  const [editPressed, setEditPressed] = useState(false);
+/**
+ * 列表卡：整卡可点进入详情（T1/T5 —— 去铅笔、去⋯菜单）。
+ * 右侧 chevron-right 指引"可进入"。
+ */
+export function PlantCard({ onOpen, plant }: PlantCardProps) {
   const isOverdue = plant.nextDueTask ? plant.nextDueTask.nextDueAt < Date.now() : false;
   const nextDueTitle = plant.nextDueTask
     ? formatTaskTypeLabel(plant.nextDueTask.taskType, plant.nextDueTask.customLabel)
@@ -44,28 +45,25 @@ export function PlantCard({ onEdit, onOpen, plant }: PlantCardProps) {
     : cardStyle;
 
   return (
-    <article className="plant-card" style={resolvedCardStyle}>
-      <div style={imageWrapStyle} onClick={() => onOpen(plant.id)}>
-        <PlantImage alt={`${plant.name}封面图`} imageUrl={plant.imageUrl} />
+    <article
+      className="plant-card"
+      onClick={() => onOpen(plant.id)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onOpen(plant.id);
+        }
+      }}
+      aria-label={`查看${plant.name}详情`}
+      style={resolvedCardStyle}
+    >
+      <div style={imageWrapStyle}>
+        <PlantImage alt={`${plant.name}封面图`} imageUrl={plant.imageUrl} plantName={plant.name} slotSize={80} />
       </div>
-      <div style={textAreaStyle} onClick={() => onOpen(plant.id)}>
-        <div style={nameRowStyle}>
-          <h2 style={nameStyle}>{plant.name}</h2>
-          <button
-            aria-label="编辑"
-            onClick={(event) => {
-              event.stopPropagation();
-              onEdit(plant.id);
-            }}
-            onPointerDown={() => setEditPressed(true)}
-            onPointerUp={() => setEditPressed(false)}
-            onPointerLeave={() => setEditPressed(false)}
-            style={{ ...editIconStyle, opacity: editPressed ? 1.0 : 0.4 }}
-            type="button"
-          >
-            <Icon icon={Pencil} size={16} />
-          </button>
-        </div>
+      <div style={textAreaStyle}>
+        <h2 style={nameStyle}>{plant.name}</h2>
         {plant.location?.trim() ? (
           <p style={locationStyle}>{plant.location.trim()}</p>
         ) : null}
@@ -96,14 +94,9 @@ export function PlantCard({ onEdit, onOpen, plant }: PlantCardProps) {
           )}
         </div>
       </div>
-      <button
-        aria-label="查看详情"
-        onClick={() => onOpen(plant.id)}
-        style={detailButtonStyle}
-        type="button"
-      >
-        ›
-      </button>
+      <span style={chevronStyle} aria-hidden="true">
+        <Icon icon={ChevronRight} size={18} colorVar="--color-muted" />
+      </span>
     </article>
   );
 }
@@ -111,13 +104,16 @@ export function PlantCard({ onEdit, onOpen, plant }: PlantCardProps) {
 const cardStyle: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
-  padding: "12px",
+  padding: "var(--space-md)",
   borderRadius: "var(--radius-card)",
   border: "1px solid var(--color-line)",
   background: "var(--color-surface)",
+  boxShadow: "var(--shadow-card)",
   minHeight: "104px",
   cursor: "pointer",
-  gap: "16px",
+  gap: "var(--space-md)",
+  // 防止内容溢出卡片（圆角裁切 + 阻止撑出父 grid）
+  overflow: "hidden",
 };
 
 const imageWrapStyle: React.CSSProperties = {
@@ -127,8 +123,8 @@ const imageWrapStyle: React.CSSProperties = {
   borderRadius: "12px",
   overflow: "hidden",
   background: "var(--color-mist)",
+  position: "relative",
 };
-
 
 const textAreaStyle: React.CSSProperties = {
   flex: 1,
@@ -138,20 +134,11 @@ const textAreaStyle: React.CSSProperties = {
   gap: "3px",
 };
 
-const nameRowStyle: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: "var(--space-sm)",
-  minWidth: 0,
-};
-
 const nameStyle: React.CSSProperties = {
-  flex: 1,
-  minWidth: 0,
   margin: 0,
   fontFamily: "var(--font-heading)",
   fontSize: "16px",
-  fontWeight: 600,
+  fontWeight: 700,
   lineHeight: 1.3,
   color: "var(--color-ink)",
   overflow: "hidden",
@@ -159,27 +146,10 @@ const nameStyle: React.CSSProperties = {
   whiteSpace: "nowrap",
 };
 
-const editIconStyle: React.CSSProperties = {
-  flexShrink: 0,
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  width: "44px",
-  height: "44px",
-  margin: "-14px -14px -14px 0",
-  background: "none",
-  border: "none",
-  padding: 0,
-  cursor: "pointer",
-  fontSize: "16px",
-  lineHeight: 1,
-  color: "var(--color-muted)",
-  transition: "opacity 100ms",
-};
-
 const locationStyle: React.CSSProperties = {
   margin: 0,
-  fontSize: "13px",
+  fontFamily: "var(--font-body)",
+  fontSize: "12px",
   fontWeight: 400,
   color: "var(--color-muted)",
   overflow: "hidden",
@@ -224,15 +194,11 @@ const overdueCopyStyle: React.CSSProperties = {
   color: "var(--color-warning)",
 };
 
-const detailButtonStyle: React.CSSProperties = {
+const chevronStyle: React.CSSProperties = {
   flexShrink: 0,
-  background: "none",
-  border: "none",
-  padding: "0 4px",
-  cursor: "pointer",
-  fontSize: "24px",
-  lineHeight: 1,
-  color: "var(--color-muted)",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
 };
 
 // --- Press feedback CSS injection (idempotent) ---
@@ -241,12 +207,16 @@ if (typeof document !== "undefined" && !document.getElementById("plant-card-pres
   style.id = "plant-card-press-css";
   style.textContent = `
 .plant-card {
-  transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1), background 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform 160ms ease, box-shadow 160ms ease;
 }
 .plant-card:active {
-  transform: scale(0.98);
-  background: var(--color-mist);
-  transition: transform 120ms ease-out, background 120ms ease-out;
+  transform: scale(0.99);
+  box-shadow: var(--shadow-card-emphasis);
+}
+@media (prefers-reduced-motion: reduce) {
+  .plant-card:active {
+    transform: none;
+  }
 }`;
   document.head.appendChild(style);
 }

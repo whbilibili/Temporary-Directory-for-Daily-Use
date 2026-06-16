@@ -4,6 +4,26 @@ import { careTaskTypeValues } from "../../src/features/tasks/taskTypes";
 export const familyRoleValues = ["admin", "member"] as const;
 export const plantTaskTypeValues = careTaskTypeValues;
 
+/**
+ * 后端长度上限（第三层防御，TEXT-006）。
+ * 数值与前端 app/src/lib/constants.ts 同源，刻意不跨 src/convex 边界 import 以保持后端独立可部署；
+ * 修改任一处务必两处同步（families.renameFamily 同款手写常量模式）。
+ */
+export const PLANT_NAME_MAX_LENGTH = 30;
+export const PLANT_LOCATION_MAX_LENGTH = 30;
+export const PLANT_DESCRIPTION_MAX_LENGTH = 200;
+export const PLANT_NOTE_MAX_LENGTH = 200;
+
+/**
+ * 字符串长度兜底断言：超过 maxLength（按 JS String.length / UTF-16 码元，与前端 maxLength 一致）即抛错。
+ * 用于 mutation 入口对绕过前端的脏数据做最后一道拦截。
+ */
+export function assertMaxLength(value: string, maxLength: number, fieldName: string): void {
+  if (value.length > maxLength) {
+    throw new Error(`${fieldName}不能超过 ${maxLength} 个字符。`);
+  }
+}
+
 export const familyRoleValidator = v.union(
   ...familyRoleValues.map((role) => v.literal(role)),
 );

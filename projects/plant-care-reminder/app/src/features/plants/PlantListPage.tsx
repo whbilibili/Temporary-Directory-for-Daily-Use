@@ -92,10 +92,9 @@ export function PlantListPage() {
           {filteredPlants.map((plant, index) => (
             <div
               key={plant.id}
-              style={shouldAnimate ? getStaggerStyle(index) : undefined}
+              style={shouldAnimate ? { ...cardWrapStyle, ...getStaggerStyle(index) } : cardWrapStyle}
             >
               <PlantCard
-                onEdit={(plantId) => navigate(`/plants/${plantId}/edit`)}
                 onOpen={(plantId) => navigate(`/plants/${plantId}`)}
                 plant={plant}
               />
@@ -111,6 +110,8 @@ export function PlantListPage() {
 const pageStyle: React.CSSProperties = {
   display: "grid",
   gap: "var(--space-md)",
+  /* 防止 grid 子项被内容撑出父容器——手机竖屏时长文本会把卡片撑宽 */
+  minWidth: 0,
 };
 
 const titleBarStyle: React.CSSProperties = {
@@ -167,6 +168,15 @@ const loadingCopyStyle: React.CSSProperties = {
 const listStyle: React.CSSProperties = {
   display: "grid",
   gap: "var(--space-sm)",
+  /* grid 容器限制子项宽度不超出自身 */
+  minWidth: 0,
+};
+
+/** 卡片外层 wrapper：防止 grid item 被长文本撑宽。
+ *  仅用 minWidth:0 打破 grid 默认的 min-width:auto，
+ *  不加 overflow:hidden 以免裁切卡片的圆角阴影。 */
+const cardWrapStyle: React.CSSProperties = {
+  minWidth: 0,
 };
 
 // --- Stagger animation helpers ---

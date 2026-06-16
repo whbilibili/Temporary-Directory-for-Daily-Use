@@ -1,21 +1,12 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useState } from "react";
 
-import { Button } from "../../components/ui/Button";
 import { FormError } from "../../components/ui/FormError";
 import { InputField } from "../../components/ui/InputField";
 
-type AuthMode = "signIn" | "signUp";
 
-interface EmailLoginFormProps {
-  mode: AuthMode;
-}
-
-function getAuthErrorMessage(mode: AuthMode, error: unknown) {
-  const fallbackMessage =
-    mode === "signIn"
-      ? "邮箱或密码不正确，暂时无法登录。"
-      : "当前无法创建账号，请稍后再试。";
+function getAuthErrorMessage(error: unknown) {
+  const fallbackMessage = "邮箱或密码不正确，请检查后重试。";
 
   if (!(error instanceof Error)) {
     return fallbackMessage;
@@ -32,15 +23,11 @@ function getAuthErrorMessage(mode: AuthMode, error: unknown) {
   return error.message;
 }
 
-function getSubmitLabel(mode: AuthMode, isSubmitting: boolean) {
-  if (isSubmitting) {
-    return mode === "signIn" ? "登录中..." : "创建中...";
-  }
-
-  return mode === "signIn" ? "登录" : "创建账号";
+function getSubmitLabel(isSubmitting: boolean) {
+  return isSubmitting ? "进入中..." : "进入植物看板";
 }
 
-export function EmailLoginForm({ mode }: EmailLoginFormProps) {
+export function EmailLoginForm() {
   const { signIn } = useAuthActions();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -58,14 +45,14 @@ export function EmailLoginForm({ mode }: EmailLoginFormProps) {
       const result = await signIn("password", {
         email: email.trim().toLowerCase(),
         password,
-        flow: mode,
+        flow: "signIn",
       });
 
       if (result.signingIn) {
         setStatusMessage("登录成功，正在进入你的家庭植物看板...");
       }
     } catch (error) {
-      setErrorMessage(getAuthErrorMessage(mode, error));
+      setErrorMessage(getAuthErrorMessage(error));
     } finally {
       setIsSubmitting(false);
     }
@@ -84,32 +71,77 @@ export function EmailLoginForm({ mode }: EmailLoginFormProps) {
         value={email}
       />
       <InputField
-        autoComplete={mode === "signIn" ? "current-password" : "new-password"}
-        hint={mode === "signUp" ? "至少使用 8 位字符。" : undefined}
+        autoComplete="current-password"
         label="密码"
         onChange={(event) => setPassword(event.target.value)}
-        placeholder="请输入密码"
+        placeholder="至少 6 位字符"
         required
         type="password"
         value={password}
       />
+
       {errorMessage ? <FormError message={errorMessage} /> : null}
       {statusMessage ? <p style={statusStyle}>{statusMessage}</p> : null}
-      <Button disabled={isSubmitting} type="submit">
-        {getSubmitLabel(mode, isSubmitting)}
-      </Button>
+
+      <button
+        disabled={isSubmitting}
+        style={{
+          ...buttonStyle,
+          opacity: isSubmitting ? 0.72 : 1,
+          cursor: isSubmitting ? "not-allowed" : "pointer",
+          transform: isSubmitting ? "scale(0.98)" : "scale(1)",
+        }}
+        type="submit"
+      >
+        <span style={buttonIconStyle}>→</span>
+        {getSubmitLabel(isSubmitting)}
+      </button>
     </form>
   );
 }
 
 const formStyle: React.CSSProperties = {
   display: "grid",
-  gap: "16px",
+  gap: "var(--space-md)",
 };
 
 const statusStyle: React.CSSProperties = {
   margin: 0,
+  padding: "var(--space-sm) var(--space-md)",
+  borderRadius: "var(--radius-input)",
+  background: "rgba(47, 133, 90, 0.08)",
   color: "var(--color-success)",
-  fontSize: "0.95rem",
+  fontSize: "0.9rem",
   lineHeight: 1.5,
+  textAlign: "center",
+};
+
+const buttonStyle: React.CSSProperties = {
+  appearance: "none",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "var(--space-sm)",
+  width: "100%",
+  minHeight: "52px",
+  marginTop: "var(--space-sm)",
+  borderRadius: "var(--radius-button)",
+  border: "none",
+  background: "var(--color-leaf)",
+  color: "#ffffff",
+  fontSize: "1rem",
+  fontWeight: 600,
+  fontFamily: "var(--font-body)",
+  letterSpacing: "0.02em",
+  boxShadow: `
+    0 8px 24px rgba(31, 71, 61, 0.2),
+    0 2px 6px rgba(31, 71, 61, 0.12)
+  `,
+  transition: "transform 200ms ease, opacity 200ms ease, box-shadow 200ms ease",
+};
+
+const buttonIconStyle: React.CSSProperties = {
+  fontSize: "1.1rem",
+  fontWeight: 700,
+  opacity: 0.8,
 };

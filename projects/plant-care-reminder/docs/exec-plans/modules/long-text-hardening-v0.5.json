@@ -143,8 +143,9 @@
     {
       "task_id": "TEXT-006",
       "description": "第三批·加固①（后端 Convex 兜底）：convex/lib/validators.ts 新增 assertMaxLength(value,max,fieldName)（families.renameFamily 后端二次校验同模式）；convex/plants.ts createPlant/updatePlant 对 name 补 trim+非空+长度（顺带补当前缺失的非空校验），location/description/note 补长度校验；convex/tasks.ts createPlantTask/updatePlantTask 的 customTaskName 复用增强后的 validateCustomTaskName（长度校验自动生效）。防御式编程：前端可被绕过（API 直调/旧端/并发），后端必须二次校验 reject 超长数据。",
+      "completion_note": "已落地：① convex/lib/validators.ts 新增四个后端长度常量（PLANT_NAME/LOCATION/DESCRIPTION/NOTE_MAX_LENGTH，刻意不跨 src/convex 边界 import、与前端 constants.ts 同源手写，注释标注两处需同步——families 同款纪律）与 assertMaxLength(value,max,fieldName) 兜底断言（超 UTF-16 长度抛『${fieldName}不能超过 ${max} 个字符。』）。② convex/plants.ts 抽 assertPlantTextWithinLimits(args) 纯校验函数（name trim 后必填，否则抛『请填写植物名称。』——补齐此前缺失的后端非空校验；name/location/description/note 逐一 assertMaxLength，可选字段为 null 时跳过；返回 trim 后 name 供写库），createPlant 与 updatePlant 均在鉴权后调用并以返回的 name 入库。③ convex/tasks.ts 无需改动：createPlantTask(82)/updatePlantTask(172) 早已调用 validateCustomTaskName，TEXT-005 对该函数的长度增强令后端自定义任务名校验自动生效（接口复用红利）。④ 单测：导出 assertPlantTextWithinLimits/PlantTextArgs，新建 tests/unit/plants/plantTextLimits.test.ts 11 用例（assertMaxLength 边界/超限/空串 3 例 + assertPlantTextWithinLimits trim 返回/空白必填/四字段各超限/可选 null 跳过/四字段同时等于上限放行 8 例），沿用项目对 convex 纯函数做单测的既有模式，不引入 convex-test runtime。验收：typecheck 0 错误、vitest 24 files 156 tests 全绿（+1 文件 +11 用例）。",
       "priority": "1-High",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {"schema": {"tables_or_collections": ["plants", "tasks"], "key_fields": {"plants": "name/location/description/note", "tasks": "customTaskName"}, "indexes": [], "relations": "不改 schema 形状，仅在 mutation 入参处增加运行时长度断言。", "notes": "name 维持 v.string()，但 mutation 内补 trim+非空+长度；location/description/note 维持 v.optional 并补长度。"}, "queries": {"read": "N/A", "write": "createPlant / updatePlant / createPlantTask / updatePlantTask 入参长度断言"}, "migration_strategy": "No schema change（存量超长数据由展示层 clamp 兜底，不强制回写）。"},
@@ -162,8 +163,9 @@
     {
       "task_id": "TEXT-007",
       "description": "第三批·加固②（公共截断工具 + 列表卡 clamp + PlanTaskRow 加固 + 回归验收）：(1) 新建 app/src/lib/textTruncate.ts 导出 truncateSingleLine 与 clampLines(n)，收口当前 8+ 处复制粘贴/缺 whiteSpace:nowrap 的不一致写法；(2) TaskListItem/DueTaskCard/UpcomingDueCard 任务名 WebkitLineClamp:2、植物名单行省略，统一引用公共工具；(3) PlanTaskRow（截图2）label 明确 flex:1、interval 补 minWidth:0 加固单行省略；(4) 整体回归验收：tsc + convex typecheck + vitest 全绿，任意字段灌 500+ 字符在列表/详情/编辑/待办/删除确认/页头全无横向溢出、无卡片异常撑宽撑高，关键信息（名称）始终可读，出具一页验收小结。",
+      "completion_note": "已落地（模块结项任务）：① 新建 app/src/lib/textTruncate.ts 导出 truncateSingleLine（whiteSpace:nowrap+overflow:hidden+textOverflow:ellipsis+minWidth:0 兜底）与 clampLines(n)（display:-webkit-box + WebkitBoxOrient:vertical + WebkitLineClamp:n + overflow:hidden + overflowWrap/wordBreak:break-word），收口此前散落各卡片的复制粘贴截断写法为单一来源；配 textTruncate.test.ts 3 用例。② TaskListItem 任务名 ...clampLines(2)；DueTaskCard 植物名 ...truncateSingleLine + 任务名 ...clampLines(2)；UpcomingDueCard 同 DueTaskCard（三卡 contentStyle 既有 minWidth:0 满足单行省略父级要求，无需额外改父容器）。③ PlanTaskRow（截图2）labelStyle 由『仅 minWidth:0 无 flex 增长权、被 intervalStyle 的 flex:1 挤压』修正为 flex:1 + ...truncateSingleLine 成为主收缩列；intervalStyle 去掉 flex:1 改 flexShrink:0 + minWidth:0（去掉随 flex:1 失效的 textAlign:center），interval 短文案不再抢占主空间，长任务名脆弱单行省略问题根治。④ 全部走既有 token / 公共工具，零 #hex、零新增 token。验收四件套：tsc -b 0 错误；vitest 25 files 156→159 tests 全绿（+1 文件 +3 用例 textTruncate.test.ts）；convex --once --typecheck 部署成功；npm run build 构建成功（主 bundle 427KB/gzip122KB）。plan 文档追加 §8 验收小结。模块 long-text-hardening-v0.5 七任务全部完成结项。",
       "priority": "2-Medium",
-      "status": "pending",
+      "status": "completed",
       "plan_path": null,
       "contracts": {
         "data_layer": {"schema": {"tables_or_collections": [], "key_fields": {}, "indexes": [], "relations": "纯前端展示工具 + 回归。", "notes": "无 schema 变更。"}, "queries": {"read": "N/A", "write": "N/A"}, "migration_strategy": "No schema change."},

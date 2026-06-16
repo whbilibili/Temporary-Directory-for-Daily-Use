@@ -4,6 +4,7 @@ import { useState } from "react";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { FormError } from "../../components/ui/FormError";
+import { FormNavBar } from "../../components/ui/FormNavBar";
 import { navigate } from "../../app/router";
 import { PlantForm } from "./PlantForm";
 import { markCreatePlantSuccess } from "./createPlantSuccess";
@@ -33,6 +34,13 @@ export function CreatePlantPage() {
 
   return (
     <section style={pageStyle}>
+      <FormNavBar
+        title="添加植物"
+        onBack={() => navigate("/plants", true)}
+        onSave={() => form.handleSubmit()}
+        saveDisabled={form.isSubmitting}
+        saveLabel="保存"
+      />
       <PlantForm
         form={form}
         submitLabel="保存植物"

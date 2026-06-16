@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 import { formatDueDate, formatTaskTypeLabel } from "../../lib/formatters";
+import { clampLines } from "../../lib/textTruncate";
 import { Button } from "../../components/ui/Button";
 import { CompleteTaskButton } from "./CompleteTaskButton";
 
@@ -96,6 +97,7 @@ const taskTitleStyle: React.CSSProperties = {
   color: "var(--color-ink)",
   fontSize: "1.1rem",
   lineHeight: 1.2,
+  ...clampLines(2),
 };
 
 const taskMetaStyle: React.CSSProperties = {

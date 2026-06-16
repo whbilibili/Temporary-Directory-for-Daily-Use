@@ -1,4 +1,5 @@
 import { Icon } from "../../components/ui/Icon";
+import { truncateSingleLine } from "../../lib/textTruncate";
 import { getUtcDayStart } from "./scheduling";
 import { formatTaskTypeLabel, getTaskTypeIcon, type CareTaskType } from "./taskTypes";
 import { taskTypeColorVar } from "./TaskTypeBadge";
@@ -92,21 +93,19 @@ const iconWrapStyle: React.CSSProperties = {
 };
 
 const labelStyle: React.CSSProperties = {
+  flex: 1,
   fontSize: "14px",
   fontWeight: 600,
   color: "var(--color-ink)",
-  whiteSpace: "nowrap",
-  overflow: "hidden",
-  textOverflow: "ellipsis",
-  minWidth: 0,
+  ...truncateSingleLine,
 };
 
 const intervalStyle: React.CSSProperties = {
-  flex: 1,
+  flexShrink: 0,
+  minWidth: 0,
   fontSize: "12px",
   fontWeight: 400,
   color: "var(--color-muted)",
-  textAlign: "center",
 };
 
 const dueStyle: React.CSSProperties = {

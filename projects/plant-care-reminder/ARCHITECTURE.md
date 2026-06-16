@@ -43,6 +43,132 @@ plant-care-reminder/
     └── ...
 ```
 
+## app/ 目录详细索引
+
+```text
+app/
+├── index.html                # SPA 入口 HTML
+├── package.json              # 依赖与脚本
+├── vite.config.ts            # Vite 构建配置
+├── vitest.config.ts          # 测试配置
+├── tsconfig.json             # TypeScript 项目配置
+├── tsconfig.app.json         # 前端源码 TS 配置
+├── tsconfig.node.json        # Node 工具链 TS 配置
+├── eslint.config.js          # ESLint 配置
+├── .env.local                # 本地环境变量（不入库）
+│
+├── convex/                   # ── Convex 后端层 ──
+│   ├── schema.ts             # 数据模型定义（权威 Schema）
+│   ├── auth.config.ts        # 认证 Provider 配置
+│   ├── auth.ts               # 认证相关 Functions
+│   ├── http.ts               # HTTP 路由（Auth callback 等）
+│   ├── cron.ts               # 定时任务（到期提醒推送等）
+│   ├── users.ts              # 用户 CRUD Functions
+│   ├── families.ts           # 家庭 CRUD Functions
+│   ├── plants.ts             # 植物 CRUD Functions
+│   ├── tasks.ts              # 养护任务 Functions
+│   ├── notifications.ts      # Web Push 通知 Functions
+│   ├── lib/
+│   │   ├── auth.ts           # 认证辅助（getUser 等）
+│   │   └── validators.ts     # 共享参数校验器
+│   └── _generated/           # Convex 自动生成（不手动修改）
+│
+├── src/                      # ── React 前端层 ──
+│   ├── main.tsx              # 应用入口（挂载 ConvexProvider）
+│   ├── App.tsx               # 根组件（Provider 组装）
+│   ├── index.css             # 全局样式
+│   │
+│   ├── app/                  # 应用壳与路由
+│   │   ├── router.tsx        # 路由定义（react-router）
+│   │   ├── AppShell.tsx      # 主布局壳（导航 + 内容区）
+│   │   └── RouteGate.tsx     # 路由守卫（认证/家庭状态门控）
+│   │
+│   ├── features/             # 业务功能模块（按领域划分）
+│   │   ├── auth/             # 认证：登录、注册、Profile 引导
+│   │   ├── family/           # 家庭：创建/加入家庭、设置、成员管理
+│   │   ├── plants/           # 植物：CRUD、详情、图片、归档
+│   │   ├── tasks/            # 养护任务：待办、完成、延后、排期
+│   │   └── notifications/    # 通知：Push 订阅引导、故障排查
+│   │
+│   ├── components/           # 通用 UI 组件
+│   │   ├── ui/               # 原子组件（Button/Icon/Input/Sheet 等）
+│   │   └── navigation/       # 导航组件（BottomNav）
+│   │
+│   ├── lib/                  # 前端工具库
+│   │   ├── constants.ts      # 全局常量
+│   │   ├── formatters.ts     # 日期/文本格式化
+│   │   ├── motion.ts         # 动画配置
+│   │   └── textTruncate.ts   # 文本截断工具
+│   │
+│   ├── pwa/                  # PWA 相关
+│   │   ├── install.tsx       # 安装引导组件
+│   │   └── register.ts      # Service Worker 注册
+│   │
+│   ├── styles/
+│   │   └── tokens.css        # Design Tokens（CSS 变量权威来源）
+│   │
+│   ├── types/
+│   │   └── domain.ts         # 前端领域类型定义
+│   │
+│   └── assets/               # 静态资源（hero 图、logo 等）
+│
+└── public/                   # 静态公开资源
+    ├── favicon.svg
+    ├── icons.svg             # SVG 图标合集
+    ├── manifest.webmanifest  # PWA manifest
+    └── sw.js                 # Service Worker
+```
+
+## app/ 架构设计
+
+### 后端架构（convex/）
+
+Convex 后端采用 **按领域拆分 Function 文件** 的组织方式，每个文件对应一个业务聚合根：
+
+| 文件 | 领域 | 职责 |
+|------|------|------|
+| `auth.ts` | 认证 | 用户登录/注册流程、会话管理 |
+| `users.ts` | 用户 | 用户 Profile CRUD、昵称/头像更新 |
+| `families.ts` | 家庭 | 创建/加入家庭、邀请码生成、成员管理 |
+| `plants.ts` | 植物 | 植物 CRUD、图片上传、归档/恢复 |
+| `tasks.ts` | 养护任务 | 任务创建/编辑/完成/延后、排期计算、完成日志 |
+| `notifications.ts` | 通知 | Push 订阅注册/注销、推送发送 |
+| `cron.ts` | 定时调度 | 到期任务扫描、Push 通知触发 |
+
+共享逻辑放在 `convex/lib/` 下：`auth.ts` 提供统一的用户身份获取与家庭归属校验，`validators.ts` 提供可复用的参数校验器。
+
+### 前端架构（src/）
+
+前端采用 **Feature-First 模块化结构**，核心分层：
+
+| 层次 | 目录 | 职责 | 依赖方向 |
+|------|------|------|---------|
+| 路由壳 | `src/app/` | 路由定义、布局框架、门控逻辑 | → features |
+| 业务模块 | `src/features/*` | 页面 + 业务组件 + 领域 Hook | → components, lib |
+| 通用组件 | `src/components/` | 无业务语义的 UI 原子/分子组件 | → styles |
+| 工具层 | `src/lib/` | 纯函数工具、常量 | 无外部依赖 |
+| 类型层 | `src/types/` | 前端领域类型 | 无外部依赖 |
+| PWA | `src/pwa/` | SW 注册、安装引导 | → lib |
+| 设计令牌 | `src/styles/` | CSS 变量（botanical 色板） | 被所有层引用 |
+
+### 数据流架构
+
+```text
+[用户交互]
+    ↓
+[Feature Page/Component]
+    ↓ useMutation() / useAction()
+[Convex Client SDK] ──────────→ [Convex Cloud Functions]
+    ↑ useQuery() (实时订阅)              ↓
+[Feature Page/Component]         [Convex Database]
+```
+
+核心数据流特征：无自建 API 网关，前端通过 Convex SDK 直连后端 Functions；查询使用实时订阅（reactive），写操作使用 mutation 保证事务性。
+
+### 路由与门控
+
+`RouteGate.tsx` 实现三层门控：未认证 → 认证页；已认证但无家庭 → 家庭引导页；已认证且有家庭 → 主应用。路由定义集中在 `router.tsx`，所有页面组件来自 `features/` 内对应模块。
+
 ## 分层约束
 
 ```text

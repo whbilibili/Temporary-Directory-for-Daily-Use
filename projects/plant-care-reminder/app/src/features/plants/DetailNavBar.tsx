@@ -1,15 +1,17 @@
-import { ChevronLeft, EllipsisVertical } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 
 import { Icon } from "../../components/ui/Icon";
 import { navigate } from "../../app/router";
 
 interface DetailNavBarProps {
-  menuOpen?: boolean;
   plantName: string;
-  onMenuToggle: () => void;
 }
 
-export function DetailNavBar({ menuOpen, plantName, onMenuToggle }: DetailNavBarProps) {
+/**
+ * 详情页顶部导航条（T3 重构后不再有 ⋯ 菜单）。
+ * 仅保留：返回按钮 + 居中植物名。
+ */
+export function DetailNavBar({ plantName }: DetailNavBarProps) {
   return (
     <nav aria-label="植物详情导航" style={navStyle}>
       <button
@@ -23,16 +25,8 @@ export function DetailNavBar({ menuOpen, plantName, onMenuToggle }: DetailNavBar
 
       <span style={titleStyle}>{plantName}</span>
 
-      <button
-        aria-expanded={menuOpen ?? false}
-        aria-haspopup="menu"
-        aria-label="更多操作"
-        onClick={onMenuToggle}
-        style={menuButtonStyle}
-        type="button"
-      >
-        <Icon icon={EllipsisVertical} size={20} strokeWidth={2} />
-      </button>
+      {/* 右侧占位保持标题居中 */}
+      <span style={spacerStyle} />
     </nav>
   );
 }
@@ -77,17 +71,8 @@ const titleStyle: React.CSSProperties = {
   textOverflow: "ellipsis",
 };
 
-const menuButtonStyle: React.CSSProperties = {
-  appearance: "none",
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
+const spacerStyle: React.CSSProperties = {
   width: "44px",
   height: "44px",
-  padding: 0,
-  border: "none",
-  borderRadius: "var(--radius-button)",
-  background: "transparent",
-  color: "var(--color-muted)",
-  cursor: "pointer",
+  flexShrink: 0,
 };

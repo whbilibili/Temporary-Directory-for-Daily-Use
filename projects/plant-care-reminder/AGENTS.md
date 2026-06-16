@@ -41,6 +41,44 @@ Plant Care Reminder 的全局导航索引。先读本文件，再按顺序加载
 | `docs/exec-plans/tech-debt-tracker.md` | 技术债 |
 | `docs/RELIABILITY.md` / `docs/SECURITY.md` / `docs/DESIGN.md` | 可靠性、安全、设计红线 |
 
+## app/ 目录索引
+
+`app/` 是唯一的代码工作区，包含 Convex 后端和 React/Vite 前端的完整实现。
+
+### 后端（app/convex/）
+
+| 文件 | 领域 | 职责 |
+|------|------|------|
+| `schema.ts` | 数据模型 | 权威 Schema 定义（7 张表） |
+| `auth.config.ts` | 认证 | Provider 配置 |
+| `auth.ts` | 认证 | 登录/注册 Functions |
+| `http.ts` | HTTP | Auth 回调路由 |
+| `cron.ts` | 调度 | 到期任务扫描、Push 触发 |
+| `users.ts` | 用户 | Profile CRUD |
+| `families.ts` | 家庭 | 创建/加入、邀请码、成员管理 |
+| `plants.ts` | 植物 | CRUD、图片、归档 |
+| `tasks.ts` | 任务 | 完成/延后/排期/日志 |
+| `notifications.ts` | 通知 | Push 订阅与发送 |
+| `lib/auth.ts` | 共享 | getUser / 家庭归属校验 |
+| `lib/validators.ts` | 共享 | 可复用参数校验器 |
+
+### 前端（app/src/）
+
+| 目录 | 职责 |
+|------|------|
+| `src/app/` | 路由定义（router.tsx）、布局壳（AppShell.tsx）、门控（RouteGate.tsx） |
+| `src/features/auth/` | 登录页、邮箱表单、Profile 引导 |
+| `src/features/family/` | 创建/加入家庭、设置页、成员列表、邀请码 |
+| `src/features/plants/` | 植物列表/详情/创建/编辑/归档、图片处理 |
+| `src/features/tasks/` | 待办页、任务完成/延后、排期逻辑、Undo |
+| `src/features/notifications/` | Push 订阅引导、故障排查 |
+| `src/components/ui/` | 原子组件：Button / Icon / InputField / Sheet 等 |
+| `src/components/navigation/` | BottomNav 底部导航 |
+| `src/lib/` | 工具函数：formatters / constants / motion / textTruncate |
+| `src/pwa/` | SW 注册、安装引导 |
+| `src/styles/tokens.css` | Design Tokens（CSS 变量权威来源） |
+| `src/types/domain.ts` | 前端领域类型定义 |
+
 ## 架构红线
 
 - 客户端组件禁止直接操作 Convex 管理端能力；业务写操作必须走 Convex functions。

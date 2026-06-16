@@ -2,6 +2,46 @@ import { v } from "convex/values";
 
 import { mutation, query } from "./_generated/server";
 import { getCurrentUserContext as loadCurrentUserContext } from "./lib/auth";
+import {
+  assertMaxLength,
+  PLANT_DESCRIPTION_MAX_LENGTH,
+  PLANT_LOCATION_MAX_LENGTH,
+  PLANT_NAME_MAX_LENGTH,
+  PLANT_NOTE_MAX_LENGTH,
+} from "./lib/validators";
+
+export interface PlantTextArgs {
+  name: string;
+  description: string | null;
+  note: string | null;
+  location: string | null;
+}
+
+/**
+ * 植物文本字段后端校验（第三层防御，TEXT-006）：
+ * name 去空格后必填 + 长度上限；location/description/note 仅在有值时校验长度。
+ * 返回 trim 后的 name 供写库（与 families.createFamily 写 trim 名同模式）。
+ * 导出供单测直调（与 taskTypes 校验函数同款可测模式）。
+ */
+export function assertPlantTextWithinLimits(args: PlantTextArgs): { name: string } {
+  const name = args.name.trim();
+  if (name.length === 0) {
+    throw new Error("请填写植物名称。");
+  }
+  assertMaxLength(name, PLANT_NAME_MAX_LENGTH, "植物名称");
+
+  if (args.location !== null) {
+    assertMaxLength(args.location, PLANT_LOCATION_MAX_LENGTH, "摆放位置");
+  }
+  if (args.description !== null) {
+    assertMaxLength(args.description, PLANT_DESCRIPTION_MAX_LENGTH, "简介");
+  }
+  if (args.note !== null) {
+    assertMaxLength(args.note, PLANT_NOTE_MAX_LENGTH, "养护备注");
+  }
+
+  return { name };
+}
 
 interface CurrentFamilyMemberContext {
   familyId: NonNullable<Awaited<ReturnType<typeof loadCurrentUserContext>>["familyId"]>;
@@ -48,11 +88,12 @@ export const createPlant = mutation({
   },
   handler: async (ctx, args) => {
     const currentUserContext = await requireCurrentFamilyMember(ctx);
+    const { name } = assertPlantTextWithinLimits(args);
     const createdAt = Date.now();
 
     const plantId = await ctx.db.insert("plants", {
       familyId: currentUserContext.familyId,
-      name: args.name,
+      name,
       description: args.description ?? undefined,
       notes: args.note ?? undefined,
       location: args.location ?? undefined,
@@ -236,8 +277,10 @@ export const updatePlant = mutation({
       throw new Error("This plant does not belong to your current household.");
     }
 
+    const { name } = assertPlantTextWithinLimits(args);
+
     await ctx.db.patch(args.plantId, {
-      name: args.name,
+      name,
       description: args.description ?? undefined,
       notes: args.note ?? undefined,
       location: args.location ?? undefined,
@@ -275,6 +318,48 @@ export const setPlantArchivedState = mutation({
     return {
       ok: true as const,
     };
+  },
+});
+
+export const deletePlant = mutation({
+  args: {
+    plantId: v.id("plants"),
+  },
+  handler: async (ctx, args) => {
+    const currentUserContext = await requireCurrentFamilyMember(ctx);
+    const plant = await ctx.db.get(args.plantId);
+
+    if (!plant || plant.familyId !== currentUserContext.familyId) {
+      throw new Error("This plant does not belong to your current household.");
+    }
+
+    // 级联删除：tasks → completion logs → 图片 → 植物
+    const tasks = await ctx.db
+      .query("plantTasks")
+      .withIndex("by_plantId", (q) => q.eq("plantId", args.plantId))
+      .collect();
+
+    for (const task of tasks) {
+      // 删除该任务的所有完成记录
+      const logs = await ctx.db
+        .query("taskCompletionLogs")
+        .withIndex("by_taskId", (q) => q.eq("taskId", task._id))
+        .collect();
+      for (const log of logs) {
+        await ctx.db.delete(log._id);
+      }
+      await ctx.db.delete(task._id);
+    }
+
+    // 删除植物图片（如果有）
+    if (plant.imageStorageId) {
+      await ctx.storage.delete(plant.imageStorageId);
+    }
+
+    // 删除植物
+    await ctx.db.delete(args.plantId);
+
+    return { ok: true as const };
   },
 });
 

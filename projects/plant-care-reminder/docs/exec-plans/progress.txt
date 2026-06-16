@@ -1,5 +1,21 @@
 ### [Current Focus]
-`long-text-hardening-v0.5` 模块进行中（2026-06-15，TEXT-001 ~ TEXT-007 共 5/7）：超长字符串四层防御。**第一批·止血（TEXT-001/002/003）+ 第二批·治本（TEXT-004/005）全部完成**。第一层 maxLength + 第二层前端长度校验落地。基线 tsc -b 0 错误 / vitest 23 files 145 tests 全绿。下一件事：第三批·加固 TEXT-006（convex/lib/validators.ts assertMaxLength + plants.ts/tasks.ts mutation 后端二次校验，防绕过最后一道）。
+`long-text-hardening-v0.5` 模块已完成结项（2026-06-15，TEXT-001 ~ TEXT-007 共 7/7）：超长字符串四层防御全部落地。**第一批·止血（TEXT-001/002/003）+ 第二批·治本（TEXT-004/005）+ 第三批·加固（TEXT-006 后端 Convex 二次校验 / TEXT-007 公共截断工具 + 列表卡 clamp + PlanTaskRow flex 加固 + 整体回归验收）全部完成**。四层防御：输入端 maxLength → 前端长度校验 → 后端 assertMaxLength → 展示端单行省略 / 多行 clamp。结项基线 tsc -b 0 错误 / vitest 25 files 159 tests 全绿 / convex --once --typecheck 部署成功 / npm run build 构建成功（主 bundle 427KB·gzip122KB）。下一件事：待用户指派。
+
+[2026-06-15] TEXT-007 DONE — 第三批·加固②（公共截断工具 + 列表卡 clamp + PlanTaskRow flex 加固 + 整体回归验收，long-text-hardening-v0.5 模块结项任务 7/7）
+  - ① 新建 `app/src/lib/textTruncate.ts`：导出 truncateSingleLine（whiteSpace:nowrap + overflow:hidden + textOverflow:ellipsis + minWidth:0 兜底）与 clampLines(n)（display:-webkit-box + WebkitBoxOrient:vertical + WebkitLineClamp:n + overflow:hidden + overflowWrap/wordBreak:break-word）。收口此前各卡片散落的复制粘贴截断写法为单一来源；配 `textTruncate.test.ts` 3 用例（truncateSingleLine 属性 / clampLines(2) 属性 / clampLines 行数随参变化）。
+  - ② 列表卡统一复用：TaskListItem 任务名 ...clampLines(2)；DueTaskCard 植物名 ...truncateSingleLine + 任务名 ...clampLines(2)；UpcomingDueCard 同 DueTaskCard。三卡 contentStyle 既有 minWidth:0 满足单行省略父级要求，未额外改父容器。
+  - ③ PlanTaskRow（截图2 根因）：labelStyle 原本仅 minWidth:0 无 flex 增长权、却被 intervalStyle 的 flex:1 挤占 → 长任务名假截断/被压扁。修正为 label flex:1 + ...truncateSingleLine 作主收缩列；interval 由 flex:1 改 flexShrink:0 + minWidth:0（去掉随 flex:1 失效的 textAlign:center，保持最小 diff），短文案不再抢主空间，长任务名单行省略根治。
+  - ④ token/工具纪律：全部走既有 token 与公共工具，零 #hex、零新增 token。
+  - 验收四件套全绿：tsc -b 0 错误 / vitest 25 files 156→159 tests（+1 文件 +3 用例 textTruncate.test.ts）/ convex --once --typecheck 部署成功 / npm run build 构建成功（主 bundle 427KB·gzip122KB）。
+  - 走查替代说明：当前环境无 GUI，500+ 字符全页面无溢出走查以代码/构建/测试证据核对替代（截断三件套 + clamp + flex 加固均由单一公共工具保证一致性，PlanTaskRow flex 分配逻辑核验）。
+  - 文档：plan 文档 `docs/design-docs/2026-06-15-long-text-handling-plan.md` 追加 §8 验收小结。
+  - 状态同步：module JSON TEXT-007→completed（含 completion_note）；feature-list.json TEXT-007→completed、顺手修正 TEXT-006 误标 pending→completed、模块 completed 6→7（jq empty 校验两文件合法、module_index 7/7 + 七任务 tasks_summary 全 completed）。
+  - 结论：long-text-hardening-v0.5 模块七任务全部完成，四层防御完整、无回归、纪律达标，可结项。
+
+[2026-06-15] TEXT-006 DONE — 第三批·加固①（后端 Convex mutation 二次校验，防 maxLength/前端校验被绕过的最后一道）
+  - convex/lib/validators.ts 新增 assertMaxLength 工具；plants.createPlant/updatePlant 补 name trim + 非空 + 长度，及 location/description/note 长度校验；tasks mutation customTaskName 复用增强校验。长度数值与前端 constants.ts 同源对齐（植物名30/位置30/简介200/备注200/任务名20），避免漂移。
+  - 验收：tsc -b 0 错误 / convex --once --typecheck 部署成功 / vitest 全绿（不回归）。
+  - 注：此前 progress.txt 仅记录到 TEXT-005，TEXT-006 完成记录在本次结项时补登；feature-list.json 中 TEXT-006 曾误标 pending，本次一并修正为 completed。
 
 **TEXT-005 已完成（2026-06-15）**：第二批·治本②（前端长度校验，maxLength 被粘贴/IME 绕过的二道防线）。① `plantSchema.ts` 导入四常量，validatePlantEditorValues 在非空判断后追加四字段长度校验——name 用 else if 与必填互斥（超限报『植物名称不能超过 30 个字符』），location/description/note 各独立 if 报对应文案，全部模板串嵌常量、与 maxLength 一致。② `taskTypes.ts` 导入 CUSTOM_TASK_NAME_MAX_LENGTH，validateCustomTaskName 改为先 normalized：空→必填提示 / 超 20→『任务名称不能超过 20 个字符』/ 否则 null，CreateTaskPage·EditTaskPage 复用自动生效。③ 新建 `plantSchema.test.ts` 7 用例（四字段超限 + 名称必填 + 边界等于上限），`taskTypes.test.ts` 追加 4 用例（非 custom 不校验/必填/超限/边界）。验收：typecheck 0 错误、vitest 23 files 145 tests 全绿（+1 文件 +10 用例）。
 

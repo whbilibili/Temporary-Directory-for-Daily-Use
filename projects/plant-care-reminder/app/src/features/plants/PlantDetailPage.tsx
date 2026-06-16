@@ -9,9 +9,9 @@ import { EmptyState } from "../../components/ui/EmptyState";
 import { DetailNavBar } from "./DetailNavBar";
 import { FloatingAddButton } from "./FloatingAddButton";
 import { ImagePreviewOverlay } from "./ImagePreviewOverlay";
-import { OverflowMenu } from "./OverflowMenu";
-import { PlantArchiveSection } from "./PlantArchiveSection";
 import { PlantHeroCard } from "./PlantHeroCard";
+import { PlantManagementSection } from "./PlantManagementSection";
+import { PlantArchiveSection } from "./PlantArchiveSection";
 import { ActionableTaskSection } from "../tasks/ActionableTaskSection";
 import { PlanSection } from "../tasks/PlanSection";
 import { UndoToast } from "../tasks/UndoToast";
@@ -65,7 +65,6 @@ export function PlantDetailPage({ plantId }: PlantDetailPageProps) {
     archivedAt: number | null;
     isArchived: boolean;
   } | null>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [undoPayload, setUndoPayload] = useState<CompletionUndoPayload | null>(null);
   const [showImagePreview, setShowImagePreview] = useState(false);
 
@@ -93,7 +92,7 @@ export function PlantDetailPage({ plantId }: PlantDetailPageProps) {
   if (result === undefined) {
     return (
       <main style={loadingPageStyle}>
-        <DetailNavBar plantName="…" onMenuToggle={() => {}} />
+        <DetailNavBar plantName="…" />
         <p role="status" style={loadingBodyStyle}>正在加载植物信息…</p>
       </main>
     );
@@ -102,7 +101,7 @@ export function PlantDetailPage({ plantId }: PlantDetailPageProps) {
   if (result === null) {
     return (
       <main style={loadingPageStyle}>
-        <DetailNavBar plantName="" onMenuToggle={() => {}} />
+        <DetailNavBar plantName="" />
         <EmptyState
           badge="不可用"
           title="当前家庭中找不到这盆植物"
@@ -158,36 +157,24 @@ export function PlantDetailPage({ plantId }: PlantDetailPageProps) {
 
   // ─── 五层信息架构渲染 ───────────────────────────────────────
   // L0: NavBar (sticky)
-  // L1: Compact Hero
+  // L1: Compact Hero + 编辑按钮
   // L2: Action Zone (需要处理区，归档时不渲染)
   // L3: Plan Overview (养护计划)
   // L4: Plant Archive (可折叠档案)
+  // L5: Management Zone (管理区：归档/删除)
 
   return (
     <main style={pageStyle}>
       {/* L0: 导航栏 */}
-      <div style={navWrapStyle}>
-        <DetailNavBar
-          menuOpen={menuOpen}
-          plantName={plant.name}
-          onMenuToggle={() => setMenuOpen((prev) => !prev)}
-        />
-        <OverflowMenu
-          isArchived={plant.isArchived}
-          isOpen={menuOpen}
-          onArchivedStateChange={setArchivedStateOverride}
-          onClose={() => setMenuOpen(false)}
-          plantId={plant.id}
-          plantName={plant.name}
-        />
-      </div>
+      <DetailNavBar plantName={plant.name} />
 
-      {/* L1: 紧凑 Hero */}
+      {/* L1: Hero 卡片（内嵌编辑按钮） */}
       <div style={heroSpacingStyle}>
         <PlantHeroCard
           plant={plant}
           tasks={result.tasks}
           onThumbnailClick={() => setShowImagePreview(true)}
+          onEdit={() => navigate(`/plants/${plant.id}/edit`)}
         />
       </div>
 
@@ -214,6 +201,18 @@ export function PlantDetailPage({ plantId }: PlantDetailPageProps) {
       <div style={archiveSpacingStyle}>
         <div style={archiveDividerStyle} />
         <PlantArchiveSection plant={plant} plantId={plant.id} />
+      </div>
+
+      {/* L5: 管理区（归档/删除） */}
+      <div style={managementSpacingStyle}>
+        <div style={managementDividerStyle} />
+        <PlantManagementSection
+          isArchived={plant.isArchived}
+          onArchivedStateChange={setArchivedStateOverride}
+          onDeleted={() => navigate("/plants")}
+          plantId={plant.id}
+          plantName={plant.name}
+        />
       </div>
 
       {/* 底部安全区占位 */}
@@ -257,10 +256,6 @@ const pageStyle: React.CSSProperties = {
   animation: "page-enter 200ms ease-out",
 };
 
-const navWrapStyle: React.CSSProperties = {
-  position: "relative",
-};
-
 const heroSpacingStyle: React.CSSProperties = {
   padding: "0 var(--space-md)",
 };
@@ -281,6 +276,17 @@ const archiveSpacingStyle: React.CSSProperties = {
 };
 
 const archiveDividerStyle: React.CSSProperties = {
+  height: "1px",
+  background: "var(--color-line)",
+  marginBottom: "var(--space-lg)",
+};
+
+const managementSpacingStyle: React.CSSProperties = {
+  padding: "0 var(--space-md)",
+  marginTop: "var(--space-xl)",
+};
+
+const managementDividerStyle: React.CSSProperties = {
   height: "1px",
   background: "var(--color-line)",
   marginBottom: "var(--space-lg)",

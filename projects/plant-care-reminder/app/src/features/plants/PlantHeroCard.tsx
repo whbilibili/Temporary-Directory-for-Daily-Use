@@ -1,5 +1,9 @@
+import { Pencil } from "lucide-react";
+
+import { Icon } from "../../components/ui/Icon";
 import { StorageImage } from "../../components/ui/StorageImage";
 import { getUtcDayStart } from "../tasks/scheduling";
+import { PlantAvatar } from "./PlantAvatar";
 
 interface TaskSummaryInput {
   lastCompletedAt: number | null;
@@ -21,6 +25,8 @@ interface PlantHeroCardProps {
   };
   tasks?: TaskSummaryInput[];
   onThumbnailClick?: () => void;
+  /** 点击编辑的回调。传入时会在卡片右上角渲染编辑按钮。 */
+  onEdit?: () => void;
 }
 
 type StatusLevel = "overdue" | "today" | "normal" | "archived";
@@ -87,7 +93,7 @@ function getStatusColor(level: StatusLevel): string {
   }
 }
 
-export function PlantHeroCard({ plant, tasks = [], onThumbnailClick }: PlantHeroCardProps) {
+export function PlantHeroCard({ plant, tasks = [], onThumbnailClick, onEdit }: PlantHeroCardProps) {
   const statusLevel = computeStatusLevel(plant, tasks);
   const statusText = getStatusText(statusLevel, tasks);
   const statusColor = getStatusColor(statusLevel);
@@ -96,6 +102,18 @@ export function PlantHeroCard({ plant, tasks = [], onThumbnailClick }: PlantHero
 
   return (
     <article style={containerStyle}>
+      {/* 编辑按钮（浮于卡片右上角） */}
+      {onEdit && (
+        <button
+          aria-label="编辑植物资料"
+          onClick={onEdit}
+          style={editBtnStyle}
+          type="button"
+        >
+          <Icon icon={Pencil} size={14} strokeWidth={1.75} colorVar="--color-leaf" />
+        </button>
+      )}
+
       {/* 缩略图 */}
       <div
         aria-label={hasImage ? "查看大图" : undefined}
@@ -123,13 +141,7 @@ export function PlantHeroCard({ plant, tasks = [], onThumbnailClick }: PlantHero
           initialUrl={plant.imageUrl}
           storageId={plant.imageStorageId as never}
           style={thumbnailImageStyle}
-          fallback={
-            <div style={thumbnailPlaceholderStyle}>
-              <span aria-hidden="true" style={placeholderEmojiStyle}>
-                🪴
-              </span>
-            </div>
-          }
+          fallback={<PlantAvatar name={plant.name} size={48} />}
         />
       </div>
 
@@ -151,6 +163,7 @@ export function PlantHeroCard({ plant, tasks = [], onThumbnailClick }: PlantHero
 }
 
 const containerStyle: React.CSSProperties = {
+  position: "relative",
   display: "flex",
   flexDirection: "row",
   alignItems: "center",
@@ -161,6 +174,24 @@ const containerStyle: React.CSSProperties = {
   border: "1px solid var(--color-line)",
 };
 
+const editBtnStyle: React.CSSProperties = {
+  position: "absolute",
+  top: "10px",
+  right: "10px",
+  appearance: "none",
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: "32px",
+  height: "32px",
+  padding: 0,
+  borderRadius: "var(--radius-pill)",
+  border: "1px solid var(--color-line)",
+  background: "var(--color-mist)",
+  cursor: "pointer",
+  transition: "background 160ms ease, border-color 160ms ease",
+};
+
 const thumbnailWrapStyle: React.CSSProperties = {
   flexShrink: 0,
   width: "48px",
@@ -168,6 +199,7 @@ const thumbnailWrapStyle: React.CSSProperties = {
   borderRadius: "12px",
   overflow: "hidden",
   border: "1px solid var(--color-line)",
+  position: "relative",
 };
 
 const thumbnailImageStyle: React.CSSProperties = {
@@ -177,19 +209,6 @@ const thumbnailImageStyle: React.CSSProperties = {
   objectFit: "cover",
 };
 
-const thumbnailPlaceholderStyle: React.CSSProperties = {
-  width: "100%",
-  height: "100%",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  background: "var(--color-mist)",
-};
-
-const placeholderEmojiStyle: React.CSSProperties = {
-  fontSize: "24px",
-  lineHeight: 1,
-};
 
 const textAreaStyle: React.CSSProperties = {
   flex: 1,
@@ -227,3 +246,23 @@ const dotStyle: React.CSSProperties = {
   margin: "0 4px",
   color: "var(--color-muted)",
 };
+
+// --- Hero 编辑按钮 hover/active 反馈（幂等注入） ---
+if (typeof document !== "undefined" && !document.getElementById("hero-edit-btn-css")) {
+  const s = document.createElement("style");
+  s.id = "hero-edit-btn-css";
+  s.textContent = `
+button[aria-label="编辑植物资料"]:hover {
+  background: var(--color-line);
+  border-color: var(--color-leaf);
+}
+button[aria-label="编辑植物资料"]:active {
+  transform: scale(0.92);
+}
+@media (prefers-reduced-motion: reduce) {
+  button[aria-label="编辑植物资料"]:active {
+    transform: none;
+  }
+}`;
+  document.head.appendChild(s);
+}

@@ -29,7 +29,10 @@ export function AppShell({ pathname, routeContext, routeParams }: AppShellProps)
   return (
     <RouteGate pathname={pathname} routeContext={routeContext}>
       <div style={frameStyle}>
-        <div style={backdropOrbStyle} />
+        {/* 装饰球：独立裁切容器，不影响内容层 */}
+        <div style={orbClipStyle} aria-hidden="true">
+          <div style={backdropOrbStyle} />
+        </div>
         <main style={mainStyle}>
           {pathname === "/login" ? <AuthPage /> : null}
           {pathname === "/onboarding" ? (
@@ -89,17 +92,28 @@ const frameStyle: React.CSSProperties = {
   background: "var(--gradient-botanical)",
   color: "var(--color-ink)",
   position: "relative",
-  overflow: "hidden",
+  overflowX: "clip",
+};
+
+/** 装饰球的独立裁切容器——铺满 frame 并裁掉溢出，不影响 main 内容层。
+ *  使用 overflow:clip 而非 hidden，因为 clip 不会创建可滚动区域，
+ *  可彻底避免 iOS Safari 的 rubber-band 弹性滚动。 */
+const orbClipStyle: React.CSSProperties = {
+  position: "absolute",
+  inset: 0,
+  overflow: "clip",
+  pointerEvents: "none",
+  zIndex: 0,
 };
 
 const backdropOrbStyle: React.CSSProperties = {
   position: "absolute",
-  inset: "-20% auto auto 55%",
+  top: "-20%",
+  left: "55%",
   width: "320px",
   height: "320px",
   borderRadius: "var(--radius-pill)",
   background: "var(--gradient-accent)",
-  pointerEvents: "none",
 };
 
 const mainStyle: React.CSSProperties = {
@@ -112,4 +126,7 @@ const mainStyle: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
   justifyContent: "flex-start",
+  // 内容层高于装饰球
+  position: "relative",
+  zIndex: 1,
 };

@@ -1,4 +1,5 @@
 import { formatTaskTypeLabel } from "../../lib/formatters";
+import { clampLines, truncateSingleLine } from "../../lib/textTruncate";
 import type { DueTaskCardData } from "./DueTaskCard";
 import { TaskTypeBadge } from "./TaskTypeBadge";
 
@@ -123,6 +124,7 @@ const plantNameStyle: React.CSSProperties = {
   fontSize: "1rem",
   fontWeight: 700,
   lineHeight: 1.3,
+  ...truncateSingleLine,
 };
 
 const taskLabelStyle: React.CSSProperties = {
@@ -130,6 +132,7 @@ const taskLabelStyle: React.CSSProperties = {
   color: "var(--color-muted)",
   fontSize: "0.9rem",
   lineHeight: 1.4,
+  ...clampLines(2),
 };
 
 const nextDueStyle: React.CSSProperties = {

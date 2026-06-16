@@ -111,3 +111,31 @@
 - 前端输入达上限即无法继续输入，并有可见反馈。
 - 绕过前端直调 mutation 提交超长数据被后端 reject。
 - 存量超长数据在各展示位优雅截断（单行省略或多行 clamp），关键信息（名称）始终可读。
+
+## 8. 验收小结（TEXT-007 · 2026-06-15 模块结项）
+
+`long-text-hardening-v0.5` 七个任务（TEXT-001 ~ TEXT-007）全部完成，四层防御落地闭环。
+
+### 第三批·加固②（TEXT-007）交付内容
+
+- **公共截断工具**：新建 `app/src/lib/textTruncate.ts`，导出 `truncateSingleLine`（单行省略三件套 + minWidth:0 兜底）与 `clampLines(n)`（WebkitLineClamp(n) + break-word）。收口此前散落在各列表卡片的复制粘贴写法，统一全仓库截断样式来源。配套 `textTruncate.test.ts` 3 用例守护。
+- **列表卡 clamp**：`TaskListItem`（任务名 clamp(2)）、`DueTaskCard`（植物名单行省略 + 任务名 clamp(2)）、`UpcomingDueCard`（植物名单行省略 + 任务名 clamp(2)）统一引用公共工具，contentStyle 既有 minWidth:0 满足单行省略父级要求。
+- **PlanTaskRow 加固（截图2）**：label 由「无 flex 增长权、与 interval(flex:1) 竞争收缩」修正为 `flex:1` 成为主收缩列并经 `truncateSingleLine` 单行省略；interval 去掉 `flex:1` 改 `flexShrink:0 + minWidth:0`，不再抢占主空间。彻底解决长任务名在计划行被挤压的脆弱单行省略问题。
+
+### 四层防御全景（模块完成态）
+
+- 第一层·输入端 maxLength（TEXT-004）：五字段 `<input maxLength>` 源头限制 + 简介/备注字数计数。
+- 第二层·前端长度校验（TEXT-005）：`validatePlantEditorValues` / `validateCustomTaskName` 拦截粘贴/IME 绕过。
+- 第三层·后端 Convex 兜底（TEXT-006）：`assertMaxLength` + `assertPlantTextWithinLimits`，防 API 直调绕过。
+- 第四层·展示端截断（TEXT-001/002/003/007）：PlantCard minWidth:0 假截断修复、PageHeader/DeleteTaskAction break-word、列表卡 clamp、PlanTaskRow flex 加固，统一走 `textTruncate.ts`。
+
+### 验证（四件套全绿）
+
+- `npm run typecheck`（tsc -b）：0 错误。
+- `npx vitest run`：25 files / 159 tests 全绿（较 TEXT-006 +1 文件 +3 用例，即 textTruncate.test.ts）。
+- `npx convex dev --once --typecheck enable`：函数编译部署成功。
+- `npm run build`（tsc -b && vite build）：构建成功，主 bundle 427KB(gzip 122KB)。
+
+### 走查替代说明
+
+当前环境无 GUI，§7 验收标准的「灌入 500+ 字符走查列表/详情/编辑/待办/删除确认/页头六处无溢出」以代码 + 构建 + 测试证据核对替代：单行省略由 `truncateSingleLine` 统一保证（配父级 minWidth:0），多行 clamp 由 `clampLines(2)` 保证，超长连续串横向溢出由 clamp 内 break-word 兜住；PlanTaskRow flex 分配修正经源码核对确认 label 主收缩、interval 不抢占。
