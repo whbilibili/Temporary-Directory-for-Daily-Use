@@ -2,6 +2,7 @@ import { useMutation } from "convex/react";
 import { useState } from "react";
 
 import { api } from "../../../convex/_generated/api";
+import { navigate } from "../../app/router";
 import { Button } from "../../components/ui/Button";
 import { FormError } from "../../components/ui/FormError";
 import { InputField } from "../../components/ui/InputField";
@@ -25,6 +26,9 @@ export function ProfileBootstrapForm({ suggestedName }: ProfileBootstrapFormProp
       await updateMyProfile({
         displayName,
       });
+      // 保存成功后主动跳转到家庭选择页，不再依赖 RouteGate 重定向。
+      navigate("/onboarding", true);
+      return;
     } catch (error) {
       setErrorMessage(
         error instanceof Error ? error.message : "保存称呼失败，请稍后再试。",
@@ -55,7 +59,7 @@ export function ProfileBootstrapForm({ suggestedName }: ProfileBootstrapFormProp
           value={displayName}
         />
         <FormError message={errorMessage} />
-        <Button disabled={isSubmitting} type="submit">
+        <Button disabled={isSubmitting} style={leafButtonStyle} type="submit">
           {isSubmitting ? "保存中..." : "继续"}
         </Button>
       </form>
@@ -107,4 +111,10 @@ const bodyStyle: React.CSSProperties = {
 const formStyle: React.CSSProperties = {
   display: "grid",
   gap: "var(--space-md)",
+};
+
+/** Onboarding 主按钮：深绿底白字，对齐设计稿。 */
+const leafButtonStyle: React.CSSProperties = {
+  background: "var(--color-leaf)",
+  color: "#fff",
 };

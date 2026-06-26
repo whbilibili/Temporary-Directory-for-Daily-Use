@@ -1,5 +1,4 @@
-import { internal } from "./_generated/api";
-import { internalAction, internalMutation, internalQuery, mutation } from "./_generated/server";
+import { internalMutation, internalQuery, mutation, query } from "./_generated/server";
 import { getCurrentUserContext as loadCurrentUserContext } from "./lib/auth";
 import { v } from "convex/values";
 
@@ -189,33 +188,51 @@ export const markTaskNotified = internalMutation({
   },
 });
 
-export const processDueTaskNotifications = internalAction({
+/** 删除失效的 push 订阅（endpoint 过期或用户取消授权）。 */
+export const removeExpiredSubscription = internalMutation({
+  args: {
+    subscriptionId: v.id("pushSubscriptions"),
+  },
+  handler: async (ctx, args) => {
+    const subscription = await ctx.db.get(args.subscriptionId);
+    if (subscription) {
+      await ctx.db.delete(args.subscriptionId);
+    }
+  },
+});
+
+/** 查询当前用户在当前家庭是否有有效的 push 订阅。 */
+export const hasActiveSubscription = query({
   args: {},
   handler: async (ctx) => {
-    const now = Date.now();
-    const result = await ctx.runQuery(internal.notifications.listNotifiableDueTasks, {
-      now,
-    });
-
-    let notifiedTaskCount = 0;
-    let recipientCount = 0;
-
-    for (const task of result.tasks) {
-      if (task.subscriptions.length === 0) {
-        continue;
-      }
-
-      recipientCount += task.subscriptions.length;
-      await ctx.runMutation(internal.notifications.markTaskNotified, {
-        taskId: task.taskId,
-        notifiedAt: now,
-      });
-      notifiedTaskCount += 1;
+    const currentUserContext = await loadCurrentUserContext(ctx);
+    if (!currentUserContext.userId || !currentUserContext.familyId) {
+      return false;
     }
+    const subscriptions = await ctx.db
+      .query("pushSubscriptions")
+      .withIndex("by_familyId_and_userId", (q) =>
+        q.eq("familyId", currentUserContext.familyId!).eq("userId", currentUserContext.userId!),
+      )
+      .collect();
+    return subscriptions.length > 0;
+  },
+});
 
-    return {
-      notifiedTaskCount,
-      recipientCount,
-    };
+/** 删除当前用户在当前家庭的所有 push 订阅（用于"关闭通知"）。 */
+export const removeMySubscriptions = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const currentUserContext = await requireCurrentFamilyMember(ctx);
+    const subscriptions = await ctx.db
+      .query("pushSubscriptions")
+      .withIndex("by_familyId_and_userId", (q) =>
+        q.eq("familyId", currentUserContext.familyId).eq("userId", currentUserContext.userId),
+      )
+      .collect();
+    for (const subscription of subscriptions) {
+      await ctx.db.delete(subscription._id);
+    }
+    return { ok: true as const, removed: subscriptions.length };
   },
 });

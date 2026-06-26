@@ -51,10 +51,8 @@ const navStyle: React.CSSProperties = {
   bottom: 0,
   zIndex: 50,
   padding: "var(--space-sm) var(--space-md) calc(var(--space-sm) + env(safe-area-inset-bottom, 0px))",
+  background: "var(--color-paper)",
   borderTop: "1px solid var(--color-line)",
-  background: "rgba(251,252,247,0.92)",
-  backdropFilter: "blur(12px)",
-  WebkitBackdropFilter: "blur(12px)",
 };
 
 const navInnerStyle: React.CSSProperties = {

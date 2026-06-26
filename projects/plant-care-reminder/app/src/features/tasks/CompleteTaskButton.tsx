@@ -138,23 +138,27 @@ const circleWrapStyle: React.CSSProperties = {
 };
 
 const circleButtonStyle: React.CSSProperties = {
-  width: "36px",
-  height: "36px",
-  minHeight: "36px",
+  width: "44px",
+  height: "44px",
+  minHeight: "44px",
   padding: 0,
   borderRadius: "var(--radius-pill)",
+  background: "var(--color-surface)",
+  border: "2px solid var(--color-leaf-light)",
+  color: "var(--color-leaf-light)",
   fontSize: "20px",
   lineHeight: 1,
   display: "inline-flex",
   alignItems: "center",
   justifyContent: "center",
+  boxShadow: "none",
 };
 
 const circleButtonDoneStyle: React.CSSProperties = {
   ...circleButtonStyle,
   background: "var(--color-success)",
   color: "var(--color-surface)",
-  borderColor: "var(--color-success)",
+  border: "2px solid var(--color-success)",
 };
 
 const doneButtonStyle: React.CSSProperties = {

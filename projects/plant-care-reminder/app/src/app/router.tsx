@@ -19,7 +19,9 @@ export type AppPath =
   | "/plants/new"
   | "/plants/edit"
   | "/todo"
-  | "/settings";
+  | "/settings"
+  | "/settings/profile"
+  | "/settings/members";
 
 export interface RouteContext {
   userId: string | null;
@@ -53,7 +55,9 @@ export function normalizePath(pathname: string): AppRoute {
     pathname === "/plants/new" ||
     pathname === "/plants/edit" ||
     pathname === "/todo" ||
-    pathname === "/settings"
+    pathname === "/settings" ||
+    pathname === "/settings/profile" ||
+    pathname === "/settings/members"
   ) {
     return {
       pathname,

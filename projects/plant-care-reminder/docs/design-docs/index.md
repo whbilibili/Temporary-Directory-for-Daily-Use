@@ -8,6 +8,12 @@
 - [2026-06-09-frontend-refresh-plan.md](./2026-06-09-frontend-refresh-plan.md)
 - [2026-06-09-ui-ux-visual-spec.md](./2026-06-09-ui-ux-visual-spec.md)
 - [2026-06-15-long-text-handling-plan.md](./2026-06-15-long-text-handling-plan.md)
+- [2026-06-16-system-ui-drafts/README.md](./2026-06-16-system-ui-drafts/README.md)
+- [2026-06-16-system-ui-implementation-plan.md](./2026-06-16-system-ui-implementation-plan.md)
+- [2026-06-17-main-flow-continuity-plan.md](./2026-06-17-main-flow-continuity-plan.md)
+- [2026-06-17-background-assets/README.md](./2026-06-17-background-assets/README.md)
+- [2026-06-17-settings-detail-drafts/README.md](./2026-06-17-settings-detail-drafts/README.md)
+- [2026-06-17-settings-detail-interaction-plan.md](./2026-06-17-settings-detail-interaction-plan.md)
 - [moodboard/README.md](./moodboard/README.md)
 - [core-beliefs.md](./core-beliefs.md)
 

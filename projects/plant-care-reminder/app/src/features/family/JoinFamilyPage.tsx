@@ -25,7 +25,7 @@ export function JoinFamilyPage() {
         <p style={eyebrowStyle}>加入家庭</p>
         <h1 style={titleStyle}>加入已有家庭</h1>
         <p style={bodyStyle}>
-          输入家人发来的邀请码，即可加入同一个植物看板和养护任务列表。
+          输入邀请码，即可和家人一起管理植物
         </p>
       </header>
       <JoinFamilyForm onSuccess={() => setIsWaitingForRedirect(true)} />

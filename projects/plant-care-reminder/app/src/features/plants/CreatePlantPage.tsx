@@ -4,7 +4,7 @@ import { useState } from "react";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { FormError } from "../../components/ui/FormError";
-import { FormNavBar } from "../../components/ui/FormNavBar";
+import { ScreenNav } from "../../components/ui/ScreenNav";
 import { navigate } from "../../app/router";
 import { PlantForm } from "./PlantForm";
 import { markCreatePlantSuccess } from "./createPlantSuccess";
@@ -34,36 +34,50 @@ export function CreatePlantPage() {
 
   return (
     <section style={pageStyle}>
-      <FormNavBar
+      <ScreenNav
         title="添加植物"
         onBack={() => navigate("/plants", true)}
-        onSave={() => form.handleSubmit()}
-        saveDisabled={form.isSubmitting}
-        saveLabel="保存"
-      />
-      <PlantForm
-        form={form}
-        submitLabel="保存植物"
-        title="把植物添加到家庭空间"
-        description={
-          <p style={bodyStyle}>
-            先把植物资料保存下来，之后添加的养护提醒都会挂在当前家庭下的这条植物记录上。
-          </p>
+        rightAction={
+          <button
+            disabled={form.isSubmitting}
+            onClick={() => void form.handleSubmit()}
+            style={{
+              ...saveButtonStyle,
+              opacity: form.isSubmitting ? 0.6 : 1,
+              cursor: form.isSubmitting ? "not-allowed" : "pointer",
+            }}
+            type="button"
+          >
+            保存
+          </button>
         }
       />
-      <FormError message={errorMessage} />
+      <PlantForm form={form} submitLabel="保存植物" />
+      <div style={bottomErrorStyle}>
+        <FormError message={errorMessage} />
+      </div>
     </section>
   );
 }
 
 const pageStyle: React.CSSProperties = {
-  display: "grid",
-  gap: "16px",
+  display: "flex",
+  flexDirection: "column",
+  minHeight: "100dvh",
+  background: "var(--color-paper)",
 };
 
-const bodyStyle: React.CSSProperties = {
-  margin: 0,
-  color: "var(--color-muted)",
-  fontSize: "1rem",
-  lineHeight: 1.7,
+const saveButtonStyle: React.CSSProperties = {
+  appearance: "none",
+  border: "none",
+  background: "transparent",
+  color: "var(--color-leaf)",
+  fontSize: "16px",
+  fontWeight: 600,
+  padding: "var(--space-xs) var(--space-sm)",
+  cursor: "pointer",
+};
+
+const bottomErrorStyle: React.CSSProperties = {
+  padding: "var(--space-sm) var(--space-md) var(--space-lg)",
 };

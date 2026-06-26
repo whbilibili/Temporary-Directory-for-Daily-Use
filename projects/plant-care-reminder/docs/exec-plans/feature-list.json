@@ -156,6 +156,67 @@
         "plant-list-v2",
         "plant-detail-v2"
       ]
+    },
+    {
+      "module": "system-ui-refresh-v0.6",
+      "file": "docs/exec-plans/modules/system-ui-refresh-v0.6.json",
+      "description": "系统级 UI 主路径改造：基于 2026-06-16 设计稿，落地轻量原生导航、GroupedSurface、Photo-led 植物看板、Quiet Form、设置页邀请协作卡，目标主页面 95% 还原设计稿。",
+      "prd": "docs/design-docs/2026-06-16-system-ui-implementation-plan.md",
+      "task_count": 9,
+      "completed": 0,
+      "depends_on": [
+        "frontend-refresh",
+        "todo-page-v2",
+        "plant-list-v2",
+        "plant-detail-v2",
+        "settings-page-v0.3",
+        "icon-system-v0.4",
+        "long-text-hardening-v0.5"
+      ]
+    },
+    {
+      "module": "main-flow-continuity-v0.7",
+      "file": "docs/exec-plans/modules/main-flow-continuity-v0.7.json",
+      "description": "主页面 UI 改造后的流程连续性补全：细化登录注册、忘记密码、邀请加入、onboarding、待办、植物看板、植物详情、安静表单、设置协作和跨页面状态的缺失功能与流转修复。",
+      "prd": "docs/design-docs/2026-06-17-main-flow-continuity-plan.md",
+      "task_count": 14,
+      "completed": 0,
+      "depends_on": [
+        "system-ui-refresh-v0.6",
+        "family-access",
+        "plant-registry",
+        "care-reminders",
+        "plant-list-v2",
+        "plant-detail-v2",
+        "settings-page-v0.3"
+      ]
+    },
+    {
+      "module": "settings-detail-continuity-v0.8",
+      "file": "docs/exec-plans/modules/settings-detail-continuity-v0.8.json",
+      "description": "设置页主设计稿派生交互补全：基于 2026-06-17 settings detail drafts，落地个人资料、成员管理、成员详情、移除确认、邀请详情、通知详情，并回接设置主页面入口。",
+      "prd": "docs/design-docs/2026-06-17-settings-detail-interaction-plan.md",
+      "task_count": 9,
+      "completed": 0,
+      "depends_on": [
+        "system-ui-refresh-v0.6",
+        "main-flow-continuity-v0.7",
+        "settings-page-v0.3",
+        "settings-page-v2"
+      ]
+    },
+    {
+      "module": "onboarding-polish-v0.9",
+      "file": "docs/exec-plans/modules/onboarding-polish-v0.9.json",
+      "description": "Onboarding 流程 UI 精修：按钮色系校正(gold→leaf)、导航栏透明、问候栏卡片化+头像+编辑铅笔、家庭选择卡片横排、RouteGate 返回编辑修复、回归验证。",
+      "prd": "docs/design-docs/2026-06-16-system-ui-drafts/02-family-onboarding.png",
+      "task_count": 6,
+      "completed": 6,
+      "depends_on": [
+        "system-ui-refresh-v0.6",
+        "main-flow-continuity-v0.7",
+        "icon-system-v0.4"
+      ]
     }
   ],
   "tasks_summary": [
@@ -942,9 +1003,395 @@
 "description": "第三批·加固②：新建 textTruncate.ts 公共截断工具收口复制粘贴；TaskListItem/DueTaskCard/UpcomingDueCard 任务名 clamp(2)+植物名单行省略；PlanTaskRow flex 加固；整体回归验收 500+ 字符全页面无溢出 + 验收小结。",
 "status": "completed",
       "priority": "2-Medium"
+    },
+    {
+      "task_id": "UI-SYS-001",
+      "module": "system-ui-refresh-v0.6",
+      "description": "建立系统级 UI 改造共享基元：ScreenNav、GroupedSurface、ObjectSummaryBand、TaskActionRow、InviteCard，并定义视觉 QA 截图规范。",
+      "status": "pending",
+      "priority": "0-Critical"
+    },
+    {
+      "task_id": "UI-SYS-002",
+      "module": "system-ui-refresh-v0.6",
+      "description": "改造登录/注册页为 v2 同页双模式表单：保留 /login 单路由，通过 登录/注册 segmented control 切换模式，首屏展示输入框和主按钮。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "UI-SYS-003",
+      "module": "system-ui-refresh-v0.6",
+      "description": "改造家庭接入选择页：压缩说明文案，突出创建新家庭/加入家人的家庭两个决策 surface，并保留现有 profile/create/join 链路。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "UI-SYS-004",
+      "module": "system-ui-refresh-v0.6",
+      "description": "改造待办首页：首屏优先展示逾期/今天任务、完成进度、右侧圆形完成按钮和即将到期轻列表。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "UI-SYS-005",
+      "module": "system-ui-refresh-v0.6",
+      "description": "改造植物看板：重建 photo-led 植物卡片、搜索栏、添加入口和无图/坏图占位态，保持整卡进入详情和归档区能力。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "UI-SYS-006",
+      "module": "system-ui-refresh-v0.6",
+      "description": "改造植物详情页：替换顶部为 ScreenNav + ObjectSummaryBand，解决白条贴片感；将需要处理和养护计划上移，低频动作下沉。",
+      "status": "pending",
+      "priority": "0-Critical"
+    },
+    {
+      "task_id": "UI-SYS-007",
+      "module": "system-ui-refresh-v0.6",
+      "description": "改造安静表单模板：统一添加/编辑植物与添加/编辑养护任务的顶部导航、上下文摘要、字段分组、预览/状态和危险操作分离。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "UI-SYS-008",
+      "module": "system-ui-refresh-v0.6",
+      "description": "改造设置页 v2：重建家庭协作优先的设置页，InviteCard 同时支持复制邀请链接和快捷复制邀请码，并保留手动查看兜底。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "UI-SYS-009",
+      "module": "system-ui-refresh-v0.6",
+      "description": "跨页面视觉 QA 与 95% 还原修正：对七张主设计稿对应页面进行 375/390/430px 截图验收，修正间距、层级、按钮、长文本和移动端遮挡问题。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "FLOW-001",
+      "module": "main-flow-continuity-v0.7",
+      "description": "建立主流程路由与状态审计表：逐页核对进入、返回、成功跳转、失败兜底、加载态、空态和丢失功能，形成修复清单与截图证据。",
+      "status": "pending",
+      "priority": "0-Critical"
+    },
+    {
+      "task_id": "FLOW-002",
+      "module": "main-flow-continuity-v0.7",
+      "description": "补齐登录/注册入口连续性：保留同页双模式，确认登录、注册、邀请上下文、错误提示、提交中状态和成功后 RouteGate 跳转稳定。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "FLOW-003",
+      "module": "main-flow-continuity-v0.7",
+      "description": "正式化忘记密码流程：补齐请求验证码、验证码验证、新密码设置、返回登录、重新发送、错误翻译和成功回填邮箱。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "FLOW-004",
+      "module": "main-flow-continuity-v0.7",
+      "description": "补齐邀请落地页与 pending invite 链路：/join/:code 对匿名、已登录无家庭、已登录已有家庭三种状态给出明确引导。",
+      "status": "pending",
+      "priority": "0-Critical"
+    },
+    {
+      "task_id": "FLOW-005",
+      "module": "main-flow-continuity-v0.7",
+      "description": "补齐 onboarding 创建/加入家庭的成功、返回、失败和 RouteGate 放行，避免表单成功后停留或被重定向到错误页面。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "FLOW-006",
+      "module": "main-flow-continuity-v0.7",
+      "description": "补齐待办首页任务操作连续性：完成、撤销、进入植物详情、展开即将到期、空态和加载态都按新版 UI 稳定展示。",
+      "status": "pending",
+      "priority": "0-Critical"
+    },
+    {
+      "task_id": "FLOW-007",
+      "module": "main-flow-continuity-v0.7",
+      "description": "补齐植物看板入口能力：添加第一株植物 CTA、搜索无结果、整卡进入详情、归档折叠、无图/坏图占位和主导航 active 态。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "FLOW-008",
+      "module": "main-flow-continuity-v0.7",
+      "description": "补齐植物详情操作闭环：需要处理、养护计划、添加/编辑任务、图片预览、归档/恢复/删除、缺失植物和返回路径全部稳定。",
+      "status": "pending",
+      "priority": "0-Critical"
+    },
+    {
+      "task_id": "FLOW-009",
+      "module": "main-flow-continuity-v0.7",
+      "description": "统一添加/编辑植物 quiet form 流程：保存、取消、返回、脏数据确认、校验错误、图片上传失败和危险操作分离。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "FLOW-010",
+      "module": "main-flow-continuity-v0.7",
+      "description": "统一添加/编辑养护计划 quiet form 流程：植物上下文摘要、保存后回详情、取消确认、删除任务确认、频率/类型/名称校验。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "FLOW-011",
+      "module": "main-flow-continuity-v0.7",
+      "description": "补齐设置页协作功能连续性：复制邀请链接/邀请码、复制失败 fallback、家庭改名刷新、成员管理占位、通知开关真实状态说明、退出确认。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "FLOW-012",
+      "module": "main-flow-continuity-v0.7",
+      "description": "抽象并应用跨页面状态组件：LoadingSurface、ErrorSurface、SuccessToast 或等价封装，统一主路径状态表达。",
+      "status": "pending",
+      "priority": "2-Medium"
+    },
+    {
+      "task_id": "FLOW-013",
+      "module": "main-flow-continuity-v0.7",
+      "description": "补齐主路径 E2E smoke：覆盖新用户注册、创建家庭、添加植物、添加任务、完成任务、撤销、编辑、设置页复制邀请和退出登录。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "FLOW-014",
+      "module": "main-flow-continuity-v0.7",
+      "description": "主流程视觉与交互回归：对 v0.7 修复后的核心路径做 375/390/430px 截图验收，修正导航层级、按钮溢出、文本遮挡和底部导航范围。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "SETD-001",
+      "module": "settings-detail-continuity-v0.8",
+      "description": "设置细节页路由与页面壳：扩展个人资料、管理成员、成员资料、邀请家人、提醒通知等设置子页；二级页统一 ScreenNav，不显示底部 TabBar。",
+      "status": "pending",
+      "priority": "0-Critical"
+    },
+    {
+      "task_id": "SETD-002",
+      "module": "settings-detail-continuity-v0.8",
+      "description": "个人资料编辑页：从设置页右上头像进入，支持头像上传、HEIC 转 JPEG、上传中/已保存/错误三态、显示名称编辑和脏数据返回确认。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "SETD-003",
+      "module": "settings-detail-continuity-v0.8",
+      "description": "管理成员列表页：展示家庭名、成员数量、成员头像、角色、当前用户标记、最后活跃，并提供邀请更多家人的入口。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "SETD-004",
+      "module": "settings-detail-continuity-v0.8",
+      "description": "成员资料页：展示成员头像、名称、角色、加入时间、最后活跃、近期养护摘要；管理员可对非自己成员打开移除确认。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "SETD-005",
+      "module": "settings-detail-continuity-v0.8",
+      "description": "移除成员确认与后端接线：ConfirmSheet danger-solid 调用 families.removeMember，成功返回成员列表并刷新，失败在 sheet 内展示友好错误。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "SETD-006",
+      "module": "settings-detail-continuity-v0.8",
+      "description": "邀请家人详情页：展示完整链接和邀请码，支持复制链接、复制邀请码、复制成功反馈和复制失败手动兜底。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "SETD-007",
+      "module": "settings-detail-continuity-v0.8",
+      "description": "提醒通知详情页：展示提醒开关、当前本地/账号级状态说明、浏览器通知权限检查和添加到主屏幕排障入口。",
+      "status": "pending",
+      "priority": "2-Medium"
+    },
+    {
+      "task_id": "SETD-008",
+      "module": "settings-detail-continuity-v0.8",
+      "description": "设置主页面入口回接：右上头像、管理成员、成员行、手动查看邀请码、通知行全部接入对应二级页；未实现入口不再作为静态可点击样式出现。",
+      "status": "pending",
+      "priority": "0-Critical"
+    },
+    {
+      "task_id": "SETD-009",
+      "module": "settings-detail-continuity-v0.8",
+      "description": "设置细节页视觉与流程回归：按 6 张补充设计稿做 375/390/430px 截图验收，覆盖管理员/普通成员、复制失败、权限失败、长名称和无头像 fallback。",
+      "status": "pending",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "OBP-001",
+      "module": "onboarding-polish-v0.9",
+      "description": "Button primary 色系校正 gold→leaf，新增 accent 变体保留原 gold 语义，onboarding 三表单主按钮变深绿。",
+      "status": "completed",
+      "priority": "0-Critical"
+    },
+    {
+      "task_id": "OBP-002",
+      "module": "onboarding-polish-v0.9",
+      "description": "ScreenNav 背景透明化：navStyle.background 从 var(--color-paper) 改为 transparent，消除渐变页面顶部色带。",
+      "status": "completed",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "OBP-003",
+      "module": "onboarding-polish-v0.9",
+      "description": "FamilyOnboardingChoicePage 问候栏精修：GroupedSurface 卡片包裹、MemberAvatar 替换空 div、编辑按钮加 Pencil 图标。",
+      "status": "completed",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "OBP-004",
+      "module": "onboarding-polish-v0.9",
+      "description": "家庭选择卡片布局重构：从纵向堆叠改为左图标右文字水平排列，对齐设计稿。",
+      "status": "completed",
+      "priority": "1-High"
+    },
+    {
+      "task_id": "OBP-005",
+      "module": "onboarding-polish-v0.9",
+      "description": "RouteGate 修复：允许已有 displayName 的用户重新访问 /onboarding/profile 以支持返回编辑。",
+      "status": "completed",
+      "priority": "0-Critical"
+    },
+    {
+      "task_id": "OBP-006",
+      "module": "onboarding-polish-v0.9",
+      "description": "Onboarding 精修回归验证：全流程走通新注册→设昵称→选择家庭→创建/加入→首页，截图对比设计稿。",
+      "status": "completed",
+      "priority": "1-High"
     }
   ],
   "cross_module_dependencies": [
+    {
+      "from": "SETD-001",
+      "to": "FLOW-001",
+      "reason": "设置细节页路由扩展应纳入主流程路由与状态审计，避免设置域子路径刷新或返回异常。"
+    },
+    {
+      "from": "SETD-001",
+      "to": "UI-SYS-008",
+      "reason": "设置二级页视觉和入口来自 v0.6 设置主页面与 InviteCard 结构。"
+    },
+    {
+      "from": "SETD-002",
+      "to": "SET3-008",
+      "reason": "个人资料编辑页复用设置页 v0.3 已建立的头像上传交互。"
+    },
+    {
+      "from": "SETD-002",
+      "to": "SET3-009",
+      "reason": "个人资料头像展示依赖 StorageImage 参数化和 MemberAvatar 真实头像改造。"
+    },
+    {
+      "from": "SETD-003",
+      "to": "SETD-001",
+      "reason": "成员管理列表依赖设置子页面路由和 ScreenNav 页面壳。"
+    },
+    {
+      "from": "SETD-004",
+      "to": "SETD-003",
+      "reason": "成员资料页从成员管理列表成员行进入。"
+    },
+    {
+      "from": "SETD-005",
+      "to": "SETD-004",
+      "reason": "移除成员确认由成员资料页的危险操作触发。"
+    },
+    {
+      "from": "SETD-006",
+      "to": "SET3-013",
+      "reason": "邀请家人详情页依赖 v0.3 已建立的邀请链接与 /join/:code 能力。"
+    },
+    {
+      "from": "SETD-008",
+      "to": "SETD-002",
+      "reason": "设置主页面右上头像入口回接依赖个人资料页完成。"
+    },
+    {
+      "from": "SETD-008",
+      "to": "SETD-003",
+      "reason": "设置主页面管理成员入口回接依赖成员管理页完成。"
+    },
+    {
+      "from": "SETD-008",
+      "to": "SETD-006",
+      "reason": "设置主页面手动查看邀请码入口回接依赖邀请详情页完成。"
+    },
+    {
+      "from": "SETD-009",
+      "to": "SETD-008",
+      "reason": "设置细节页最终视觉与流程回归应在主页面入口全部接线后执行。"
+    },
+    {
+      "from": "FLOW-001",
+      "to": "UI-SYS-009",
+      "reason": "主流程连续性审计应建立在 v0.6 主页面视觉回归之后，先确认视觉改造实际造成的流转和状态缺口。"
+    },
+    {
+      "from": "FLOW-002",
+      "to": "UI-SYS-002",
+      "reason": "登录/注册连续性修复基于 v0.6 同页双模式登录页结构。"
+    },
+    {
+      "from": "FLOW-004",
+      "to": "SET3-013",
+      "reason": "邀请落地页和 pending invite 链路依赖设置页 v0.3 已建立的 /join/:code 与邀请码加入能力。"
+    },
+    {
+      "from": "FLOW-005",
+      "to": "UI-SYS-003",
+      "reason": "onboarding 成功/失败/返回状态补齐基于 v0.6 家庭接入选择页。"
+    },
+    {
+      "from": "FLOW-006",
+      "to": "UI-SYS-004",
+      "reason": "待办首页功能连续性补齐基于 v0.6 待办首页视觉结构。"
+    },
+    {
+      "from": "FLOW-007",
+      "to": "UI-SYS-005",
+      "reason": "植物看板入口能力补齐基于 v0.6 photo-led 植物看板。"
+    },
+    {
+      "from": "FLOW-008",
+      "to": "UI-SYS-006",
+      "reason": "植物详情操作闭环补齐基于 v0.6 ScreenNav + ObjectSummaryBand 详情结构。"
+    },
+    {
+      "from": "FLOW-009",
+      "to": "UI-SYS-007",
+      "reason": "添加/编辑植物的保存、取消、脏数据确认基于 v0.6 quiet form 模板。"
+    },
+    {
+      "from": "FLOW-010",
+      "to": "UI-SYS-007",
+      "reason": "添加/编辑养护计划的保存、取消、删除确认同样基于 v0.6 quiet form 模板。"
+    },
+    {
+      "from": "FLOW-011",
+      "to": "UI-SYS-008",
+      "reason": "设置页协作连续性补齐基于 v0.6 InviteCard 和家庭协作设置页结构。"
+    },
+    {
+      "from": "FLOW-013",
+      "to": "FLOW-002",
+      "reason": "E2E 主路径验收需要登录/注册入口稳定。"
+    },
+    {
+      "from": "FLOW-014",
+      "to": "FLOW-013",
+      "reason": "最终视觉与交互回归应在主路径 smoke 通过后执行。"
+    },
     {
       "from": "ACCESS-001",
       "to": "INFRA-004",

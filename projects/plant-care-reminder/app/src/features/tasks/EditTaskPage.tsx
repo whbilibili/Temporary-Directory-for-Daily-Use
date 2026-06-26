@@ -1,15 +1,30 @@
 import { useMutation, useQuery } from "convex/react";
 import { useEffect, useState } from "react";
+import { Calendar, ChevronDown, Droplet, Leaf, MapPin, Trash2 } from "lucide-react";
 
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { navigate } from "../../app/router";
 import { Button } from "../../components/ui/Button";
 import { EmptyState } from "../../components/ui/EmptyState";
-import { formatTaskTypeLabel, normalizeCustomTaskName, validateCustomTaskName } from "./taskTypes";
+import { Icon } from "../../components/ui/Icon";
+import { ObjectSummaryBand } from "../../components/ui/ObjectSummaryBand";
+import { ScreenNav } from "../../components/ui/ScreenNav";
+import { StorageImage } from "../../components/ui/StorageImage";
+import { FormError } from "../../components/ui/FormError";
+import { ConfirmSheet } from "../../components/ui/ConfirmSheet";
+import { GroupedSurface } from "../../components/ui/GroupedSurface";
+import { ToggleSwitch } from "../../components/ui/ToggleSwitch";
+import {
+  careTaskTypeOptions,
+  formatTaskTypeLabel,
+  normalizeCustomTaskName,
+  requiresCustomTaskName,
+  validateCustomTaskName,
+  type CareTaskType,
+} from "./taskTypes";
 import { validateIntervalDays } from "./scheduling";
-import { DeleteTaskAction } from "./DeleteTaskAction";
-import { TaskForm, type TaskFormErrors, type TaskFormValues } from "./TaskForm";
+import type { TaskFormValues } from "./TaskForm";
 
 interface EditTaskPageProps {
   plantId: string | null;
@@ -19,6 +34,8 @@ interface EditTaskPageProps {
 interface TaskEditPayload {
   plantId: string;
   plantName: string;
+  plantLocation: string | null;
+  plantImageUrl: string | null;
   task: {
     customTaskName: string | null;
     enabled: boolean;
@@ -41,58 +58,50 @@ function toDateInputValue(timestamp: number | null) {
   return `${year}-${month}-${day}`;
 }
 
-function createValuesFromTask(task: TaskEditPayload["task"]): TaskFormValues {
-  return {
-    taskType: task.taskType,
-    customTaskName: task.customTaskName ?? "",
-    intervalDays: String(task.intervalDays),
-    baseCompletedOn: toDateInputValue(task.lastCompletedAt),
-  };
-}
-
 export function EditTaskPage({ plantId, taskId }: EditTaskPageProps) {
   const updatePlantTask = useMutation(api.tasks.updatePlantTask);
+  const deletePlantTask = useMutation(api.tasks.deletePlantTask);
   const task = useQuery(
     api.tasks.getTaskForEdit,
     plantId && taskId
       ? { plantId: plantId as Id<"plants">, taskId: taskId as Id<"plantTasks"> }
       : "skip",
   ) as TaskEditPayload | null | undefined;
-  const [values, setValues] = useState<TaskFormValues | null>(null);
-  const [errors, setErrors] = useState<TaskFormErrors>({});
+
+  const [taskType, setTaskType] = useState<CareTaskType>("watering");
+  const [customTaskName, setCustomTaskName] = useState("");
+  const [intervalDays, setIntervalDays] = useState("1");
+  const [baseCompletedOn, setBaseCompletedOn] = useState("");
+  const [enabled, setEnabled] = useState(true);
+  const [errors, setErrors] = useState<{ customTaskName?: string | null; intervalDays?: string | null }>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [enabled, setEnabled] = useState(true);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (task) {
-      setValues(createValuesFromTask(task.task));
+      setTaskType(task.task.taskType);
+      setCustomTaskName(task.task.customTaskName ?? "");
+      setIntervalDays(String(task.task.intervalDays));
+      setBaseCompletedOn(toDateInputValue(task.task.lastCompletedAt));
       setEnabled(task.task.enabled);
       setErrors({});
       setFormError(null);
     }
   }, [task]);
 
-  function setValue<Field extends keyof TaskFormValues>(field: Field, value: TaskFormValues[Field]) {
-    setValues((current) => (current ? { ...current, [field]: value } : current));
-  }
+  async function handleSave() {
+    if (!task) return;
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!task || !values) {
-      return;
-    }
-
-    const intervalDays = Number(values.intervalDays);
-    const nextErrors: TaskFormErrors = {
-      customTaskName: validateCustomTaskName(values.taskType, values.customTaskName),
-      intervalDays: validateIntervalDays(intervalDays),
+    const interval = Number(intervalDays);
+    const nextErrors = {
+      customTaskName: validateCustomTaskName(taskType, customTaskName),
+      intervalDays: validateIntervalDays(interval),
     };
     setErrors(nextErrors);
 
-    if (nextErrors.customTaskName || nextErrors.intervalDays) {
-      return;
-    }
+    if (nextErrors.customTaskName || nextErrors.intervalDays) return;
 
     setIsSubmitting(true);
     setFormError(null);
@@ -100,12 +109,11 @@ export function EditTaskPage({ plantId, taskId }: EditTaskPageProps) {
     try {
       await updatePlantTask({
         taskId: task.task.taskId as Id<"plantTasks">,
-        taskType: values.taskType,
-        customTaskName: normalizeCustomTaskName(values.customTaskName),
-        intervalDays,
+        taskType,
+        customTaskName: normalizeCustomTaskName(customTaskName),
+        intervalDays: interval,
         enabled,
       });
-
       navigate(`/plants/${task.plantId}`, true);
     } catch (error) {
       setFormError(
@@ -113,6 +121,17 @@ export function EditTaskPage({ plantId, taskId }: EditTaskPageProps) {
       );
     } finally {
       setIsSubmitting(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (!task) return;
+    setIsDeleting(true);
+    try {
+      await deletePlantTask({ taskId: task.task.taskId as Id<"plantTasks"> });
+      navigate(`/plants/${task.plantId}`, true);
+    } catch {
+      setIsDeleting(false);
     }
   }
 
@@ -131,13 +150,17 @@ export function EditTaskPage({ plantId, taskId }: EditTaskPageProps) {
     );
   }
 
-  if (task === undefined || values === null) {
+  if (task === undefined) {
     return (
-      <section style={loadingCardStyle}>
-        <p style={eyebrowStyle}>养护任务</p>
-        <h1 style={loadingTitleStyle}>正在加载提醒编辑器</h1>
-        <p style={bodyStyle}>正在读取当前任务配置，以便保存修改。</p>
-      </section>
+      <div style={pageStyle}>
+        <ScreenNav
+          title="编辑养护"
+          onBack={() => navigate(`/plants/${plantId}`, true)}
+        />
+        <div style={loadingStyle}>
+          <p style={loadingTextStyle}>正在加载…</p>
+        </div>
+      </div>
     );
   }
 
@@ -157,129 +180,493 @@ export function EditTaskPage({ plantId, taskId }: EditTaskPageProps) {
     );
   }
 
-  const taskLabel = formatTaskTypeLabel(values.taskType, values.customTaskName);
+  const taskLabel = formatTaskTypeLabel(taskType, customTaskName);
+  const duePreview = getDuePreview(intervalDays, baseCompletedOn);
 
   return (
-    <section style={pageStyle}>
-      <TaskForm
-        actionsSlot={
-          <section style={statusSectionStyle}>
-            <div style={statusCopyStyle}>
-              <p style={statusEyebrowStyle}>提醒状态</p>
-              <h2 style={statusTitleStyle}>{enabled ? "当前已启用" : "当前已停用"}</h2>
-              <p style={statusBodyStyle}>
-                {enabled
-                  ? "启用后，这条任务会继续参与待办列表和提醒推送。"
-                  : "停用后，任务仍会保留在植物名下，但不会出现在待办列表里，直到重新启用。"}
-              </p>
-            </div>
-            <Button
-              fullWidth={false}
-              onClick={() => setEnabled((current) => !current)}
-              type="button"
-              variant={enabled ? "ghost" : "secondary"}
+    <div style={pageStyle}>
+      {/* ScreenNav */}
+      <ScreenNav
+        title="编辑养护"
+        onBack={() => navigate(`/plants/${task.plantId}`, true)}
+        rightAction={
+          <button
+            disabled={isSubmitting}
+            onClick={() => void handleSave()}
+            style={{
+              ...saveButtonStyle,
+              opacity: isSubmitting ? 0.6 : 1,
+              cursor: isSubmitting ? "not-allowed" : "pointer",
+            }}
+            type="button"
+          >
+            {isSubmitting ? "保存中…" : "保存"}
+          </button>
+        }
+      />
+
+      {/* ObjectSummaryBand in card */}
+      <div style={summaryCardWrapStyle}>
+        <GroupedSurface>
+          <ObjectSummaryBand
+            thumbnail={
+              <StorageImage
+                alt={task.plantName}
+                fallback={
+                  <div style={thumbFallbackStyle}>
+                    <Icon icon={Leaf} size={24} colorVar="--color-leaf" />
+                  </div>
+                }
+                initialUrl={task.plantImageUrl}
+                style={thumbImageStyle}
+              />
+            }
+            title={`${task.plantName} · ${taskLabel}`}
+            subtitle={
+              task.plantLocation ? (
+                <span style={{ display: "inline-flex", alignItems: "center", gap: "3px" }}>
+                  <Icon icon={MapPin} size={13} colorVar="--color-muted" />
+                  {task.plantLocation}
+                </span>
+              ) : undefined
+            }
+          />
+        </GroupedSurface>
+      </div>
+
+      {/* Form fields */}
+      <div style={formAreaStyle}>
+        {/* 任务类型 */}
+        <div style={fieldGroupStyle}>
+          <label style={fieldLabelStyle}><Icon icon={Droplet} size={14} colorVar="--color-leaf" /> 任务类型</label>
+          <div style={selectWrapStyle}>
+            <select
+              value={taskType}
+              onChange={(e) => setTaskType(e.target.value as CareTaskType)}
+              style={selectInputStyle}
             >
-              {enabled ? "停用提醒" : "启用提醒"}
-            </Button>
-          </section>
-        }
-        description={
-          <p style={bodyStyle}>
-            你可以修改提醒频率、类型或自定义名称。保存后会基于当前完成基线重新计算下次提醒时间。
-          </p>
-        }
-        errors={errors}
-        formError={formError}
-        isSubmitting={isSubmitting}
-        onSubmit={handleSubmit}
-        onValueChange={setValue}
-        plantName={task.plantName}
-        submitLabel="更新养护提醒"
-        title={`编辑 ${task.plantName} 的${taskLabel}提醒`}
-        values={values}
-      />
-      <DeleteTaskAction
-        onDeleted={() => navigate(`/plants/${task.plantId}`, true)}
-        taskId={task.task.taskId}
-        taskLabel={taskLabel}
-      />
-    </section>
+              {careTaskTypeOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+            <span style={selectArrowStyle}>
+              <Icon icon={ChevronDown} size={18} colorVar="--color-muted" />
+            </span>
+          </div>
+        </div>
+
+        {/* 自定义任务名称 (conditional) */}
+        {requiresCustomTaskName(taskType) ? (
+          <div style={fieldGroupStyle}>
+            <label style={fieldLabelStyle}>自定义任务名称</label>
+            <input
+              type="text"
+              value={customTaskName}
+              onChange={(e) => setCustomTaskName(e.target.value)}
+              placeholder="擦拭叶片"
+              style={{
+                ...textInputStyle,
+                ...(errors.customTaskName ? inputErrorBorderStyle : undefined),
+              }}
+            />
+            {errors.customTaskName ? (
+              <span style={errorTextStyle}>{errors.customTaskName}</span>
+            ) : null}
+          </div>
+        ) : null}
+
+        {/* 提醒间隔天数 */}
+        <div style={fieldGroupStyle}>
+          <label style={fieldLabelStyle}>提醒间隔天数</label>
+          <div style={inputBoxWrapStyle}>
+            <input
+              type="number"
+              inputMode="numeric"
+              min={1}
+              value={intervalDays}
+              onChange={(e) => setIntervalDays(e.target.value)}
+              style={{
+                ...inboxInputStyle,
+                ...(errors.intervalDays ? inputErrorBorderStyle : undefined),
+              }}
+            />
+            <span style={inboxSuffixStyle}>天</span>
+          </div>
+          {errors.intervalDays ? (
+            <span style={errorTextStyle}>{errors.intervalDays}</span>
+          ) : (
+            <span style={helperStyle}>每 {intervalDays || "?"} 天提醒一次</span>
+          )}
+        </div>
+
+        {/* 上次完成日期 */}
+        <div style={fieldGroupStyle}>
+          <label style={fieldLabelStyle}>上次完成日期</label>
+          <div style={inputBoxWrapStyle}>
+            <input
+              type="date"
+              value={baseCompletedOn}
+              onChange={(e) => setBaseCompletedOn(e.target.value)}
+              style={inboxInputStyle}
+            />
+            <span style={inboxIconStyle}>
+              <Icon icon={Calendar} size={18} colorVar="--color-muted" />
+            </span>
+          </div>
+          <span style={helperStyle}>用于计算下次提醒日期</span>
+        </div>
+
+        {/* 下次任务预览 */}
+        <div style={fieldGroupStyle}>
+          <label style={fieldLabelStyle}>下次任务预览</label>
+          <div style={previewCardStyle}>
+            <div style={previewCardInnerStyle}>
+              <Icon icon={Leaf} size={18} colorVar="--color-leaf" />
+              <div>
+                <span style={previewCardTitleStyle}>{duePreview.label}</span>
+                <span style={previewCardDescStyle}>{duePreview.description}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 提醒状态 */}
+        <div style={fieldGroupStyle}>
+          <label style={fieldLabelStyle}>提醒状态</label>
+          <div style={toggleCardStyle}>
+            <div style={toggleCardInnerStyle}>
+              <span style={toggleCardDotStyle(enabled)} />
+              <span style={toggleCardLabelStyle}>{enabled ? "已启用" : "已停用"}</span>
+              <ToggleSwitch
+                checked={enabled}
+                onChange={setEnabled}
+                aria-label={enabled ? "停用提醒" : "启用提醒"}
+              />
+            </div>
+          </div>
+          <span style={helperStyle}>
+            关闭后将不会在待办中显示，也不会收到提醒
+          </span>
+        </div>
+
+        <FormError message={formError} />
+      </div>
+
+      {/* Danger zone */}
+      <div style={dangerZoneStyle}>
+        <button
+          type="button"
+          onClick={() => setShowDeleteConfirm(true)}
+          style={deleteButtonStyle}
+        >
+          <Icon icon={Trash2} size={18} colorVar="--color-error" />
+          <span>删除任务</span>
+        </button>
+      </div>
+
+      {/* Delete confirmation */}
+      {showDeleteConfirm && (
+        <ConfirmSheet
+          title={`确认删除"${taskLabel}"？`}
+          description="删除后，这条养护提醒会从这盆植物上彻底消失，无法恢复。"
+          confirmLabel={isDeleting ? "删除中…" : "删除"}
+          cancelLabel="取消"
+          variant="danger-solid"
+          isSubmitting={isDeleting}
+          onConfirm={() => void handleDelete()}
+          onCancel={() => setShowDeleteConfirm(false)}
+        />
+      )}
+    </div>
   );
 }
 
+/* ─── Helpers ─── */
+
+interface DuePreviewResult {
+  label: string;
+  description: string;
+}
+
+function getDuePreview(intervalDaysStr: string, baseCompletedOn: string): DuePreviewResult {
+  const interval = Number(intervalDaysStr);
+  if (!Number.isInteger(interval) || interval < 1) {
+    return { label: "—", description: "请输入有效的整数天数" };
+  }
+
+  const baseTimestamp = baseCompletedOn
+    ? parseDateInputToTimestamp(baseCompletedOn)
+    : Date.now();
+
+  if (!baseTimestamp) {
+    return { label: "—", description: "请输入有效的完成日期" };
+  }
+
+  const nextDueAt = baseTimestamp + interval * 24 * 60 * 60 * 1000;
+
+  // Determine short pill label
+  const now = Date.now();
+  const msPerDay = 24 * 60 * 60 * 1000;
+  const dueDate = new Date(nextDueAt);
+  const today = new Date(now);
+  const dayDelta = Math.floor(
+    (Date.UTC(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate()) -
+      Date.UTC(today.getFullYear(), today.getMonth(), today.getDate())) /
+      msPerDay,
+  );
+
+  let pillLabel: string;
+  if (dayDelta < 0) pillLabel = "已逾期";
+  else if (dayDelta === 0) pillLabel = "今天";
+  else if (dayDelta === 1) pillLabel = "明天";
+  else pillLabel = `${dayDelta}天后`;
+
+  return { label: pillLabel, description: "预计提醒日期" };
+}
+
+function parseDateInputToTimestamp(value: string) {
+  const [year, month, day] = value.split("-").map((part) => Number(part));
+  if (!year || !month || !day) return null;
+  return Date.UTC(year, month - 1, day, 12, 0, 0);
+}
+
+/* ─── Styles ─── */
+
 const pageStyle: React.CSSProperties = {
-  display: "grid",
-  gap: "16px",
+  display: "flex",
+  flexDirection: "column",
+  minHeight: "100dvh",
+  background: "var(--color-paper)",
 };
 
-const loadingCardStyle: React.CSSProperties = {
-  borderRadius: "24px",
-  padding: "28px 22px",
-  background: "var(--color-surface)",
-  border: "1px solid var(--color-line)",
-  boxShadow: "var(--shadow-card)",
-  display: "grid",
-  gap: "12px",
+const loadingStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: "var(--space-xl)",
 };
 
-const eyebrowStyle: React.CSSProperties = {
-  margin: 0,
-  color: "var(--color-leaf)",
-  textTransform: "uppercase",
-  letterSpacing: "0.16em",
-  fontSize: "0.75rem",
-  fontWeight: 700,
-};
-
-const loadingTitleStyle: React.CSSProperties = {
-  margin: 0,
-  fontSize: "clamp(2rem, 5vw, 3rem)",
-  lineHeight: 1.02,
-  fontWeight: 700,
-  color: "var(--color-ink)",
-  letterSpacing: "-0.05em",
-};
-
-const bodyStyle: React.CSSProperties = {
-  margin: 0,
+const loadingTextStyle: React.CSSProperties = {
   color: "var(--color-muted)",
-  fontSize: "1rem",
-  lineHeight: 1.7,
+  fontSize: "14px",
 };
 
-const statusSectionStyle: React.CSSProperties = {
-  borderRadius: "18px",
-  padding: "16px",
+const saveButtonStyle: React.CSSProperties = {
+  appearance: "none",
+  border: "none",
+  background: "transparent",
+  color: "var(--color-leaf)",
+  fontSize: "16px",
+  fontWeight: 600,
+  padding: "var(--space-xs) var(--space-sm)",
+};
+
+const summaryCardWrapStyle: React.CSSProperties = {
+  padding: "0 var(--space-md)",
+  marginTop: "var(--space-sm)",
+};
+
+const thumbFallbackStyle: React.CSSProperties = {
+  width: "56px",
+  height: "56px",
+  borderRadius: "var(--radius-button)",
   background: "var(--color-mist)",
-  border: "1px solid var(--color-line)",
-  display: "grid",
-  gap: "12px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
 };
 
-const statusCopyStyle: React.CSSProperties = {
-  display: "grid",
-  gap: "6px",
+const thumbImageStyle: React.CSSProperties = {
+  width: "56px",
+  height: "56px",
+  objectFit: "cover",
+  borderRadius: "var(--radius-button)",
 };
 
-const statusEyebrowStyle: React.CSSProperties = {
-  margin: 0,
-  color: "var(--color-leaf)",
-  textTransform: "uppercase",
-  letterSpacing: "0.14em",
-  fontSize: "0.72rem",
-  fontWeight: 700,
+const formAreaStyle: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "var(--space-lg)",
+  padding: "var(--space-md) var(--space-md) 0",
 };
 
-const statusTitleStyle: React.CSSProperties = {
-  margin: 0,
+const fieldGroupStyle: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "var(--space-xs)",
+};
+
+const fieldLabelStyle: React.CSSProperties = {
   color: "var(--color-ink)",
-  fontSize: "1.08rem",
-  lineHeight: 1.2,
+  fontSize: "14px",
+  fontWeight: 600,
+  margin: 0,
 };
 
-const statusBodyStyle: React.CSSProperties = {
-  margin: 0,
+const selectWrapStyle: React.CSSProperties = {
+  position: "relative",
+  display: "flex",
+  alignItems: "center",
+};
+
+const selectInputStyle: React.CSSProperties = {
+  appearance: "none",
+  flex: 1,
+  minHeight: "48px",
+  borderRadius: "var(--radius-input)",
+  border: "1px solid var(--color-line)",
+  background: "var(--color-surface)",
+  color: "var(--color-ink)",
+  padding: "0 40px 0 14px",
+  fontSize: "14px",
+};
+
+const selectArrowStyle: React.CSSProperties = {
+  position: "absolute",
+  right: "14px",
+  display: "flex",
+  alignItems: "center",
+  pointerEvents: "none",
+};
+
+const textInputStyle: React.CSSProperties = {
+  minHeight: "48px",
+  borderRadius: "var(--radius-input)",
+  border: "1px solid var(--color-line)",
+  background: "var(--color-surface)",
+  color: "var(--color-ink)",
+  padding: "0 14px",
+  fontSize: "14px",
+};
+
+const inputErrorBorderStyle: React.CSSProperties = {
+  borderColor: "var(--color-error)",
+  boxShadow: "0 0 0 3px rgba(197,48,48,0.12)",
+};
+
+/* ── 输入框内嵌后缀/图标（设计稿要求辅助元素在框内） ── */
+
+const inputBoxWrapStyle: React.CSSProperties = {
+  position: "relative",
+  display: "flex",
+  alignItems: "center",
+};
+
+const inboxInputStyle: React.CSSProperties = {
+  ...textInputStyle,
+  flex: 1,
+  paddingRight: "44px",
+};
+
+const inboxSuffixStyle: React.CSSProperties = {
+  position: "absolute",
+  right: "14px",
   color: "var(--color-muted)",
-  fontSize: "0.92rem",
-  lineHeight: 1.6,
+  fontSize: "14px",
+  fontWeight: 500,
+  pointerEvents: "none",
+};
+
+const inboxIconStyle: React.CSSProperties = {
+  position: "absolute",
+  right: "14px",
+  display: "flex",
+  alignItems: "center",
+  pointerEvents: "none",
+};
+
+const helperStyle: React.CSSProperties = {
+  color: "var(--color-muted)",
+  fontSize: "12px",
+  lineHeight: 1.5,
+};
+
+const errorTextStyle: React.CSSProperties = {
+  color: "var(--color-error)",
+  fontSize: "12px",
+  lineHeight: 1.5,
+};
+
+/* ── 下次任务预览卡片（设计稿要求独立容器） ── */
+
+const previewCardStyle: React.CSSProperties = {
+  borderRadius: "var(--radius-input)",
+  background: "var(--color-mist)",
+  padding: "14px 16px",
+};
+
+const previewCardInnerStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: "10px",
+};
+
+const previewCardTitleStyle: React.CSSProperties = {
+  display: "block",
+  color: "var(--color-ink)",
+  fontSize: "14px",
+  fontWeight: 600,
+};
+
+const previewCardDescStyle: React.CSSProperties = {
+  display: "block",
+  color: "var(--color-muted)",
+  fontSize: "12px",
+};
+
+/* ── 提醒状态卡片（设计稿要求有独立容器） ── */
+
+const toggleCardStyle: React.CSSProperties = {
+  borderRadius: "var(--radius-input)",
+  border: "1px solid var(--color-line)",
+  background: "var(--color-surface)",
+  padding: "12px 16px",
+};
+
+const toggleCardInnerStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: "10px",
+};
+
+function toggleCardDotStyle(active: boolean): React.CSSProperties {
+  return {
+    width: "8px",
+    height: "8px",
+    borderRadius: "50%",
+    background: active ? "var(--color-leaf)" : "var(--color-line)",
+    flexShrink: 0,
+  };
+}
+
+const toggleCardLabelStyle: React.CSSProperties = {
+  flex: 1,
+  fontSize: "14px",
+  color: "var(--color-ink)",
+  fontWeight: 500,
+};
+
+
+const dangerZoneStyle: React.CSSProperties = {
+  padding: "var(--space-xl) var(--space-md) var(--space-lg)",
+  marginTop: "auto",
+};
+
+const deleteButtonStyle: React.CSSProperties = {
+  appearance: "none",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "var(--space-xs)",
+  width: "100%",
+  minHeight: "48px",
+  borderRadius: "var(--radius-button)",
+  border: "1px solid var(--color-error)",
+  background: "transparent",
+  color: "var(--color-error)",
+  fontSize: "15px",
+  fontWeight: 600,
+  cursor: "pointer",
 };

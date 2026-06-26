@@ -1,7 +1,9 @@
 import { useConvex } from "convex/react";
 import type { CSSProperties } from "react";
+import { User } from "lucide-react";
 
 import { api } from "../../../convex/_generated/api";
+import { Icon } from "../../components/ui/Icon";
 import { StorageImage } from "../../components/ui/StorageImage";
 import type { StorageId } from "../../types/domain";
 
@@ -53,7 +55,7 @@ export function MemberAvatar({ name, imageStorageId = null }: MemberAvatarProps)
   const fallback =
     initial.length === 0 ? (
       <span aria-hidden="true" style={{ ...avatarStyle, ...fallbackStyle }}>
-        👤
+        <Icon icon={User} size={20} colorVar="--color-muted" />
       </span>
     ) : (
       <span

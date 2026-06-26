@@ -1,76 +1,105 @@
+import { Users } from "lucide-react";
+import { useState } from "react";
+
+import { Icon } from "../../components/ui/Icon";
 import { EmailLoginForm } from "./EmailLoginForm";
+import { ForgotPasswordForm } from "./ForgotPasswordForm";
 
 /**
- * AuthPage — Botanical greenhouse login experience.
+ * AuthPage — v2 redesign.
  *
- * Design principles:
- * - Full-viewport immersive page with layered organic backgrounds
- * - Floating glass-morphism card with generous whitespace
- * - Decorative SVG botanicals as ambient texture (not distracting)
- * - Gentle entry animations (respects prefers-reduced-motion via tokens.css)
+ * Layout:
+ * 1. Top brand area (left-aligned, icon + title + subtitle)
+ * 2. Rounded card with segmented login/register form
+ * 3. Bottom invite hint row
+ * Decorative SVG botanicals in background.
  */
+type AuthView = "login" | "forgotPassword";
+
 export function AuthPage() {
+  const [view, setView] = useState<AuthView>("login");
+
   return (
     <section style={pageStyle}>
-      {/* Ambient decorative leaves — top-right and bottom-left */}
-      <svg
-        aria-hidden="true"
-        style={decoTopRight}
-        viewBox="0 0 200 200"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M160 10 C140 50 170 90 130 130 C100 110 80 70 100 30 C120 10 150 5 160 10Z"
-          fill="rgba(31,71,61,0.06)"
-        />
-        <path
-          d="M180 40 C170 80 190 110 160 140 C140 120 130 80 150 50 C165 35 175 35 180 40Z"
-          fill="rgba(31,71,61,0.04)"
-        />
-      </svg>
-      <svg
-        aria-hidden="true"
-        style={decoBottomLeft}
-        viewBox="0 0 200 200"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M40 190 C60 150 30 110 70 70 C100 90 120 130 100 170 C80 190 50 195 40 190Z"
-          fill="rgba(31,71,61,0.05)"
-        />
-        <path
-          d="M10 160 C20 120 10 100 40 70 C55 85 65 120 50 150 C35 170 15 165 10 160Z"
-          fill="rgba(31,71,61,0.03)"
-        />
-      </svg>
+      {/* Background botanical image */}
+      <div style={bgImageLayer} aria-hidden="true" />
 
       {/* Main content */}
       <div style={contentWrapper}>
-        <header style={heroStyle}>
-          <div style={logoContainer}>
-            <span aria-hidden="true" style={logoStyle}>
-              🌿
+        {/* Brand area — left aligned */}
+        <header style={brandArea}>
+          <div style={brandRow}>
+            <span style={logoBox}>
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                {/* Pot */}
+                <path
+                  d="M8 18h8l-1 3H9l-1-3z"
+                  fill="var(--color-leaf)"
+                  opacity="0.25"
+                />
+                <rect x="7.5" y="17" width="9" height="1.5" rx="0.75" fill="var(--color-leaf)" opacity="0.35" />
+                {/* Stem */}
+                <path
+                  d="M12 17V9"
+                  stroke="var(--color-leaf)"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+                {/* Leaves */}
+                <path
+                  d="M12 13c-1.5-1-4-1.5-5-0.5 0.5 2 2.5 3 5 2.5"
+                  stroke="var(--color-leaf)"
+                  strokeWidth="1.3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  fill="rgba(31,71,61,0.1)"
+                />
+                <path
+                  d="M12 10c1.5-1.2 4-1.8 5-0.8-0.3 2-2.5 3.2-5 2.8"
+                  stroke="var(--color-leaf)"
+                  strokeWidth="1.3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  fill="rgba(31,71,61,0.1)"
+                />
+                <path
+                  d="M12 7c-1.2-1.5-1-4 0-5 1.5 1 2 3 1 5"
+                  stroke="var(--color-leaf)"
+                  strokeWidth="1.3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  fill="rgba(31,71,61,0.1)"
+                />
+              </svg>
             </span>
+            <div>
+              <h1 style={brandTitle}>植物养护</h1>
+              <p style={brandSubtitle}>和家人一起照顾每一盆植物</p>
+            </div>
           </div>
-          <h1 style={heroTitleStyle}>从一个共享家庭</h1>
-          <h1 style={heroTitleStyleAccent}>开始养护植物</h1>
-          <p style={heroSubtitleStyle}>
-            输入邮箱和密码即可进入，新用户会自动完成注册
-          </p>
         </header>
 
+        {/* Form card */}
         <div style={cardStyle}>
-          <EmailLoginForm />
-          <p style={footerHintStyle}>
-            下次打开时会自动恢复登录状态，无需重复输入
-          </p>
+          {view === "login" ? (
+            <EmailLoginForm onForgotPassword={() => setView("forgotPassword")} />
+          ) : (
+            <ForgotPasswordForm onBack={() => setView("login")} />
+          )}
         </div>
 
-        <footer style={brandFooterStyle}>
-          <span style={brandDot} />
-          <span style={brandTextStyle}>Plant Care Reminder</span>
-          <span style={brandDot} />
-        </footer>
+        {/* Bottom invite hint */}
+        <div style={inviteHint}>
+          <Icon icon={Users} size={20} colorVar="--color-leaf" />
+          <span style={inviteText}>收到家人邀请？登录或注册后会自动加入</span>
+        </div>
       </div>
     </section>
   );
@@ -82,15 +111,16 @@ const pageStyle: React.CSSProperties = {
   position: "fixed",
   inset: 0,
   display: "flex",
-  alignItems: "center",
+  alignItems: "flex-start",
   justifyContent: "center",
-  paddingBottom: "5vh",
+  paddingTop: "env(safe-area-inset-top, 0px)",
   background: `
     radial-gradient(ellipse at 20% 0%, rgba(181, 212, 220, 0.35), transparent 50%),
     radial-gradient(ellipse at 80% 100%, rgba(241, 197, 103, 0.12), transparent 45%),
-    linear-gradient(165deg, rgba(235, 246, 238, 0.97), rgba(251, 252, 247, 1))
+    linear-gradient(165deg, rgba(235, 246, 238, 0.85), rgba(251, 252, 247, 0.92)),
+    url(/auth-bg-botanical.png) center / cover no-repeat
   `,
-  overflow: "hidden",
+  overflow: "auto",
   fontFamily: "var(--font-body)",
   zIndex: 10,
 };
@@ -98,130 +128,90 @@ const pageStyle: React.CSSProperties = {
 const contentWrapper: React.CSSProperties = {
   position: "relative",
   zIndex: 1,
-  display: "grid",
-  gap: "var(--space-xl)",
-  justifyItems: "center",
+  display: "flex",
+  flexDirection: "column",
+  gap: "var(--space-lg)",
   width: "100%",
-  maxWidth: "380px",
+  maxWidth: "420px",
+  padding: "var(--space-xl) var(--space-md)",
+  paddingTop: "calc(var(--space-xl) + 12px)",
   animation: "page-enter 600ms cubic-bezier(0.16, 1, 0.3, 1) both",
 };
 
-const heroStyle: React.CSSProperties = {
-  display: "grid",
+/* Brand */
+const brandArea: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
   gap: "var(--space-xs)",
-  justifyItems: "center",
-  textAlign: "center",
 };
 
-const logoContainer: React.CSSProperties = {
+const brandRow: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: "var(--space-md)",
+};
+
+const logoBox: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  width: "56px",
-  height: "56px",
-  borderRadius: "50%",
+  width: "48px",
+  height: "48px",
+  borderRadius: "var(--radius-button)",
   background: "rgba(31, 71, 61, 0.08)",
-  marginBottom: "var(--space-sm)",
+  fontSize: "1.5rem",
+  flexShrink: 0,
 };
 
-const logoStyle: React.CSSProperties = {
-  fontSize: "1.6rem",
-  lineHeight: 1,
-};
-
-const heroTitleStyle: React.CSSProperties = {
+const brandTitle: React.CSSProperties = {
   margin: 0,
   fontFamily: "var(--font-heading)",
-  fontSize: "1.6rem",
-  lineHeight: 1.2,
+  fontSize: "1.4rem",
   fontWeight: 700,
   color: "var(--color-ink)",
-  letterSpacing: "-0.01em",
+  lineHeight: 1.3,
 };
 
-const heroTitleStyleAccent: React.CSSProperties = {
-  ...heroTitleStyle,
-  color: "var(--color-leaf)",
-};
-
-const heroSubtitleStyle: React.CSSProperties = {
+const brandSubtitle: React.CSSProperties = {
   margin: 0,
-  marginTop: "var(--space-sm)",
-  fontSize: "0.9rem",
-  lineHeight: 1.6,
+  marginTop: "2px",
+  fontSize: "0.85rem",
   color: "var(--color-muted)",
-  maxWidth: "280px",
+  lineHeight: 1.4,
 };
 
+/* Card */
 const cardStyle: React.CSSProperties = {
   width: "100%",
-  display: "grid",
-  gap: "var(--space-lg)",
-  padding: "var(--space-xl) var(--space-lg)",
-  borderRadius: "var(--radius-sheet)",
-  background: "rgba(255, 255, 255, 0.72)",
-  backdropFilter: "blur(20px) saturate(1.4)",
-  WebkitBackdropFilter: "blur(20px) saturate(1.4)",
-  boxShadow: `
-    0 24px 48px rgba(36, 73, 63, 0.08),
-    0 8px 16px rgba(36, 73, 63, 0.04),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8)
-  `,
-  border: "1px solid rgba(216, 228, 218, 0.6)",
+  padding: "var(--space-lg)",
+  borderRadius: "var(--radius-card)",
+  background: "var(--color-paper)",
+  boxShadow: "var(--shadow-card)",
+  border: "1px solid var(--color-line)",
 };
 
-const footerHintStyle: React.CSSProperties = {
-  margin: 0,
-  textAlign: "center",
-  color: "var(--color-muted)",
-  fontSize: "0.8rem",
-  lineHeight: 1.5,
-  opacity: 0.8,
-};
-
-const brandFooterStyle: React.CSSProperties = {
+/* Invite hint */
+const inviteHint: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
+  justifyContent: "center",
   gap: "var(--space-sm)",
-  opacity: 0.5,
+  padding: "var(--space-md) var(--space-xs)",
 };
 
-const brandDot: React.CSSProperties = {
-  display: "block",
-  width: "4px",
-  height: "4px",
-  borderRadius: "50%",
-  background: "var(--color-leaf)",
-};
-
-const brandTextStyle: React.CSSProperties = {
-  fontSize: "0.72rem",
-  fontWeight: 500,
+const inviteText: React.CSSProperties = {
+  fontSize: "0.82rem",
   color: "var(--color-muted)",
-  letterSpacing: "0.08em",
-  textTransform: "uppercase",
 };
 
-/* ===== Decorative SVGs ===== */
-
-const decoTopRight: React.CSSProperties = {
-  position: "absolute",
-  top: "-20px",
-  right: "-30px",
-  width: "240px",
-  height: "240px",
-  opacity: 1,
-  pointerEvents: "none",
-  zIndex: 0,
-};
-
-const decoBottomLeft: React.CSSProperties = {
-  position: "absolute",
-  bottom: "-20px",
-  left: "-30px",
-  width: "200px",
-  height: "200px",
-  opacity: 1,
+/* Background botanical image layer */
+const bgImageLayer: React.CSSProperties = {
+  position: "fixed",
+  inset: 0,
+  backgroundImage: "url(/auth-bg-botanical.png)",
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+  backgroundRepeat: "no-repeat",
   pointerEvents: "none",
   zIndex: 0,
 };

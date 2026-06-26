@@ -7,7 +7,7 @@ const crons = cronJobs();
 crons.interval(
   "process due task notifications",
   { minutes: 30 },
-  internal.notifications.processDueTaskNotifications,
+  internal.notificationsNode.processDueTaskNotifications,
   {},
 );
 

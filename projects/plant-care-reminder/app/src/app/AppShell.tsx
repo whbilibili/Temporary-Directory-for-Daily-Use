@@ -3,6 +3,8 @@ import { ProfileBootstrapForm } from "../features/auth/ProfileBootstrapForm";
 import { CreateFamilyPage } from "../features/family/CreateFamilyPage";
 import { FamilyOnboardingChoicePage } from "../features/family/FamilyOnboardingChoicePage";
 import { FamilySettingsPage } from "../features/family/FamilySettingsPage";
+import { MembersManagePage } from "../features/family/MembersManagePage";
+import { ProfileEditPage } from "../features/family/ProfileEditPage";
 import { JoinFamilyPage } from "../features/family/JoinFamilyPage";
 import { JoinLandingPage } from "../features/family/JoinLandingPage";
 import { CreatePlantPage } from "../features/plants/CreatePlantPage";
@@ -22,18 +24,30 @@ interface AppShellProps {
   routeParams?: AppRoute["params"];
 }
 
+/** 子页面：不显示 BottomNav 的路径前缀/路径 */
+const SUB_PAGE_PATHS: readonly AppPath[] = [
+  "/plants/detail",
+  "/plants/new",
+  "/plants/edit",
+  "/plants/tasks/new",
+  "/plants/tasks/edit",
+  "/settings/profile",
+  "/settings/members",
+];
+
+function isSubPage(pathname: AppPath): boolean {
+  return SUB_PAGE_PATHS.includes(pathname);
+}
+
 export function AppShell({ pathname, routeContext, routeParams }: AppShellProps) {
   const hasFamily = routeContext?.familyId !== null && routeContext !== undefined;
   const displayName = routeContext?.displayName?.trim() || "植物管家";
+  const showBottomNav = hasFamily && !isSubPage(pathname);
 
   return (
     <RouteGate pathname={pathname} routeContext={routeContext}>
       <div style={frameStyle}>
-        {/* 装饰球：独立裁切容器，不影响内容层 */}
-        <div style={orbClipStyle} aria-hidden="true">
-          <div style={backdropOrbStyle} />
-        </div>
-        <main style={mainStyle}>
+        <main style={showBottomNav ? mainStyle : mainStyleNoNav}>
           {pathname === "/login" ? <AuthPage /> : null}
           {pathname === "/onboarding" ? (
             <FamilyOnboardingChoicePage displayName={displayName} />
@@ -78,8 +92,14 @@ export function AppShell({ pathname, routeContext, routeParams }: AppShellProps)
           {pathname === "/settings" ? (
             <FamilySettingsPage />
           ) : null}
+          {pathname === "/settings/profile" ? (
+            <ProfileEditPage />
+          ) : null}
+          {pathname === "/settings/members" ? (
+            <MembersManagePage />
+          ) : null}
         </main>
-        {hasFamily ? <BottomNav pathname={pathname} /> : null}
+        {showBottomNav ? <BottomNav pathname={pathname} /> : null}
       </div>
     </RouteGate>
   );
@@ -89,31 +109,10 @@ const frameStyle: React.CSSProperties = {
   minHeight: "100svh",
   display: "flex",
   flexDirection: "column",
-  background: "var(--gradient-botanical)",
+  background: "var(--color-paper)",
   color: "var(--color-ink)",
   position: "relative",
   overflowX: "clip",
-};
-
-/** 装饰球的独立裁切容器——铺满 frame 并裁掉溢出，不影响 main 内容层。
- *  使用 overflow:clip 而非 hidden，因为 clip 不会创建可滚动区域，
- *  可彻底避免 iOS Safari 的 rubber-band 弹性滚动。 */
-const orbClipStyle: React.CSSProperties = {
-  position: "absolute",
-  inset: 0,
-  overflow: "clip",
-  pointerEvents: "none",
-  zIndex: 0,
-};
-
-const backdropOrbStyle: React.CSSProperties = {
-  position: "absolute",
-  top: "-20%",
-  left: "55%",
-  width: "320px",
-  height: "320px",
-  borderRadius: "var(--radius-pill)",
-  background: "var(--gradient-accent)",
 };
 
 const mainStyle: React.CSSProperties = {
@@ -126,7 +125,12 @@ const mainStyle: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
   justifyContent: "flex-start",
-  // 内容层高于装饰球
-  position: "relative",
-  zIndex: 1,
+};
+
+/** 子页面不显示 BottomNav 时，底部不需要留出 96px 的导航空间，
+ *  但保留与主页一致的水平 padding，避免内容贴边。 */
+const mainStyleNoNav: React.CSSProperties = {
+  ...mainStyle,
+  padding:
+    "0 var(--space-md) calc(env(safe-area-inset-bottom, 0px))",
 };

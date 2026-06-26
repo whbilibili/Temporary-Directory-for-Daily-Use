@@ -12,13 +12,20 @@ describe("EmailLoginForm", () => {
 
     render(<EmailLoginForm />);
 
-    fireEvent.change(screen.getByLabelText(/邮箱/i), {
+    // Use IDs to target fields since labels now contain icons
+    fireEvent.change(document.getElementById("auth-email")!, {
       target: { value: "user@example.com" },
     });
-    fireEvent.change(screen.getByLabelText(/密码/i), {
+    fireEvent.change(document.getElementById("auth-password")!, {
       target: { value: "password123" },
     });
-    fireEvent.click(screen.getByRole("button", { name: /进入植物看板/i }));
+
+    // Multiple buttons have "登录" text (segmented tab + submit); pick the submit one.
+    const allLoginButtons = screen.getAllByRole("button", { name: /登录/i });
+    const submitBtn = allLoginButtons.find(
+      (btn) => btn.getAttribute("type") === "submit",
+    ) ?? allLoginButtons[allLoginButtons.length - 1];
+    fireEvent.click(submitBtn);
 
     await waitFor(() =>
       expect(

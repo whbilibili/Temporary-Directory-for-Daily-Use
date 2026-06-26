@@ -5,6 +5,7 @@ import { api } from "../../../convex/_generated/api";
 import { Button } from "../../components/ui/Button";
 import { FormError } from "../../components/ui/FormError";
 import { InputField } from "../../components/ui/InputField";
+import { friendlyError } from "./friendlyError";
 
 interface CreateFamilyFormProps {
   onSuccess: (result: { familyId: string; inviteCode: string }) => void;
@@ -25,9 +26,7 @@ export function CreateFamilyForm({ onSuccess }: CreateFamilyFormProps) {
       const result = await createFamily({ name });
       onSuccess(result);
     } catch (error) {
-      setErrorMessage(
-        error instanceof Error ? error.message : "创建家庭失败，请稍后再试。",
-      );
+      setErrorMessage(friendlyError(error, "创建家庭失败，请稍后再试"));
     } finally {
       setIsSubmitting(false);
     }
@@ -37,16 +36,16 @@ export function CreateFamilyForm({ onSuccess }: CreateFamilyFormProps) {
     <form style={formStyle} onSubmit={handleSubmit}>
       <InputField
         autoComplete="organization"
-        hint="填写一个家人都能一眼认出的家庭名称。"
+        hint="给家庭起个名字，方便家人识别"
         label="家庭名称"
         maxLength={60}
         onChange={(event) => setName(event.target.value)}
-        placeholder="例如：王家植物角"
+        placeholder="例如：我们的家"
         required
         value={name}
       />
       <FormError message={errorMessage} />
-      <Button disabled={isSubmitting} type="submit">
+      <Button disabled={isSubmitting} style={leafButtonStyle} type="submit">
         {isSubmitting ? "创建中..." : "创建家庭"}
       </Button>
     </form>
@@ -56,4 +55,10 @@ export function CreateFamilyForm({ onSuccess }: CreateFamilyFormProps) {
 const formStyle: React.CSSProperties = {
   display: "grid",
   gap: "16px",
+};
+
+/** Onboarding 主按钮：深绿底白字，对齐设计稿。 */
+const leafButtonStyle: React.CSSProperties = {
+  background: "var(--color-leaf)",
+  color: "#fff",
 };

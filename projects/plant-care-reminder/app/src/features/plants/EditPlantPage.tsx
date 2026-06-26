@@ -1,10 +1,15 @@
 import { useMutation, useQuery } from "convex/react";
 import { useState } from "react";
+import { Leaf } from "lucide-react";
 
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { FormError } from "../../components/ui/FormError";
-import { FormNavBar } from "../../components/ui/FormNavBar";
+import { GroupedSurface } from "../../components/ui/GroupedSurface";
+import { Icon } from "../../components/ui/Icon";
+import { ObjectSummaryBand } from "../../components/ui/ObjectSummaryBand";
+import { ScreenNav } from "../../components/ui/ScreenNav";
+import { StorageImage } from "../../components/ui/StorageImage";
 import { navigate } from "../../app/router";
 import { PlantForm } from "./PlantForm";
 import { usePlantForm } from "./usePlantForm";
@@ -54,7 +59,7 @@ export function EditPlantPage({ plantId }: EditPlantPageProps) {
   }
 
   if (plant === undefined) {
-    return <PlantEditLoading />;
+    return <PlantEditLoading plantId={plantId} />;
   }
 
   if (plant === null) {
@@ -63,84 +68,162 @@ export function EditPlantPage({ plantId }: EditPlantPageProps) {
 
   return (
     <section style={pageStyle}>
-      <FormNavBar
+      {/* ScreenNav — 轻量导航 */}
+      <ScreenNav
         title="编辑植物"
         onBack={() => navigate(`/plants/${plantId}`, true)}
-        onSave={() => form.handleSubmit()}
-        saveDisabled={form.isSubmitting}
-        saveLabel="保存"
-      />
-      <PlantForm
-        form={form}
-        submitLabel="更新植物"
-        title="编辑家庭植物资料"
-        description={
-          <p style={bodyStyle}>
-            直接在家庭空间内更新植物资料；除非你主动修改，否则原有图片、备注和位置都会保留。
-          </p>
+        rightAction={
+          <button
+            disabled={form.isSubmitting}
+            onClick={() => void form.handleSubmit()}
+            style={{
+              ...saveButtonStyle,
+              opacity: form.isSubmitting ? 0.6 : 1,
+              cursor: form.isSubmitting ? "not-allowed" : "pointer",
+            }}
+            type="button"
+          >
+            保存
+          </button>
         }
       />
-      <FormError message={errorMessage} />
+
+      {/* ObjectSummaryBand — 上下文摘要 */}
+      <div style={summaryWrapStyle}>
+        <GroupedSurface>
+          <ObjectSummaryBand
+            thumbnail={
+              <StorageImage
+                alt={form.values.name || "植物"}
+                fallback={
+                  <div style={thumbFallbackStyle}>
+                    <Icon icon={Leaf} size={24} colorVar="--color-leaf" />
+                  </div>
+                }
+                initialUrl={plant.imagePreviewUrl ?? null}
+                storageId={plant.imageStorageId ?? null}
+                style={thumbImageStyle}
+              />
+            }
+            title={form.values.name || "未命名植物"}
+            subtitle={form.values.location ? `📍 ${form.values.location}` : undefined}
+          />
+        </GroupedSurface>
+      </div>
+
+      {/* 安静表单 — 字段直接平铺 */}
+      <PlantForm form={form} submitLabel="更新植物" />
+
+      <div style={bottomErrorStyle}>
+        <FormError message={errorMessage} />
+      </div>
     </section>
   );
 }
 
-function PlantEditLoading() {
+function PlantEditLoading({ plantId }: { plantId: string }) {
   return (
-    <section style={statusCardStyle}>
-      <p style={eyebrowStyle}>植物</p>
-      <h1 style={titleStyle}>正在加载植物资料</h1>
-      <p style={bodyStyle}>正在把这盆植物当前的家庭记录载入编辑器。</p>
+    <section style={pageStyle}>
+      <ScreenNav
+        title="编辑植物"
+        onBack={() => navigate(`/plants/${plantId}`, true)}
+      />
+      <div style={loadingStyle}>
+        <p style={loadingTextStyle}>正在加载植物资料…</p>
+      </div>
     </section>
   );
 }
 
 function PlantEditError({ message }: { message: string }) {
   return (
-    <section style={statusCardStyle}>
-      <p style={eyebrowStyle}>植物</p>
-      <h1 style={titleStyle}>植物编辑不可用</h1>
-      <p style={bodyStyle}>{message}</p>
+    <section style={pageStyle}>
+      <ScreenNav
+        title="编辑植物"
+        onBack={() => navigate("/plants", true)}
+      />
+      <div style={errorCardStyle}>
+        <p style={errorTitleStyle}>植物编辑不可用</p>
+        <p style={errorBodyStyle}>{message}</p>
+      </div>
     </section>
   );
 }
 
+/* ─── Styles ─── */
+
 const pageStyle: React.CSSProperties = {
-  display: "grid",
-  gap: "16px",
+  display: "flex",
+  flexDirection: "column",
+  minHeight: "100dvh",
+  background: "var(--color-paper)",
 };
 
-const statusCardStyle: React.CSSProperties = {
-  borderRadius: "24px",
-  padding: "28px 22px",
-  background: "var(--color-surface)",
-  border: "1px solid var(--color-line)",
-  boxShadow: "var(--shadow-card)",
-  display: "grid",
-  gap: "12px",
-};
-
-const eyebrowStyle: React.CSSProperties = {
-  margin: 0,
+const saveButtonStyle: React.CSSProperties = {
+  appearance: "none",
+  border: "none",
+  background: "transparent",
   color: "var(--color-leaf)",
-  textTransform: "uppercase",
-  letterSpacing: "0.16em",
-  fontSize: "0.75rem",
-  fontWeight: 700,
+  fontSize: "16px",
+  fontWeight: 600,
+  padding: "var(--space-xs) var(--space-sm)",
+  cursor: "pointer",
 };
 
-const titleStyle: React.CSSProperties = {
+const summaryWrapStyle: React.CSSProperties = {
+  padding: "0 var(--space-md)",
+  marginTop: "var(--space-sm)",
+};
+
+const thumbFallbackStyle: React.CSSProperties = {
+  width: "56px",
+  height: "56px",
+  borderRadius: "var(--radius-button)",
+  background: "var(--color-mist)",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+};
+
+const thumbImageStyle: React.CSSProperties = {
+  width: "56px",
+  height: "56px",
+  objectFit: "cover",
+  borderRadius: "var(--radius-button)",
+};
+
+const bottomErrorStyle: React.CSSProperties = {
+  padding: "var(--space-sm) var(--space-md) var(--space-lg)",
+};
+
+const loadingStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: "var(--space-xl)",
+};
+
+const loadingTextStyle: React.CSSProperties = {
+  color: "var(--color-muted)",
+  fontSize: "14px",
+};
+
+const errorCardStyle: React.CSSProperties = {
+  padding: "var(--space-lg) var(--space-md)",
+  display: "grid",
+  gap: "var(--space-sm)",
+};
+
+const errorTitleStyle: React.CSSProperties = {
   margin: 0,
-  fontSize: "clamp(2rem, 5vw, 3rem)",
-  lineHeight: 1.02,
+  fontSize: "18px",
   fontWeight: 700,
   color: "var(--color-ink)",
-  letterSpacing: "-0.05em",
 };
 
-const bodyStyle: React.CSSProperties = {
+const errorBodyStyle: React.CSSProperties = {
   margin: 0,
   color: "var(--color-muted)",
-  fontSize: "1rem",
-  lineHeight: 1.7,
+  fontSize: "14px",
+  lineHeight: 1.6,
 };

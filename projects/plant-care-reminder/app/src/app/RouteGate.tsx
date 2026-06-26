@@ -25,7 +25,7 @@ function getTargetPath(
   const isCreateFamilyPath = pathname === "/onboarding/create-family";
   const isOnboardingPath = pathname === "/onboarding" || pathname.startsWith("/onboarding/");
   const isProtectedPath =
-    pathname.startsWith("/plants") || pathname === "/todo" || pathname === "/settings";
+    pathname.startsWith("/plants") || pathname === "/todo" || pathname.startsWith("/settings");
 
   // 邀请落地页 /join/:code 公开可达：自身据登录态/家庭状态引导（SET3-013），
   // 未登录暂存邀请码后再去登录的编排由 SET3-012 在落地页内完成。这里直接放行。
@@ -46,8 +46,14 @@ function getTargetPath(
   }
 
   if (!hasFamily) {
-    if (pathname === "/login" || isProfilePath) {
+    // 允许已有 displayName 的用户返回 /onboarding/profile 编辑称呼（OBP-005）。
+    if (pathname === "/login") {
       return "/onboarding";
+    }
+    if (isProfilePath) {
+      // hasDisplayName 时放行 profile 页以支持「编辑」返回；
+      // 尚无 displayName 时也放行以完成首次设置。
+      return null;
     }
 
     return isOnboardingPath ? null : "/onboarding";

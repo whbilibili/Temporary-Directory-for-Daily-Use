@@ -51,10 +51,13 @@ export const getTaskCreationPlant = query({
       return null;
     }
 
+    const imageUrl = plant.imageStorageId ? await ctx.storage.getUrl(plant.imageStorageId) : null;
+
     return {
       plantId: plant._id,
       plantName: plant.name,
       location: plant.location ?? null,
+      imageUrl,
     };
   },
 });
@@ -133,9 +136,13 @@ export const getTaskForEdit = query({
       return null;
     }
 
+    const imageUrl = plant.imageStorageId ? await ctx.storage.getUrl(plant.imageStorageId) : null;
+
     return {
       plantId: plant._id,
       plantName: plant.name,
+      plantLocation: plant.location ?? null,
+      plantImageUrl: imageUrl,
       task: {
         taskId: task._id,
         taskType: task.taskType,
@@ -228,7 +235,7 @@ export const listDueTasks = query({
       .withIndex("by_familyId_and_nextDueAt", (q) => q.eq("familyId", currentUserContext.familyId))
       .collect();
 
-    const enabledTasks = tasks.filter((task) => task.enabled);
+    const enabledTasks = tasks.filter((task) => task.enabled ?? true);
     const plantIds = [...new Set(enabledTasks.map((task) => task.plantId))];
     const plantSummaries = await Promise.all(
       plantIds.map(async (plantId) => {

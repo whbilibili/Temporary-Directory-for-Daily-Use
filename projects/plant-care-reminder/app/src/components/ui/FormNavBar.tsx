@@ -70,7 +70,6 @@ const navStyle: React.CSSProperties = {
   minHeight: "48px",
   padding: "var(--space-sm) var(--space-md)",
   background: "var(--color-paper)",
-  borderBottom: "1px solid var(--color-line)",
 };
 
 const backButtonStyle: React.CSSProperties = {

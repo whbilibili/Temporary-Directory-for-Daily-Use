@@ -6,7 +6,7 @@
 
 - **持久化的产品上下文**（`context/`）：产品愿景、用户画像、功能注册表、决策历史、技术约束
 - **结构化的工作流程**（`AGENTS.md`）：明确的输入→处理→输出流水线
-- **子智能体能力**（`skills/`）：用户调研、数据分析、竞品情报、PRD 审查
+- **子智能体能力**（`skills/`）：6 大能力域、26 个专项子智能体（用户洞察、需求管理、数据增长、战略竞品、协作汇报、AI 产品）
 - **质量门禁**（`hooks/`）：写前检查防冲突，写后审查保质量
 - **验证工具**（`scripts/`）：自动化的文档完整性校验
 
@@ -45,23 +45,62 @@ pm-workbench/
 │   ├── user-personas.md       用户画像库
 │   ├── feature-registry.json  功能注册表（防重复）
 │   ├── decisions-log.md       决策日志（防翻旧账）
-│   └── tech-constraints.md    技术约束（防不可行）
-├── templates/             ← 产出物模板
+│   ├── tech-constraints.md    技术约束（防不可行）
+│   └── evolution-log.md       工作台进化日志（持续改进记录）
+├── templates/             ← 产出物模板（8 种）
 │   ├── prd-template.md
 │   ├── user-story-template.md
-│   └── competitive-analysis-template.md
-├── skills/                ← 子智能体
-│   ├── user-research/         用户调研分析
-│   ├── data-analyst/          数据指标设计
-│   ├── competitive-intel/     竞品情报分析
-│   └── prd-reviewer/          PRD 质量审查
+│   ├── competitive-analysis-template.md
+│   ├── roadmap-template.md
+│   ├── data-report-template.md
+│   ├── ab-test-template.md
+│   ├── retrospective-template.md
+│   └── decision-record-template.md
+├── skills/                ← 子智能体（按能力域分组）
+│   ├── insight/               🔍 用户洞察
+│   │   ├── user-research/         用户调研分析
+│   │   ├── user-journey-mapper/   用户旅程拆解
+│   │   ├── user-interview-analyzer/ 访谈分析
+│   │   └── user-research-question-designer/ 问题设计
+│   ├── requirement/           📝 需求管理
+│   │   ├── prd-reviewer/          PRD 质量审查
+│   │   ├── feature-priority-scorer/ 优先级打分
+│   │   └── feature-benefit-translator/ 功能→利益翻译
+│   ├── growth/                📊 数据与增长
+│   │   ├── data-analyst/          数据指标设计
+│   │   ├── data-anomaly-detective/ 数据异动归因
+│   │   ├── aarrr-funnel-analyzer/ 漏斗诊断
+│   │   ├── retention-diagnosis/   留存诊断
+│   │   ├── ab-test-designer/      A/B 实验设计
+│   │   ├── north-star-metric-designer/ 北极星指标
+│   │   ├── growth-loop-designer/  增长飞轮
+│   │   ├── data-insight-narrator/ 数据叙述
+│   │   ├── product-health-dashboard/ 健康度监控
+│   │   └── kpi-tree-builder/      KPI 树分解
+│   ├── strategy/              🔭 战略与竞品
+│   │   ├── competitive-intel/     竞品情报分析
+│   │   ├── competitive-moat-analyzer/ 护城河分析
+│   │   ├── pmf-validator/         PMF 验证
+│   │   └── product-roadmap-writer/ Roadmap 制作
+│   ├── collaboration/         🤝 协作与汇报
+│   │   ├── okr-quality-checker/   OKR 质检
+│   │   ├── upward-management-kit/ 向上管理
+│   │   └── stakeholder-alignment-kit/ 利益相关方对齐
+│   ├── ai-product/            🤖 AI 产品
+│   │   ├── agent-or-workflow-selector/ Agent vs Workflow
+│   │   └── ai-product-red-line-checker/ 红线检查
+│   └── meta/                  🧬 工作台元能力
+│       └── self-improving-agent/  持续进化（从反馈中学习改进）
 ├── hooks/                 ← 质量门禁
 │   ├── pre-write.md           写前：冲突检查
 │   └── post-write.md          写后：审查+归档+更新
 ├── outputs/               ← 产出物存档
 │   ├── prds/
 │   ├── specs/
-│   └── competitive-analyses/
+│   ├── competitive-analyses/
+│   ├── roadmaps/
+│   ├── data-reports/
+│   └── retrospectives/
 └── scripts/               ← 工具脚本
     └── validate-prd.py        PRD 完整性校验
 ```

@@ -159,8 +159,7 @@ export const getPlantDetail = query({
         .collect(),
     ]);
 
-    const enabledTasks = tasks
-      .filter((task) => task.enabled)
+    const allTasks = tasks
       .sort((left, right) => left.nextDueAt - right.nextDueAt)
       .map((task) => ({
         id: task._id,
@@ -169,6 +168,7 @@ export const getPlantDetail = query({
         intervalDays: task.intervalDays,
         nextDueAt: task.nextDueAt,
         lastCompletedAt: task.lastCompletedAt ?? null,
+        enabled: task.enabled ?? true,
       }));
 
     return {
@@ -186,7 +186,7 @@ export const getPlantDetail = query({
         isArchived: plant.isArchived,
         archivedAt: plant.archivedAt ?? null,
       },
-      tasks: enabledTasks,
+      tasks: allTasks,
     };
   },
 });

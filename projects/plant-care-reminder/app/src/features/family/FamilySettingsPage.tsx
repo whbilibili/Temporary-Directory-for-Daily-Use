@@ -1,21 +1,44 @@
 import { useMutation, useQuery } from "convex/react";
 import { useState } from "react";
+import type { CSSProperties } from "react";
 import { useAuthActions } from "@convex-dev/auth/react";
+import { Bell, ChevronRight, DoorOpen, Home, LogOut, Pencil, Users } from "lucide-react";
 
 import { api } from "../../../convex/_generated/api";
 import { ConfirmSheet } from "../../components/ui/ConfirmSheet";
-import { NotificationPromptCard } from "../notifications/NotificationPromptCard";
-import { NotificationTroubleshooting } from "../notifications/NotificationTroubleshooting";
-import { AboutCard } from "./AboutCard";
-import { FamilyHeroCard } from "./FamilyHeroCard";
+import { GroupedSurface, GroupedSurfaceDivider } from "../../components/ui/GroupedSurface";
+import { Icon } from "../../components/ui/Icon";
+import { InviteCard } from "../../components/ui/InviteCard";
 import { FamilyNameEditSheet } from "./FamilyNameEditSheet";
-import { InviteCodeCard } from "./InviteCodeCard";
-import { MembersList } from "./MembersList";
-import { NicknameEditSheet } from "./NicknameEditSheet";
-import { AvatarUploadField } from "./AvatarUploadField";
-import { SettingCardHeader } from "./SettingCardHeader";
-import { SettingRow } from "./SettingRow";
-import { SettingsGroup } from "./SettingsGroup";
+import { MemberAvatar } from "./MemberAvatar";
+import { navigate } from "../../app/router";
+import { normalizeSubscription } from "../notifications/normalizeSubscription";
+import type { FamilyRole } from "../../types/domain";
+
+/* ── Web Push 辅助函数（与 NotificationPromptCard 共用逻辑） ── */
+
+function toApplicationServerKey(value: string) {
+  const padded = value
+    .padEnd(Math.ceil(value.length / 4) * 4, "=")
+    .replace(/-/g, "+")
+    .replace(/_/g, "/");
+  const decoded = window.atob(padded);
+  return Uint8Array.from(decoded, (c) => c.charCodeAt(0));
+}
+
+function isStandaloneDisplayMode() {
+  return window.matchMedia("(display-mode: standalone)").matches;
+}
+
+function deriveDeviceLabel() {
+  const ua = window.navigator.userAgent.toLowerCase();
+  if (/iphone/.test(ua))
+    return isStandaloneDisplayMode() ? "iPhone 主屏幕应用" : "iPhone 浏览器";
+  if (/ipad/.test(ua))
+    return isStandaloneDisplayMode() ? "iPad 主屏幕应用" : "iPad 浏览器";
+  if (/macintosh/.test(ua)) return "Mac 浏览器";
+  return "家庭设备";
+}
 
 /**
  * 把 leaveFamily 后端错误翻译为面向用户的友好中文文案（SET3-005）。
@@ -29,17 +52,49 @@ function translateLeaveFamilyError(error: unknown): string {
   return "退出家庭失败，请稍后再试。";
 }
 
+/** 据邀请码拼接可分享的邀请链接：origin/join/{inviteCode}。 */
+function buildInviteLink(inviteCode: string): string {
+  const origin =
+    typeof window !== "undefined" && window.location?.origin
+      ? window.location.origin
+      : "";
+  return `${origin}/join/${encodeURIComponent(inviteCode)}`;
+}
+
+function formatRole(role: FamilyRole): string {
+  return role === "admin" ? "管理员" : "成员";
+}
+
+function formatRelativeTime(timestamp: number): string {
+  const now = Date.now();
+  const diff = now - timestamp;
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 1) return "刚刚";
+  if (minutes < 60) return `${minutes} 分钟前`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} 小时前`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days} 天前`;
+  return new Date(timestamp).toLocaleDateString("zh-CN");
+}
+
 export function FamilySettingsPage() {
   const { signOut } = useAuthActions();
   const summary = useQuery(api.families.getFamilySettingsSummary, {});
   const leaveFamily = useMutation(api.families.leaveFamily);
   const [isSigningOut, setIsSigningOut] = useState(false);
-  const [nicknameSheetOpen, setNicknameSheetOpen] = useState(false);
   const [familyNameSheetOpen, setFamilyNameSheetOpen] = useState(false);
   const [signOutSheetOpen, setSignOutSheetOpen] = useState(false);
   const [leaveSheetOpen, setLeaveSheetOpen] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
   const [leaveError, setLeaveError] = useState<string | null>(null);
+  const hasSubscription = useQuery(api.notifications.hasActiveSubscription, {});
+  const savePushSubscription = useMutation(api.notifications.savePushSubscription);
+  const removeMySubscriptions = useMutation(api.notifications.removeMySubscriptions);
+  const [isTogglingNotif, setIsTogglingNotif] = useState(false);
+
+  // 真实的通知开关状态：基于后端是否有有效订阅
+  const notificationsEnabled = hasSubscription === true;
 
   async function handleSignOut() {
     setIsSigningOut(true);
@@ -55,8 +110,6 @@ export function FamilySettingsPage() {
     setLeaveError(null);
     setIsLeaving(true);
     try {
-      // 成功后用户 familyId 变为 null，RouteGate 会响应式重定向到 onboarding，
-      // 此处无需手动跳转，仅在卸载前不再 setState 即可。
       await leaveFamily({});
     } catch (error) {
       setLeaveError(translateLeaveFamilyError(error));
@@ -69,13 +122,73 @@ export function FamilySettingsPage() {
     setLeaveError(null);
   }
 
+  async function handleToggleNotifications() {
+    if (isTogglingNotif) return;
+    setIsTogglingNotif(true);
+    try {
+      if (notificationsEnabled) {
+        // 关闭：移除当前用户的所有订阅
+        await removeMySubscriptions({});
+      } else {
+        // 开启：请求权限 → 订阅 PushManager → 保存到后端
+        if (
+          !("serviceWorker" in navigator) ||
+          !("Notification" in window) ||
+          !("PushManager" in window)
+        ) {
+          return; // 不支持 Web Push，静默退出
+        }
+
+        const permission =
+          Notification.permission === "granted"
+            ? "granted"
+            : await Notification.requestPermission();
+        if (permission !== "granted") {
+          return; // 用户拒绝或忽略，不做任何操作
+        }
+
+        const registration = await navigator.serviceWorker.ready;
+        const vapidPublicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY as
+          | string
+          | undefined;
+
+        const existingSub = await registration.pushManager.getSubscription();
+        const subscription =
+          existingSub ??
+          (await registration.pushManager.subscribe(
+            vapidPublicKey
+              ? {
+                  userVisibleOnly: true,
+                  applicationServerKey: toApplicationServerKey(vapidPublicKey),
+                }
+              : { userVisibleOnly: true },
+          ));
+
+        const json = subscription.toJSON();
+        const normalized = normalizeSubscription(json as {
+          endpoint: string;
+          keys?: { auth?: string | null; p256dh?: string | null } | null;
+        });
+
+        await savePushSubscription({
+          ...normalized,
+          deviceLabel: deriveDeviceLabel(),
+        });
+      }
+    } finally {
+      setIsTogglingNotif(false);
+    }
+  }
+
   if (summary === undefined) {
     return (
       <section style={pageStyle}>
-        <h1 style={pageTitleStyle}>设置</h1>
-        <section style={cardStyle}>
-          <h2 style={cardTitleStyle}>正在加载家庭信息…</h2>
-          <p style={bodyStyle}>正在同步最新的邀请码和家庭成员列表。</p>
+        <div style={headerAreaStyle}>
+          <h1 style={pageTitleStyle}>设置</h1>
+          <p style={subtitleStyle}>加载中…</p>
+        </div>
+        <section style={loadingCardStyle}>
+          <p style={loadingTextStyle}>正在同步最新的家庭信息…</p>
         </section>
       </section>
     );
@@ -85,8 +198,6 @@ export function FamilySettingsPage() {
   const myDisplayName = currentMember?.displayName ?? "我";
   const isAdmin = summary.currentUserRole === "admin";
 
-  // 最后一名成员退出 = 整个家庭被解散，后端会级联删除全部植物、提醒与养护记录（families.leaveFamily 分支二）。
-  // 因此必须用更强的「数据将被永久删除」措辞，而不是普通成员退出的「数据仍归家庭所有」。
   const isLastMember = summary.memberCount <= 1;
   const leaveTitle = isLastMember
     ? "退出后将解散这个家庭"
@@ -97,79 +208,181 @@ export function FamilySettingsPage() {
 
   return (
     <section style={pageStyle}>
-      <h1 style={pageTitleStyle}>设置</h1>
-
-      <SettingsGroup title="个人">
-        <section style={cardStyle}>
-          <SettingCardHeader eyebrow="账号" icon="🙂" title="个人信息" />
-          <AvatarUploadField
-            displayName={myDisplayName}
+      {/* Top area: title + subtitle + avatar */}
+      <div style={headerAreaStyle}>
+        <div style={headerTextStyle}>
+          <h1 style={pageTitleStyle}>设置</h1>
+          <p style={subtitleStyle}>
+            {myDisplayName} · {isAdmin ? "家庭管理员" : "家庭成员"}
+          </p>
+        </div>
+        <button
+          onClick={() => navigate("/settings/profile")}
+          style={headerAvatarButtonStyle}
+          type="button"
+          aria-label="编辑个人资料"
+        >
+          <MemberAvatar
+            name={myDisplayName}
             imageStorageId={currentMember?.imageStorageId ?? null}
           />
-          <div style={rowGroupStyle}>
-            <SettingRow
-              ariaLabel="修改我的称呼"
-              icon="🙂"
-              label="我的称呼"
-              onClick={() => setNicknameSheetOpen(true)}
-              value={myDisplayName}
-            />
-            <div style={dividerStyle} />
-            <SettingRow
-              icon="✉️"
-              label="我的账号"
-              value={summary.myEmail ?? "已登录"}
-            />
+          <Icon icon={ChevronRight} size={16} colorVar="--color-muted" />
+        </button>
+      </div>
+
+      {/* Family summary card */}
+      <GroupedSurface>
+        <div style={familySummaryRowStyle}>
+          <div style={familyIconCircleStyle}>
+            <Icon icon={Home} size={20} colorVar="--color-leaf" />
+          </div>
+          <div style={familySummaryInfoStyle}>
+            <div style={familySummaryNameLineStyle}>
+              <span style={familySummaryNameStyle}>{summary.familyName}</span>
+              <span style={adminBadgeStyle}>
+                {isAdmin ? "家庭管理员" : "成员"}
+              </span>
+            </div>
+            <p style={familySummaryMetaStyle}>
+              {summary.memberCount} 位成员 · 创建于 2024-06-18
+            </p>
+          </div>
+          {isAdmin ? (
+            <button
+              onClick={() => setFamilyNameSheetOpen(true)}
+              style={editLinkStyle}
+              type="button"
+              aria-label="编辑家庭信息"
+            >
+              <Icon icon={Pencil} size={14} />
+              <span>编辑</span>
+              <Icon icon={ChevronRight} size={14} />
+            </button>
+          ) : null}
+        </div>
+      </GroupedSurface>
+
+      {/* Invite section */}
+      <InviteCard
+        inviteCode={summary.inviteCode}
+        inviteLink={buildInviteLink(summary.inviteCode)}
+        isAdmin={isAdmin}
+      />
+
+      {/* Notification toggle row */}
+      <GroupedSurface>
+        <div style={notificationRowStyle}>
+          <div style={notificationIconStyle}>
+            <Icon icon={Bell} size={20} colorVar="--color-leaf" />
+          </div>
+          <div style={notificationTextStyle}>
+            <span style={notificationTitleStyle}>养护提醒通知</span>
+            <span style={notificationDescStyle}>
+              接收任务到期、天气提醒等通知
+            </span>
           </div>
           <button
-            onClick={() => setLeaveSheetOpen(true)}
-            style={leaveFamilyButtonStyle}
+            onClick={() => void handleToggleNotifications()}
+            disabled={isTogglingNotif || hasSubscription === undefined}
+            style={toggleTrackStyle(notificationsEnabled)}
             type="button"
+            role="switch"
+            aria-checked={notificationsEnabled}
+            aria-label="养护提醒通知"
           >
-            退出家庭
+            <span style={toggleThumbStyle(notificationsEnabled)} />
           </button>
-          <button
-            onClick={() => setSignOutSheetOpen(true)}
-            style={logoutButtonStyle}
-            type="button"
-          >
-            退出登录
-          </button>
-        </section>
-      </SettingsGroup>
+        </div>
+      </GroupedSurface>
 
-      <SettingsGroup title="家庭">
-        <FamilyHeroCard
-          familyName={summary.familyName}
-          memberCount={summary.memberCount}
-          onRename={isAdmin ? () => setFamilyNameSheetOpen(true) : undefined}
-        />
+      {/* Members section */}
+      <GroupedSurface
+        title={`家庭成员（${summary.memberCount}）`}
+        titleIcon={Users}
+        titleAction={
+          isAdmin ? (
+            <button
+              onClick={() => navigate("/settings/members")}
+              style={manageMembersLinkStyle}
+              type="button"
+            >
+              管理成员 &gt;
+            </button>
+          ) : null
+        }
+      >
+        {summary.members.map((member, index) => {
+          const label = member.displayName?.trim() || member.email || "家庭成员";
+          return (
+            <div key={member.id}>
+              {index > 0 ? <GroupedSurfaceDivider /> : null}
+              <div style={memberRowStyle}>
+                <MemberAvatar
+                  name={member.displayName ?? member.email}
+                  imageStorageId={member.imageStorageId ?? null}
+                />
+                <div style={memberInfoStyle}>
+                  <div style={memberNameLineStyle}>
+                    <span style={memberNameStyle}>{label}</span>
+                    {member.isCurrentUser ? (
+                      <span style={selfPillStyle}>你</span>
+                    ) : null}
+                    <span
+                      style={
+                        member.role === "admin"
+                          ? roleBadgeAdminStyle
+                          : roleBadgeMemberStyle
+                      }
+                    >
+                      {formatRole(member.role)}
+                    </span>
+                  </div>
+                  <span style={memberLastActiveStyle}>
+                    最后活跃 {formatRelativeTime(member.joinedAt)}
+                  </span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </GroupedSurface>
 
-        <InviteCodeCard inviteCode={summary.inviteCode} isAdmin={isAdmin} />
+      {/* Danger actions */}
+      <div style={dangerSectionStyle}>
+        <button
+          onClick={() => setLeaveSheetOpen(true)}
+          style={dangerRowStyle}
+          type="button"
+        >
+          <div style={dangerIconStyle}>
+            <Icon icon={DoorOpen} size={20} colorVar="--color-muted" />
+          </div>
+          <div style={dangerTextStyle}>
+            <span style={dangerLabelStyle}>退出家庭</span>
+            <span style={dangerDescStyle}>你将不再是其他家庭的成员</span>
+          </div>
+          <Icon icon={ChevronRight} size={16} colorVar="--color-muted" />
+        </button>
 
-        <section style={cardStyle}>
-          <SettingCardHeader
-            eyebrow="家庭"
-            icon="👥"
-            title={`成员（${summary.memberCount}）`}
-          />
-          <MembersList isAdmin={isAdmin} members={summary.members} />
-        </section>
-      </SettingsGroup>
+        <div style={dangerDividerStyle} />
 
-      <SettingsGroup title="通知与应用">
-        <NotificationPromptCard />
-        <NotificationTroubleshooting />
-        <AboutCard />
-      </SettingsGroup>
+        <button
+          onClick={() => setSignOutSheetOpen(true)}
+          style={dangerRowStyle}
+          type="button"
+        >
+          <div style={dangerIconErrorStyle}>
+            <Icon icon={LogOut} size={20} colorVar="--color-error" />
+          </div>
+          <div style={dangerTextStyle}>
+            <span style={dangerLabelErrorStyle}>退出登录</span>
+            <span style={dangerDescStyle}>退出当前账户</span>
+          </div>
+          <Icon icon={ChevronRight} size={16} colorVar="--color-muted" />
+        </button>
+      </div>
 
-      {nicknameSheetOpen ? (
-        <NicknameEditSheet
-          currentName={myDisplayName}
-          onClose={() => setNicknameSheetOpen(false)}
-        />
-      ) : null}
-
+      {/* Sheets */}
       {familyNameSheetOpen ? (
         <FamilyNameEditSheet
           currentName={summary.familyName}
@@ -208,80 +421,362 @@ export function FamilySettingsPage() {
   );
 }
 
-const pageStyle: React.CSSProperties = {
+/* ─── Styles ─── */
+
+const pageStyle: CSSProperties = {
   display: "grid",
-  // 组间间距 --space-lg；底部预留 80px 安全区，避免被底部导航遮挡。
-  gap: "var(--space-lg)",
+  gap: "var(--space-md)",
   paddingBottom: "80px",
 };
 
-const pageTitleStyle: React.CSSProperties = {
+const headerAreaStyle: CSSProperties = {
+  display: "flex",
+  alignItems: "flex-start",
+  justifyContent: "space-between",
+  gap: "var(--space-md)",
+};
+
+const headerTextStyle: CSSProperties = {
+  display: "grid",
+  gap: "var(--space-xs)",
+};
+
+const pageTitleStyle: CSSProperties = {
   margin: 0,
   color: "var(--color-ink)",
   fontFamily: "var(--font-heading)",
-  fontSize: "24px",
+  fontSize: "28px",
   fontWeight: 700,
   lineHeight: 1.2,
 };
 
-const cardStyle: React.CSSProperties = {
-  borderRadius: "var(--radius-card)",
-  padding: "var(--space-md)",
-  background: "var(--color-surface)",
-  border: "1px solid var(--color-line)",
-  boxShadow: "var(--shadow-card)",
-  display: "grid",
-  gap: "var(--space-sm)",
-};
-
-const cardTitleStyle: React.CSSProperties = {
-  margin: 0,
-  color: "var(--color-ink)",
-  fontFamily: "var(--font-heading)",
-  fontSize: "16px",
-  fontWeight: 600,
-  lineHeight: 1.25,
-};
-
-const bodyStyle: React.CSSProperties = {
+const subtitleStyle: CSSProperties = {
   margin: 0,
   color: "var(--color-muted)",
   fontSize: "14px",
-  lineHeight: 1.5,
+  lineHeight: 1.4,
 };
 
-const rowGroupStyle: React.CSSProperties = {
-  display: "grid",
-};
-
-const dividerStyle: React.CSSProperties = {
-  height: "1px",
-  background: "var(--color-line)",
-};
-
-const logoutButtonStyle: React.CSSProperties = {
+const headerAvatarButtonStyle: CSSProperties = {
   appearance: "none",
-  width: "100%",
-  minHeight: "44px",
-  borderRadius: "var(--radius-button)",
-  background: "transparent",
-  border: "1px solid var(--color-error)",
-  color: "var(--color-error)",
+  background: "none",
+  border: "none",
+  padding: 0,
+  display: "flex",
+  alignItems: "center",
+  gap: "4px",
+  cursor: "pointer",
+  flexShrink: 0,
+};
+
+const loadingCardStyle: CSSProperties = {
+  borderRadius: "var(--radius-card)",
+  padding: "var(--space-lg)",
+  background: "var(--color-surface)",
+  border: "1px solid var(--color-line)",
+  textAlign: "center",
+};
+
+const loadingTextStyle: CSSProperties = {
+  margin: 0,
+  color: "var(--color-muted)",
   fontSize: "14px",
+};
+
+/* Family summary card */
+const familySummaryRowStyle: CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: "var(--space-sm)",
+  padding: "var(--space-md)",
+};
+
+const familyIconCircleStyle: CSSProperties = {
+  flexShrink: 0,
+  width: "40px",
+  height: "40px",
+  borderRadius: "var(--radius-pill)",
+  background: "var(--color-mist)",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+};
+
+const familySummaryInfoStyle: CSSProperties = {
+  flex: 1,
+  minWidth: 0,
+  display: "grid",
+  gap: "2px",
+};
+
+const familySummaryNameLineStyle: CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: "var(--space-xs)",
+  flexWrap: "wrap",
+};
+
+const familySummaryNameStyle: CSSProperties = {
+  fontSize: "15px",
+  fontWeight: 700,
+  color: "var(--color-ink)",
+};
+
+const adminBadgeStyle: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  padding: "2px 8px",
+  borderRadius: "var(--radius-pill)",
+  background: "var(--color-leaf)",
+  color: "var(--color-paper)",
+  fontSize: "11px",
+  fontWeight: 700,
+};
+
+const familySummaryMetaStyle: CSSProperties = {
+  margin: 0,
+  fontSize: "12px",
+  color: "var(--color-muted)",
+  lineHeight: 1.4,
+};
+
+const editLinkStyle: CSSProperties = {
+  appearance: "none",
+  flexShrink: 0,
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "4px",
+  padding: "var(--space-xs) var(--space-sm)",
+  background: "transparent",
+  border: "none",
+  color: "var(--color-leaf)",
+  fontSize: "13px",
   fontWeight: 500,
   cursor: "pointer",
 };
 
-// 退出家庭为更强的破坏性操作：红实底 + 纸白字，视觉上区别于退出登录（红描边）。
-const leaveFamilyButtonStyle: React.CSSProperties = {
+/* Notification toggle */
+const notificationRowStyle: CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: "var(--space-sm)",
+  padding: "var(--space-md)",
+};
+
+const notificationIconStyle: CSSProperties = {
+  flexShrink: 0,
+  width: "36px",
+  height: "36px",
+  borderRadius: "var(--radius-pill)",
+  background: "var(--color-mist)",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+};
+
+const notificationTextStyle: CSSProperties = {
+  flex: 1,
+  minWidth: 0,
+  display: "grid",
+  gap: "2px",
+};
+
+const notificationTitleStyle: CSSProperties = {
+  fontSize: "15px",
+  fontWeight: 600,
+  color: "var(--color-ink)",
+};
+
+const notificationDescStyle: CSSProperties = {
+  fontSize: "12px",
+  color: "var(--color-muted)",
+  lineHeight: 1.4,
+};
+
+function toggleTrackStyle(on: boolean): CSSProperties {
+  return {
+    appearance: "none",
+    flexShrink: 0,
+    position: "relative",
+    width: "48px",
+    height: "28px",
+    borderRadius: "14px",
+    border: "none",
+    background: on ? "var(--color-leaf)" : "var(--color-line)",
+    cursor: "pointer",
+    transition: "background 200ms ease",
+    padding: 0,
+  };
+}
+
+function toggleThumbStyle(on: boolean): CSSProperties {
+  return {
+    position: "absolute",
+    top: "3px",
+    left: on ? "23px" : "3px",
+    width: "22px",
+    height: "22px",
+    borderRadius: "11px",
+    background: "var(--color-paper)",
+    boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
+    transition: "left 200ms ease",
+  };
+}
+
+/* Members section */
+const manageMembersLinkStyle: CSSProperties = {
   appearance: "none",
-  width: "100%",
-  minHeight: "44px",
-  borderRadius: "var(--radius-button)",
-  background: "var(--color-error)",
-  border: "1px solid var(--color-error)",
-  color: "var(--color-paper)",
+  background: "none",
+  border: "none",
+  padding: 0,
+  color: "var(--color-leaf)",
+  fontSize: "13px",
+  fontWeight: 500,
+  cursor: "pointer",
+};
+
+const memberRowStyle: CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: "var(--space-sm)",
+  padding: "var(--space-sm) var(--space-md)",
+};
+
+const memberInfoStyle: CSSProperties = {
+  flex: 1,
+  minWidth: 0,
+  display: "grid",
+  gap: "2px",
+};
+
+const memberNameLineStyle: CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: "var(--space-xs)",
+  flexWrap: "wrap",
+};
+
+const memberNameStyle: CSSProperties = {
   fontSize: "14px",
   fontWeight: 600,
+  color: "var(--color-ink)",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+};
+
+const selfPillStyle: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  padding: "1px 6px",
+  borderRadius: "var(--radius-pill)",
+  background: "var(--color-mist)",
+  color: "var(--color-leaf)",
+  fontSize: "11px",
+  fontWeight: 700,
+};
+
+const roleBadgeAdminStyle: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  padding: "1px 6px",
+  borderRadius: "var(--radius-pill)",
+  background: "var(--color-leaf)",
+  color: "var(--color-paper)",
+  fontSize: "11px",
+  fontWeight: 700,
+};
+
+const roleBadgeMemberStyle: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  padding: "1px 6px",
+  borderRadius: "var(--radius-pill)",
+  background: "var(--color-mist)",
+  color: "var(--color-muted)",
+  border: "1px solid var(--color-line)",
+  fontSize: "11px",
+  fontWeight: 700,
+};
+
+const memberLastActiveStyle: CSSProperties = {
+  fontSize: "12px",
+  color: "var(--color-muted)",
+  lineHeight: 1.4,
+};
+
+/* Danger actions */
+const dangerSectionStyle: CSSProperties = {
+  marginTop: "var(--space-md)",
+  borderRadius: "var(--radius-card)",
+  background: "var(--color-surface)",
+  border: "1px solid var(--color-line)",
+  overflow: "hidden",
+};
+
+const dangerRowStyle: CSSProperties = {
+  appearance: "none",
+  width: "100%",
+  display: "flex",
+  alignItems: "center",
+  gap: "var(--space-sm)",
+  padding: "var(--space-md)",
+  background: "transparent",
+  border: "none",
   cursor: "pointer",
+  textAlign: "left",
+};
+
+const dangerDividerStyle: CSSProperties = {
+  height: "1px",
+  background: "var(--color-line)",
+  marginLeft: "var(--space-md)",
+  marginRight: "var(--space-md)",
+};
+
+const dangerIconStyle: CSSProperties = {
+  flexShrink: 0,
+  width: "36px",
+  height: "36px",
+  borderRadius: "var(--radius-pill)",
+  background: "var(--color-mist)",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+};
+
+const dangerIconErrorStyle: CSSProperties = {
+  flexShrink: 0,
+  width: "36px",
+  height: "36px",
+  borderRadius: "var(--radius-pill)",
+  background: "color-mix(in srgb, var(--color-error) 10%, transparent)",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+};
+
+const dangerTextStyle: CSSProperties = {
+  flex: 1,
+  minWidth: 0,
+  display: "grid",
+  gap: "2px",
+};
+
+const dangerLabelStyle: CSSProperties = {
+  fontSize: "15px",
+  fontWeight: 600,
+  color: "var(--color-ink)",
+};
+
+const dangerLabelErrorStyle: CSSProperties = {
+  fontSize: "15px",
+  fontWeight: 600,
+  color: "var(--color-error)",
+};
+
+const dangerDescStyle: CSSProperties = {
+  fontSize: "12px",
+  color: "var(--color-muted)",
+  lineHeight: 1.4,
 };

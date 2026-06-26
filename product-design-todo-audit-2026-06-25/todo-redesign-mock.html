@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Todo Redesign Mock</title>
+    <style>
+      :root {
+        --bg: #fbfcf7;
+        --surface: #ffffff;
+        --surface-soft: #edf5f1;
+        --ink: #16342f;
+        --muted: #6f8178;
+        --line: #d8e4da;
+        --primary: #1f473d;
+        --primary-2: #467061;
+        --overdue: #b4533f;
+        --overdue-soft: #fff7f2;
+        --gold: #a9743f;
+        --shadow: 0 12px 32px rgba(45, 100, 76, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: Raleway, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif;
+      }
+
+      .page {
+        width: min(100%, 520px);
+        min-height: 100vh;
+        margin: 0 auto;
+        padding: 28px 16px calc(108px + env(safe-area-inset-bottom));
+      }
+
+      .topbar {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 18px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 30px;
+        line-height: 1.12;
+        letter-spacing: 0;
+      }
+
+      .date {
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .quick {
+        min-width: 90px;
+        padding: 10px 12px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.72);
+        text-align: right;
+      }
+
+      .quick strong {
+        display: block;
+        font-size: 22px;
+        line-height: 1;
+      }
+
+      .quick span {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .summary {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 14px;
+        align-items: center;
+        padding: 16px;
+        border: 1px solid rgba(45, 140, 100, 0.14);
+        border-radius: 18px;
+        background: linear-gradient(135deg, rgba(237, 245, 241, 0.96), rgba(255, 255, 255, 0.86));
+        box-shadow: var(--shadow);
+      }
+
+      .summary-title {
+        font-size: 16px;
+        font-weight: 800;
+      }
+
+      .summary-copy {
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .metrics {
+        display: flex;
+        gap: 8px;
+        margin: 16px 0 14px;
+        overflow-x: auto;
+        padding-bottom: 2px;
+      }
+
+      .chip {
+        flex: 0 0 auto;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        min-height: 34px;
+        padding: 8px 12px;
+        border: 0;
+        border-radius: 999px;
+        background: var(--surface-soft);
+        color: var(--ink);
+        font: inherit;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .chip.active {
+        background: var(--primary);
+        color: #fff;
+      }
+
+      .chip small {
+        color: inherit;
+        opacity: 0.7;
+        font-size: 11px;
+      }
+
+      .section {
+        margin-top: 22px;
+      }
+
+      .section-head {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 10px;
+        color: var(--primary);
+        font-weight: 800;
+      }
+
+      .section-head.overdue {
+        color: var(--overdue);
+      }
+
+      .bar {
+        height: 1px;
+        background: rgba(216, 228, 218, 0.8);
+      }
+
+      .section-head span:last-child {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .group {
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: var(--surface);
+        box-shadow: 0 8px 24px rgba(35, 75, 60, 0.05);
+      }
+
+      .group.alert {
+        border-color: rgba(180, 83, 63, 0.22);
+        background: var(--overdue-soft);
+        box-shadow: 0 10px 24px rgba(180, 83, 63, 0.06);
+      }
+
+      .task {
+        display: grid;
+        grid-template-columns: 50px 1fr auto;
+        gap: 12px;
+        align-items: center;
+        min-height: 82px;
+        padding: 14px 14px;
+      }
+
+      .task + .task {
+        border-top: 1px solid rgba(216, 228, 218, 0.72);
+      }
+
+      .thumb {
+        width: 50px;
+        height: 50px;
+        border-radius: 14px;
+        border: 2px solid #fff;
+        object-fit: cover;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      }
+
+      .title-row {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        min-width: 0;
+      }
+
+      .plant {
+        font-size: 15px;
+        font-weight: 800;
+      }
+
+      .care {
+        color: var(--ink);
+        font-size: 15px;
+        font-weight: 700;
+      }
+
+      .meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 6px;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.35;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        min-height: 24px;
+        padding: 4px 9px;
+        border-radius: 999px;
+        background: var(--surface-soft);
+        color: var(--primary);
+        font-size: 12px;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+
+      .pill.alert {
+        background: #ffe9e4;
+        color: var(--overdue);
+      }
+
+      .done {
+        width: 46px;
+        height: 46px;
+        border: 2px solid var(--primary-2);
+        border-radius: 999px;
+        background: #fff;
+        color: var(--primary);
+        font-size: 18px;
+        font-weight: 900;
+      }
+
+      .activity {
+        padding: 6px 14px;
+      }
+
+      .activity-row {
+        display: grid;
+        grid-template-columns: 28px 1fr auto;
+        gap: 10px;
+        align-items: center;
+        min-height: 44px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .activity-row + .activity-row {
+        border-top: 1px solid rgba(216, 228, 218, 0.72);
+      }
+
+      .avatar {
+        display: grid;
+        place-items: center;
+        width: 26px;
+        height: 26px;
+        border-radius: 999px;
+        background: var(--gold);
+        color: #fff;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .footer-note {
+        margin: 30px 0 0;
+        color: #9aa9a1;
+        text-align: center;
+        font-size: 12px;
+      }
+
+      .nav {
+        position: fixed;
+        left: 50%;
+        bottom: 0;
+        z-index: 10;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        width: min(100%, 520px);
+        height: calc(72px + env(safe-area-inset-bottom));
+        padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+        transform: translateX(-50%);
+        border-top: 1px solid var(--line);
+        background: rgba(251, 252, 247, 0.94);
+        backdrop-filter: blur(18px);
+      }
+
+      .nav button {
+        border: 0;
+        border-radius: 18px;
+        background: transparent;
+        color: var(--muted);
+        font: inherit;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .nav button.active {
+        background: rgba(45, 140, 100, 0.1);
+        color: var(--primary);
+      }
+
+      @media (max-width: 390px) {
+        .page {
+          padding-left: 16px;
+          padding-right: 16px;
+        }
+
+        h1 {
+          font-size: 28px;
+        }
+
+        .task {
+          grid-template-columns: 48px 1fr 44px;
+          gap: 10px;
+          padding: 13px 12px;
+        }
+
+        .title-row {
+          display: block;
+        }
+
+        .care {
+          display: block;
+          margin-top: 2px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <header class="topbar">
+        <div>
+          <h1>今日待办</h1>
+          <div class="date">6月25日 周四</div>
+        </div>
+        <div class="quick">
+          <strong>4</strong>
+          <span>项待完成</span>
+        </div>
+      </header>
+
+      <section class="summary" aria-label="今日照护概览">
+        <div>
+          <div class="summary-title">发财树今天需要照顾</div>
+          <div class="summary-copy">优先处理 2 个逾期任务，今天还有喷雾和浇水。</div>
+        </div>
+        <span class="pill alert">2 项逾期</span>
+      </section>
+
+      <div class="metrics" aria-label="植物筛选">
+        <button class="chip active">全部 <small>5</small></button>
+        <button class="chip">客厅茶几 <small>5</small></button>
+      </div>
+
+      <section class="section">
+        <div class="section-head overdue">
+          <strong>逾期</strong>
+          <div class="bar"></div>
+          <span>先完成</span>
+        </div>
+        <div class="group alert">
+          <article class="task">
+            <img class="thumb" src="plant-cover.jpg" alt="发财树封面图" />
+            <div>
+              <div class="title-row">
+                <span class="plant">发财树</span>
+                <span class="care">8555</span>
+              </div>
+              <div class="meta">
+                <span>原定 6月23日</span>
+                <span class="pill alert">逾期 2 天</span>
+              </div>
+            </div>
+            <button class="done" aria-label="完成发财树8555">✓</button>
+          </article>
+          <article class="task">
+            <img class="thumb" src="plant-cover.jpg" alt="发财树封面图" />
+            <div>
+              <div class="title-row">
+                <span class="plant">发财树</span>
+                <span class="care">浇水</span>
+              </div>
+              <div class="meta">
+                <span>原定 6月23日</span>
+                <span class="pill alert">逾期 2 天</span>
+              </div>
+            </div>
+            <button class="done" aria-label="完成发财树浇水">✓</button>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <strong>今天</strong>
+          <div class="bar"></div>
+          <span>2 项</span>
+        </div>
+        <div class="group">
+          <article class="task">
+            <img class="thumb" src="plant-cover.jpg" alt="发财树封面图" />
+            <div>
+              <div class="title-row">
+                <span class="plant">发财树</span>
+                <span class="care">喷雾</span>
+              </div>
+              <div class="meta">
+                <span>6月25日</span>
+                <span class="pill">今天</span>
+              </div>
+            </div>
+            <button class="done" aria-label="完成发财树喷雾">✓</button>
+          </article>
+          <article class="task">
+            <img class="thumb" src="plant-cover.jpg" alt="发财树封面图" />
+            <div>
+              <div class="title-row">
+                <span class="plant">发财树</span>
+                <span class="care">浇水</span>
+              </div>
+              <div class="meta">
+                <span>6月25日</span>
+                <span class="pill">今天</span>
+              </div>
+            </div>
+            <button class="done" aria-label="完成发财树浇水">✓</button>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <strong>即将到期</strong>
+          <div class="bar"></div>
+          <span>1 项</span>
+        </div>
+        <div class="group">
+          <article class="task">
+            <img class="thumb" src="plant-cover.jpg" alt="发财树封面图" />
+            <div>
+              <div class="title-row">
+                <span class="plant">发财树</span>
+                <span class="care">施肥</span>
+              </div>
+              <div class="meta">
+                <span>6月27日</span>
+                <span class="pill">2天后</span>
+              </div>
+            </div>
+            <button class="done" aria-label="查看发财树施肥">›</button>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <strong>家庭动态</strong>
+          <div class="bar"></div>
+          <span>最近 5 条</span>
+        </div>
+        <div class="group activity">
+          <div class="activity-row"><span class="avatar">W</span><span>wanghong 完成了 发财树 浇水</span><span>6/22</span></div>
+          <div class="activity-row"><span class="avatar">W</span><span>wanghong 完成了 发财树 施肥</span><span>6/22</span></div>
+          <div class="activity-row"><span class="avatar">W</span><span>wanghong 完成了 发财树 喷雾</span><span>6/22</span></div>
+          <div class="activity-row"><span class="avatar">W</span><span>wanghong 完成了 发财树 8555</span><span>6/22</span></div>
+          <div class="activity-row"><span class="avatar">W</span><span>wanghong 完成了 发财树 浇水</span><span>6/16</span></div>
+        </div>
+      </section>
+
+      <p class="footer-note">用心照顾，让每一株植物都被温柔以待</p>
+    </main>
+
+    <nav class="nav" aria-label="主导航">
+      <button class="active">待办</button>
+      <button>植物</button>
+      <button>设置</button>
+    </nav>
+  </body>
+</html>
